@@ -1,57 +1,88 @@
 # STAQ Estimation Testbed (SET v0)
 
-A deterministic framework for evaluating physical state estimation under degraded observability.
+A deterministic evaluation framework for state estimation under degraded observability in physical and signal-based systems.
 
 ---
 
 ## Purpose
 
-To measure how accurately system state can be reconstructed when sensor inputs are incomplete, noisy, delayed, or corrupted.
+To evaluate how accurately latent system states can be reconstructed when observations are:
+- noisy  
+- incomplete  
+- delayed  
+- drifted  
+- intermittently unavailable  
+
+The focus is on controlled degradation of observability and measurement integrity.
 
 ---
 
 ## System Model
 
-Physical system state is inferred through a closed loop:
+The framework is structured as a closed-loop estimation pipeline:
 
-Physical dynamics  
-→ Sensors (GNSS / IMU)  
-→ Degradation (noise, drift, dropout, latency)  
-→ State estimation (e.g. Kalman filter, dead reckoning)  
-→ Error evaluation against ground truth
+**Physical system dynamics**  
+→ **Observation layer (sensors / telemetry)**  
+→ **Degradation layer (noise, drift, dropout, latency, corruption)**  
+→ **State estimator (e.g. Kalman filter, dead reckoning, particle methods)**  
+→ **Evaluation layer (error vs ground truth)**  
 
 ---
 
 ## Core Objective
 
-Quantify reconstruction error of latent system state under controlled failure modes.
+Quantitatively measure reconstruction accuracy of latent system state under systematically controlled failure modes.
 
 ---
 
 ## Components
 
-- State model: generates ground truth trajectories  
-- Sensor model: produces observations from state  
-- Degradation model: applies controlled signal corruption  
-- Estimator: reconstructs state from observations  
-- Metrics: computes deviation from ground truth  
+### 1. State Model
+Generates ground-truth trajectories of a dynamical system.
+
+### 2. Observation Model
+Maps latent state into measurable signals (e.g. GNSS, IMU, synthetic telemetry).
+
+### 3. Degradation Model
+Applies controlled impairments to observations, including:
+- stochastic noise injection  
+- temporal delay  
+- signal dropout  
+- bias / drift  
+- quantization or compression effects  
+
+### 4. Estimation Layer
+Reconstructs latent state from degraded observations using configurable inference methods.
+
+### 5. Evaluation Layer
+Computes deviation metrics between estimated state and ground truth, including:
+- positional error  
+- velocity error  
+- trajectory divergence  
+- stability under drift conditions  
 
 ---
 
-## Constraints
+## Experimental Constraints
 
-- Fully deterministic execution  
-- Seed-controlled randomness  
-- Reproducible experiments  
-- Swappable components  
+- Fully deterministic execution environment  
+- Seed-controlled stochastic processes  
+- Reproducible simulation runs  
+- Modular and swappable system components  
+- Consistent evaluation metrics across experiments  
 
 ---
 
-## Scope
+## Scope Definition
 
-This system is not a robotics stack, physics engine, or ML framework.
+This framework is an evaluation environment for state inference under degraded observability conditions.
 
-It is an evaluation environment for state inference under degraded observability.
+It is designed for:
+- comparative estimator analysis  
+- robustness testing under controlled signal degradation  
+- structured evaluation of inference stability  
+
+It is not a robotics stack, control system, or machine learning training framework.
 
 ---
 
