@@ -1,4 +1,4 @@
-# STAQ Estimation Testbed (SET v0)
+# Estimation Testbed (SET v0) For Sensory, Telemetry and Quadrature
 
 A deterministic evaluation framework for state estimation under degraded observability in physical and signal-based systems.
 
@@ -6,66 +6,115 @@ A deterministic evaluation framework for state estimation under degraded observa
 
 ## Purpose
 
-To evaluate how accurately latent system states can be reconstructed when observations are:
+SET evaluates reconstruction fidelity of latent system states under controlled observability degradation.
+
+It is designed to quantify estimator robustness when observations are:
+
 - noisy  
 - incomplete  
 - delayed  
 - drifted  
 - intermittently unavailable  
 
-The focus is on controlled degradation of observability and measurement integrity.
+The focus is on controlled failure injection and reproducible estimation stress testing.
 
 ---
 
 ## System Model
 
-The framework is structured as a closed-loop estimation pipeline:
+SET is structured as a closed-loop evaluation pipeline:
 
-**Physical system dynamics**  
-→ **Observation layer (sensors / telemetry)**  
-→ **Degradation layer (noise, drift, dropout, latency, corruption)**  
-→ **State estimator (e.g. Kalman filter, dead reckoning, particle methods)**  
-→ **Evaluation layer (error vs ground truth)**  
+
+Physical Dynamics
+↓
+Observation Layer (Sensors / Telemetry)
+↓
+Degradation Layer (Noise / Drift / Dropout / Latency / Corruption)
+↓
+Estimation Layer (State Reconstruction)
+↓
+Evaluation Layer (Error vs Ground Truth)
+
 
 ---
 
 ## Core Objective
 
-Quantitatively measure reconstruction accuracy of latent system state under systematically controlled failure modes.
+To measure:
+
+> how accurately a latent system state can be reconstructed under systematically controlled observability failure modes.
 
 ---
 
 ## Components
 
 ### 1. State Model
-Generates ground-truth trajectories of a dynamical system.
+Generates ground-truth trajectories for a dynamical system.
+
+Defines:
+- motion dynamics  
+- ground-truth evolution  
+- controllable system parameters  
+
+---
 
 ### 2. Observation Model
-Maps latent state into measurable signals (e.g. GNSS, IMU, synthetic telemetry).
+Maps latent state into sensor space:
+
+Examples:
+- GNSS-like position outputs  
+- IMU-style inertial measurements  
+- synthetic telemetry signals  
+
+Produces:
+\[
+y(t) = h(x(t)) + \epsilon(t)
+\]
+
+---
 
 ### 3. Degradation Model
-Applies controlled impairments to observations, including:
-- stochastic noise injection  
+Applies controlled corruption to observations:
+
+- stochastic noise  
 - temporal delay  
-- signal dropout  
+- packet dropout  
 - bias / drift  
-- quantization or compression effects  
+- quantization / compression effects  
+
+Defines the observability failure regime.
+
+---
 
 ### 4. Estimation Layer
-Reconstructs latent state from degraded observations using configurable inference methods.
+Reconstructs latent state from degraded observations using interchangeable estimators:
+
+- Kalman / extended Kalman variants  
+- dead reckoning models  
+- particle filters  
+- custom inference systems  
+
+Outputs:
+\[
+\hat{x}(t)
+\]
+
+---
 
 ### 5. Evaluation Layer
-Computes deviation metrics between estimated state and ground truth, including:
+Computes reconstruction error against ground truth:
+
 - positional error  
 - velocity error  
 - trajectory divergence  
-- stability under drift conditions  
+- stability under drift  
+- long-horizon consistency  
 
 ---
 
 ## Experimental Constraints
 
-- Fully deterministic execution environment  
+- Fully deterministic execution  
 - Seed-controlled stochastic processes  
 - Reproducible simulation runs  
 - Modular and swappable system components  
@@ -75,14 +124,30 @@ Computes deviation metrics between estimated state and ground truth, including:
 
 ## Scope Definition
 
-This framework is an evaluation environment for state inference under degraded observability conditions.
+SET is strictly an **evaluation and benchmarking environment**.
 
-It is designed for:
-- comparative estimator analysis  
-- robustness testing under controlled signal degradation  
+It is intended for:
+
+- estimator comparison under identical failure conditions  
+- robustness analysis under controlled degradation  
 - structured evaluation of inference stability  
 
-It is not a robotics stack, control system, or machine learning training framework.
+It is not:
+- a robotics stack  
+- a control system  
+- a machine learning training framework  
+
+---
+
+## Relationship to STAQ Architecture
+
+SET defines the **evaluation substrate** for:
+
+- lattice-based estimators  
+- geodesic coordinate systems  
+- coupled inference systems  
+
+It provides the controlled environment in which these systems are tested and compared.
 
 ---
 
