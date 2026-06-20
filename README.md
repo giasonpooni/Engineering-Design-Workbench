@@ -1,3 +1,5 @@
+# STAQ Estimation Testbed (SET v0)
+
 A deterministic framework for evaluating physical state estimation under degraded observability.
 
 ---
