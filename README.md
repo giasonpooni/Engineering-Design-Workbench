@@ -1,4 +1,4 @@
-# 🧠 State-Inferential-Cortex (SIC)
+# 🧠 State-Inferential-Cortex-SIC
 
 A spatiotemporal state reconstruction engine for inference over constraint-defined geometric manifolds.
 
