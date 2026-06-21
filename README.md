@@ -1,13 +1,10 @@
-# Lattice-Constraint-Module-STAQ
-Graph-based physics constraint projection module for enforcing global consistency in distributed state estimation systems.
+# Lattice-Calibration-Module (LCM)
 
-# STAQ-Lattice-Constraint-Module (SLCM)
+Graph-based physics constraint and stability projection module for enforcing global consistency in distributed spatiotemporal state estimation systems.
 
-The **STAQ-Lattice-Constraint-Module (SLCM)** is a graph-structured constraint enforcement engine designed for physics-informed state estimation systems.
+The **STAQ-Lattice-Constraint-Module (SLCM)** is a deterministic graph-structured constraint enforcement engine designed for physics-informed inference over spatiotemporal fields.
 
-It provides a deterministic projection layer that ensures multi-variable dynamical systems remain physically consistent under uncertainty, sensor noise, and model error.
-
-SLCM is designed to operate as a **middleware module** between state estimators (Kalman filters, neural state-space models, PINNs, or hybrid systems) and final control or inference outputs.
+It operates as a **middleware projection layer** between state estimators (Kalman filters, PINNs, neural state-space models, hybrid inference systems) and downstream control or decision systems.
 
 ---
 
@@ -15,166 +12,315 @@ SLCM is designed to operate as a **middleware module** between state estimators 
 
 Modern state estimation systems often produce outputs that are:
 
-- locally accurate but globally inconsistent
-- statistically valid but physically invalid
-- stable in prediction but unstable under constraints
+- locally consistent but globally invalid  
+- statistically plausible but physically inconsistent  
+- numerically stable but dynamically unstable over time  
 
-SLCM solves this by enforcing:
+SLCM resolves this by enforcing:
 
-> Global constraint consistency over a graph-structured state space via iterative projection onto a physics-defined manifold.
+> Global constraint + stability consistency over a graph-structured spatiotemporal state field.
 
 ---
 
-## System Overview
+## Signal Model (UPDATED)
 
-SLCM operates on a graph:
+SLCM operates on a spatiotemporal field:
 
-G = (V, E)
+\[
+I(x, y, t)
+\]
 
 Where:
+- \(x, y\) = spatial manifold coordinates  
+- \(t\) = temporal evolution parameter  
+- value = system state / measurement density / physical signal encoding  
 
-- **V (nodes):** state variables (position, velocity, pressure, temperature, etc.)
-- **E (edges):** physical or structural constraints between variables
+All estimation is interpreted as inference over this field rather than static vectors.
 
-Each edge encodes a constraint function:
+---
 
-g_ij(x_i, x_j) = 0
+## System Model
+
+SLCM operates over a graph:
+
+\[
+G = (V, E)
+\]
+
+Where:
+- **V (nodes):** state variables embedded in the field (position, velocity, pressure, etc.)
+- **E (edges):** physical constraints between variables
+
+Each edge encodes:
+
+\[
+g_{ij}(x_i, x_j) = 0
+\]
+
+representing physical or structural laws.
+
 ---
 
 ## Architecture
 
-SLCM consists of four internal components:
+SLCM consists of five internal components:
+
+---
 
 ### 1. Constraint Compiler
-Transforms physical laws into graph constraints.
+
+Transforms physical laws into graph constraints:
 
 Examples:
-- conservation of mass → sum constraints
-- rigid body motion → distance constraints
-- fluid continuity → divergence constraints
+- conservation laws → sum constraints  
+- rigid body motion → distance invariants  
+- fluid dynamics → divergence constraints  
+- coupling dynamics → relational constraints  
+
+Outputs:
+
+\[
+G = (V, E, g_{ij})
+\]
 
 ---
 
 ### 2. Residual Interface
-Accepts estimated state inputs from upstream models:
 
+Receives upstream estimator output:
 
-x̃ = x_physics + x_residual
+\[
+\tilde{x} = x_{est} + \epsilon
+\]
 
+Where:
+- \(x_{est}\) = predicted state  
+- \(\epsilon\) = residual error / noise  
 
-Prepares them for projection into the constraint manifold.
+Prepares input for projection onto constraint + stability manifolds.
 
 ---
 
 ### 3. Projection Solver
-Iteratively minimizes constraint violation:
 
+Solves a constrained + stability-regularized optimization problem:
 
-x* = argmin_x ||x - x̃||² + λ Σ ||g_ij(x_i, x_j)||²
+\[
+x^* =
+\arg\min_x
+\|x - \tilde{x}\|^2
++
+\lambda \sum_{i,j} \|g_{ij}(x_i, x_j)\|^2
++
+\mu V(x,t)
+\]
 
+Where:
+- constraint term enforces physical validity  
+- \(V(x,t)\) enforces Lyapunov stability (temporal consistency)  
+- \(\mu\) controls stability strength  
 
 Implemented via:
-- Gauss-Seidel relaxation
-- ADMM optimization (recommended)
-- gradient-based projection
+- Gauss-Seidel relaxation  
+- ADMM optimization (preferred)  
+- gradient-based projection methods  
 
 ---
 
-### 4. Stability Governor
-Ensures numerical stability:
+### 4. Lyapunov Stability Governor (NEW CORE LAYER)
 
-- step-size bounding
-- damping of oscillations
-- convergence thresholds
-- iteration caps
+Ensures temporal validity of system evolution:
+
+\[
+V(x_{t+1}) \leq V(x_t)
+\]
+
+Where:
+- \(V(x,t)\) = system instability / energy function  
+
+Interpreted as:
+> only energy-non-increasing transitions are admissible
+
+This layer ensures:
+- drift suppression over time  
+- rejection of unstable but constraint-valid states  
+- convergence of inferred trajectories  
+- stability-aware reconstruction dynamics  
+
+---
+
+### 5. Stability + Constraint Enforcement Kernel
+
+Combines:
+
+- constraint projection  
+- Lyapunov filtering  
+- iterative damping  
+
+Ensures:
+
+- physically valid states  
+- temporally stable evolution  
+- bounded numerical behavior  
 
 ---
 
 ## Operating Modes
 
-### HARD CONSTRAINT MODE
-- strict enforcement of physical laws
-- used in robotics, navigation, control systems
+### 🟢 HARD MODE (PNG Mode)
+- strict constraint enforcement  
+- strict Lyapunov stability  
+- deterministic reconstruction  
+- used for SET validation and ground truth alignment  
 
-### SOFT CONSTRAINT MODE
-- probabilistic constraint enforcement
-- used in noisy environments (atmospheric, sensor fusion, etc.)
+\[
+\mathcal{O}(x) = x
+\]
+
+(identity projection under full constraints)
+
+---
+
+### 🔴 SOFT MODE (JPEG Mode)
+- approximate constraint satisfaction  
+- energy-reducing projection  
+- stability-biased compression  
+- used for real-time or edge inference  
+
+\[
+\mathcal{O}(x) = \Pi_{V}(x)
+\]
+
+where \(V\) defines low-energy stable subspace
 
 ---
 
 ## Integration Model
 
-SLCM is designed to sit between estimation and output layers:
+SLCM sits between estimation and output layers:
 
 
 Sensor Data
 ↓
-State Estimator (Kalman / NN / PINN)
+State Estimator (Kalman / PINN / GP / NN)
 ↓
-Residual Correction Model
+Residual Interface
 ↓
-SLCM (Constraint Projection Layer)
+SLCM (Constraint + Lyapunov Projection Layer)
 ↓
 Final State Output
 
-
-Optionally paired with an independent estimator for validation.
 
 ---
 
 ## Key Properties
 
 ### ✔ Physics Consistency
-Ensures outputs satisfy global constraints.
+Ensures global satisfaction of physical constraints.
+
+### ✔ Stability Enforcement
+Prevents unstable temporal evolution via Lyapunov filtering.
 
 ### ✔ Graph Locality
-Each constraint only affects neighboring nodes.
+Each constraint operates locally but propagates globally.
 
-### ✔ Modular Design
-Constraints are independent, composable operators.
+### ✔ Deterministic Projection
+No stochastic ambiguity in constraint enforcement.
 
-### ✔ Hardware-Friendly
-Projection steps can be parallelized across edges.
+### ✔ Hardware Parallelism
+Edge-based parallel execution across graph structure.
 
 ---
 
 ## Example Use Cases
 
-- GNSS/INS sensor fusion
-- robotics kinematic consistency enforcement
-- atmospheric state estimation
-- multi-agent coordination systems
-- industrial control systems with distributed sensors
+- GNSS / RTK sensor fusion  
+- robotics kinematic constraint enforcement  
+- multi-agent coordination systems  
+- atmospheric and fluid state estimation  
+- industrial control systems  
+- distributed cyber-physical monitoring  
 
 ---
 
-## Minimal Python Interface (Prototype)
+## Architecture Overview
 
-```python
-class SLCM:
-    def __init__(self, graph, lambda_=1.0):
-        self.graph = graph
-        self.lambda_ = lambda_
 
-    def step(self, x, iterations=10):
-        for _ in range(iterations):
-            for edge in self.graph.edges:
-                i, j = edge.i, edge.j
-                violation = edge.constraint(x[i], x[j])
+constraint/
+→ physical law compilation
 
-                correction = edge.gradient(violation)
+residual/
+→ estimator correction interface
 
-                x[i] -= self.lambda_ * correction
-                x[j] += self.lambda_ * correction
+solver/
+→ optimization + projection engine
 
-        return x
-Mathematical Formulation
+lyapunov/
+→ stability evaluation and filtering
 
-SLCM solves:
+modes/
+→ PNG (exact) / JPEG (energy projection)
 
-min_x ||x - x̃||² + λ Σ_(i,j) ||g_ij(x_i, x_j)||²
+export/
+→ STAQ-compatible state output
 
-subject to convergence constraints:
 
-||∇g_ij|| bounded
-step_size < ε
+---
+
+## Design Constraints
+
+- C++17 or higher  
+- deterministic execution required  
+- modular constraint backend  
+- real-time or near real-time capability  
+- hardware-accelerated compatibility (GPU / FPGA optional)  
+- no dependency on ML frameworks required  
+
+---
+
+## System Outputs
+
+### Geometric Output
+- constraint-satisfying state vectors  
+- manifold-aligned representations  
+
+### Constraint Output
+- validated graph G=(V,E)  
+- satisfied physical relationships  
+
+### Stability Output
+- Lyapunov field V(x,t)  
+- stability-certified trajectories  
+
+### Field Output
+- spatiotemporal state representation I(x,y,t)  
+- multi-resolution encoding (PNG/JPEG modes)  
+
+---
+
+## Relationship to STAQ Stack
+
+SLCM is the **constraint + stability enforcement layer** of STAQ.
+
+It provides:
+
+- physical validity enforcement for GCE  
+- stability filtering for estimators  
+- projection layer for SICRE-derived structures  
+- runtime correction layer for SET evaluation  
+- consistency enforcement for full STAQ field dynamics  
+
+---
+
+## Scope Definition
+
+SLCM is not:
+
+- a machine learning model  
+- a probabilistic inference engine  
+- a simulation framework  
+- a training system  
+
+It is:
+
+> a deterministic constraint + Lyapunov stability projection engine for spatiotemporal state reconstruct
