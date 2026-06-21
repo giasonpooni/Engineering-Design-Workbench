@@ -2,7 +2,7 @@
 
 A deterministic evaluation framework for state estimation under degraded observability in physical and signal-based systems.
 
-Part of the STAQ Cyber-Physical Inference and Calibration Stack.
+Part of the **STAQ Cyber-Physical Inference and Calibration Stack**.
 
 ---
 
@@ -18,13 +18,14 @@ It quantifies estimator robustness when observations are:
 - drifted  
 - intermittently unavailable  
 
-The focus is controlled failure injection with fully reproducible evaluation dynamics.
+The framework focuses on **controlled failure injection with fully reproducible evaluation dynamics**.
 
 ---
 
 ## System Model
 
 SET is structured as a closed-loop evaluation pipeline:
+
 
 Physical Dynamics
 ↓
@@ -36,6 +37,8 @@ Estimation Layer (State Reconstruction)
 ↓
 Evaluation Layer (Error vs Ground Truth)
 
+
+---
 
 ## Core Objective
 
@@ -52,7 +55,7 @@ Generates ground-truth trajectories of a dynamical system:
 
 - motion dynamics  
 - latent state evolution  
-- controllable system parameters  
+- configurable system parameters  
 
 ---
 
@@ -60,11 +63,12 @@ Generates ground-truth trajectories of a dynamical system:
 Maps latent state into measurement space:
 
 Examples:
+
 - GNSS-like position outputs  
 - IMU inertial measurements  
 - synthetic telemetry signals  
 
-Produces:
+Mathematically:
 
 \[
 y(t) = h(x(t)) + \epsilon(t)
@@ -78,8 +82,8 @@ Imposes controlled observability breakdown:
 - stochastic noise  
 - temporal delay  
 - packet dropout  
-- bias / drift  
-- quantization / compression  
+- bias and drift  
+- quantization and compression effects  
 
 Defines the measurement corruption regime:
 
@@ -90,10 +94,10 @@ Defines the measurement corruption regime:
 ### 4. Estimation Layer
 Reconstructs latent state from degraded observations using interchangeable estimators:
 
-- Kalman / extended Kalman filters  
-- dead reckoning models  
-- particle filters  
-- custom inference systems (e.g. lattice-coupled estimators)
+- Kalman / Extended Kalman Filters  
+- Particle Filters  
+- Dead-reckoning models  
+- Custom inference systems (e.g. lattice-coupled estimators)  
 
 Outputs:
 
@@ -109,10 +113,10 @@ Computes reconstruction error relative to ground truth:
 - positional error  
 - velocity error  
 - trajectory divergence  
-- stability under drift  
-- long-horizon consistency  
+- drift accumulation  
+- long-horizon stability  
 
-Defines estimator performance under degradation regimes.
+Enables structured comparison of estimator performance under identical degradation regimes.
 
 ---
 
@@ -121,8 +125,8 @@ Defines estimator performance under degradation regimes.
 - Fully deterministic execution  
 - Seed-controlled stochastic processes  
 - Reproducible simulation runs  
-- Modular and swappable system components  
-- Consistent evaluation metrics across experiments  
+- Modular and swappable components  
+- Consistent metrics across experiments  
 
 ---
 
@@ -133,23 +137,24 @@ SET is strictly a deterministic evaluation and benchmarking environment.
 It is intended for:
 
 - estimator comparison under identical failure conditions  
-- robustness analysis under controlled degradation  
+- robustness analysis under controlled degradation regimes  
 - structured evaluation of inference stability  
 
 It is not:
-- a robotics stack  
-- a control system  
+
+- a robotics control stack  
 - a machine learning training framework  
+- an autonomous decision system  
 
 ---
 
 ## Relationship to STAQ Architecture
 
-SET defines the evaluation substrate for STAQ systems:
+SET defines the evaluation substrate for the STAQ ecosystem:
 
-- lattice-based estimators (LCF)  
-- geodesic coordinate systems (GCE)  
-- structural reconstruction systems (SICRE)  
+- Lattice Constraint Framework (LCF)  
+- Geodesic Coordinate Engine (GCE)  
+- Structural Reconstruction Engine (SICRE)  
 
 It provides the controlled environment in which these systems are evaluated, compared, and stress-tested.
 
