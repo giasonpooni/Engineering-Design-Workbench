@@ -1,42 +1,24 @@
-# Estimation Testbed (SET v0) for Sensor, Telemetry, and Quadrature Systems
+# 📊 State Estimation Testbed (SET v0)
 
-A deterministic evaluation framework for state estimation under degraded observability in physical and signal-based systems.
+A deterministic evaluation framework for spatiotemporal state reconstruction under degraded observability in physical field systems.
 
-Part of the **STAQ Cyber-Physical Inference and Calibration Stack**.
+Part of the **STAQ Lyapunov-stabilized inference and calibration stack**.
 
 ---
 
 ## Purpose
 
-SET evaluates reconstruction fidelity of latent system states under controlled observability degradation.
+SET evaluates reconstruction fidelity of latent **spatiotemporal state fields** under controlled observability degradation.
 
-It quantifies estimator robustness when observations are:
+It quantifies how well a system reconstructs:
 
-- noisy  
-- incomplete  
-- delayed  
-- drifted  
-- intermittently unavailable  
+\[
+I(x, y, t)
+\]
 
-The framework focuses on **controlled failure injection with fully reproducible evaluation dynamics**.
+when observations are corrupted, incomplete, delayed, or spectrally compressed.
 
----
-
-## System Model
-
-SET is structured as a closed-loop evaluation pipeline:
-
-
-Physical Dynamics
-↓
-Observation Layer (Sensors / Telemetry)
-↓
-Degradation Layer (Noise / Drift / Dropout / Latency / Corruption)
-↓
-Estimation Layer (State Reconstruction)
-↓
-Evaluation Layer (Error vs Ground Truth)
-
+It focuses on **controlled failure injection with fully reproducible evaluation dynamics**.
 
 ---
 
@@ -44,79 +26,133 @@ Evaluation Layer (Error vs Ground Truth)
 
 To measure:
 
-> how accurately a latent system state can be reconstructed under systematically controlled observability failure regimes.
+> how accurately a latent spatiotemporal field can be reconstructed under structured observability degradation regimes.
+
+---
+
+## System Model
+
+SET is structured as a closed-loop field inference evaluation pipeline:
+
+
+Spatiotemporal Ground Truth Field I(x,y,t)
+↓
+Observation Operator h(·)
+↓
+Degradation Layer (Noise / Drift / Dropout / Latency / JPEG-like compression)
+↓
+Estimation Layer (State Reconstruction)
+↓
+LCM Calibration Layer (Constraint + Stability Projection)
+↓
+Evaluation Layer (Error + Stability Metrics vs Ground Truth)
+
 
 ---
 
 ## Components
 
-### 1. State Model
-Generates ground-truth trajectories of a dynamical system:
+### 1. Field State Model
 
-- motion dynamics  
-- latent state evolution  
-- configurable system parameters  
+Generates ground-truth evolution of a continuous system:
+
+- spatial dynamics  
+- temporal evolution  
+- phase structure (quadrature decomposition)  
+- structural deformation  
 
 ---
 
 ### 2. Observation Model
-Maps latent state into measurement space:
 
-Examples:
-
-- GNSS-like position outputs  
-- IMU inertial measurements  
-- synthetic telemetry signals  
-
-Mathematically:
+Maps field → measurable signals:
 
 \[
-y(t) = h(x(t)) + \epsilon(t)
+y(t) = h(I(x,y,t)) + \epsilon(t)
 \]
+
+Includes:
+
+- GNSS-like sampling  
+- IMU / inertial projections  
+- telemetry streams  
+- quadrature-phase signals  
 
 ---
 
 ### 3. Degradation Model
-Imposes controlled observability breakdown:
+
+Simulates controlled loss of observability:
 
 - stochastic noise  
+- drift and bias  
 - temporal delay  
 - packet dropout  
-- bias and drift  
-- quantization and compression effects  
+- quantization  
+- JPEG-like spectral compression (lossy projection operator)  
+- PNG lossless sampling (ground-truth anchor mode)  
 
-Defines the measurement corruption regime:
+Defines:
 
-> how observability fails over time
+> how field observability collapses over time
 
 ---
 
 ### 4. Estimation Layer
-Reconstructs latent state from degraded observations using interchangeable estimators:
+
+Reconstructs latent field:
 
 - Kalman / Extended Kalman Filters  
 - Particle Filters  
-- Dead-reckoning models  
-- Custom inference systems (e.g. lattice-coupled estimators)  
+- PINNs  
+- graph-based estimators  
+- STAQ hybrid inference systems  
 
 Outputs:
 
 \[
-\hat{x}(t)
+\hat{I}(x,y,t)
 \]
 
 ---
 
-### 5. Evaluation Layer
-Computes reconstruction error relative to ground truth:
+### 5. Lattice-Calibration Layer (LCM)
 
-- positional error  
-- velocity error  
-- trajectory divergence  
-- drift accumulation  
-- long-horizon stability  
+Projects reconstructed state onto:
 
-Enables structured comparison of estimator performance under identical degradation regimes.
+- constraint manifold  
+- physically valid state space  
+- Lyapunov-stabilized region  
+
+Ensures:
+
+- geometric consistency  
+- physical validity  
+- temporal stability  
+
+---
+
+### 6. Evaluation Layer
+
+Computes multi-domain error:
+
+#### Spatial error
+- geodesic deviation on manifold  
+
+#### Temporal error
+- drift accumulation over time  
+
+#### Spectral error
+- ω-domain distortion (loss of structure vs motion separation)
+
+#### Stability error
+- Lyapunov violation:
+\[
+V(x_{t+1}) \leq V(x_t)
+\]
+
+#### Constraint error
+- manifold projection residual  
 
 ---
 
@@ -125,41 +161,50 @@ Enables structured comparison of estimator performance under identical degradati
 - Fully deterministic execution  
 - Seed-controlled stochastic processes  
 - Reproducible simulation runs  
-- Modular and swappable components  
-- Consistent metrics across experiments  
+- Modular estimator injection  
+- Consistent cross-system metrics  
 
 ---
 
 ## Scope Definition
 
-SET is strictly a deterministic evaluation and benchmarking environment.
+SET is NOT:
 
-It is intended for:
-
-- estimator comparison under identical failure conditions  
-- robustness analysis under controlled degradation regimes  
-- structured evaluation of inference stability  
-
-It is not:
-
-- a robotics control stack  
+- a robotics control system  
 - a machine learning training framework  
-- an autonomous decision system  
+- an autonomous decision engine  
+
+It IS:
+
+> a deterministic evaluation substrate for spatiotemporal field reconstruction systems under controlled observability failure regimes  
 
 ---
 
 ## Relationship to STAQ Architecture
 
-SET defines the evaluation substrate for the STAQ ecosystem:
+SET evaluates:
 
-- Lattice Constraint Framework (LCF)  
-- Geodesic Coordinate Engine (GCE)  
-- Structural Reconstruction Engine (SICRE)  
+- **GCE** → geometric correctness of reconstruction  
+- **SICRE** → structural validity of ingestion  
+- **LCM** → constraint + stability enforcement  
+- **Estimator stack** → inference quality under degradation  
+- **JPEG/PNG operators** → spectral vs lossless field reconstruction modes  
 
-It provides the controlled environment in which these systems are evaluated, compared, and stress-tested.
+---
+
+## Key Conceptual Shift
+
+SET does NOT evaluate “accuracy”.
+
+It evaluates:
+
+> stability of reconstructed reality under degraded observability
 
 ---
 
 ## License
 
 Apache 2.0
+```
+
+---
