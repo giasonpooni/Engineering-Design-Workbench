@@ -28,9 +28,10 @@ The release is accepted only when the checks in
 ## Portfolio role
 
 This project owns polygon gluing, cone singularities, and translation-surface
-trajectory dynamics. The Flat-Torus Geodesic Reference remains the exact genus-one
-oracle. Curved-Surface Geodesic Sensitivity owns Jacobi propagation. Intrinsic
-Surface Geodesics owns triangle-mesh distance and path algorithms.
+trajectory dynamics. The [Flat-Torus Geodesic Reference](https://github.com/giasonpooni/Flat-Torus-Geodesic-Reference)
+remains the exact genus-one oracle. [Curved-Surface Geodesic Sensitivity](https://github.com/giasonpooni/Curved-Surface-Geodesic-Sensitivity)
+owns Jacobi propagation. [Intrinsic Surface Geodesics](https://github.com/giasonpooni/Intrinsic-Surface-Geodesics-Testbed)
+owns triangle-mesh distance and path algorithms.
 
 Potential later applications include periodic tool-path studies and coverage on
 developable or piecewise-developed domains. Those are hypotheses until tested
