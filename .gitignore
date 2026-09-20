@@ -4,3 +4,14 @@ __pycache__/
 .venv/
 dist/
 build/
+
+# Local development notes and coordination
+/AGENTS.md
+/CLAUDE.md
+/.agents/
+/.claude/
+/.codex/
+/docs/*HANDOFF*
+/docs/*ROADMAP*
+/internal/
+/private/

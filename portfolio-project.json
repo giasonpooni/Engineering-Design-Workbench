@@ -3,10 +3,6 @@
   "project": "Translation-Surface-Dynamics-Explorer",
   "status": "planned",
   "claim_scope": "polygon-gluing-and-translation-flow",
-  "first_reference_objects": [
-    "square-torus-oracle",
-    "l-shaped-genus-two-surface"
-  ],
   "required_evidence": [
     "input-declaration",
     "invariant-checks",
