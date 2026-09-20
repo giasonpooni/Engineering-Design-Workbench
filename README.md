@@ -15,6 +15,13 @@ FSRT is a Python research toolkit for water levels, flow gauges and storage meas
 
 The aim is to help investigate degrading measurements: **when did the readings stop agreeing, what could explain the difference, and what can this sensor arrangement actually detect?**
 
+The upstream acquisition component is now named
+[Provenance-Preserving Data Acquisition](https://github.com/giasonpooni/Provenance-Preserving-Data-Acquisition).
+The `daf` package, `set_lcm.bridge.daf` interface, recorded source URLs, and
+acquisition commit pins retain their historical identities. The new repository
+name does not change the evidence or imply that these experiments were rerun
+against its current revision.
+
 ## A practical example
 
 A reservoir has measurements of stored water, incoming flow and outgoing flow. Over the same time interval, conservation relates them:

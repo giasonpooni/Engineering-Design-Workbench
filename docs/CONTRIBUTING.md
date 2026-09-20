@@ -21,7 +21,7 @@ The camera prototype delivers fixed-marker vertical image registration. It does 
 | `src/set_lcm/camera_fusion.py` | Camera/gauge comparison and per-time fusion with full shared covariance and retained raw disagreement. |
 | `src/set_lcm/recording.py`, `recording_clock.py` | Blank recording kits and bounded preflight checks of declared files, identities, observation support and capture clocks. |
 | `src/set_lcm/testbed/` | Estimators, arrival-aware runner, CUSUM, simulation and evaluators. |
-| `src/set_lcm/bridge/daf.py` | Explicit selection and admission of supported DAF evidence. |
+| `src/set_lcm/bridge/daf.py` | Explicit selection and admission of supported evidence from [Provenance-Preserving Data Acquisition](https://github.com/giasonpooni/Provenance-Preserving-Data-Acquisition), retaining the historical `daf` interface and recorded pins. |
 | `src/set_lcm/experiments/` | Reproducible scenarios, calibration, sweeps and real-data reports. |
 | `data/daf/` | Committed replay evidence, manifest and acquisition provenance. |
 
