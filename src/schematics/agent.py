@@ -8,7 +8,7 @@ from .adapters.chart import call_coordinate_consistency
 from .adapters.covariance import call_first_order_covariance
 from .adapters.jspt import call_jacobian_at, call_perturbation_sweep
 from .adapters.plsr import call_evaluate
-from .adapters.rci import bind_digest
+from .adapters.rci import bind_digest, bind_record
 from .adapters.structure import call_local_structure
 from .annotate import apply_decision, observer_next_step, set_observer_status
 from .eligibility import Decision, decide
@@ -34,7 +34,17 @@ def _drop_stale_lyapunov(schematic: Schematic, function_id: str) -> None:
         schematic.edges = [e for e in schematic.edges if e.src != stale and e.dst != stale]
 
 
-def run(schematic: Schematic, *, attach_fixture_A: bool = False, call_jspt: bool = False, call_plsr: bool = False, rci_digest: str | None = None) -> AgentReport:
+def run(
+    schematic: Schematic,
+    *,
+    attach_fixture_A: bool = False,
+    call_jspt: bool = False,
+    call_plsr: bool = False,
+    rci_digest: str | None = None,
+    rci_record: dict[str, object] | None = None,
+) -> AgentReport:
+    if rci_digest is not None and rci_record is not None:
+        raise ValueError("rci_digest and rci_record are mutually exclusive")
     require(schematic)
     decisions = decide(schematic)
     events = plan(decisions)
@@ -43,6 +53,9 @@ def run(schematic: Schematic, *, attach_fixture_A: bool = False, call_jspt: bool
     if rci_digest:
         for node in by_kind(schematic, NodeKind.MEASUREMENT):
             events.append(bind_digest(schematic, node.id, rci_digest))
+    if rci_record is not None:
+        for node in by_kind(schematic, NodeKind.MEASUREMENT):
+            events.append(bind_record(schematic, node.id, rci_record))
     if attach_fixture_A:
         for node in by_kind(schematic, NodeKind.FUNCTION):
             if node.get("model_ref") == "jspt.reference.quadratic_drag":
