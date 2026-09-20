@@ -15,7 +15,8 @@ Lattice Calibration Module. Their spelling preserves compatibility with the
 retained declaration.
 
 The corpus claim scope is `computational-integrity-only`. It is a declaration,
-not execution evidence: this repository contains no solver or test suite, and the
-declaration establishes neither physical validity nor a stability certificate.
-Uncertainty propagation and correction diagnostics are part of the intended
-component scope described in the [README](../README.md), not implemented results.
+not execution evidence. The declaration establishes neither physical validity nor
+a stability certificate. The separately implemented `cbsr.affine-exact.v1` kernel
+and its tests produce scoped numerical receipts; they do not promote this retained
+corpus citation into execution evidence. See the [operation contract](AFFINE_EXACT.md)
+for implemented uncertainty propagation, correction diagnostics, and limits.

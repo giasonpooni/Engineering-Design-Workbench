@@ -1,0 +1,24 @@
+{
+  "schema": "cbsr.cross-instrument-pins.v1",
+  "fsrt": {
+    "repository": "giasonpooni/Fluid-State-Reconstruction-Testbed",
+    "commit": "56a2bea58ad2657e5aacf0181fe2d0b982b09f3b",
+    "files": {
+      "tests/test_lcm.py": "3a91ebec17a9462bc9ecc462820c43ddd4bacec42150611fb1d957562bf5a82e",
+      "tests/test_camera_fusion.py": "f607bb53c16dac96223de2815c957124b1bc64338246cef8e87fb886f3e9f1ea",
+      "src/set_lcm/lcm/__init__.py": "c0ee20a761d50caf1d1cfc92f9b04d6a2f05e8ae034572b365d50b1644eecaf9",
+      "src/set_lcm/camera_fusion.py": "d7b1bd4fc64abbc00bf141a05564a3b2cd40b42e559578287e0d55352bf6d9f5"
+    },
+    "scope": "Declared-exact mass balance and camera/gauge common-level constraint. No claim about uncertain coefficients or FSRT full-suite status."
+  },
+  "gte": {
+    "repository": "giasonpooni/Geometric-Telemetry-Engine",
+    "commit": "2caabae87e467c61904df376271e6b50e36008eb",
+    "files": {
+      "tests/test_geometry.py": "6ca5be80a733e3e4d96362eb4180e75f6e86a9634ff6b4d7b14ece3e03e951ef",
+      "examples/circle.json": "28158c48d5fabb369dd4dbd9b311f07fb25309f83c41e1d330786b9e4e3dc13f",
+      "src/geodesic_telemetry/geometry.py": "c741388725e34945d1ac798d310a0e7bb7a0bf5f5aefbc8b76e34f707bb13173"
+    },
+    "scope": "Declared affine tangent law and Jacobian at an on-circle basepoint. A tangent line is explicitly not the global nonlinear circle law."
+  }
+}
