@@ -59,7 +59,123 @@ MUSKINGUM_SWEEP = tuple((k, x) for k in (0.5, 1.0, 2.0) for x in (0.0, 0.2, 0.35
 CP_J_PER_KG_K, INTERVAL_S = 4186.0, 60.0
 MDOT_KG_PER_S, T_IN_C, T_OUT_C = 2.0, 35.0, 25.0
 EFFECTIVENESS, C_MIN_W_PER_K = 0.7, 8000.0
-EFFECTIVENESS_…1671 tokens truncated…hing else"),
+EFFECTIVENESS_SWEEP = (0.3, 0.5, 0.7, 0.9)
+
+# The prior is swept, not declared once: structural isolability does not depend on it, but the
+# amplification does. Each topology declares a REFERENCE PRIOR IN ITS OWN PHYSICAL UNITS and the
+# sweep scales the stored-quantity states around it -- how well the stored quantity is known
+# relative to throughput, which is the axis that means something.
+#
+# A dimensionless prior is not a neutral choice here and an earlier draft of this study used
+# one. The cooling loop's states are kilograms and joules; giving both unit variance whitens
+# joules against kilograms and reported the loop's tightest pair at 204,258x when its physical
+# prior gives 2x. The conclusion that followed from that number was wrong. Declare the units.
+PRIOR_SWEEP = (0.01, 1.0, 100.0)
+
+
+@dataclass(frozen=True)
+class Topology:
+    key: str
+    label: str
+    states: tuple[str, ...]
+    faults: dict[str, list[float]]
+    variants: dict[str, tuple[np.ndarray, str]]   # name -> (rows, what the extra rows declare)
+    stored_states: tuple[int, ...]                # indices the prior sweep scales
+    reference_prior_sd: tuple[float, ...]         # declared, in this topology's own units
+    prior_units: str
+    note: str
+    # Optional, and only meaningful together. A topology whose rows carry MEASURED or FITTED
+    # coefficients may declare their uncertainty per variant, as a vec(A) covariance in the
+    # same row order the variant declares. Cov(E x) is a quadratic form in the state, so such
+    # a declaration has no geometry without an operating point, which is why the two arrive
+    # together and `evaluate` refuses one without the other.
+    a_var: dict[str, np.ndarray] | None = None    # variant -> vec(A) covariance, row-major
+    operating_point: tuple[float, ...] | None = None
+
+
+def _muskingum(k: float = MUSKINGUM_K, x: float = MUSKINGUM_X) -> Topology:
+    """Two reaches in series, on cumulative volumes over one interval.
+
+    States are stored volume in each reach and cumulative volume past each of the three flow
+    gauges, so continuity is exact arithmetic on the declared states. The routing rows are
+    Muskingum's own constitutive relation S = K[x I + (1 - x) O] over the same interval, which
+    is what makes storage and flow enter with DIFFERENT coefficients -- the whole reason it
+    separates anything.
+    """
+    continuity = np.array([[1.0, 0.0, -1.0, 1.0, 0.0],
+                           [0.0, 1.0, 0.0, -1.0, 1.0]])
+    routing = np.array([[1.0, 0.0, -k * x, -k * (1.0 - x), 0.0],
+                        [0.0, 1.0, 0.0, -k * x, -k * (1.0 - x)]])
+    return Topology(
+        key="muskingum_two_reach",
+        label="Two-reach Muskingum river",
+        states=("stored volume, reach 1", "stored volume, reach 2",
+                "cumulative volume past the inflow gauge",
+                "cumulative volume past the middle gauge",
+                "cumulative volume past the outflow gauge"),
+        faults={
+            "storage 1 bias": [1, 0, 0, 0, 0],
+            "storage 2 bias": [0, 1, 0, 0, 0],
+            "inflow gauge bias": [0, 0, 1, 0, 0],
+            "middle gauge bias": [0, 0, 0, 1, 0],
+            "outflow gauge bias": [0, 0, 0, 0, 1],
+            "common drift of all three flow gauges": [0, 0, 1, 1, 1],
+            # NOT an instrument fault: water entering reach 1 that no gauge sees.
+            "ungauged lateral inflow to reach 1": [0, 0, 1, 0, 0],
+        },
+        variants={
+            "continuity only": (continuity, "two storage closures and nothing else"),
+            "continuity + declared routing":
+                (np.vstack([continuity, routing]),
+                 f"Muskingum routing at declared K = {k:g} day, x = {x:g}"),
+        },
+        stored_states=(0, 1),
+        reference_prior_sd=(1.0, 1.0, 1.0, 1.0, 1.0),
+        prior_units="volume units, the same for every state",
+        note="Cumulative volumes over one interval; continuity is exact on these states.",
+    )
+
+
+def _cooling_loop(effectiveness: float = EFFECTIVENESS) -> Topology:
+    """Mass and energy over the same pipes, with the heat exchanger's own duty relation.
+
+    States are stored mass and energy, cumulative mass and enthalpy past each port, and
+    cumulative heat. Both conservation rows are exact +/-1 arithmetic on those states: the
+    measured quantities do NOT enter A. They enter the FAULT DIRECTIONS instead, because a
+    flow-meter bias corrupts both cumulative mass and cumulative enthalpy (weighted by the
+    port temperature) while a temperature-sensor bias corrupts enthalpy alone (weighted by the
+    flow). So the isolation geometry here is conditional on a declared operating point, which
+    is where errors-in-variables bites this candidate.
+
+    The duty row is effectiveness-NTU, Q = eps c_min (T_in - T_coolant_in). It involves the
+    INLET temperature and not the outlet, which is what lets it separate the two temperature
+    sensors; a log-mean or arithmetic-mean form weights them equally and separates neither.
+    """
+    inlet_enthalpy_per_kelvin = CP_J_PER_KG_K * MDOT_KG_PER_S * INTERVAL_S
+    mass = [1.0, 0.0, -1.0, 1.0, 0.0, 0.0, 0.0]
+    energy = [0.0, 1.0, 0.0, 0.0, -1.0, 1.0, -1.0]
+    duty = [0.0, 0.0, 0.0, 0.0,
+            -effectiveness * C_MIN_W_PER_K / (CP_J_PER_KG_K * MDOT_KG_PER_S), 0.0, 1.0]
+    return Topology(
+        key="cooling_loop_mass_energy",
+        label="Cooling loop, mass and energy over the same pipes",
+        states=("stored mass", "stored energy", "cumulative mass in", "cumulative mass out",
+                "cumulative enthalpy in", "cumulative enthalpy out", "cumulative heat"),
+        faults={
+            "inlet flow-meter bias":
+                [0, 0, INTERVAL_S, 0, CP_J_PER_KG_K * T_IN_C * INTERVAL_S, 0, 0],
+            "outlet flow-meter bias":
+                [0, 0, 0, INTERVAL_S, 0, CP_J_PER_KG_K * T_OUT_C * INTERVAL_S, 0],
+            "inlet temperature bias": [0, 0, 0, 0, inlet_enthalpy_per_kelvin, 0, 0],
+            "outlet temperature bias": [0, 0, 0, 0, 0, inlet_enthalpy_per_kelvin, 0],
+            "stored-mass sensor bias": [1, 0, 0, 0, 0, 0, 0],
+            "stored-energy sensor bias": [0, 1, 0, 0, 0, 0, 0],
+            # NOT an instrument fault: the exchanger transferring other than declared.
+            "heat-duty error": [0, 0, 0, 0, 0, 0, 1],
+        },
+        variants={
+            "mass + energy only": (np.array([mass, energy]),
+                                   "two conservation rows and nothing else"),
             "mass + energy + declared duty":
                 (np.array([mass, energy, duty]),
                  f"effectiveness-NTU duty at declared eps = {effectiveness:g}, "
