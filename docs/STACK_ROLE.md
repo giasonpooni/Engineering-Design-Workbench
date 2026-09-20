@@ -8,7 +8,7 @@ This component owns **scientific workload execution and verification records**. 
 | Property | Scope |
 | --- | --- |
 | Implementation | Executable runtime and state/evidence packages; backend-specific prerequisites |
-| Workbench connection | No CIW runtime adapter |
+| Workbench connection | Read-only exchange inspection; no execution adapter |
 | Inputs | Versioned scientific state, declared computation specifications, explicit inputs and engine bindings. |
 | Outputs | Computed artifacts, execution traces and verification artifacts for supported workload/backend combinations. |
 
@@ -30,3 +30,13 @@ Display names and repository locations do not rename packages, schemas, operatio
 - [docs/ARCHITECTURE.md](ARCHITECTURE.md)
 
 Private customer state, deployment configuration and calibration knowledge are outside this public component description. Applicable repository licenses and source-data rights remain controlling; a shared stack identity is not a license grant or a change of repository visibility.
+
+## Read-only exchange path
+
+CIW's [instrument-exchange inspector](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/EXCHANGE.md)
+checks supported `notation.instrument.*.v1` acquisition/runtime artifacts with
+an explicitly pinned State Estimation Evaluation Testbed validator. It retains
+full or explicitly unknown covariance and reports content/reference checks.
+This is read-only conformance inspection: it does not import a native workspace,
+run a scientific provider, admit source evidence or authenticate verification.
+The operating guide records the producer/checker revisions and exact limits.
