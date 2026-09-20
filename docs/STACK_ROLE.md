@@ -8,7 +8,7 @@ This component owns **instrument-exchange validation and estimator evaluation sc
 | Property | Scope |
 | --- | --- |
 | Implementation | Executable contract validators; no estimator or evaluation runner |
-| Workbench connection | No CIW adapter |
+| Workbench connection | Pinned exchange conformance checker; no evaluation runner or session adapter |
 | Inputs | Declared observation batches, result/verification artifacts and covariance metadata. |
 | Outputs | Structural/numerical eligibility decisions, including documented covariance tolerances and rank limitations. |
 
@@ -28,3 +28,13 @@ Display names and repository locations do not rename packages, schemas, operatio
 - [docs/invariant-corpus-cite-v1.md](invariant-corpus-cite-v1.md)
 
 Private customer state, deployment configuration and calibration knowledge are outside this public component description. Applicable repository licenses and source-data rights remain controlling; a shared stack identity is not a license grant or a change of repository visibility.
+
+## Read-only exchange path
+
+CIW's [instrument-exchange inspector](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/EXCHANGE.md)
+checks supported `notation.instrument.*.v1` acquisition/runtime artifacts with
+an explicitly pinned State Estimation Evaluation Testbed validator. It retains
+full or explicitly unknown covariance and reports content/reference checks.
+This is read-only conformance inspection: it does not import a native workspace,
+run a scientific provider, admit source evidence or authenticate verification.
+The operating guide records the producer/checker revisions and exact limits.
