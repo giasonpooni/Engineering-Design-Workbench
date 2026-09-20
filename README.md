@@ -32,8 +32,8 @@ artifacts, and covariance eligibility. It enforces:
 
 - ordered variables, per-component units, coordinate frame, and tangent-space
   evaluation point;
-- finite, rectangular, square, symmetric, positive-semidefinite covariance,
-  including valid singular matrices and reported effective rank;
+- finite square covariance matrices, symmetry and numerical positive-semidefinite
+  checks under the tolerances described below, with an effective-rank estimate;
 - explicit unknown covariance rather than a fabricated zero matrix;
 - retained source and calibration references; and
 - verification summaries consistent with their checks, with internal and
@@ -41,6 +41,14 @@ artifacts, and covariance eligibility. It enforces:
 
 Numerical eligibility does not establish calibration validity, sensor truth,
 model adequacy, physical applicability, estimator accuracy, or stability.
+
+The covariance check uses unpivoted LDLᵀ with a default PSD tolerance of
+`1e-12 * max(1, max(abs(matrix)))`. Singular-matrix acceptance is scale-sensitive:
+`[[1e-14, 1e-7], [1e-7, 1]]` is a rank-one positive-semidefinite outer product,
+but the current validator rejects it because its first pivot is treated as zero
+while the off-diagonal residual exceeds that tolerance. Rejection therefore does
+not establish a negative eigenvalue, and reported rank is a tolerance-dependent
+numerical estimate.
 
 Run the executable contract slice with `python -m pytest`.
 

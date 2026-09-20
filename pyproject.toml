@@ -1,7 +1,7 @@
 [project]
 name = "state-estimation-testbed"
 version = "0.1.0"
-description = "Deterministic state-estimator evaluation and instrument-exchange validation."
+description = "Instrument-exchange contract and numerical covariance validation."
 requires-python = ">=3.10"
 dependencies = []
 
