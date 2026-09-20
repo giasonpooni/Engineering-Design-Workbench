@@ -9,7 +9,7 @@ before correction for separate diagnostics.
 This is the additive-group special case of invariant filtering. For these models it
 is mathematically equivalent to an ordinary Kalman filter. That equivalence is an
 acceptance requirement, not an accuracy improvement. General nonlinear Lie-group
-IEKF models remain future work.
+IEKF models are not implemented.
 
 ## Run it
 
@@ -155,8 +155,5 @@ uncertainty fitting, fault exclusion, operational alarm policy or arrival-time s
 inside this layer. Call it in the correct sample sequence with the appropriate interval
 model. It does not turn interval-mean storage into boundary measurements.
 
-The next IEKF step requires a specific nonlinear fluid model with a derived group
-structure, autonomous invariant-error dynamics where applicable, a compatible
-observation model, and comparison with an ordinary EKF on the same evidence. A new
-retraction alone would not establish those properties. The immediate experimental
-priority remains independently referenced fluid measurements and characterized faults.
+This layer does not establish a nonlinear IEKF, autonomous invariant-error dynamics
+for nonlinear models, or performance on independently referenced field measurements.

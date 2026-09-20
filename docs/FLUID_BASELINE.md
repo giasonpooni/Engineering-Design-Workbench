@@ -179,10 +179,10 @@ The historical `wb_open`, `wb_aug` and `wb_closed` filter experiment retains its
 interval/reference approximation. The new baseline is a separate measurement calculation;
 it does not silently recalibrate those filters or their published results.
 
-## What the next experiment must add
+## Validation limits
 
 Unknown onset, simultaneous faults, changing covariance, timing faults, nonlinear rating
 curves and uncertain dynamics remain unvalidated. Before operational use, measure alert
 episodes, misses, delay and wrong attribution on reviewed field events or a controlled
-fluid loop with independent reference instruments. Thermal modeling follows when an
-experiment supplies the measurements needed to validate the energy balance.
+fluid loop with independent reference instruments. Field validation of a thermal energy
+balance is not established.

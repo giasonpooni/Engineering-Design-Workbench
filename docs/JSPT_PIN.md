@@ -1,6 +1,7 @@
 # JSPT pin
 
-A2-A5 live in JSPT. This repository wraps types; it does not own the law.
+Covariance transport is provided by the pinned JSPT adapter. FSRT retains its fluid
+state, observation and declaration types.
 
 Pinned SHA: `c0a01c1a27f10b099ac200c7e83b0f03187ee4d2`
 
@@ -20,4 +21,3 @@ pin, regenerate the lock with `uv lock` and run the bridge tests. CI checks that
 the lock matches project metadata before running the NumPy-only default suite.
 
 Keep `GaussianState`, masks, Joseph, and declaration here.
-CSE / Lyapunov / geodesic take this same SHA from commit one.

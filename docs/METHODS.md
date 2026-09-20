@@ -2,7 +2,7 @@
 
 FSRT combines established estimation and reconciliation methods with preserved evidence,
 explicit assumptions and reproducible experiments. Numerical results are in the generated
-[reports](../results/); future work is in the [roadmap](ROADMAP.md).
+[reports](../results/); supported behavior is summarized in [Capabilities and limits](CAPABILITIES.md).
 
 ## Reconciliation and the reference null
 
@@ -176,7 +176,7 @@ Var(A xhat - b) = A P A' + Var(b)
 
 `b_var` currently represents `Var(b)`, not these cross terms. Their influence can decay
 without feedback, but must be modeled before claiming calibrated rejection probabilities.
-An explicit shared initial-state reference remains a possible filter design. Flow and storage
+Flow and storage
 uncertainty, process noise, serial correlation and common errors also need sensitivity
 analysis; a citation alone does not calibrate them.
 
@@ -203,57 +203,11 @@ from all other lags. Residual scatter can also contain real dynamics and model e
 it is not automatically calibrated measurement uncertainty. A cumulative total alone
 therefore does not establish a statistically significant physical imbalance.
 
-## Planned three-gauge Muskingum design
+## Uncertainty in relation coefficients
 
-**This design is not an implemented reach model or a validated capability.** For a
-fixed-parameter reach use
-
-```text
-q_down,t = C0 q_up,t + C1 q_up,t-1 + C2 q_down,t-1
-C0 + C1 + C2 = 1
-```
-
-These are the standard Muskingum coefficients. Parameters must be declared or fitted on
-separate data, with uncertainty and applicability assessed.
-[USACE formulation](https://www.hec.usace.army.mil/confluence/hmsdocs/hmstrm/channel-flow/muskingum-model).
-
-For successive reaches and measurement vector
-`[q1,t,q2,t,q3,t,q1,t-1,q2,t-1,q3,t-1]`, the two residual rows are
-
-```text
-A = [ -C0,   1, 0, -C1, -C2,   0 ]
-    [   0, -D0, 1,   0, -D1, -D2 ]
-```
-
-Persistent additive biases `e=[e1,e2,e3]`, present at both times, give
-
-```text
-D_bias = [ -a,  a, 0 ]       a = 1-C2
-         [  0, -b, b ]       b = 1-D2
-```
-
-For nonzero `a,b`, this dictionary has rank two and nonzero, pairwise noncollinear columns.
-The residual vector therefore distinguishes each nonzero single-gauge bias from the other
-single-gauge alternatives in this noiseless model. Two arbitrary simultaneous biases are
-not uniformly identifiable; the common offset `[1,1,1]` is invisible to the balance.
-
-Two arbitrary independent lateral inflows can occupy both residual dimensions and mimic
-faults. Routing errors can resemble faults too. The shared middle gauge, reused lagged
-samples and parameter uncertainty require joint covariance. Adding rows alone neither
-supplies that covariance nor implements isolation in the presence of nuisance processes.
-
-### Alternative planned balance: cooling-loop energy
-
-A second relation could instead come from energy conservation over the same fluid pipes.
-Mass flow multiplied by enthalpy contributes to energy flow; heat exchange and changing
-stored energy must also be represented. A second equation supports diagnosis only when
-candidate fault signatures remain distinguishable after these nuisance terms and state
-observability are considered.
-
-If temperature-derived enthalpies are used as measured coefficients, their uncertainty
-creates an errors-in-variables problem. Shared measurements can correlate coefficient
-errors, flow errors and the mass/energy residuals. A joint nonlinear state model is another
-possible design, and remains unimplemented.
+Measured or fitted coefficients require declared uncertainty. Shared measurements can
+correlate coefficient errors, flow errors and residuals. The current support is documented
+below; joint nonlinear state models are not implemented.
 
 `ConstraintSet.A_var` now declares that uncertainty, and the consistency statistic uses it.
 With `A = A_bar + E` the residual gains `E x`, so `S` gains

@@ -1,14 +1,10 @@
-# Contributor brief
-
-`main` is the canonical development version. Build, validate and publish changes directly
-there; do not maintain separate development branches unless the user requests one.
-See [AGENTS.md](../AGENTS.md) for the repository workflow.
+# Contributing
 
 The Fluid-State Reconstruction Testbed (FSRT, the name the README and the code use) is a research toolkit for testing agreement between estimated states and declared physical relationships while retaining the evidence and every correction. Its development target is measurement-system diagnostics in fluid networks, including instrument drift, rating-curve errors and storage-model errors. Current real-data experiments demonstrate consistency checking, not validated causal diagnosis or degradation magnitude.
 
-Start with the [README](../README.md) and [usage guide](USAGE.md). Read [Methods](METHODS.md) before interpreting scores or fault geometry, and [Roadmap](ROADMAP.md) before extending the scope. Current numerical claims belong in the generated [reports](../results/); [Results](RESULTS.md) preserves the research history.
+Start with the [README](../README.md) and [usage guide](USAGE.md). Read [Methods](METHODS.md) before interpreting scores or fault geometry, and [Capabilities and limits](CAPABILITIES.md) for supported behavior. Current numerical claims belong in the generated [reports](../results/); [Results](RESULTS.md) preserves the research history.
 
-Development remains focused on fluids. The camera prototype delivers fixed-marker vertical image registration; general 3-D camera pose and odometry remain planned pending a specific experiment and geometric model. Telemetry timing and missingness are already represented through `arrival_t`, `mask` and `arrival_policy`. A mass-plus-energy cooling-loop experiment is a planned alternative to the river reach, not delivered thermal support. Its fault signatures need analysis after heat/storage nuisance and correlated measurement uncertainty are included; see the roadmap.
+The camera prototype delivers fixed-marker vertical image registration. It does not support general 3-D camera pose or odometry. Telemetry timing and missingness are represented through `arrival_t`, `mask` and `arrival_policy`; this does not imply support for arbitrary transport protocols. The cooling-loop reports are design studies, not field-validated thermal estimators.
 
 ## Architecture
 
@@ -39,7 +35,8 @@ Development remains focused on fluids. The camera prototype delivers fixed-marke
 - Do not select configurations or seeds to obtain a preferred conclusion. State fitting and evaluation windows, keep them disjoint where parameters are fitted, and distinguish model-development data from independent validation data.
 - Change report generators and their evidence together. Follow the usage guide to regenerate affected Markdown and JSON reports, retain provenance, and run reproduction checks. Do not hand-edit result numbers to match a narrative. Update claims when behavior changes.
 - Add focused tests for corrected failures and meaningful method contracts. Compare numerical changes with independent calculations where practical; document remaining limitations.
-- DAF is a separate upstream repository. **Do not push to DAF.** Changes here must not silently alter upstream acquisition, evidence identity or revision policy.
+- Preserve the documented upstream acquisition pins, evidence identity and revision policy. Changes to FSRT must not silently alter those contracts.
+- The optional JSPT adapter owns covariance transport through the pinned upstream implementation; see [JSPT pin](JSPT_PIN.md). Keep fluid declarations and evidence in FSRT.
 
 ## Interpretation rules
 
@@ -67,7 +64,7 @@ Fixed-marker compensation estimates vertical image translation only. It does not
 general 3-D pose, perspective correction or odometry. Preserve raw camera/gauge disagreement:
 signed drift explanations can remain confounded, and shared errors can escape a difference
 check. Spectral features are advisory and cannot verify an incorrectly declared physical
-clock without an external reference. No FluidNexus code or generated views are used.
+clock without an external reference. Generated views are not independent observations.
 
 The [recording kit](TANK_RECORDING_PROTOCOL.md) prepares a real experiment; it does not
 perform one. `ready_for_review` means checked artifacts and declarations are present,
@@ -77,4 +74,4 @@ that the bounded timestamp parser cannot accept; never round them to obtain admi
 
 A consistency threshold is a reference under a calibrated Gaussian null. An alarm is not a diagnosis. Per-channel CUSUM locates prediction disagreement, not necessarily a faulty instrument. Static rank-one geometry does not establish impossibility over every time record; known dynamics can add information. Finite uncertainty on an augmented imbalance term does not make its model statistically unfalsifiable.
 
-Treat source QC flags as corroborating metadata, not ground-truth fault labels. A constraint violation may reflect physical change, an omitted flux, a unit or timing problem, or a model error. Report ambiguous explanations explicitly. Describe unbuilt methods as planned work, and keep detection, isolation and magnitude estimation as separate claims.
+Treat source QC flags as corroborating metadata, not ground-truth fault labels. A constraint violation may reflect physical change, an omitted flux, a unit or timing problem, or a model error. Report ambiguous explanations explicitly. Keep detection, isolation and magnitude estimation as separate claims, and state unsupported behavior explicitly.

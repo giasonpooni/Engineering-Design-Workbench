@@ -4,8 +4,8 @@
 > [`results/`](../results/) are canonical for numerical results at their recorded source
 > provenance. Numbers and implementation descriptions below may reflect earlier versions,
 > including behavior changed by later fixes. Use [Methods](METHODS.md) for current
-> interpretation limits and [Roadmap](ROADMAP.md) for planned work; this historical narrative
-> does not establish that every phase or proposal is implemented today.
+> interpretation limits and [Capabilities and limits](CAPABILITIES.md) for current support;
+> this historical narrative does not establish current implementation status.
 
 Every number in this file traces to a file in `results/`, which is a verified artifact: the
 fast suite regenerates the real-data reports and compares them value for value, and a slow
@@ -26,8 +26,7 @@ P4, the first real observations (NOAA tide gauge); P4b, the first real conservat
 second-balance and cooling-manifold design studies, the errors-in-variables calibration and
 its projection, the two-reach river, the second real site at Taylor Park, and the first
 isolation attempt on real evidence — is delivered and committed, with a row apiece in
-[`README.md`](../README.md#explore-the-examples) pointing at its artifact and a stage apiece in
-[`Roadmap`](ROADMAP.md). It is simply not narrated here yet. The module table below tracks
+[`README.md`](../README.md#explore-the-examples) pointing at its artifact. It is simply not narrated here yet. The module table below tracks
 this narrative rather than the package, so a module absent from it is later work, not
 missing work.
 

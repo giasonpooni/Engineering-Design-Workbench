@@ -196,7 +196,7 @@ def test_the_month_narrative_quotes_the_month_artifact():
 # ---------------------------------------------------------------------------
 # the errors-in-variables projection
 #
-# README, METHODS and ROADMAP all quote numbers from results/eiv_projection.json by hand.
+# README, METHODS and CAPABILITIES all quote numbers from results/eiv_projection.json by hand.
 # Those are exactly the sentences that go stale silently when a seed or a sweep moves, so
 # every one of them is formatted from the artifact here and required verbatim.
 # ---------------------------------------------------------------------------
@@ -204,7 +204,7 @@ def test_the_month_narrative_quotes_the_month_artifact():
 PROJECTION = json.loads((RESULTS / "eiv_projection.json").read_text(encoding="utf-8"))
 README = _prose(REPO_ROOT / "README.md")
 METHODS = _prose(REPO_ROOT / "docs" / "METHODS.md")
-ROADMAP = _prose(REPO_ROOT / "docs" / "ROADMAP.md")
+CAPABILITIES = _prose(REPO_ROOT / "docs" / "CAPABILITIES.md")
 
 
 def _arm(experiment, name):
@@ -212,7 +212,7 @@ def _arm(experiment, name):
 
 
 @pytest.mark.parametrize("doc,name", [(README, "README.md"), (METHODS, "METHODS.md"),
-                                      (ROADMAP, "ROADMAP.md")])
+                                      (CAPABILITIES, "CAPABILITIES.md")])
 def test_the_projection_numbers_the_prose_quotes_are_the_artifacts_own(doc, name):
     xs = PROJECTION["experiments"]
     widest = max(xs, key=lambda e: e["state_scale"])
@@ -230,7 +230,7 @@ def test_the_prose_does_not_quote_the_fit_without_the_span_it_was_fitted_over():
     """`1 + c*scale^2` to 0.10% means nothing without the range it holds across."""
     scales = PROJECTION["declared"]["state_scale_swept"]
     span = f"{scales[-1] / scales[0]:.0f}x"
-    for doc, name in ((METHODS, "METHODS.md"), (ROADMAP, "ROADMAP.md")):
+    for doc, name in ((METHODS, "METHODS.md"), (CAPABILITIES, "CAPABILITIES.md")):
         assert "1 + c" in doc, name
         assert span in doc, (name, span)
 
@@ -239,14 +239,14 @@ def test_the_prose_reports_the_one_step_gain_cost_it_was_measured_at():
     worst = max(abs(e["one_step_gain"]["reiterated_nees_change"])
                 for e in PROJECTION["experiments"])
     dimension = PROJECTION["experiments"][0]["dimension"]
-    for doc, name in ((METHODS, "METHODS.md"), (ROADMAP, "ROADMAP.md")):
+    for doc, name in ((METHODS, "METHODS.md"), (CAPABILITIES, "CAPABILITIES.md")):
         assert f"{worst:.2f}" in doc, (name, worst)
         assert f"target of {dimension}" in doc, name
 
 
 def test_the_docs_do_not_still_say_the_projection_ignores_the_declaration():
     """The sentence this stage removed, kept out of every document that carried it."""
-    for doc, name in ((README, "README.md"), (METHODS, "METHODS.md"), (ROADMAP, "ROADMAP.md")):
+    for doc, name in ((README, "README.md"), (METHODS, "METHODS.md"), (CAPABILITIES, "CAPABILITIES.md")):
         for stale in ("solves against `A_bar` as though it were exact",
                       "The projection is unchanged",
                       "implemented for the test, not the projection"):
@@ -258,7 +258,7 @@ def test_the_docs_do_not_still_say_the_projection_ignores_the_declaration():
 #
 # Each row summarises an artifact in a sentence carrying its headline number. Those numbers
 # are copied by hand and nothing regenerates them, which is the same exposure that let
-# ROADMAP keep saying "six perfectly confounded pairs" after the artifact said fifteen. The
+# earlier prose kept saying "six perfectly confounded pairs" after the artifact said fifteen. The
 # rows whose numbers are derived statistics -- the ones that actually move when a record,
 # seed or sweep changes -- are pinned here.
 # ---------------------------------------------------------------------------
@@ -308,7 +308,7 @@ def test_the_calibration_row_quotes_the_span_the_experiment_measured():
 #
 # Correcting second_balance's confound selection changed the cooling loop's confounded-pair
 # count from 6 to 15. The report followed and its claims() followed, because a report refuses
-# to render prose its own numbers stopped supporting. ROADMAP stage 3a went on saying "six"
+# to render prose its own numbers stopped supporting. The earlier prose went on saying "six"
 # through a full regeneration and a push, because nothing here pinned it. These do.
 #
 # TWO KINDS OF NUMBER ARE DELIBERATELY NOT PINNED, and the last test below keeps them from
@@ -324,16 +324,16 @@ TOPOLOGY = {t["key"]: {v["variant"]: v for v in t["variants"]} for t in BALANCE[
 FULL = "energy + duty + header"
 
 
-def test_the_isolable_counts_the_roadmap_quotes_per_topology():
+def test_the_isolable_counts_the_capabilities_quotes_per_topology():
     river, loop = TOPOLOGY["muskingum_two_reach"], TOPOLOGY["cooling_loop_mass_energy"]
     today = TOPOLOGY["ridgway_today"]["one closure"]
     for isolable, faults in ((today["n_isolable"], today["n_faults"]),
                              (river["continuity + declared routing"]["n_isolable"], 7),
                              (loop["mass + energy + declared duty"]["n_isolable"], 7)):
-        assert f"**{isolable} of {faults}**" in ROADMAP
+        assert f"**{isolable} of {faults}**" in CAPABILITIES
     # "1 of 7" is quoted twice, for two topologies that happen to agree.
     assert river["continuity only"]["n_isolable"] == loop["mass + energy only"]["n_isolable"] == 1
-    assert ROADMAP.count("**1 of 7**") == 2
+    assert CAPABILITIES.count("**1 of 7**") == 2
 
 
 def test_the_confound_counts_the_selection_fix_changed():
@@ -342,11 +342,11 @@ def test_the_confound_counts_the_selection_fix_changed():
     bare = len(loop["mass + energy only"]["confounded_pairs"])
     full = len(loop["mass + energy + declared duty"]["confounded_pairs"])
     assert (bare, full) == (15, 4)
-    assert "leaving fifteen perfectly confounded pairs" in ROADMAP
-    assert f"from 6 to {bare} and from 1 to {full}" in ROADMAP
+    assert "leaving fifteen perfectly confounded pairs" in CAPABILITIES
+    assert f"from 6 to {bare} and from 1 to {full}" in CAPABILITIES
     assert len(TOPOLOGY["muskingum_two_reach"]["continuity + declared routing"]
                ["confounded_pairs"]) == 1
-    assert "The river's one remaining confound is physical" in ROADMAP
+    assert "The river's one remaining confound is physical" in CAPABILITIES
 
 
 def test_the_tightest_separated_pair_the_fix_corrected_to():
@@ -354,7 +354,7 @@ def test_the_tightest_separated_pair_the_fix_corrected_to():
     tightest = next(c["tightest_separated_pair"] for c in loop["by_prior"] if not c["refused"])
     shown = f"{tightest['isolation_amplification']:.2f}x"
     assert shown == "1.38x"
-    for doc, name in ((ROADMAP, "ROADMAP.md"), (METHODS, "METHODS.md")):
+    for doc, name in ((CAPABILITIES, "CAPABILITIES.md"), (METHODS, "METHODS.md")):
         assert shown in doc, name
 
 
@@ -362,7 +362,7 @@ def test_the_duty_row_count_both_documents_quote():
     last = COOLING["sweep"][-1]
     shown = f"{last['by_variant']['energy + duty']['n_isolable']} of {last['n_faults']}"
     assert shown == "18 of 19"
-    for doc, name in ((README, "README.md"), (ROADMAP, "ROADMAP.md")):
+    for doc, name in ((README, "README.md"), (CAPABILITIES, "CAPABILITIES.md")):
         assert shown in doc, name
 
 
@@ -375,12 +375,12 @@ def test_the_two_levers_are_quoted_at_their_measured_ratios():
     circuits = f"{max(amps) / min(amps):.2f}"
     prior = f"{max(over_prior) / min(over_prior):.0f}"
     assert (circuits, prior) == ("1.14", "88")
-    for doc, name in ((README, "README.md"), (ROADMAP, "ROADMAP.md")):
+    for doc, name in ((README, "README.md"), (CAPABILITIES, "CAPABILITIES.md")):
         assert f"factor of {circuits}" in doc, name
         assert prior in doc, name
 
 
-def test_the_handover_circuit_counts_the_roadmap_quotes():
+def test_the_handover_circuit_counts_the_capabilities_quotes():
     def handover(scale):
         return next((e["circuits"] for e in COOLING["sweep"]
                      if next(p["binding_pair_kind"]
@@ -390,13 +390,13 @@ def test_the_handover_circuit_counts_the_roadmap_quotes():
     scales = COOLING["declared"]["prior_scales_swept"]
     assert (handover(1.0), handover(max(scales)), handover(min(scales))) == (4, 3, None)
     assert ("At the declared prior that handover falls at four circuits; a hundredfold looser "
-            "it falls at three; a hundredfold tighter it never falls in this sweep.") in ROADMAP
+            "it falls at three; a hundredfold tighter it never falls in this sweep.") in CAPABILITIES
 
 
-def test_the_tie_family_size_the_roadmap_quotes():
+def test_the_tie_family_size_the_capabilities_quotes():
     last = COOLING["sweep"][-1]
     assert last["by_variant"][FULL]["tightest_separated_pair"]["n_tied"] == last["circuits"] == 6
-    assert "six tied pairs at six circuits" in ROADMAP
+    assert "six tied pairs at six circuits" in CAPABILITIES
 
 
 def test_the_pre_correction_value_is_kept_and_kept_labelled():
@@ -406,7 +406,7 @@ def test_the_pre_correction_value_is_kept_and_kept_labelled():
     erasing the record of what the confound-selection defect reported. It must stay, and it
     must stay marked as what it is.
     """
-    for doc, name in ((ROADMAP, "ROADMAP.md"), (METHODS, "METHODS.md")):
+    for doc, name in ((CAPABILITIES, "CAPABILITIES.md"), (METHODS, "METHODS.md")):
         assert "2.21x" in doc, f"{name} dropped the pre-correction value"
         window = doc[max(0, doc.index("2.21x") - 400):doc.index("2.21x") + 200]
         assert re.search(r"confounded|did exactly that|reported", window), (

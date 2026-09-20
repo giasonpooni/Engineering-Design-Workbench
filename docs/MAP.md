@@ -12,4 +12,4 @@ flowchart LR
 
 Caption: an alarm starts an investigation. It does not name a broken
 sensor by itself. Chart changes must leave the physical residual invariant.
-JSPT owns A2–A5. This repo does not own V or BIM dispositions.
+The optional JSPT adapter provides covariance transport; see [JSPT pin](JSPT_PIN.md).

@@ -38,7 +38,7 @@ within-snapshot covariance is explicitly supplied.
 
 Multiple timestamps are refused with `unsupported_temporal_covariance`. Shared
 calibration uncertainty across time must not be converted to independent noise
-for this operation. A future temporal adapter must represent it or refuse it.
+for this operation. Temporal covariance is outside its supported contract.
 
 For RCI integration, use separately calibrated mass channels, align their physical
 sample times, and supply their calibrated evidence IDs and full joint covariance.

@@ -84,7 +84,8 @@ uv run --frozen --python 3.13 --dev pytest -q
 
 - [Usage guide](docs/USAGE.md)
 - [Methods and interpretation](docs/METHODS.md)
-- [Development roadmap](docs/ROADMAP.md)
+- [Capabilities and limits](docs/CAPABILITIES.md)
+- [Contributing](docs/CONTRIBUTING.md)
 - [Detailed research history](docs/RESULTS.md)
 - [Data provenance](data/daf/PROVENANCE.md)
 
