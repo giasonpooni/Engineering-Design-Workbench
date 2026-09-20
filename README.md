@@ -1,12 +1,16 @@
 # Fluid State Reconstruction Testbed (FSRT)
 
+Part of **Notation Systems' computational instrumentation and evidence infrastructure** for industrial and cyber-physical systems.
+
+[Stack map](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/STACK.md) · [Component role and interfaces](docs/STACK_ROLE.md)
+
 **Check whether measurements in a fluid network agree with a declared physical balance.**
 
 This is **not** visual reconstruction of a fluid volume. It is not a 3DGS / NeRF / PDE fluid solver. “State reconstruction” here means estimating a physical system from measurements and keeping the evidence needed to challenge that estimate.
 
 | Surface | Name |
 |---|---|
-| Public name | FSRT (Fluid State Reconciliation Testbed) |
+| Public name | FSRT (Fluid State Reconstruction Testbed) |
 | GitHub repository | `giasonpooni/Fluid-State-Reconstruction-Testbed` |
 | Installable project | `fluid-state-reconstruction-testbed` |
 | Import | `set_lcm` (historical: state estimate + linear constraint matching) |
