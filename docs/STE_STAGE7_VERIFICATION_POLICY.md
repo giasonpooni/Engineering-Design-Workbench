@@ -1,5 +1,8 @@
-# STE Stage 7 -- Proof-Cost-Aware Verification Policy
+# Scientific Computation Runtime Stage 7 -- Proof-Cost-Aware Verification Policy
 
+This is a retained implementation-stage record. `STE` in the record and its
+identifiers refers to this runtime; stage measurements and runtime pins retain
+their original scope. See [compatibility and historical records](README.md#compatibility-and-historical-records).
 Stage 6 measured the ladder; Stage 7 makes it a dial. The policy is a
 controller ABOVE the substrate:
 

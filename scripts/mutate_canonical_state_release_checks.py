@@ -166,7 +166,7 @@ MUTATIONS = [
      "test_the_shipped_ci_checks_the_installed_artefact_not_just_the_checkout"),
     ("the Source URL goes back to a repository nobody created", PYPROJECT,
      lambda s: s.replace(
-         'Source = "https://github.com/atomtrapping/Scientific-Transformer-Engine"',
+         'Source = "https://github.com/giasonpooni/Scientific-Computation-Runtime"',
          'Source = "https://github.com/notationsystems/canonical-state"'),
      "test_the_source_url_names_a_repository_that_exists"),
     # --- the sdist refusal ---

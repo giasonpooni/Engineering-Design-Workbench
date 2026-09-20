@@ -1,5 +1,8 @@
-# STE Stage 5 -- Reproducible Builds: the Declaration Becomes Checkable
+# Scientific Computation Runtime Stage 5 -- Reproducible Builds: the Declaration Becomes Checkable
 
+This is a retained implementation-stage record. `STE` in the record and its
+identifiers refers to this runtime; stage measurements and runtime pins retain
+their original scope. See [compatibility and historical records](README.md#compatibility-and-historical-records).
 The question: can "I declare this ELF means X" become "X
 deterministically produces this ELF, independently checkable"?
 Answer, built and measured: **yes**, with the residue named precisely.

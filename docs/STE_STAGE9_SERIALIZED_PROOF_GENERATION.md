@@ -1,5 +1,8 @@
-# STE Stage 9 — Serialized Proof Generation
+# Scientific Computation Runtime Stage 9 — Serialized Proof Generation
 
+This is a retained implementation-stage record. `STE` in the record and its
+identifiers refers to this runtime; stage measurements and runtime pins retain
+their original scope. See [compatibility and historical records](README.md#compatibility-and-historical-records).
 ## The measured bottleneck
 
 Stage 8's three-arm campaign located the remaining cost precisely:

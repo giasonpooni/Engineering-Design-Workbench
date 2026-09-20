@@ -1,5 +1,9 @@
 # provenance-pool
 
+Derived from [Scientific Computation Runtime](https://github.com/giasonpooni/Scientific-Computation-Runtime).
+This distribution retains its package name and scoped API; it is not the full
+scientific runtime or Computational Instrumentation Workbench.
+
 An append-only evidence pool where every value carries its provenance,
 and the admission gate refuses what it cannot ground.
 

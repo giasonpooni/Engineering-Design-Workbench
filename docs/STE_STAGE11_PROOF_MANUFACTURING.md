@@ -1,5 +1,8 @@
-# STE Stage 11 — Proof-Manufacturing Throughput
+# Scientific Computation Runtime Stage 11 — Proof-Manufacturing Throughput
 
+This is a retained implementation-stage record. `STE` in the record and its
+identifiers refers to this runtime; stage measurements and runtime pins retain
+their original scope. See [compatibility and historical records](README.md#compatibility-and-historical-records).
 Stage 10 left one dominant cost: the first proof of each genuinely new
 statement. Stage 11 measured that cost's real shape — time, memory,
 concurrency, failure — and built the smallest control the measurements

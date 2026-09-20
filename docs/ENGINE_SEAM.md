@@ -1,9 +1,10 @@
 # The engine seam: what two engines must share, and what they must not
 
-STE's `SpecificationDispatcher` accepts any engine as a `runner` —
-STE's own native backend, SCL, GROMACS. This records what that
-interchangeability actually requires, and one thing it explicitly does
-not.
+Scientific Computation Runtime's `SpecificationDispatcher` accepts engines
+through a `runner` boundary — the native backend, Scientific Compute Layer
+(SCL), and GROMACS. The historical `STE` label below identifies this runtime's
+existing implementation; its execution identifiers are unchanged. This records
+what interchangeability requires while preserving each engine's numerical method.
 
 ## The test that was proposed and could not be built
 

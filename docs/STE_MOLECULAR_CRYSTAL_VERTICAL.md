@@ -1,5 +1,8 @@
-# STE — The Molecular / Crystal Structural Vertical
+# Scientific Computation Runtime — The Molecular / Crystal Structural Vertical
 
+This is a retained implementation-stage record. `STE` in the record and its
+identifiers refers to this runtime; stage measurements and runtime pins retain
+their original scope. See [compatibility and historical records](README.md#compatibility-and-historical-records).
 A new scientific INPUT FAMILY entering the existing substrate — not a
 new architecture. The five identities stay separate and none was
 collapsed:

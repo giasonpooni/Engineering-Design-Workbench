@@ -1,5 +1,9 @@
 # canonical-state
 
+Derived from [Scientific Computation Runtime](https://github.com/giasonpooni/Scientific-Computation-Runtime).
+This distribution retains its package name and scoped API; it is not the full
+scientific runtime or Computational Instrumentation Workbench.
+
 One immutable, versioned state is the single source of truth. Every view
 of it — a 3D scene, an SVG diagram, a graph report — is a **derived
 projection that can never write back**.

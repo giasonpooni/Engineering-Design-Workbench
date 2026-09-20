@@ -47,7 +47,7 @@ dev = ["pytest>=7"]
 # where its source actually lives and where an issue about it
 # can be acted on. A URL naming a repository that does not
 # exist is metadata that 404s on a first release.
-Source = "https://github.com/atomtrapping/Scientific-Transformer-Engine"
+Source = "https://github.com/giasonpooni/Scientific-Computation-Runtime"
 
 [tool.setuptools]
 packages = ["evidence", "scout", "retrieval", "materials", "experiment", "operations"]

@@ -1,9 +1,14 @@
 # The ecosystem register — what is an apparatus, and what is merely present
 
-**Notation Systems builds and operates provenance-bearing computational
-corpora.** This document is about applying that sentence to the company's
-own repositories, and finding that most of what looks like the company
-isn't.
+**Notation Systems develops computational instrumentation and operates
+provenance-bearing computational corpora.** Scientific Computation Runtime
+provides declared scientific execution within that stack.
+
+This document retains the ecosystem register's recorded measurements and
+reasoning. Counts, repository labels and bindings refer to the inspected
+snapshots; they are not a live census of the renamed stack. The [current
+component map](README.md#component-responsibilities) describes responsibilities
+without changing those historical measurements.
 
 ## The measurement
 
@@ -25,8 +30,9 @@ copyright — and never on the GitHub org a repository sits under.
 declaration — and *not* "belongs to the company". Those are different
 predicates, and the difference matters below.
 
-The three apparatuses are the Scientific Transformer Engine, the
-acquisition channel, and the compute layer. All three bind
+The three apparatuses measured in that snapshot are Scientific Computation
+Runtime (then Scientific Transformer Engine), the acquisition channel, and
+the compute layer. All three bind
 `core@1.0.0`, so they already agree on the core.
 
 ## Org ownership is not authorship

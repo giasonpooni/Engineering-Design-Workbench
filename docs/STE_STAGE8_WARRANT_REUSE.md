@@ -1,5 +1,8 @@
-# STE Stage 8 — Warrant Reuse / Proof Artifact Cache
+# Scientific Computation Runtime Stage 8 — Warrant Reuse / Proof Artifact Cache
 
+This is a retained implementation-stage record. `STE` in the record and its
+identifiers refers to this runtime; stage measurements and runtime pins retain
+their original scope. See [compatibility and historical records](README.md#compatibility-and-historical-records).
 Stage 7 measured its own next bottleneck: routine Nexus proving was
 301.8 s of the campaign's 366.8 s total proving time, and 5 of its 15
 routine proofs re-proved a statement **identical** to one already

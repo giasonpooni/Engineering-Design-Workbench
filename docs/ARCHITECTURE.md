@@ -1,4 +1,30 @@
-# Architecture (as built)
+# Scientific Computation Runtime architecture
+
+**Versioned scientific state, declared computational workloads, and provenance-bearing execution.**
+
+The repository contains complementary execution, evidence and canonical-state
+paths. The name describes the scientific runtime responsibility; it does not
+rename their packages or combine their identities.
+
+| Path | Source | Boundary |
+| --- | --- | --- |
+| Specification and dispatch | `execution/`, `crates/execution-*/` | Program, configuration and input determine the request; operation occurrences and results remain separate. |
+| Scientific representations | `structures/`, `transformer/` | Inputs lower into the established execution contract; an attention prediction is not admitted evidence. |
+| Campaign and verification | `campaign/`, `execution/proving.py`, `zk/` | Policy selects verification work; supported guests and backend verifiers determine the claim that can be earned. |
+| Evidence and retrieval | `evidence/`, `scout/`, `retrieval/` | Admission governs evidence; retrieval reads it without writing canonical state. |
+| Canonical-state compiler | `core/`, `morpho/`, `backends/`, `runtime/` | Validation admits versions; projections and renderers cannot write back. |
+
+The separate Computational Instrumentation Workbench owns the cross-instrument
+working environment. This repository retains its local `workbench/` CLI and
+renderer as existing interfaces. See [component responsibilities and compatibility](README.md)
+for the current repository map and the distinction between display names and
+retained identifiers.
+
+The compiler contract below remains intact. For the later scientific execution
+surface, also read [Rust execution architecture](RUST_EXECUTION_ARCHITECTURE.md),
+[engine seam](ENGINE_SEAM.md), and [hardmax-attention workload](TRANSFORMER_ENGINE.md).
+
+## Canonical-state compiler as built
 
 This describes how the implementation maps onto
 `docs/ARCHITECTURE_SPEC.md` ("Deterministic State Architecture — Frozen

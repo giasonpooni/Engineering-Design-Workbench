@@ -1,6 +1,9 @@
-# STE Stage 1 -- The Execution Vertical
+# Scientific Computation Runtime Stage 1 -- The Execution Vertical
 
-The first coherent vertical of the Scientific Transformer Engine:
+This is a retained implementation-stage record. `STE` in the record and its
+identifiers refers to this runtime; stage measurements and runtime pins retain
+their original scope. See [compatibility and historical records](README.md#compatibility-and-historical-records).
+The first coherent execution vertical of Scientific Computation Runtime:
 built, executed, audited, and integrated in one pass. From the STE
 diagram, the slice that now runs end to end:
 

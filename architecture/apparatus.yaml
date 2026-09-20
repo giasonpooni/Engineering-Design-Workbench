@@ -12,7 +12,8 @@
 # not by one of them writing a roster.
 extends: core@1.0.0
 
-apparatus: Scientific Transformer Engine
+apparatus: Scientific Computation Runtime
+# Retained compatibility label; display-name changes do not migrate identities.
 label: STE
 company: Notation Systems
 

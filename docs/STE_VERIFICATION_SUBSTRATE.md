@@ -1,5 +1,8 @@
-# STE Stage 2 -- The Verification Substrate
+# Scientific Computation Runtime Stage 2 -- The Verification Substrate
 
+This is a retained implementation-stage record. `STE` in the record and its
+identifiers refers to this runtime; stage measurements and runtime pins retain
+their original scope. See [compatibility and historical records](README.md#compatibility-and-historical-records).
 `Verified` as an EARNED computational property. The chain this stage
 makes real:
 

@@ -1,5 +1,8 @@
-# STE Stage 6 -- Campaign Scale, and the Third Backend
+# Scientific Computation Runtime Stage 6 -- Campaign Scale, and the Third Backend
 
+This is a retained implementation-stage record. `STE` in the record and its
+identifiers refers to this runtime; stage measurements and runtime pins retain
+their original scope. See [compatibility and historical records](README.md#compatibility-and-historical-records).
 Two objectives, both built and run: a REAL multi-workload scientific
 campaign through one EvidencePool and one OperationTrace; and RISC Zero
 as the third independent `ProofBackend` implementer.

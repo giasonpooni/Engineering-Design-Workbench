@@ -1,6 +1,11 @@
-# Transformer Engine — First Real Workload
+# Hardmax-attention workload in Scientific Computation Runtime
 
-The Transformer Engine's first slice: molecular scientific state,
+This document records the implementation and measured phases of the attention
+workload. The runtime also executes non-neural scientific workloads. Existing
+`ste.transformer.*` and `scout.native.attention-kernel.v1` identifiers are retained;
+see [documentation compatibility](README.md#compatibility-and-historical-records).
+
+The workload's first slice: molecular scientific state,
 projected to typed tokens, transformed by an integer single-head
 **hardmax attention** model computation running through the *unchanged*
 STE execution boundary, yielding a Prediction that is — structurally —

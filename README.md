@@ -1,9 +1,81 @@
-# Deterministic State Architecture
+# Scientific Computation Runtime
+
+**Versioned scientific state, declared computational workloads, and provenance-bearing execution.**
+
+Scientific Computation Runtime is the scientific execution component of
+Notation Systems' computational instrumentation stack. It combines explicit
+computation specifications, checked engine dispatch, operation traces and
+verification artifacts with the repository's existing evidence and
+canonical-state capabilities. Attention is one workload within this runtime;
+the runtime also supports heat diffusion, pairwise energy and structural
+calculations.
+
+The repository was previously named `Scientific-Transformer-Engine`. The
+repository name describes its stable responsibility. Existing `ste.*` and
+`scout.*` identifiers, Python package names, build recipes, schemas and saved
+records retain their identities. See [documentation and compatibility](docs/README.md).
+
+## Responsibility in the stack
+
+| Component | Responsibility |
+| --- | --- |
+| [Scientific Computation Runtime](https://github.com/giasonpooni/Scientific-Computation-Runtime) | Specify, dispatch and record scientific computations; retain separate execution and verification identities. |
+| [Provenance-Preserving Data Acquisition](https://github.com/giasonpooni/Provenance-Preserving-Data-Acquisition) | Acquire source material and produce observations with source identity, extraction lineage and explicit missingness. |
+| [Evidence and State Management](https://github.com/giasonpooni/Evidence-and-State-Management) | Retain and govern evidence and versioned state through admission, review and release. |
+| [Computational Instrumentation Workbench](https://github.com/giasonpooni/Computational-Instrumentation-Workbench) | Operate and inspect instruments through sessions, adapters and replay. |
+| [Geospatial State Visualization](https://github.com/giasonpooni/Geospatial-State-Visualization) | Present geographic entities, routes, flows and temporal state through a read-only globe interface. |
+| [State Estimation Evaluation Testbed](https://github.com/giasonpooni/State-Estimation-Evaluation-Testbed) | Specify evaluation of reconstruction under noise, missing observations and latency; implementation status is tracked in that repository. |
+| [Constraint-Based State Reconciliation](https://github.com/giasonpooni/Constraint-Based-State-Reconciliation) | Specify reconciliation against declared constraints and correction diagnostics; implementation status is tracked in that repository. |
+
+These responsibilities describe component boundaries, not a claim that every
+cross-repository adapter is implemented. Existing local evidence, retrieval and
+compiler packages remain available. The local `workbench/` CLI is retained as a
+repository interface; it is distinct from the separate Computational
+Instrumentation Workbench. Numerical engines attach through the execution seam,
+so their algorithms and arithmetic remain explicit.
+
+## Implemented execution surface
+
+| Capability | Implementation and limits |
+| --- | --- |
+| Declared computation | `execution/specification.py` commits to program, configuration and input bytes before a run. |
+| Checked engine dispatch | `execution/engine.py`, `execution/dispatcher.py` and `crates/execution-cli/` provide native execution and result-identity checking, including batches. |
+| Scientific workloads | Integer pairwise energy, 1-D heat diffusion, mass-weighted radius of gyration, periodic-lattice calculations and hardmax attention have explicit descriptors. Their arithmetic and bounds are part of each contract. |
+| Structural inputs | `structures/` represents molecular/crystal inputs and lowers them into existing execution specifications. |
+| External computation | `execution/gromacs.py` provides an external GROMACS boundary; availability requires the external executable. |
+| Campaigns and verification | `campaign/` and `execution/proving.py` provide policy, warrant reuse and proof-backend integration. A proof applies only to its supported guest/program and checked statement; proof machinery does not certify every workload. |
+| Attention-model workload | `transformer/` supplies integer hardmax-attention inference, including batched execution. Predictions remain distinct from admitted evidence. |
+| Instrument-result exchange | `execution/instrumentation.py` exports result and verification artifacts with separate identities. Covariance claims retain frame, units and provenance; numerical covariance validity remains explicitly unchecked. |
+| State and evidence | Immutable canonical state and derived projections coexist with the separate evidence/admission/retrieval path described below. |
+
+The authoritative workload semantics are in the source descriptors and
+corresponding tests. In particular, the integer pairwise reference is not the
+same numerical model as a floating-point Lennard-Jones implementation in another
+engine. See [engine seam](docs/ENGINE_SEAM.md),
+[execution architecture](docs/RUST_EXECUTION_ARCHITECTURE.md), and
+[attention workload](docs/TRANSFORMER_ENGINE.md).
+
+## Identity and verification boundaries
+
+A specification identifies a requested computation; an operation records an
+occurrence; a result records what an execution produced; a warrant records a
+verification artifact; an evidence identifier names admitted content. Repeating
+a computation may reuse content identity while producing a distinct operation.
+A repository rename changes none of those meanings.
+
+Computed output is not a physical measurement. Verification establishes its
+stated computational claim, subject to the backend and program contract; it
+does not establish that input bytes describe the physical world. Reconciliation
+and estimator integrations must enter through declared interfaces and existing
+admission rules.
+
+## Canonical-state compiler
 
 An implementation of `docs/ARCHITECTURE_SPEC.md` ("Deterministic State
 Architecture — Frozen Specification v1.0.0"): a canonical-state compiler
 pipeline where a single, versioned, immutable **CanonicalState** is the
-sole source of truth, and every 3D view, diagram, graph analysis,
+sole source of truth within that compiler, and every 3D view, diagram,
+graph analysis,
 simulation, or ML system downstream is a deterministic projection or
 compilation of a frozen version of it — never a place state can be
 written back from.
@@ -15,8 +87,8 @@ CanonicalState --> Schema/Validation --> StateProjection --> Morpho IR --> backe
                                                                           * interface stubs only
 ```
 
-If you are new to this repo, read `docs/ARCHITECTURE_SPEC.md` first — it
-is the frozen contract everything here implements. `docs/ARCHITECTURE.md`
+For the canonical-state compiler, read `docs/ARCHITECTURE_SPEC.md` — it
+is that subsystem's frozen contract. `docs/ARCHITECTURE.md`
 explains how this codebase maps onto that contract, and
 `docs/CONTRADICTIONS.md` documents three small internal inconsistencies
 found in the spec's own grammar during implementation, and the minimal
@@ -225,6 +297,11 @@ observable in output). Verified by running the same pipeline under
 multiple `PYTHONHASHSEED` values and asserting identical output.
 
 ## Running the tests
+
+The full suite includes native/external-engine and proof-backend checks; those
+require the binaries, toolchains and artifacts described in the relevant execution
+documents. The release workflow verifies the two derived distributions and does
+not certify the entire runtime. See [verification scope](docs/README.md#releases-and-verification-scope).
 
 ```
 pip install pytest

@@ -1,5 +1,8 @@
-# STE Stage 4 -- Generalization: Is This Actually a Scientific Execution Substrate?
+# Scientific Computation Runtime Stage 4 -- Generalization: Is This Actually a Scientific Execution Substrate?
 
+This is a retained implementation-stage record. `STE` in the record and its
+identifiers refers to this runtime; stage measurements and runtime pins retain
+their original scope. See [compatibility and historical records](README.md#compatibility-and-historical-records).
 The question Stage 4 was run to answer, with the answer measured rather
 than asserted: three materially different scientific workloads passed
 through the unchanged contract.

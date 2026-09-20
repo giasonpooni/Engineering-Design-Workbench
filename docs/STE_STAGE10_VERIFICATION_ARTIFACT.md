@@ -1,5 +1,8 @@
-# STE Stage 10 — The Reusable Verification Artifact
+# Scientific Computation Runtime Stage 10 — The Reusable Verification Artifact
 
+This is a retained implementation-stage record. `STE` in the record and its
+identifiers refers to this runtime; stage measurements and runtime pins retain
+their original scope. See [compatibility and historical records](README.md#compatibility-and-historical-records).
 ## The measured bottleneck, decomposed
 
 Stage 9's structural campaign ended on a number: SP1 cached-warrant

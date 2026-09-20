@@ -1,5 +1,8 @@
-# STE Stage 3 -- Nexus, the Second Implementer
+# Scientific Computation Runtime Stage 3 -- Nexus, the Second Implementer
 
+This is a retained implementation-stage record. `STE` in the record and its
+identifiers refers to this runtime; stage measurements and runtime pins retain
+their original scope. See [compatibility and historical records](README.md#compatibility-and-historical-records).
 The critical architectural test: is `VerifiedExecution` a verified
 computational fact, or an SP1 fact wearing a neutral name? Method:
 implement `NexusPairwiseBackend` behind the unchanged `ProofBackend`
