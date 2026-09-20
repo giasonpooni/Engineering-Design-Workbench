@@ -100,6 +100,8 @@ objective, no Lyapunov V on the budget dynamics.
 See [docs/SCOPE.md](docs/SCOPE.md), [docs/METHODS.md](docs/METHODS.md),
 and [docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
 
+Contributor requirements: [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## License
 
 MIT. See [LICENSE](LICENSE).

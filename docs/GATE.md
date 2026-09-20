@@ -1,14 +1,13 @@
-# Compiled stack
+# Admission invariants
 
 Do not implement a judge-LLM or an embedding model here.
 World-claims belong to CSE / JSPT / PLSR / CNC. Admission belongs
 here.
 
-Python YWIR is the development oracle for letters and refuse codes.
-A later integer guest may seal the taxonomy. It is not a second
-constitution.
+Python YWIR implements the admission letters and refusal codes. No integer
+proof guest is supplied.
 
-## Law that must survive the gate
+## Contract
 
 - Tokens are control effort. They are not meaning.
 - Departments are a closed four-set. Unknown names refuse.

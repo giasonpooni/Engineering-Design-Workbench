@@ -19,7 +19,7 @@ model.
 - A composition store of caller-declared morphisms.
 - Receipts other kernels may cite. Receipts do not ACCEPT a world.
 
-## Out of scope until implemented and tested
+## Not implemented
 
 - Embeddings, wording charts, or a second LLM as the yield observer.
 - Imports of `gat`, `lyapunov`, or `sensitivity`.

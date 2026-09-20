@@ -1,11 +1,11 @@
-# Development
+# Implementation status
 
-In development. Result files are development samples. They do not
-confirm the runtime is out of development.
+The runtime is in development. Result files are development samples and do not
+establish release readiness or physical validation.
 
-`git_pin` on receipts is `in_development` until the catalog pins a
-SHA. A green pytest is not a release.
+Receipts currently use `git_pin=in_development` until a catalog binds a source
+revision. The public admission and receipt contracts are documented in
+[KERNEL.md](KERNEL.md), [METHODS.md](METHODS.md) and [GATE.md](GATE.md).
 
-First-release gate: HANDOFF records `confirmed_out_of_development`
-and frozen identities (department tuple, refuse table, receipt
-fields, constitution numbers).
+See [CONTRIBUTING.md](../CONTRIBUTING.md) for reproducible validation commands and
+contract-preservation requirements.

@@ -15,3 +15,11 @@ venv/
 work/
 .DS_Store
 uv.lock
+
+# Local assistant coordination and unpublished work notes
+AGENTS.md
+HANDOFF.md
+**/*HANDOFF*.md
+**/*handoff*.md
+**/*WORKLOG*.md
+**/*worklog*.md
