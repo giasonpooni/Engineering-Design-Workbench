@@ -17,6 +17,6 @@ Not in this slice:
 - USD schema plugins or `pxr` runtime
 - image / P&ID OCR
 - vector search, GraphRAG, USD Search
-- sparse factor-graph belief updates (CSE still owns that plan)
+- sparse factor-graph belief updates
 - inferring `measures` or `nets` from names, proximity, or renders
 - a production observer runtime

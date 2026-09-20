@@ -53,6 +53,8 @@ Pin: `giasonpooni/Jacobian-Sensitivity-Propagation-Testbed@7399ab03087b27683620b
 See [docs/KERNEL.md](docs/KERNEL.md), [docs/SCOPE.md](docs/SCOPE.md),
 and [docs/MAP.md](docs/MAP.md).
 
+Contributor requirements: [CONTRIBUTING.md](CONTRIBUTING.md).
+
 ## License
 
 MIT. See [LICENSE](LICENSE).
