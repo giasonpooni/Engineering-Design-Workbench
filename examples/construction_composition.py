@@ -33,7 +33,9 @@ def main() -> None:
     ]
     print("Construction composition through sensitivity")
     print(f"delta({point}) = {model.evaluate(point)}")
-    print(f"cond(J) = {estimate.condition_number:.3e}")
+    structure = estimate.structure()
+    print(f"visible rank = {structure.rank} of {estimate.matrix.shape[1]}")
+    print(f"invisible directions = {structure.invisible.shape[1]}")
     print(f"scaled gain = {metric.operator_gain(estimate.matrix):.6g}")
     for check in checks:
         mark = "PASS" if check.passed else "FAIL"
