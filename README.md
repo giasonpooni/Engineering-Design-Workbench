@@ -1,5 +1,9 @@
 # Schematics Retrieval Agent
 
+Part of **Notation Systems' computational instrumentation and evidence infrastructure** for industrial and cyber-physical systems.
+
+[Stack map](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/STACK.md) · [Component role and interfaces](docs/STACK_ROLE.md)
+
 Function-graph plus factor-graph IR for setting up observers on declared
 nonlinear plants. The agent retrieves typed subgraphs, applies an eligibility
 table, and writes fail-closed annotations.

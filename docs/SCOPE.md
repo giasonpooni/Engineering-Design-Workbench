@@ -12,7 +12,8 @@ First slice:
 
 Not in this slice:
 
-- importing or vendoring JSPT / PLSR
+- vendoring JSPT / PLSR or making them mandatory core dependencies
+  (optional pinned adapters can import installed kernels on explicit calls)
 - synthesizing `P`
 - USD schema plugins or `pxr` runtime
 - image / P&ID OCR
