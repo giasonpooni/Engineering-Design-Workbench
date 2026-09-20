@@ -183,12 +183,3 @@ identity behind any future hosted binding; drift below the noise floor.
   (available for guest ELFs via reproducible builds).
 - capabilities 5–9 — acceptance criteria still required.
 - tombstone/defeasance semantics — the recorded candidate bend.
-
-## Next executable frontier
-
-Wire the chemistry ingest gates into a REAL acquisition run: a scout
-ingest whose property observations pass `assert_property_context` /
-`assert_quantity_type` with rejects landing in `Quarantine`, measured
-rejection rates reported — the first end-to-end exercise of the new
-write barriers on live document ingest. (Stage 11's measured
-proof-throughput results are collected and await their own closure.)

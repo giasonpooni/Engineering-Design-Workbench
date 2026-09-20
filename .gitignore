@@ -12,3 +12,10 @@ zk/guest-heat-nexus/target/
 zk/artifacts/
 zk/guest-heat-risc0/target/
 zk/risc0/target/
+
+# Local working notes and authoring instructions
+/.private/
+/docs/private/
+/AGENTS.md
+/CLAUDE.md
+**/*HANDOFF*.md

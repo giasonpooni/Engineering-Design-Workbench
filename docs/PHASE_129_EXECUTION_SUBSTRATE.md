@@ -76,12 +76,3 @@ party who trusts neither this process nor its operator.
 **What remains impossible for a zkVM to prove?** That the input
 corresponds to a physical event. A fabricated value can be computed --
 and proved -- faithfully.
-
-## The one next step (superseded in-flight)
-
-This phase's designated next step was: implement the guest-input
-commitment convention (links 4-5 of the chain in
-`docs/ZKVM_ADAPTER_BOUNDARY.md`). Before this report was committed, the
-Scientific Transformer Engine directive arrived and widened the mandate
-to build-and-audit the full execution vertical; the STE work proceeds in
-the next commits, and the guest convention remains on its critical path.

@@ -153,5 +153,5 @@ every identity. Renamed to their real generality: Sp1KernelBackend,
 NexusKernelBackend, `ste.sp1.kernel-io.v1`. Rejected: multi-output
 result maps (no workload forced it), a workload base class (three
 runner functions and a trait were enough), any Morpho implementation
-(mapping only -- `docs/MORPHO_INSERTION_POINT.md`), renaming the
+(not implemented), renaming the
 repository (assessment only).

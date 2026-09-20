@@ -394,40 +394,6 @@ produces `Observation`/`Referent`/`ClaimedRelationship`, never a
 conflict-resolution-as-`Derived-value`, the pool→adapter bridge) remains
 deliberately unimplemented — see §0.
 
-## 12. Future agent topology (deliverable D — not implemented)
-
-```
-SCOUT           (this phase -- observes, attaches evidence to the Trust Graph)
-  |
-TRACE           (future -- follows a Trust Graph finding backward/forward:
-                 lineage, corroboration search, contradiction detection)
-  |
-VALIDATE        (future -- the human/higher-trust review step
-                 docs/PHASE_14_DATA_POOL_ARCHITECTURE.md §J already named;
-                 produces a Derived value flagged "ready for proposal")
-  |
-DYNAMICS        (future -- FEP-style network-state evolution; the actual
-                 consumer of evidence.fep_interface.FEPSignal)
-  |
-PRIORITIZATION  (future -- ranks candidate investigations using
-                 DYNAMICS' output; the first real use of
-                 FEPSignal.priority beyond the placeholder formula)
-  |
-HUMAN / EXPERIMENT   (future -- outside this repository's scope entirely)
-  |
-VALIDATION      (future -- results flow back as new Observations, closing
-                 the loop through SCOUT/TRACE again)
-  |
-YIELD           (future -- did the investigation produce information
-                 gain? feeds back into DYNAMICS' priors)
-  |
-FEP UPDATE      (future -- network-state/priority model updated)
-```
-
-None of TRACE/VALIDATE/DYNAMICS/PRIORITIZATION/YIELD/FEP-UPDATE exist in
-this codebase. This section is a map of where SCOUT's output is intended
-to eventually feed, not a commitment to build any of it next.
-
 ## 13. What this phase deliberately does not implement
 
 - `NormalizedRecord`/`Condition` (§R step 3) — SCOUT's `Observation.content`

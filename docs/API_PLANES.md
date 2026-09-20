@@ -107,15 +107,3 @@ lock asserts no such field exists, and a mutant that adds one is killed.
 
 The plane is declared and its mutation posture is enforced; *who may call
 it* is not this module's claim to make.
-
-## What is next, in order
-
-1. **A tenant concept, or drop the word from three plane definitions.**
-   Until one exists, those three planes are one plane with three names.
-2. **An HTTP/MCP runtime** — there is no host, so "the API" currently has
-   nowhere to be served from.
-3. **A reachability probe for the envelope**, on the pattern of the
-   chemistry gates: does every response path actually construct one, or
-   are there paths that return bare payloads? The refusals are correct;
-   whether anything reaches them is a separate question, and this project
-   has already been wrong about that once, at 0 of 20.

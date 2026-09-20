@@ -4,15 +4,6 @@ Core: **core@1.0.0**, now *declared* in `architecture/core.yaml`.
 Register derived from three bound repositories at named commits — and,
 as of this phase, at commits verified against their **remotes**.
 
-## Order of work
-
-The three stale rows were not patched individually. They fell out of
-three structural corrections, done in this order: declare the core
-version, compare the two probes, derive with three parties one of which
-has no source.
-
----
-
 ## 1. The core version is a declaration, not an inference
 
 The previous fix set STE's core version by reading `pyproject.toml` and
