@@ -1,5 +1,8 @@
 # Scientific Computation Runtime documentation
 
+For the current public component inventory and integration boundaries, see the
+[Notation Systems stack map](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/STACK.md) and [this component's role](STACK_ROLE.md).
+
 **Versioned scientific state, declared computational workloads, and provenance-bearing execution.**
 
 Notation Systems develops computational instrumentation and operates

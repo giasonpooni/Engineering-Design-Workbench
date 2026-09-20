@@ -1,5 +1,9 @@
 # Scientific Computation Runtime
 
+Part of **Notation Systems' computational instrumentation and evidence infrastructure** for industrial and cyber-physical systems.
+
+[Stack map](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/STACK.md) · [Component role and interfaces](docs/STACK_ROLE.md)
+
 **Versioned scientific state, declared computational workloads, and provenance-bearing execution.**
 
 Scientific Computation Runtime is the scientific execution component of
