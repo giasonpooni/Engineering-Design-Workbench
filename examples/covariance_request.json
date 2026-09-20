@@ -1,0 +1,78 @@
+{
+  "schema": "ciw.adapter-request.v1",
+  "operation_id": "jspt.covariance-propagate.v1",
+  "inputs": {
+    "covariance": {
+      "schema": "covariance-artifact.v1",
+      "quantity_ids": [
+        "reading.0",
+        "reading.1",
+        "reading.2"
+      ],
+      "units": [
+        "m",
+        "m",
+        "m"
+      ],
+      "frame": "fixture-axis",
+      "reference_values": [
+        10.0,
+        10.0,
+        10.0
+      ],
+      "matrix": [
+        [
+          1.09,
+          1.0,
+          1.0
+        ],
+        [
+          1.0,
+          1.09,
+          1.0
+        ],
+        [
+          1.0,
+          1.0,
+          1.09
+        ]
+      ],
+      "method": "declared_shared_offset_plus_independent_noise",
+      "basis": {
+        "kind": "calibrated_observation",
+        "id": "three-readings-with-one-shared-offset"
+      },
+      "provenance": {
+        "provider": "JSPT synthetic fixture",
+        "source_evidence_ids": [],
+        "source_covariance_ids": [],
+        "metadata": {
+          "shared_offset_variance": 1.0,
+          "independent_variance_per_reading": 0.09
+        }
+      },
+      "assumptions": [
+        "Synthetic covariance: one shared offset plus independent reading noise."
+      ],
+      "covariance_id": "sha256:0e0094cc157d980752b4eff5fef4a849ff49de89eebdd3b7ca8f90bc93b16017"
+    },
+    "jacobian": [
+      [
+        0.3333333333333333,
+        0.3333333333333333,
+        0.3333333333333333
+      ]
+    ],
+    "output_quantity_ids": [
+      "mean_reading"
+    ],
+    "output_units": [
+      "m"
+    ],
+    "output_frame": "fixture-axis",
+    "output_reference_values": [
+      10.0
+    ],
+    "map_kind": "weighted_aggregation"
+  }
+}

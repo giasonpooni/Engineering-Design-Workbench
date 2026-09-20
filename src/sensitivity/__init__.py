@@ -42,6 +42,7 @@ from .covariance import (
     monte_carlo_covariance,
     run_covariance_experiment,
 )
+from .covariance_artifact import make_covariance_artifact, validate_covariance_artifact
 from .jacobian import (
     JacobianEstimate,
     finite_difference_jacobian,
@@ -91,6 +92,7 @@ __all__ = [
     "jvp",
     "local_structure",
     "local_validity",
+    "make_covariance_artifact",
     "monte_carlo_covariance",
     "perturbation_error",
     "predict",
@@ -105,6 +107,7 @@ __all__ = [
     "transform_plant",
     "transform_state",
     "update",
+    "validate_covariance_artifact",
     "vjp",
 ]
 

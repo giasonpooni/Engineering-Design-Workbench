@@ -104,6 +104,31 @@ Then, in a consumer, wrap `jacobian_at` / `first_order_covariance` /
 
 See [docs/KERNEL.md](docs/KERNEL.md).
 
+### Workbench covariance operation
+
+The JSON endpoint `sensitivity.ciw_adapter` exposes
+`jspt.covariance-propagate.v1` as an **operation provider**. It accepts a
+content-addressed `covariance-artifact.v1` plus an explicit, ordered Jacobian
+and returns the full propagated covariance with source, basis, unit, frame,
+and linearization-point declarations. Weighted aggregation retains all
+cross-covariances; invertible coordinate changes retain the existing chart
+condition and round-trip checks.
+
+```bash
+PYTHONPATH=src python -m sensitivity.ciw_adapter < examples/covariance_request.json
+```
+
+The included shared-offset example returns mean variance `1.03`: the shared
+variance `1` remains, while independent reading variance `0.09` is divided
+among three readings. Negative weights can legitimately cancel a shared
+component. The endpoint uses the existing covariance kernels; it neither
+computes a derivative from the supplied matrix nor performs a nonlinear
+Monte Carlo comparison. CIW may bind a specific clean Git revision as a
+pinned subprocess; JSPT retains scientific ownership.
+
+See [docs/CIW_ADAPTER.md](docs/CIW_ADAPTER.md) for the exact transport,
+artifact contract, refusal meanings, and validation evidence.
+
 ## Library layout
 
 ```text
