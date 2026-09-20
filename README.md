@@ -41,16 +41,44 @@ artifacts, and covariance eligibility. It enforces:
 
 Numerical eligibility does not establish calibration validity, sensor truth,
 model adequacy, physical applicability, estimator accuracy, or stability.
-
-The covariance check uses unpivoted LDLᵀ with a default PSD tolerance of
-`1e-12 * max(1, max(abs(matrix)))`. Singular-matrix acceptance is scale-sensitive:
-`[[1e-14, 1e-7], [1e-7, 1]]` is a rank-one positive-semidefinite outer product,
-but the current validator rejects it because its first pivot is treated as zero
-while the off-diagonal residual exceeds that tolerance. Rejection therefore does
-not establish a negative eigenvalue, and reported rank is a tolerance-dependent
-numerical estimate.
+Identity fields are references, not authenticated attestations: validation does
+not fetch their subjects, recompute producer-specific content hashes, establish
+admission, or independently substantiate a declared external verifier.
 
 Run the executable contract slice with `python -m pytest`.
+
+#### Validator API 0.2 compatibility
+
+The wire schemas remain `notation.instrument.*.v1`; validator API 0.2 tightens
+previously ambiguous or unsafe validation behavior:
+
+- `CovarianceValidation.effective_rank` is `None` for `unknown` and
+  `not_applicable`. A supplied all-zero matrix has rank `0`; missing covariance
+  does not. Consumers must handle the nullable rank explicitly.
+- Finite, nonnegative variances are mandatory. A zero variance requires an
+  exactly zero row and column. Positive-variance coordinates are normalized to
+  dimensionless correlations before symmetry, PSD, and rank checks, so changing
+  one variable's physical units does not hide another variable's uncertainty.
+- Tolerances are finite numbers in `[0, 1)`, expressed in correlation
+  coordinates. Both stored triangles must pass the symmetric-eigenspectrum
+  check; the matrix is neither averaged nor repaired. Effective rank is the
+  smaller triangle rank if tolerated asymmetry straddles the rank threshold.
+  Floating-point decisions close to that threshold remain tolerance-dependent.
+- The dependency-free Jacobi eigensolver fails closed on nonconvergence.
+  It replaces the scale-sensitive unpivoted LDL check; the rank-one covariance
+  `[[1e-14, 1e-7], [1e-7, 1]]`, formerly rejected, now validates with rank `1`.
+  Optional NumPy differential tests exercise singular/full-rank matrices,
+  permutations, indefinite correlations, and extreme mixed-unit scales;
+  NumPy is not required by the validator itself.
+- Tangent frames require an ordered basis and a finite evaluation point. The
+  point's dimension need not equal state dimension (for example, a 2D tangent
+  plane in 3D). These declarations do not establish a valid frame transform.
+- Timestamps must include a complete date and time in
+  `YYYY-MM-DDTHH:MM:SS[.fraction]Z` form; leap seconds are not supported.
+  Observation/receipt ordering is not inferred without a clock mapping.
+- Covariance calibration references must also be retained at the artifact
+  level. Result, execution, input, verification, and subject references cannot
+  reuse the same identity where they denote different artifacts.
 
 ## Technical responsibility
 
