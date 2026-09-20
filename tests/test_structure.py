@@ -5,12 +5,16 @@ from schematics import Status, decide, quadratic_drag, run
 from schematics.adapters.structure import call_local_structure
 from schematics.ir import EdgeKind, Node, NodeKind
 from schematics.pins import JSPT
+from conftest import sampled_jacobian
 
 
 def _with_A(fixture: bool = False):
     sch = quadratic_drag()
-    sch.add(Node(id="cert:jspt:f", kind=NodeKind.CERTIFICATE, attrs={"owner": "jspt", "result": Status.SAMPLED.value, "A": [[-1.0]], "fixture": fixture}))
-    sch.connect(EdgeKind.LINEARIZES, "cert:jspt:f", "f")
+    if fixture:
+        sch.add(Node(id="cert:jspt:f", kind=NodeKind.CERTIFICATE, attrs={"owner": "jspt", "result": Status.SAMPLED.value, "A": [[-1.0]], "fixture": True}))
+        sch.connect(EdgeKind.LINEARIZES, "cert:jspt:f", "f")
+    else:
+        sampled_jacobian(sch)
     return sch
 
 

@@ -5,6 +5,7 @@ from __future__ import annotations
 from dataclasses import dataclass
 
 from .ir import EdgeKind, Node, NodeKind, PlantClass, Schematic, Status
+from .binding import matches
 
 
 @dataclass(frozen=True)
@@ -30,14 +31,19 @@ def _has_xstar(node: Node) -> bool:
 
 
 def _written_A(schematic: Schematic, function_id: str) -> Node | None:
+    latest = schematic.nodes.get(f"cert:jspt:{function_id}")
+    if latest is not None and not matches(schematic, function_id, latest):
+        return None
+    candidates = {}
     for edge in schematic.in_edges(function_id, EdgeKind.LINEARIZES):
-        cert = schematic.node(edge.src)
-        if cert.get("owner") == "jspt" and cert.get("result") == Status.SAMPLED.value:
-            if cert.get("fixture") is True:
-                continue
-            if cert.get("A") is not None:
-                return cert
-    return None
+        cert = schematic.nodes.get(edge.src)
+        if cert is None:
+            return None
+        if matches(schematic, function_id, cert):
+            candidates[cert.id] = cert
+    # Multiple records require an explicit caller selection, never edge-order
+    # arbitration. Old/foreign annotations remain readable but non-authoritative.
+    return next(iter(candidates.values())) if len(candidates) == 1 else None
 
 
 def _digest(node: Node) -> bool:

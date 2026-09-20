@@ -65,7 +65,7 @@ def call_local_structure(schematic: Schematic, function_id: str) -> KernelEvent:
         result=Status.SAMPLED,
         target=function_id,
         edge=EdgeKind.LINEARIZES,
-        attrs={"tool": "jspt.local_structure", "rank": rank, "invisible": invisible, "visible": visible, "singular_values": svals, "pin": f"{JSPT['repo']}@{JSPT['sha']}", "reason": "ker J at x_star; not Kalman observability"},
+        attrs={"tool": "jspt.local_structure", "source_result_ref": cert_A.get("binding")["result_id"], "source_execution_ref": cert_A.get("binding")["execution_id"], "rank": rank, "invisible": invisible, "visible": visible, "singular_values": svals, "pin": f"{JSPT['repo']}@{JSPT['sha']}", "reason": "ker J at x_star; not Kalman observability"},
     )
     node = schematic.node(function_id)
     attrs = dict(node.attrs)

@@ -7,7 +7,7 @@ from pathlib import Path
 from typing import Any
 
 from .ir import Edge, EdgeKind, Node, NodeKind, Schematic
-from .validate import require
+from .validate import require, SchematicError, SCHEMA
 
 
 def to_dict(schematic: Schematic) -> dict[str, Any]:
@@ -20,6 +20,14 @@ def to_dict(schematic: Schematic) -> dict[str, Any]:
 
 
 def from_dict(payload: dict[str, Any]) -> Schematic:
+    if not isinstance(payload, dict):
+        raise SchematicError("schematic payload must be an object")
+    meta = payload.get("meta", {})
+    if not isinstance(meta, dict):
+        raise SchematicError("schematic meta must be an object")
+    declared = [obj["schema"] for obj in (payload, meta) if "schema" in obj]
+    if any(value != SCHEMA for value in declared):
+        raise SchematicError("unknown or conflicting schematic schema")
     sch = Schematic(meta=dict(payload.get("meta") or {}))
     if "schema" in payload and "schema" not in sch.meta:
         sch.meta["schema"] = payload["schema"]

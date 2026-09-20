@@ -87,6 +87,8 @@ def call_evaluate(schematic: Schematic, function_id: str) -> KernelEvent:
         attrs={
             "tool": "lyapunov.evaluate",
             "A": A,
+            "source_result_ref": cert_A.get("binding")["result_id"],
+            "source_execution_ref": cert_A.get("binding")["execution_id"],
             "P": _matrix(sample.P),
             "V": float(sample.value),
             "decrease": float(sample.decrease),

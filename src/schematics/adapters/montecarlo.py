@@ -14,7 +14,11 @@ from .jspt import JsptUnavailable, load_sensitivity, resolve_model
 def call_monte_carlo_covariance(schematic: Schematic, function_id: str, *, samples: int = 400) -> KernelEvent:
     node = schematic.node(function_id)
     cert_A = _written_A(schematic, function_id)
-    sigma = declared_sigma(schematic, function_id)
+    try:
+        sigma = declared_sigma(schematic, function_id)
+    except (TypeError, ValueError, OverflowError) as exc:
+        upsert_certificate(schematic, node_id=f"cert:jspt.mc:{function_id}", owner="jspt", result=Status.REFUSED, target=function_id, edge=EdgeKind.LINEARIZES, attrs={"tool": "jspt.run_covariance_experiment", "reason": f"invalid sigma_x: {exc}"})
+        return KernelEvent(tool="jspt.run_covariance_experiment", owner="jspt", node_id=function_id, result=Status.REFUSED, detail={"reason": f"invalid sigma_x: {exc}", "pin": JSPT})
     if cert_A is None or sigma is None:
         return KernelEvent(tool="jspt.run_covariance_experiment", owner="jspt", node_id=function_id, result=Status.NOT_ELIGIBLE, detail={"reason": "need non-fixture A and declared sigma_x", "pin": JSPT})
     try:
@@ -33,6 +37,6 @@ def call_monte_carlo_covariance(schematic: Schematic, function_id: str, *, sampl
         result=Status.SAMPLED,
         target=function_id,
         edge=EdgeKind.LINEARIZES,
-        attrs={"tool": "jspt.run_covariance_experiment", "frobenius_gap": float(experiment.frobenius_gap), "relative_gap": float(experiment.relative_gap), "samples": int(experiment.samples), "notes": experiment.notes, "pin": f"{JSPT['repo']}@{JSPT['sha']}", "reason": "Monte Carlo measures the remainder; it does not replace Sigma_y"},
+        attrs={"tool": "jspt.run_covariance_experiment", "sigma_x": sigma, "source_result_ref": cert_A.get("binding")["result_id"], "source_execution_ref": cert_A.get("binding")["execution_id"], "frobenius_gap": float(experiment.frobenius_gap), "relative_gap": float(experiment.relative_gap), "samples": int(experiment.samples), "notes": experiment.notes, "pin": f"{JSPT['repo']}@{JSPT['sha']}", "reason": "Monte Carlo measures the remainder; it does not replace Sigma_y"},
     )
     return KernelEvent(tool="jspt.run_covariance_experiment", owner="jspt", node_id=function_id, result=Status.SAMPLED, detail={"frobenius_gap": float(experiment.frobenius_gap), "relative_gap": float(experiment.relative_gap), "pin": JSPT})

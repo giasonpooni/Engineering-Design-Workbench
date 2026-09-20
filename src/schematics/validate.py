@@ -4,6 +4,8 @@ from __future__ import annotations
 
 from .ir import EdgeKind, NodeKind, Schematic
 
+SCHEMA = "NsObservabilitySchematic@0.1"
+
 
 class SchematicError(ValueError):
     pass
@@ -25,6 +27,8 @@ _ALLOWED = {
 
 def validate(schematic: Schematic) -> list[str]:
     problems: list[str] = []
+    if "schema" in schematic.meta and schematic.meta["schema"] != SCHEMA:
+        problems.append("unknown schematic schema")
     for edge in schematic.edges:
         allowed = _ALLOWED.get(edge.kind)
         if allowed is None:

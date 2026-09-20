@@ -54,6 +54,11 @@ condition even when extras are installed.
 
 Pin: `giasonpooni/Jacobian-Sensitivity-Propagation-Testbed@7399ab03087b27683620b4c57f97b2ac14546c7f`.
 
+Dependent numerical routes require a current, content-bound Jacobian adapter
+record. Legacy annotations remain readable, but stale or unbound matrices do not
+open covariance, structure or Lyapunov calls. Content binding is not execution
+authentication; see the precise boundary in [docs/KERNEL.md](docs/KERNEL.md).
+
 See [docs/KERNEL.md](docs/KERNEL.md), [docs/SCOPE.md](docs/SCOPE.md),
 and [docs/MAP.md](docs/MAP.md).
 

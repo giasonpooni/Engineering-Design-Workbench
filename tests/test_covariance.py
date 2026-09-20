@@ -5,6 +5,7 @@ from schematics import Status, decide, quadratic_drag
 from schematics.adapters.covariance import call_first_order_covariance
 from schematics.ir import EdgeKind, Node, NodeKind
 from schematics.pins import JSPT
+from conftest import sampled_jacobian
 
 
 def _with_A(*, sigma=None, fixture: bool = False):
@@ -13,8 +14,11 @@ def _with_A(*, sigma=None, fixture: bool = False):
     if sigma is not None:
         attrs["sigma_x"] = sigma
     sch.replace(Node(id="f", kind=NodeKind.FUNCTION, attrs=attrs))
-    sch.add(Node(id="cert:jspt:f", kind=NodeKind.CERTIFICATE, attrs={"owner": "jspt", "result": Status.SAMPLED.value, "A": [[-1.0]], "fixture": fixture}))
-    sch.connect(EdgeKind.LINEARIZES, "cert:jspt:f", "f")
+    if fixture:
+        sch.add(Node(id="cert:jspt:f", kind=NodeKind.CERTIFICATE, attrs={"owner": "jspt", "result": Status.SAMPLED.value, "A": [[-1.0]], "fixture": True}))
+        sch.connect(EdgeKind.LINEARIZES, "cert:jspt:f", "f")
+    else:
+        sampled_jacobian(sch)
     return sch
 
 

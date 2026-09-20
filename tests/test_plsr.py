@@ -5,6 +5,7 @@ from schematics import Status, decide, quadratic_drag, run
 from schematics.adapters.plsr import call_evaluate
 from schematics.ir import EdgeKind, Node, NodeKind
 from schematics.pins import PLSR
+from conftest import sampled_jacobian
 
 
 def test_fixture_A_does_not_call_plsr():
@@ -16,8 +17,7 @@ def test_fixture_A_does_not_call_plsr():
 def test_plsr_missing_module_is_not_checked(monkeypatch):
     monkeypatch.setitem(sys.modules, "lyapunov", None)
     sch = quadratic_drag()
-    sch.add(Node(id="cert:jspt:f", kind=NodeKind.CERTIFICATE, attrs={"owner": "jspt", "result": Status.SAMPLED.value, "A": [[-1.0]], "fixture": False}))
-    sch.connect(EdgeKind.LINEARIZES, "cert:jspt:f", "f")
+    sampled_jacobian(sch)
     event = call_evaluate(sch, "f")
     assert event.result is Status.NOT_CHECKED
     assert PLSR["sha"] in str(event.detail)
@@ -50,8 +50,7 @@ def test_plsr_adapter_with_fake_lyapunov(monkeypatch):
     fake.verdict = lambda plant, cert, x, **kw: Verdict()
     monkeypatch.setitem(sys.modules, "lyapunov", fake)
     sch = quadratic_drag()
-    sch.add(Node(id="cert:jspt:f", kind=NodeKind.CERTIFICATE, attrs={"owner": "jspt", "result": Status.SAMPLED.value, "A": [[-1.0]], "fixture": False}))
-    sch.connect(EdgeKind.LINEARIZES, "cert:jspt:f", "f")
+    sampled_jacobian(sch)
     event = call_evaluate(sch, "f")
     assert event.result is Status.SAMPLED
     assert event.detail["verdict"] == "certified"

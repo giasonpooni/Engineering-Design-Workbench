@@ -10,8 +10,8 @@ from .adapters.jspt import call_jacobian_at, call_perturbation_sweep
 from .adapters.plsr import call_evaluate
 from .adapters.rci import bind_digest, bind_record
 from .adapters.structure import call_local_structure
-from .annotate import apply_decision, observer_next_step, set_observer_status
-from .eligibility import Decision, decide
+from .annotate import apply_decision, observer_next_step, set_observer_status, invalidate_stale_results
+from .eligibility import Decision, decide, _written_A
 from .ir import NodeKind, Schematic, Status
 from .kernels import KernelEvent, attach_fixture_linearization, plan
 from .retrieve import blanket, by_kind
@@ -29,7 +29,7 @@ class AgentReport:
 
 def _drop_stale_lyapunov(schematic: Schematic, function_id: str) -> None:
     stale = f"cert:lyapunov:{function_id}"
-    if stale in schematic.nodes and schematic.node(stale).get("result") == Status.NOT_ELIGIBLE.value:
+    if stale in schematic.nodes and schematic.node(stale).get("result") == Status.NOT_ELIGIBLE.value and schematic.node(stale).get("historical_result") is None:
         del schematic.nodes[stale]
         schematic.edges = [e for e in schematic.edges if e.src != stale and e.dst != stale]
 
@@ -46,6 +46,7 @@ def run(
     if rci_digest is not None and rci_record is not None:
         raise ValueError("rci_digest and rci_record are mutually exclusive")
     require(schematic)
+    invalidate_stale_results(schematic)
     decisions = decide(schematic)
     events = plan(decisions)
     for decision in decisions:
@@ -71,7 +72,7 @@ def run(
                 events.append(call_coordinate_consistency(schematic, decision.node_id))
         for node in by_kind(schematic, NodeKind.FUNCTION):
             cert = f"cert:jspt:{node.id}"
-            if cert in schematic.nodes and schematic.node(cert).get("fixture") is False and schematic.node(cert).get("result") == Status.SAMPLED.value:
+            if _written_A(schematic, node.id) is not None:
                 _drop_stale_lyapunov(schematic, node.id)
     for decision in decide(schematic):
         if decision.tool == "jspt.local_structure" and decision.status is Status.ELIGIBLE:
@@ -82,6 +83,7 @@ def run(
         for decision in decide(schematic):
             if decision.tool == "lyapunov.evaluate" and decision.status is Status.ELIGIBLE:
                 events.append(call_evaluate(schematic, decision.node_id))
+    invalidate_stale_results(schematic)
     decisions = decide(schematic)
     blankets = {n.id: blanket(schematic, n.id) for n in by_kind(schematic, NodeKind.VARIABLE)}
     next_step = observer_next_step(schematic)

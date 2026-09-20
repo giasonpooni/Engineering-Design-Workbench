@@ -12,6 +12,7 @@ from ..annotate import upsert_certificate
 from ..ir import EdgeKind, Node, NodeKind, Schematic, Status
 from ..kernels import KernelEvent
 from ..pins import CATALOGUE_ALIASES, JSPT
+from ..binding import call_inputs, declaration, finite_matrix, make_binding
 
 
 class JsptUnavailable(RuntimeError):
@@ -66,7 +67,10 @@ def resolve_model(sensitivity: Any, model_ref: str, attrs: dict[str, Any]) -> An
 
 def _matrix(estimate: Any) -> list[list[float]]:
     raw = getattr(estimate, "matrix", estimate)
-    return [[float(v) for v in row] for row in raw]
+    # NumPy arrays/scalars are normalized without coercing bool/string/complex
+    # into plausible real values. The strict validator owns conversion.
+    raw = raw.tolist() if hasattr(raw, "tolist") else raw
+    return finite_matrix(raw)
 
 
 def call_jacobian_at(schematic: Schematic, function_id: str) -> KernelEvent:
@@ -74,18 +78,23 @@ def call_jacobian_at(schematic: Schematic, function_id: str) -> KernelEvent:
     model_ref = node.get("model_ref")
     x_star = node.get("x_star")
     try:
+        declared = declaration(schematic, function_id)
+        inputs = call_inputs(declared)
         sensitivity = load_sensitivity()
-        model = resolve_model(sensitivity, str(model_ref), dict(node.attrs))
-        estimate = sensitivity.jacobian_at(model, x_star)
-        A = _matrix(estimate)
+        model = resolve_model(sensitivity, inputs["model_ref"], declared["function"])
+        estimate = sensitivity.jacobian_at(model, inputs["x_star"])
+        A = finite_matrix(_matrix(estimate))
+        if declaration(schematic, function_id) != declared or inputs != call_inputs(declared):
+            raise ValueError("function declaration changed during the adapter call")
+        binding = make_binding(declared, A)
     except JsptUnavailable as exc:
         upsert_certificate(schematic, node_id=f"cert:jspt:{function_id}", owner="jspt", result=Status.NOT_CHECKED, target=function_id, edge=EdgeKind.LINEARIZES, attrs={"tool": "jspt.jacobian_at", "fixture": False, "pin": f"{JSPT['repo']}@{JSPT['sha']}", "reason": str(exc)})
         return KernelEvent(tool="jspt.jacobian_at", owner="jspt", node_id=function_id, result=Status.NOT_CHECKED, detail={"reason": str(exc), "pin": JSPT})
     except Exception as exc:
         upsert_certificate(schematic, node_id=f"cert:jspt:{function_id}", owner="jspt", result=Status.REFUSED, target=function_id, edge=EdgeKind.LINEARIZES, attrs={"tool": "jspt.jacobian_at", "fixture": False, "pin": f"{JSPT['repo']}@{JSPT['sha']}", "reason": str(exc)})
         return KernelEvent(tool="jspt.jacobian_at", owner="jspt", node_id=function_id, result=Status.REFUSED, detail={"reason": str(exc), "pin": JSPT})
-    upsert_certificate(schematic, node_id=f"cert:jspt:{function_id}", owner="jspt", result=Status.SAMPLED, target=function_id, edge=EdgeKind.LINEARIZES, attrs={"tool": "jspt.jacobian_at", "A": A, "fixture": False, "model_ref": model_ref, "source": getattr(estimate, "source", "unknown"), "pin": f"{JSPT['repo']}@{JSPT['sha']}", "reason": "jacobian_at via pinned sensitivity"})
-    return KernelEvent(tool="jspt.jacobian_at", owner="jspt", node_id=function_id, result=Status.SAMPLED, detail={"fixture": False, "A": A, "pin": JSPT})
+    upsert_certificate(schematic, node_id=f"cert:jspt:{function_id}", owner="jspt", result=Status.SAMPLED, target=function_id, edge=EdgeKind.LINEARIZES, attrs={"tool": "jspt.jacobian_at", "A": A, "fixture": False, "model_ref": model_ref, "source": getattr(estimate, "source", "unknown"), "pin": f"{JSPT['repo']}@{JSPT['sha']}", "binding": binding, "reason": "content-bound jacobian_at adapter record; source revision and execution origin are not authenticated"})
+    return KernelEvent(tool="jspt.jacobian_at", owner="jspt", node_id=function_id, result=Status.SAMPLED, detail={"fixture": False, "A": A, "pin": JSPT, "execution_ref": binding["execution_id"], "result_ref": binding["result_id"], "provenance": dict(binding["provenance"])})
 
 
 def call_perturbation_sweep(schematic: Schematic, function_id: str, *, scales: tuple[float, ...] = (1e-4, 1e-3, 1e-2, 5e-2)) -> KernelEvent:
