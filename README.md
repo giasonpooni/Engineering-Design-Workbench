@@ -336,3 +336,7 @@ entities after one accepted value-only update), then open
 `renderer/index.html` via a local HTTP server (not `file://`, since it
 `fetch()`es the descriptor) and use the two buttons to switch between
 them.
+
+## License
+
+Copyright 2026 Bespoke Polymer Inc. Licensed under the [Apache License, Version 2.0](LICENSE).
