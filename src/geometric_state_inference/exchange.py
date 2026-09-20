@@ -30,6 +30,7 @@ from uuid import uuid4
 import numpy as np
 
 from .contracts import Estimate, Observation
+from .estimator import replay_estimate
 
 
 ADAPTER_VERSION = "geometric-state-inference.exchange.v1"
@@ -247,6 +248,20 @@ def export_result_artifact(
         raise ValueError("estimate references do not match its imported observation")
     if estimate.prior_state_id in (observed.observation_id, *observed.evidence_refs):
         raise ValueError("prior state identity must differ from observation and evidence")
+    if estimate.replay_snapshot is None:
+        raise ValueError("result export requires the retained estimator replay configuration")
+    replayed = replay_estimate(estimate.replay_snapshot)
+    if any(getattr(replayed, name) != getattr(estimate, name) for name in (
+        "numerical_result_id", "state_id", "prior_state_id", "observation_id",
+        "evidence_refs", "observation_model_id", "dynamics_model_id",
+    )):
+        raise ValueError("estimate differs from its bound replay configuration")
+    replay_observation = estimate.replay_snapshot["observation"]
+    if (replay_observation["values"] != observed.values.tolist()
+            or replay_observation["covariance"] != observed.covariance.tolist()
+            or replay_observation["frame_id"] != observed.frame_id
+            or replay_observation["units"] != list(observed.units)):
+        raise ValueError("replay observation differs from the retained source snapshot")
     calibration_refs = _references(calibration_refs, "calibration_refs")
     calibration = list(dict.fromkeys([
         *retained["calibration_refs"], *retained["covariance"]["calibration_refs"],
@@ -259,12 +274,16 @@ def export_result_artifact(
     if estimate.dynamics_model_id is not None:
         model_refs.append(estimate.dynamics_model_id)
     if (not isinstance(execution_ref, str) or not execution_ref.strip()
-            or execution_ref in (*inputs, *model_refs, *calibration, OPERATION_REF)):
+            or execution_ref in (*inputs, *model_refs, *calibration, OPERATION_REF,
+                                  estimate.state_id, estimate.numerical_result_id)):
         raise ValueError("execution_ref must be nonempty and distinct from other declared identities")
     artifact = {
         "schema": RESULT_SCHEMA,
         "execution_ref": execution_ref,
         "operation_ref": OPERATION_REF,
+        "state_id": estimate.state_id,
+        "predecessor_state_id": estimate.prior_state_id,
+        "numerical_result_id": estimate.numerical_result_id,
         "input_refs": inputs,
         "model_refs": list(dict.fromkeys(model_refs)),
         "calibration_refs": calibration,
@@ -293,6 +312,13 @@ def export_result_artifact(
             "elapsed_seconds": estimate.time,
             "source_snapshot": retained,
             "status": "supplied_content_bound_not_authenticated",
+        },
+        "replay_binding": {
+            "status": "local_replay_matched",
+            "snapshot": estimate.replay_snapshot,
+            "canonical_json_digest": "sha256:" + sha256(
+                estimate.replay_json.encode("utf-8")).hexdigest(),
+            "verification_independence": "not_established",
         },
         "diagnostics": {
             "measurement_variables": [item["name"] for item in retained["components"]],

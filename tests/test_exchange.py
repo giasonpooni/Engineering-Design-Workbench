@@ -13,7 +13,7 @@ import sys
 import numpy as np
 import pytest
 
-from geometric_state_inference import LinearObservation, Observation, StatePrior, update
+from geometric_state_inference import LinearObservation, Observation, StatePrior, replay_estimate, update
 from geometric_state_inference.exchange import (
     CHECKER_PATH, CHECKER_SHA256, OPERATION_REF, RESULT_SCHEMA,
     export_result_artifact, import_observation_batch,
@@ -163,6 +163,62 @@ def test_result_identity_changes_for_replay_occurrence(validator_repo):
     second = exported(validator_repo, source, execution_ref="example:execution-2")
     assert first["components"] == second["components"]
     assert first["result_id"] != second["result_id"]
+    assert first["numerical_result_id"] == second["numerical_result_id"]
+    assert first["state_id"] == second["state_id"]
+    third = exported(validator_repo, source, created_at="2026-09-20T12:00:05Z")
+    assert third["result_id"] != first["result_id"]
+    assert third["numerical_result_id"] == first["numerical_result_id"]
+
+
+def test_full_replay_binding_reproduces_result_without_external_model_configuration(validator_repo):
+    source = imported(validator_repo)
+    artifact = exported(validator_repo, source)
+    binding = artifact["replay_binding"]
+    assert binding["status"] == "local_replay_matched"
+    assert binding["verification_independence"] == "not_established"
+    replayed = replay_estimate(binding["snapshot"])
+    assert replayed.numerical_result_id == artifact["numerical_result_id"]
+    assert replayed.state_id == artifact["state_id"]
+    assert binding["snapshot"]["prior"]["covariance"] == [[1.0, 0.2], [0.2, 2.0]]
+    assert binding["snapshot"]["model"]["matrix"] == [[1.0, 0.0], [0.0, 1.0]]
+    encoded = json.dumps(binding["snapshot"], sort_keys=True, separators=(",", ":"),
+                         ensure_ascii=False, allow_nan=False).encode()
+    assert binding["canonical_json_digest"] == "sha256:" + sha256(encoded).hexdigest()
+
+
+@pytest.mark.parametrize("field,value", [
+    ("mean", [100, 200]),
+    ("covariance", [[2, 0], [0, 2]]),
+    ("nis", 100),
+    ("observation_model_id", "model:forged"),
+    ("state_id", "state:forged"),
+    ("replay_json", None),
+])
+def test_export_refuses_result_mutation_or_unbound_replay(validator_repo, field, value):
+    source = imported(validator_repo)
+    forged = replace(estimated(source), **{field: value})
+    with pytest.raises(ValueError, match="replay"):
+        exported(validator_repo, source, forged)
+
+
+def test_numerical_identity_excludes_observation_receipt_identity(validator_repo):
+    first = imported(validator_repo)
+    altered_artifact = observation_artifact()
+    altered_artifact["batch_id"] = "example:second-occurrence"
+    second = imported(validator_repo, altered_artifact)
+    one, two = exported(validator_repo, first), exported(validator_repo, second)
+    assert one["numerical_result_id"] == two["numerical_result_id"]
+    assert one["state_id"] != two["state_id"]
+    assert one["result_id"] != two["result_id"]
+
+
+def test_export_cannot_attach_same_id_different_covariance_observation(validator_repo):
+    original = imported(validator_repo)
+    altered_artifact = observation_artifact()
+    altered_artifact["covariance"]["matrix"] = [[0.4, 0], [0, 0.9]]
+    altered = imported(validator_repo, altered_artifact)
+    with pytest.raises(ValueError, match="replay observation"):
+        exported(validator_repo, altered, estimated(original))
 
 
 @pytest.mark.parametrize("field,value", [

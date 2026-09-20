@@ -8,12 +8,13 @@ This project evolves the specification formerly titled **State-Inferential-Corte
 
 | Capability | Status |
 | --- | --- |
-| Typed observations, priors and model contracts | Implemented with time, frame, unit, shape, finiteness and covariance checks |
-| Linear Gaussian estimation | Deterministic NumPy Kalman prediction/update; linear solve and Joseph covariance update |
+| Typed observations, priors and model contracts | Strict real numeric types, exact declared covariance symmetry, time/frame/unit checks; at most 64 components |
+| Linear Gaussian estimation | NumPy Kalman prediction/update; linear solve and guarded Joseph covariance; exact binary64-rational fallback for cancellation-prone covariance |
 | Manifold example | Scalar SO(2) heading, wrapped innovation and local tangent covariance in radians squared |
 | Diagnostics | Innovation, innovation covariance, posterior measurement residual, normalized innovation squared |
 | Reproducible examples | Synthetic scalar trajectory and angle-boundary example; numerical reference tests |
-| Instrument exchange | Observation import and result export through the pinned SET validator; read-only CIW inspection |
+| Instrument exchange | Source-bound observation import, complete local numerical replay configuration and result export through the pinned SET validator; read-only CIW inspection |
+| Identity separation | Predecessor/transition identities, occurrence-independent numerical-content digest, separate exchange artifact and execution reference |
 | EKF/UKF, particle filters, factor graphs, SE(3), GNSS/IMU fusion | Not implemented |
 
 The SO(2) example is a local Gaussian approximation for a concentrated angle distribution. It does not implement arbitrary manifolds or guarantee constraint satisfaction, observability, stability, accuracy, calibration traceability or real-time performance. Field reconstruction remains a possible specialization, rather than the definition of every state.

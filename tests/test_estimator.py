@@ -112,7 +112,9 @@ def test_replayed_filter_matches_independent_batch_gaussian_qr_solution():
     np.testing.assert_allclose(estimates[-1].covariance, batch_covariance[-2:, -2:],
                                rtol=1e-12, atol=1e-12)
     assert estimates[-1].dynamics_model_id == dynamics.model_id
-    assert estimates[-1].prior_state_id == "state:posterior-2"
+    # A propagation is a distinct transition, not its preceding posterior.
+    assert estimates[-1].prior_state_id != "state:posterior-2"
+    assert estimates[-1].replay_snapshot["prior"]["predecessor_state_id"] == "state:posterior-2"
 
 
 def test_joseph_covariance_stays_psd_for_large_variance_scale_difference():
