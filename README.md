@@ -1,46 +1,29 @@
 # Yield-Weighted Inference Runtime
 
-A computational runtime for admitting or refusing token bursts on a
-declared department budget, so spend buys reusable structure rather
-than horizontal spill.
+Part of **Notation Systems' computational instrumentation and evidence infrastructure** for industrial and cyber-physical systems.
+
+[Stack map](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/STACK.md) · [Component role and interfaces](docs/STACK_ROLE.md)
+
+An experimental runtime for admission and settlement of inference-token budgets.
+It evaluates caller-declared proposals, reuse opportunities and yield observations
+against explicit departmental budgets, then returns a decision and receipt.
 
 Short name **YWIR**. The reusable library import is `ywir`.
 
-This is not a prompt-engineering kit and not a model router.
-World-claims stay in
-[Construction-State-Estimator-for-BIM](https://github.com/giasonpooni/Construction-State-Estimator-for-BIM),
-[Parameterized-Lyapunov-Stability-Runtime](https://github.com/giasonpooni/Parameterized-Lyapunov-Stability-Runtime),
-[Jacobian-Sensitivity-Propagation-Testbed](https://github.com/giasonpooni/Jacobian-Sensitivity-Propagation-Testbed),
-and the token-gated mill servers. This repository owns the
-**admission law**.
+The package owns the budget decision. Scientific claims and physical decisions
+remain with their domain engines. It does not run a language model, measure
+semantic quality independently or control machinery.
 
-**In development.** Result files are development samples. They do not
-confirm the runtime is out of development. See
-[docs/DEVELOPMENT.md](docs/DEVELOPMENT.md).
+**In development.** Checked-in results are scoped development samples. See
+[development status](docs/DEVELOPMENT.md).
 
-The central question is:
+## Decision flow
 
-> Given a proposer loop and declared observations, does the next
-> burst raise rank, glue, or emit a morphism — or is it gauge?
-
-## Map
-
-```mermaid
-flowchart LR
-  Prop["proposal"] --> Dec{"classify"}
-  Dec -->|"compose candidates in G"| Comp["COMPOSE"]
-  Dec -->|"plant refuse"| Ev["REQUEST_EVIDENCE"]
-  Dec -->|"spill / starved / closed"| Ref["refuse \u00b7 no clip"]
-  Dec -->|"yield and budget hold"| Adm["ADMIT"]
-  Adm --> Set["settle: debit, eta_hat, accept morphism"]
-  Set --> Rec["receipt other kernels may cite"]
-  Ref --> Rec
-  Comp --> Rec
-  Ev --> Rec
-```
-
-Caption: tokens are control. Structure is what survives glue. A
-yield receipt does not ACCEPT a building or a V.
+`decide` classifies the supplied proposal, checks available budget and returns
+admission, refusal, composition, evidence-request, reindexing or closure status.
+`settle` records the declared outcome and updates budget/yield state. Rank change,
+similarity and composability are inputs supplied by the caller, not independently
+established scientific properties. A receipt describes that budget decision.
 
 ## What is in the first slice
 
@@ -80,16 +63,14 @@ PYTHONPATH=src pytest -q
 
 The quickstart writes `results/quickstart.md`.
 
-## Role next to CSE, PLSR, JSPT, and CNC
+## Relationship to scientific instruments
 
-JSPT emits `A`. PLSR returns a verdict on `V`. CSE may cite that
-receipt. CNC token-gates motion on a mill. YWIR emits a verdict on
-*spend*. CSE still cannot ACCEPT a clearance from a yield receipt.
-YWIR still cannot ACCEPT a world-state from a low token count.
+YWIR can supply a bounded caller with a spend decision. Domain engines retain
+responsibility for their numerical results and dispositions. The example token
+gate demonstrates budget logic; it does not establish a hardware connection or
+authority to move a machine. This package does not import the scientific kernels.
 
-This package does not import those kernels.
-
-See [docs/KERNEL.md](docs/KERNEL.md).
+See [kernel boundary](docs/KERNEL.md) and [stack role](docs/STACK_ROLE.md).
 
 ## Scope and limits
 
