@@ -4,7 +4,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ywir import Proposal, Settlement, decide, open_host, settle
+from ywir import Proposal, Settlement, decide, open_host, reserve, settle
 from ywir.reports import write_report
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -28,6 +28,7 @@ def main() -> None:
     v1 = decide(host, first)
     letters.append(v1)
     if v1.admitted:
+        reservation = reserve(host, first)
         settle(
             host,
             first,
@@ -38,6 +39,7 @@ def main() -> None:
                 new_morphism_id="clearance-law-v1",
                 new_morphism_type="ledger-section",
             ),
+            reservation=reservation,
         )
 
     spill = decide(

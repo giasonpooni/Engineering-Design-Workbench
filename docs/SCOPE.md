@@ -18,10 +18,14 @@ model.
   `META_PRECISION_UNSTABLE`, `YIELD_BELOW_THRESHOLD`.
 - A composition store of caller-declared morphisms.
 - Receipts other kernels may cite. Receipts do not ACCEPT a world.
+- Process-local reservation, cancellation and one-time capped settlement.
+  Advisory decisions and receipts are not spending capabilities.
 
 ## Not implemented
 
 - Embeddings, wording charts, or a second LLM as the yield observer.
+- Durable recovery, shared cross-process budgets, provider-billing transactions,
+  or distributed exactly-once execution. A snapshot cannot restore authority.
 - Imports of `gat`, `lyapunov`, or `sensitivity`.
 - Learned routers, FrugalGPT cascades, grammar-constrained decoding.
 - Energy-per-token physics as the objective.

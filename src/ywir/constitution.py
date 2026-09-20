@@ -6,7 +6,7 @@ set the yield threshold or the similarity cap. Embeddings, wording,
 and plant physics do not live here.
 """
 
-PACKAGE_VERSION = "0.1.0"
+PACKAGE_VERSION = "0.2.0"
 INSTRUMENT = "ywir"
 
 DEPARTMENTS = ("ledger", "evidence", "exploration", "gauge")

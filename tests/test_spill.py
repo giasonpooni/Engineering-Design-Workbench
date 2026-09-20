@@ -1,4 +1,4 @@
-from ywir import Proposal, decide, open_host, settle
+from ywir import Proposal, decide, open_host, reserve, settle
 from ywir.observation import Settlement
 
 
@@ -72,6 +72,7 @@ def test_compose_instead_when_store_has_map():
         expected_new_morphism=True,
     )
     assert decide(host, first).admitted
+    reservation = reserve(host, first)
     settle(
         host,
         first,
@@ -82,6 +83,7 @@ def test_compose_instead_when_store_has_map():
             new_morphism_id="op-a",
             new_morphism_type="section",
         ),
+        reservation=reservation,
     )
     v = decide(
         host,

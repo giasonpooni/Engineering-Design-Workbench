@@ -4,13 +4,18 @@ Import `ywir`. Catalog short name **YWIR**.
 
 The kernel owns admission. Plants own world-claims.
 
-```text
-proposer  -->  ywir.decide  -->  ADMIT | COMPOSE | REQUEST_EVIDENCE | REFUSE | CLOSE
-                  |                   |
-                  |                   +--> receipt (citeable, non-owning)
-                  v
-             ywir.settle   -->  debit budget, update eta_hat, accept morphism
-```
+1. `decide` returns an advisory letter and citeable, non-owning receipt.
+2. `reserve` rechecks a spend proposal and holds its admitted cap for this
+   host/loop/base, returning a one-use reservation.
+3. The caller performs work separately; YWIR does not execute a model.
+4. `settle(..., reservation=...)` consumes the hold, debits actual spend, updates
+   yield and records a new morphism. `cancel` releases an unused hold instead.
+
+Proposal identity names content. Decision, reservation and settlement identities
+name distinct occurrences. A settlement record retains its admitted base and cap.
+Receipts and snapshots cannot substitute for a pending reservation. Replay raises
+`reservation_consumed`; pending holds prevent close/reindex. Atomicity and replay
+protection are process-local, not persistent or distributed.
 
 `A`, `V`, IFC belief, and mill kinematics are inputs to *other*
 kernels. This repository does not form them.

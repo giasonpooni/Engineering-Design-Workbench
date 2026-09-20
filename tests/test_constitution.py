@@ -12,7 +12,7 @@ from ywir.constitution import ETA_BLEND, MAX_DEPARTMENTS, MIN_TOKENS
 
 
 def test_pins():
-    assert PACKAGE_VERSION == "0.1.0"
+    assert PACKAGE_VERSION == "0.2.0"
     assert DEPARTMENTS == ("ledger", "evidence", "exploration", "gauge")
     assert YIELD_THRESHOLD == 0.0
     assert GAUGE_SIMILARITY_CAP == 0.85

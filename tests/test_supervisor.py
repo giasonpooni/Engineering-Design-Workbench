@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import pytest
 
-from ywir import Proposal, Settlement, YwirRefuse, decide, open_host, settle, snapshot
+from ywir import Proposal, Settlement, YwirRefuse, decide, open_host, reserve, settle, snapshot
 
 
 def _host(**budget: int):
@@ -97,6 +97,7 @@ def test_settle_debits_and_records_morphism():
     )
     v = decide(host, proposal)
     assert v.admitted
+    reservation = reserve(host, proposal)
     settle(
         host,
         proposal,
@@ -107,6 +108,7 @@ def test_settle_debits_and_records_morphism():
             new_morphism_id="clearance-law-v1",
             new_morphism_type="ledger-section",
         ),
+        reservation=reservation,
     )
     snap = snapshot(host)
     assert snap["budget"]["ledger"] == 75
@@ -124,11 +126,13 @@ def test_unglued_settlement_refused():
         expected_new_morphism=True,
     )
     decide(host, proposal)
+    reservation = reserve(host, proposal)
     with pytest.raises(YwirRefuse) as err:
         settle(
             host,
             proposal,
             Settlement(tokens_spent=10, rank_delta=0, glued=False),
+            reservation=reservation,
         )
     assert err.value.code == "H1_NO_GLUE"
     assert host.budget["ledger"] == 100

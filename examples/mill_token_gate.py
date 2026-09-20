@@ -8,7 +8,7 @@ from __future__ import annotations
 
 from pathlib import Path
 
-from ywir import Proposal, Settlement, decide, open_host, settle
+from ywir import Proposal, Settlement, decide, open_host, reserve, settle
 from ywir.reports import write_report
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -44,6 +44,7 @@ def main() -> None:
     admitted = decide(host, rough)
     letters.append(admitted)
     if admitted.admitted:
+        reservation = reserve(host, rough)
         settle(
             host,
             rough,
@@ -54,6 +55,7 @@ def main() -> None:
                 new_morphism_id="rough-pass-v1",
                 new_morphism_type="mill-pass",
             ),
+            reservation=reservation,
         )
 
     reprint = decide(

@@ -31,3 +31,15 @@ Classify before spend. Priority is fail-closed:
 
 Settlement that does not glue is refused and does not debit. No
 nearest-repair of an unglued burst.
+
+An advisory ADMIT is followed by explicit `reserve`, which rechecks the
+decision and holds its token cap under the host lock. Department availability
+is unspent budget minus pending reservations. `settle` requires that exact
+host/loop/base/proposal-bound pending capability and consumes it once; actual
+spend cannot exceed the cap. `cancel` releases an unused hold. Close/reindex
+refuse while holds remain. Invalid settlement or store conflict leaves budget,
+yield, composition store and pending authorization unchanged.
+
+This transaction scope is one live `HostState` process. It does not cover
+external execution/billing, persistence, distributed workers or direct state
+mutation. See the [0.2 migration example](../README.md#reservation-api-02).

@@ -2,7 +2,8 @@
 
 A receipt binds one YWIR verdict to a proposer-loop name and a git
 pin. It does not prove the observations, the plant, or that an
-answer is true.
+answer is true. ADMIT is advisory: this receipt is not a reservation
+and cannot authorize settlement.
 """
 
 from __future__ import annotations
@@ -34,6 +35,9 @@ class YwirReceipt:
     support_code: str
     admitted: bool
     does_not_claim: tuple[str, ...] = DOES_NOT_CLAIM
+    host_id: str | None = None
+    proposal_id: str | None = None
+    decision_id: str | None = None
 
     def to_json_obj(self) -> dict[str, Any]:
         payload = asdict(self)
@@ -65,6 +69,9 @@ def from_verdict(
     *,
     git_pin: str,
     refuse_code: str | None = None,
+    host_id: str | None = None,
+    proposal_id: str | None = None,
+    decision_id: str | None = None,
 ) -> YwirReceipt:
     return YwirReceipt(
         instrument=INSTRUMENT,
@@ -76,4 +83,7 @@ def from_verdict(
         details=details,
         support_code=support_code_for(status, refuse_code),
         admitted=status == "admitted",
+        host_id=host_id,
+        proposal_id=proposal_id,
+        decision_id=decision_id,
     )

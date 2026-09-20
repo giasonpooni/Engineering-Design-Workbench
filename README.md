@@ -21,9 +21,54 @@ semantic quality independently or control machinery.
 
 `decide` classifies the supplied proposal, checks available budget and returns
 admission, refusal, composition, evidence-request, reindexing or closure status.
-`settle` records the declared outcome and updates budget/yield state. Rank change,
+`reserve` rechecks admission and holds the requested tokens. `settle` consumes
+that reservation once, records the declared outcome and updates budget/yield state. Rank change,
 similarity and composability are inputs supplied by the caller, not independently
 established scientific properties. A receipt describes that budget decision.
+
+## Reservation API (0.2)
+
+`decide` remains advisory for spending: an `ADMIT` verdict or receipt does not
+reserve budget and cannot be settled. Its explicit close/reindex commands retain
+their existing meaning, but now refuse while reservations are pending.
+
+```python
+from ywir import Proposal, Settlement, open_host, reserve, settle
+
+host = open_host("loop-a", {"ledger": 100})
+proposal = Proposal("loop-a", "ledger", 20, expected_rank_delta=1)
+reservation = reserve(host, proposal)  # Atomically rechecks and holds 20 tokens.
+# Perform the authorized work separately; YWIR does not execute it.
+record = settle(host, proposal, Settlement(15, 1, True), reservation=reservation)
+```
+
+Migration from 0.1: add `reserve` before work and pass its returned capability
+as the `reservation` keyword to `settle`. Calling the old three-argument
+`settle` raises `reservation_required`; it never silently creates authorization.
+`settle` now returns a `SettlementRecord`. Verdict/receipt identity fields and
+snapshot fields are additive; existing `does_not_claim` values remain unchanged.
+
+- A reservation binds the host instance, loop, base, proposal content, decision
+  occurrence, department and maximum spend. Identical proposals can be reserved
+  twice only when both holds fit; they receive distinct reservation identities.
+- Settlement spends at most its admitted cap and releases unused tokens.
+  Repeated settlement raises `reservation_consumed`, even for identical retries.
+- `cancel(host, reservation)` releases an unused hold and permanently consumes
+  that capability. Validation/store failures preserve the pending hold for a
+  corrected settlement or cancellation. Cancelling is not a refund for work
+  already performed; declared outcomes still require honest external accounting.
+- `snapshot` distinguishes unspent `budget`, outstanding `reserved`, and spendable
+  `available`. Close/reindex requires settling or cancelling every pending hold.
+- Token/budget counts and rank deltas require actual integers, not booleans or
+  floats. Yield/similarity values must be finite; similarity lies in `[0, 1]`.
+
+Atomicity is limited to API calls sharing one `HostState` in one Python process,
+using its lock. Snapshots are observations, not restorable authorization ledgers.
+Opening another host—even with the same loop name—does not recreate authority;
+old capabilities are refused. There is no durable restart recovery, shared
+cross-process budget, distributed exactly-once guarantee, or provider-billing
+transaction. State fields/private ledgers must not be mutated directly or
+treated as a security boundary against code running inside the same process.
 
 ## What is in the first slice
 
