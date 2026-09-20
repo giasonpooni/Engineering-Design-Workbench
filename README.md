@@ -1,5 +1,9 @@
 # Constraint-Based State Reconciliation
 
+Part of **Notation Systems' computational instrumentation and evidence infrastructure** for industrial and cyber-physical systems.
+
+[Stack map](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/STACK.md) · [Component role and interfaces](docs/STACK_ROLE.md)
+
 **Reconciliation of estimated states against declared constraints, with uncertainty
 propagation and correction diagnostics.**
 
