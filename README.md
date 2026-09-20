@@ -24,6 +24,12 @@ One declared assembly:
 The laptop produces a replayable JSONL log. Inference is `not_run`.
 A retry does not create a second observation. A disconnect does not become zero.
 
+An additive [CIW subprocess adapter](docs/ciw-adapter-v1.md) now transports
+immutable raw evidence, explicitly bound calibration, and full first-order
+covariance to the workbench. RCI retains domain ownership; CIW retains
+execution and result identities. Missing, expired-at-acquisition, or
+mismatched calibration yields a refusal with no result.
+
 ```
 Physical sensor or mechanism
         |
