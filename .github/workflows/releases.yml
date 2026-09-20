@@ -65,7 +65,7 @@ jobs:
       - name: canonical-state imports installed, renderer included
         shell: python
         run: |
-          import importlib, pathlib, re, sys
+          import importlib, importlib.util, pathlib, re, sys
           sys.path.insert(0, "/tmp/cs")
           for module in ("core.canonical.state", "core.projection.project",
                          "morpho.compiler", "backends.threejs.compiler",
