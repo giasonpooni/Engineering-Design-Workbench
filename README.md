@@ -47,6 +47,8 @@ The example uses synthetic values and makes no network requests. See the [usage 
 For a workbench integration, FSRT also exposes a [pinned JSON subprocess operation](docs/CIW_ADAPTER.md)
 for one simultaneous two-reservoir snapshot. It retains full channel covariance,
 the original observations, model disagreement, and explicit numerical refusals.
+Its additive v2 operation carries ordered covariance provenance and full innovation,
+posterior and reconciled covariance artifacts while preserving the v1 science.
 
 ## Explore the examples
 

@@ -20,6 +20,7 @@ import numpy as np
 from ..lcm import check_spd, chi2_quantile, consistency_stat, reconcile
 from ..schema import ConstraintSet, Observation
 from ..testbed.estimators import KalmanFilter
+from .ciw_covariance import CovarianceRefusal, OPERATION_ID as V2_OPERATION_ID, evaluate_inputs
 
 OPERATION_ID = "fsrt.tank-reconstruct.v1"
 MODEL_KIND = "reservoir2-linear-v1"
@@ -180,14 +181,15 @@ def evaluate(request):
         request = _object(request, "request", ("schema", "operation_id", "inputs"))
         if request["schema"] != "ciw.adapter-request.v1":
             raise InputRefusal("unsupported_schema", "Expected ciw.adapter-request.v1")
-        if request["operation_id"] != OPERATION_ID:
+        if request["operation_id"] not in (OPERATION_ID, V2_OPERATION_ID):
             raise InputRefusal("unsupported_operation", f"Expected {OPERATION_ID}")
         with np.errstate(over="raise", divide="raise", invalid="raise"):
-            data = _evaluate(request["inputs"])
+            data = (evaluate_inputs(request["inputs"], _evaluate)
+                    if request["operation_id"] == V2_OPERATION_ID else _evaluate(request["inputs"]))
         # The wire protocol is strict JSON, including every numeric output.
         json.dumps(data, allow_nan=False)
         return {"schema": RESPONSE_SCHEMA, "status": "ok", "data": data}
-    except InputRefusal as error:
+    except (InputRefusal, CovarianceRefusal) as error:
         code = error.code
         message = str(error)
     except (ValueError, np.linalg.LinAlgError, FloatingPointError, OverflowError) as error:

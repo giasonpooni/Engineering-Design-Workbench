@@ -83,3 +83,97 @@ Invalid/singular covariance and numerical failures use `numerical_refusal`;
 input, model, unit, JSON and absent-data failures have separate codes. JSON never
 contains NaN or Infinity, and duplicate input keys are refused. Process exit zero means a valid protocol response was
 produced, not that the science was accepted; callers must inspect `status`.
+
+## Additive covariance operation: v2
+
+`fsrt.tank-reconstruct.v2` preserves the v1 estimate, reconciliation gate,
+residuals and refusals. It adds ordered, content-addressed covariance artifacts;
+`fsrt.tank-reconstruct.v1` and its outputs remain unchanged.
+
+```bash
+PYTHONPATH=src python -m set_lcm.bridge.ciw < examples/ciw_tank_request_v2.json
+```
+
+The new request is also an explicitly synthetic, correlated two-tank example.
+In addition to the existing `model` and `observations`, v2 requires:
+
+- `state_order: ["tank-1.mass", "tank-2.mass"]`. The first observation source
+  measures the first model state and the second source the second state; the
+  explicit source order must not be inferred from a display label or sorted.
+- `observation_covariance`: a complete `covariance-artifact.v1` record described
+  below. Its matrix must equal the covariance actually supplied to FSRT.
+
+The input artifact must use `quantity_ids` exactly equal to the observation's
+ordered `source_ids`, `units: ["kg", "kg"]`, `frame: "reservoir2.mass"`, and
+`basis.kind: "calibrated_observation"`. Its ordered source evidence IDs must
+equal the observation's two evidence IDs, now strict `sha256:` content IDs.
+Artifact reference values must equal every **present** calibrated observation.
+For a masked-out coordinate the reference remains a finite declared reference,
+not a substitute observation; the measurement remains `null` and its mask false.
+
+`provenance.metadata` must explicitly declare `shared_dependencies` as a list
+(possibly empty), and all three supported independence assumptions as Boolean
+true: `prior_independent_of_observations`,
+`declared_total_independent_of_observations`, and
+`prior_independent_of_declared_total`. False, absent or non-Boolean declarations
+are refused with `unsupported_covariance_dependence`. The current operation has
+no prior/observation, total/observation or prior/total cross-covariance model.
+Full correlation **inside** the observation matrix is supported and affects the
+posterior; neither a diagonal matrix nor a missing channel proves independence.
+
+The response adds `state_order` and `covariance_artifacts` to the otherwise
+unchanged v1 `data`:
+
+| Key | Ordered quantities | Matrix and reference values | Direct covariance sources |
+| --- | --- | --- | --- |
+| `observation` | Input source order | Exact incoming artifact | Incoming declared sources |
+| `prior` | Fixed state order | `prior_std² I`, declared prior means | None: declared model parameter |
+| `declared_total` | `total_mass` | Declared total variance and total mass | None: declared model parameter |
+| `innovation` | Present sources only | Full principal submatrix of `P_prior + R`, observed innovations | Observation and prior |
+| `posterior` | Fixed state order | Existing Gaussian posterior **before** reconciliation | Observation and prior |
+| `reconciled` | Fixed state order | Existing final state/covariance, including held results | Posterior and declared total |
+
+Every generated artifact declares its stage, full source/state orders, observed
+mask, reference meaning, independence assumptions and shared dependencies.
+`upstream_covariance_metadata` retains the input metadata in full, including any
+coverage and exclusion declarations. Such metadata records the provider's stated
+uncertainty scope; it is not independent verification of that scope. The complete
+input artifact and its assumptions also remain available.
+
+With one missing channel, innovation covariance is an explicitly ordered 1 by 1
+artifact; the missing residual stays null in the original residual envelope.
+With both channels missing, the existing `insufficient_observations` refusal
+remains. An exact total can produce a rank-deficient reconciled covariance; this
+is a valid PSD output. Singular observation covariance remains refused by the
+existing estimator boundary. Balance disagreement keeps posterior and reconciled
+numbers equal while preserving their separate stage identities and held status.
+
+### Covariance artifact wire identity
+
+The required artifact keys are `schema`, `covariance_id`, `quantity_ids`, `units`,
+`frame`, `reference_values`, `matrix`, `method`, `basis`, `provenance`, and
+`assumptions`. The schema is `covariance-artifact.v1`. Quantities are unique,
+ordered nonempty names. Units give each quantity's unit; covariance entry `(i,j)`
+has the product of units `i` and `j`. The reference vector and square matrix must
+be finite JSON numbers, never booleans. `basis` contains `kind` and `id`;
+`provenance` contains `provider`, `source_evidence_ids`, `source_covariance_ids`
+and optionally JSON-only `metadata`. Source IDs are unique lowercase
+`sha256:` identities. `assumptions` contains declared nonempty strings.
+
+`covariance_id` is `sha256:` followed by the SHA-256 of every other field encoded
+as UTF-8 with Python JSON options `sort_keys=True`, `separators=(",", ":")`,
+`ensure_ascii=True`, and `allow_nan=False`. Identities include ordering,
+references, provenance and assumptions, rather than only the numeric matrix.
+
+PSD checks normalize positive-variance coordinates for unit-scale-independent
+validation, require normalized symmetry within absolute `1e-12`, and require
+both matrix triangles' normalized eigenvalues at least `-1e-10`. A zero variance
+requires an exactly zero row and column. These are numerical validation
+tolerances, not uncertainty contributions; no symmetrization, diagonalization or
+PSD repair modifies the recorded matrix. FSRT still applies its stricter
+positive-definite observation guard before running the estimator.
+
+The v2 path does not add NIS/NEES claims, fault identification, a new consistency
+gate, or a physical verification result. Its independent rational reference test
+checks the existing Gaussian update under correlated measurement errors; it is
+software verification, not a sensor calibration or field validation.
