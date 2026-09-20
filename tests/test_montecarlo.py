@@ -1,3 +1,5 @@
+import sys
+
 from schematics import Status, quadratic_drag
 from schematics.adapters.montecarlo import call_monte_carlo_covariance
 from schematics.ir import EdgeKind, Node, NodeKind
@@ -8,7 +10,8 @@ def test_mc_not_eligible_without_sigma():
     assert call_monte_carlo_covariance(quadratic_drag(), "f").result is Status.NOT_ELIGIBLE
 
 
-def test_mc_missing_module_is_not_checked():
+def test_mc_missing_module_is_not_checked(monkeypatch):
+    monkeypatch.setitem(sys.modules, "sensitivity", None)
     sch = quadratic_drag()
     attrs = dict(sch.node("f").attrs)
     attrs["sigma_x"] = [[0.04]]

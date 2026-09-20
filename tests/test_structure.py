@@ -24,7 +24,8 @@ def test_fixture_A_does_not_open_structure():
     assert rows and rows[0].status is Status.NOT_ELIGIBLE
 
 
-def test_structure_missing_module_is_not_checked():
+def test_structure_missing_module_is_not_checked(monkeypatch):
+    monkeypatch.setitem(sys.modules, "sensitivity", None)
     event = call_local_structure(_with_A(fixture=False), "f")
     assert event.result is Status.NOT_CHECKED
     assert JSPT["sha"] in str(event.detail)

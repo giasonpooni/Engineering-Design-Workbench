@@ -30,14 +30,25 @@ CLI:
 
 ```bash
 uv run --python 3.13 sra --fixture-A -o results
-uv run --python 3.13 sra --call-jspt -o results
+uv run --python 3.13 --extra jspt sra --call-jspt -o results
 uv run --python 3.13 sra --rci-digest rci-displacement-digest-fixture -o results
 ```
 
-`--call-jspt` wraps pinned `sensitivity` if that package is installed. It is not
-a default dependency. A fixture A does not open PLSR.
+`--extra jspt` installs the pinned `sensitivity` package into the same environment
+that runs `--call-jspt`. Without that extra, an unavailable kernel returns
+`NOT_CHECKED`. A fixture A does not open PLSR.
 
-Pin: `giasonpooni/Jacobian-Sensitivity-Propagation-Testbed@f6e6296a35d632f01b626af617e3ba974402a356`.
+To exercise all pinned companion adapters, including the JSPT-to-PLSR path:
+
+```bash
+uv run --python 3.13 --dev --extra kernels pytest -q -m live
+```
+
+Explicit live tests require their dependencies and fail if one is absent. The
+default suite excludes live tests; its missing-dependency cases simulate that
+condition even when extras are installed.
+
+Pin: `giasonpooni/Jacobian-Sensitivity-Propagation-Testbed@7399ab03087b27683620b4c57f97b2ac14546c7f`.
 
 See [docs/KERNEL.md](docs/KERNEL.md), [docs/SCOPE.md](docs/SCOPE.md),
 and [docs/MAP.md](docs/MAP.md).

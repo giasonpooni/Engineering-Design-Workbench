@@ -13,7 +13,8 @@ def test_fixture_A_does_not_call_plsr():
     assert [e for e in report.events if e.tool == "lyapunov.evaluate" and e.result is Status.SAMPLED] == []
 
 
-def test_plsr_missing_module_is_not_checked():
+def test_plsr_missing_module_is_not_checked(monkeypatch):
+    monkeypatch.setitem(sys.modules, "lyapunov", None)
     sch = quadratic_drag()
     sch.add(Node(id="cert:jspt:f", kind=NodeKind.CERTIFICATE, attrs={"owner": "jspt", "result": Status.SAMPLED.value, "A": [[-1.0]], "fixture": False}))
     sch.connect(EdgeKind.LINEARIZES, "cert:jspt:f", "f")

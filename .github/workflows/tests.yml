@@ -48,9 +48,5 @@ jobs:
       - uses: astral-sh/setup-uv@d0cc045d04ccac9d8b7881df0226f9e82c39688e
         with:
           version: "0.10.10"
-      - name: Install pinned extras
-        run: uv pip install --python 3.13 --system -e ".[kernels]"
-      - name: Import companion contracts
-        run: python -c "import sensitivity, lyapunov, instrument_chain; print(sensitivity.__name__, lyapunov.__name__, instrument_chain.__name__)"
-      - name: Run live kernel tests
-        run: uv run --python 3.13 --dev pytest -q -m live
+      - name: Install pinned extras and run live kernel tests in the same environment
+        run: uv run --python 3.13 --dev --extra kernels pytest -q -m live

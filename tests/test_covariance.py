@@ -33,7 +33,8 @@ def test_declared_sigma_opens_covariance():
     assert rows and rows[0].status is Status.ELIGIBLE
 
 
-def test_covariance_missing_module_is_not_checked():
+def test_covariance_missing_module_is_not_checked(monkeypatch):
+    monkeypatch.setitem(sys.modules, "sensitivity", None)
     event = call_first_order_covariance(_with_A(sigma=[[0.04]], fixture=False), "f")
     assert event.result is Status.NOT_CHECKED
     assert JSPT["sha"] in str(event.detail)

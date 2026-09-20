@@ -7,7 +7,8 @@ from schematics.adapters.rci import bind_digest
 from schematics.pins import JSPT
 
 
-def test_jspt_missing_module_is_not_checked():
+def test_jspt_missing_module_is_not_checked(monkeypatch):
+    monkeypatch.setitem(sys.modules, "sensitivity", None)
     report = run(quadratic_drag(), call_jspt=True)
     missing = [e for e in report.events if e.tool == "jspt.jacobian_at" and e.result is Status.NOT_CHECKED and e.detail.get("mode") != "plan"]
     assert missing and JSPT["sha"] in str(missing[0].detail)
