@@ -1,212 +1,57 @@
-# 🧠 State-Inferential-Cortex-SIC
+# Geometric State Inference Engine
 
-A spatiotemporal state reconstruction engine for inference over constraint-defined geometric manifolds.
+A bounded state-estimation instrument in **Notation Systems' computational instrumentation and evidence infrastructure** for industrial and cyber-physical systems.
 
-Part of the **STAQ Cyber-Physical Inference Stack**.
+This project evolves the specification formerly titled **State-Inferential-Cortex** into a small executable estimator. It consumes declared observations, a prior, dynamics and geometry, and produces estimates with covariance, innovations, residuals and diagnostics. Its outputs are candidate estimates; downstream systems retain responsibility for reconciliation, verification, evidence admission and execution policy.
 
----
+## Implemented scope
 
-## Purpose
+| Capability | Status |
+| --- | --- |
+| Typed observations, priors and model contracts | Implemented with time, frame, unit, shape, finiteness and covariance checks |
+| Linear Gaussian estimation | Deterministic NumPy Kalman prediction/update; linear solve and Joseph covariance update |
+| Manifold example | Scalar SO(2) heading, wrapped innovation and local tangent covariance in radians squared |
+| Diagnostics | Innovation, innovation covariance, posterior measurement residual, normalized innovation squared |
+| Reproducible examples | Synthetic scalar trajectory and angle-boundary example; numerical reference tests |
+| Instrument exchange | Observation import and result export through the pinned SET validator; read-only CIW inspection |
+| EKF/UKF, particle filters, factor graphs, SE(3), GNSS/IMU fusion | Not implemented |
 
-The State-Inferential-Cortex (SIC) reconstructs latent system states from incomplete, noisy, delayed, or compressed observations by operating directly on a **geometric constraint manifold**.
+The SO(2) example is a local Gaussian approximation for a concentrated angle distribution. It does not implement arbitrary manifolds or guarantee constraint satisfaction, observability, stability, accuracy, calibration traceability or real-time performance. Field reconstruction remains a possible specialization, rather than the definition of every state.
 
-It estimates:
+## Install and run
 
-\[
-\hat{I}(x,y,t)
-\]
+Use Python 3.11 or later from this repository root:
 
-from observed signals produced by physical or sensor-driven systems.
+```sh
+python -m pip install -e '.[dev]'
+python examples/replay.py
+python -m pytest -q
+```
 
----
+The examples use synthetic observations. See [the numerical contract](docs/NUMERICS.md) for assumptions and failure behavior, and [exchange setup](docs/EXCHANGE.md) for the optional cross-repository checks.
 
-## Core Idea
+## Stack role
 
-Traditional estimation systems operate in Euclidean coordinate space.
+| Component | Responsibility and connection |
+| --- | --- |
+| [Provenance-Preserving Data Acquisition](https://github.com/giasonpooni/Provenance-Preserving-Data-Acquisition) | Retains source artifacts and observations; this estimator imports its shared observation format |
+| **Geometric State Inference Engine** | Estimates state and model-conditional uncertainty from supplied observations and models |
+| [Constraint-Based State Reconciliation](https://github.com/giasonpooni/Constraint-Based-State-Reconciliation) | Reconciles candidates against declared constraints; executable handoff is not implemented here |
+| [State Estimation Evaluation Testbed](https://github.com/giasonpooni/State-Estimation-Evaluation-Testbed) | Owns evaluation; its pinned exchange checker validates this instrument's interchange records |
+| [Evidence and State Management](https://github.com/giasonpooni/Evidence-and-State-Management) | Owns evidence/state admission and history; this instrument does not commit canonical state |
+| [Scientific Computation Runtime](https://github.com/giasonpooni/Scientific-Computation-Runtime) / [Computational Instrumentation Workbench](https://github.com/giasonpooni/Computational-Instrumentation-Workbench) | Own execution orchestration and inspection; current connection is read-only exchange inspection |
+| [Geometric Telemetry Engine](https://github.com/giasonpooni/Geometric-Telemetry-Engine) / [Curved-Surface Geodesic Sensitivity Runtime](https://github.com/giasonpooni/Curved-Surface-Geodesic-Sensitivity-Runtime) | Supply specialized geometry and coordinate operations through future explicit adapters |
+| [Geospatial State Visualization](https://github.com/giasonpooni/Geospatial-State-Visualization) | Read-only projection; no direct renderer adapter is implemented here |
 
-SIC instead operates in:
+The estimator does not preserve raw sensor evidence, authorize calibration, issue stability certificates or execution warrants, operate actuators, or replace the workbench. Evidence references, declared operation identity, caller-supplied execution identity, result content identity and independent verification remain separate.
 
-> a constraint-defined geometric state manifold
+## Documentation
 
-This means:
+- [Architecture and authority boundaries](docs/ARCHITECTURE.md)
+- [Numerical contract and API](docs/NUMERICS.md)
+- [Exchange format and workbench inspection](docs/EXCHANGE.md)
+- [Naming and compatibility](docs/NAMING.md)
 
-- inference is geometry-aware  
-- state evolution is manifold-consistent  
-- reconstruction respects physical constraints by design  
+## License
 
----
-
-## System Role in STAQ
-
-SIC is the **central inference engine** in the STAQ architecture:
-
-
-DIP (Structure Extraction)
-↓
-GME (Geodesic Manifold Definition)
-↓
-SIC (State Inference Engine)
-↓
-LCM (Constraint + Stability Calibration)
-↓
-SET (Evaluation + Stress Testing)
-
-
----
-
-## System Model
-
-SIC operates over a latent spatiotemporal field:
-
-\[
-I(x,y,t)
-\]
-
-Where:
-
-- x, y = spatial manifold coordinates  
-- t = temporal evolution parameter  
-- I = field intensity / system state  
-
----
-
-## Core Functions
-
-### 1. Probabilistic State Inference
-
-Estimates latent states from noisy observations:
-
-- Kalman / Extended Kalman filtering  
-- Particle filtering  
-- Bayesian state updates  
-- hybrid inference models  
-
-Produces:
-
-\[
-\hat{x}(t)
-\]
-
----
-
-### 2. Geometric Manifold Projection
-
-Maps inferred states into the GME-defined manifold:
-
-- enforces geometric consistency  
-- removes Euclidean bias  
-- preserves constraint-aligned structure  
-
----
-
-### 3. Temporal Evolution Modeling
-
-Predicts system evolution over time:
-
-- continuous-state propagation  
-- spatiotemporal consistency enforcement  
-- drift-aware correction  
-
----
-
-### 4. Residual Generation
-
-Computes mismatch between prediction and observation:
-
-\[
-r(t) = y(t) - h(\hat{x}(t))
-\]
-
-Used to drive:
-
-- correction updates  
-- calibration via LCM  
-- stability feedback loops  
-
----
-
-## System Pipeline
-
-
-Sensor / Telemetry Input
-↓
-Observation Model h(·)
-↓
-State-Inferential-Cortex (SIC)
-↓
-Estimated Field Ĩ(x,y,t)
-↓
-Lattice-Calibration-Module (LCM)
-↓
-Stable State Output
-↓
-SET Evaluation Loop
-
-
----
-
-## Key Properties
-
-- Manifold-aware state inference  
-- Hybrid probabilistic + geometric reconstruction  
-- Drift-aware temporal modeling  
-- Constraint-compatible outputs for calibration layers  
-- Designed for real-time or near real-time execution  
-- Compatible with distributed sensor systems  
-
----
-
-## Inputs
-
-- GNSS / RTK measurements  
-- IMU / inertial signals  
-- telemetry streams  
-- quadrature-phase signals  
-- compressed or degraded observations  
-
----
-
-## Outputs
-
-- reconstructed state trajectory  
-- estimated field \(\hat{I}(x,y,t)\)  
-- residual error signals  
-- prediction uncertainty fields  
-
----
-
-## Relationship to STAQ
-
-SIC functions as the **core inference layer** in STAQ.
-
-It:
-
-- receives geometric structure from **GME**  
-- receives constraints from **DIP-derived graphs**  
-- sends raw estimates to **LCM for calibration**  
-- produces evaluated trajectories for **SET benchmarking**  
-
----
-
-## Scope Definition
-
-SIC is NOT:
-
-- a control system  
-- a machine learning training framework  
-- a static simulation engine  
-
-It IS:
-
-> a deterministic + probabilistic hybrid inference engine for reconstructing latent physical state fields on geometric manifolds  
-
----
-
-## Design Philosophy
-
-- state is reconstructed, not predicted in isolation  
-- geometry defines validity of inference  
-- constraints enforce physical plausibility  
-- time evolution is treated as a structured field process  
-
----
+Current source, documentation and synthetic examples are **MPL-2.0**, unless a file says otherwise. See [LICENSE](LICENSE) and [NOTICE.md](NOTICE.md). Historical revisions retain their original license notices.
