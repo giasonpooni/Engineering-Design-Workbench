@@ -1,6 +1,6 @@
 [project]
 name = "retrofitted-computational-instrumentation"
-version = "0.1.0"
+version = "0.2.0"
 description = "Measurement-chain contract for retrofitted instruments."
 readme = "README.md"
 license = "MIT"
