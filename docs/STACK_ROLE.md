@@ -7,12 +7,15 @@ This component owns **instrument-exchange validation and estimator evaluation sc
 
 | Property | Scope |
 | --- | --- |
-| Implementation | Executable contract validators; no estimator or evaluation runner |
-| Workbench connection | Pinned exchange conformance checker; no evaluation runner or session adapter |
-| Inputs | Declared observation batches, result/verification artifacts and covariance metadata. |
-| Outputs | Structural/numerical eligibility decisions, including documented covariance tolerances and rank limitations. |
+| Implementation | Executable contract validators, declared-reference metrics and native replay-content verifier; no estimator |
+| Workbench connection | Existing exchange checker plus CIW telemetry-session content/numerical-replay comparison API |
+| Inputs | Declared observation batches, result/verification artifacts, covariance metadata, reference samples and retained replay bundle. |
+| Outputs | Structural/numerical eligibility, bias/RMSE/NEES/NIS where supported, scoped verification receipt with evidence/result/runtime binding. |
 
 Contract acceptance does not establish estimator accuracy, calibrated uncertainty, independence of verification or physical validity.
+Metrics use caller-declared reference truth. Replay outputs must come from a
+separately trusted pinned executor; SET compares them but does not execute the
+producer or grant ESM admission. An untrusted passed receipt is not authority.
 
 ## Interoperability
 

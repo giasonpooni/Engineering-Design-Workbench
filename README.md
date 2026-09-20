@@ -13,10 +13,11 @@ degradation, with the plant and measurement model declared explicitly.
 
 ## Status and implemented contents
 
-This checkout contains a declarative invariant corpus, its citation, and the
-first executable contract slice. It does not yet contain an estimator,
-evaluation runner, numerical solver, simulation, fault-injection runner,
-benchmark results, or physical-validation certificate.
+This checkout contains a declarative invariant corpus, its citation, executable
+exchange validators, a bounded declared-reference evaluation runner, and a
+content-binding verifier for native CIW telemetry replay sessions. It does not
+contain an estimator, simulation, fault-injection runner, benchmark results,
+or physical-validation certificate.
 
 The existing corpus declares:
 
@@ -49,7 +50,48 @@ Identity fields are references, not authenticated attestations: validation does
 not fetch their subjects, recompute producer-specific content hashes, establish
 admission, or independently substantiate a declared external verifier.
 
-Run the executable contract slice with `python -m pytest`.
+Run the contract, metric, replay-binding and NumPy differential tests with
+`python -m pytest`. The package itself remains dependency-free.
+
+### Declared-reference evaluation (API 0.3)
+
+`state_estimation_testbed.evaluate_samples(samples, model_ref=...)` accepts
+existing result-artifact v1 objects under each sample's `result` key. Optional
+`truth_components` use the same ordered name/value/unit representation as
+the result. Optional numeric `innovation` follows the ordered variables of its
+mandatory `innovation_covariance` declaration. The operation reports per-axis
+bias/RMSE and per-sample NEES/NIS where the declarations support them.
+
+Every estimate must retain the declared model reference. Missing reference
+truth yields no bias/RMSE/NEES. Unknown, singular or asymmetrically stored
+covariance yields an unavailable normalized metric, not a fabricated zero or
+a pseudoinverse-based certainty claim. Nonfinite values, boolean/string numeric
+coercion, duplicate sample identities, and normalized metric overflow or
+underflow-to-false-zero are rejected. These are descriptive measurements
+against caller-declared reference data: the API makes no pass/fail calibration,
+coverage, independence, sensor-truth, physical-accuracy or stability claim.
+
+Samples must share the complete covariance frame, including its evaluation
+point. Reference values are declared in that frame; an optional `truth_frame`
+must match it exactly. Nonrepresentable integer inputs are refused before
+arithmetic, and exact accumulation/scaled RMS protect subnormal errors from
+being reported as a perfect zero.
+
+### Native CIW replay binding (API 0.3)
+
+`state_estimation_testbed.verify_replay_bundle(bundle, replay_results=...)`
+checks a `ciw.telemetry-session.v1` native session and returns the existing
+`notation.instrument.verification-artifact.v1` envelope. It does not introduce
+a replacement wire protocol or import an estimator. The full implemented
+[binding interface](docs/replay-binding.md) distinguishes retained evidence,
+operation/runtime pins, execution occurrences, numerical outputs and verification.
+
+The caller must perform fresh computation using separately approved clean
+source/interpreter pins and provide an execution-ID-to-numerical-output mapping.
+Without that mapping, the receipt is **indeterminate**, even when all content
+hashes pass. A mismatching replay produces a failed receipt. SET itself does not
+launch producers, authenticate runtime declarations or confer admission authority;
+an untrusted subject's passed receipt must never stand in for fresh verification.
 
 #### Validator API 0.2 compatibility
 
