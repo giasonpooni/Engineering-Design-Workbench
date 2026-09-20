@@ -42,10 +42,20 @@ Laptop log / later observer
 
 ## Run
 
+Use Python 3.12 or newer and [uv](https://docs.astral.sh/uv/). From a fresh checkout:
+
 ```bash
-PYTHONPATH=src python -m pytest
-PYTHONPATH=src python examples/displacement_bench.py
+git clone https://github.com/giasonpooni/Retrofitted-Computational-Instrumentation.git
+cd Retrofitted-Computational-Instrumentation
+uv run --python 3.12 --dev python -m pytest
+uv run --python 3.12 python examples/displacement_bench.py
 ```
+
+Alternatively, in an activated Python 3.12-or-newer virtual environment, run
+`python -m pip install -e . pytest`, then `python -m pytest` and
+`python examples/displacement_bench.py`. The example writes
+`results/displacement_bench.jsonl` and `results/displacement_commitments.jsonl`.
+All observations in these files are simulated.
 
 Pinned host-stand-in digests live in
 [`validation/rci-displacement-digests-v1.json`](validation/rci-displacement-digests-v1.json).
@@ -55,7 +65,8 @@ They test the record format. They are not field millimetres.
 
 This repo never proves. CSE never treats a millimetre as `YieldStrengthMPa`,
 a lot code, or a cold-store temperature. After you have an
-`rci-evidence-commitment-v1` JSON object:
+`rci-evidence-commitment-v1` JSON object, run the following **from an installed
+CSE checkout** (the `gat` CLI and disposition fixture belong to that repository):
 
 ```bash
 python -m gat.demo.experiment_harness \
