@@ -1,169 +1,100 @@
-# Draft telemetry feature exchange contract
+# Executable contract: `stfe.window-mean.v1`
 
-## Status and claim boundary
+This version implements one bounded scalar window mean. It does not register an FFT, filter, arbitrary feature family, live acquisition service or estimator. `stfe.window_mean(dict)` and `python -m stfe` implement the same semantics. Unknown object fields are refused so an unsupported policy cannot be silently ignored.
 
-This document is a **proposed v1 domain contract**, not an implemented schema or
-registered operation. It defines the minimum information an implementation must
-retain before the component can be integrated into the Computational
-Instrumentation Workbench.
+## Request
 
-Contract conformance would establish structural eligibility and replay
-sufficiency within the checks actually implemented. It would not establish
-sensor truth, calibration validity, physical applicability, anomaly existence,
-model adequacy or independent verification.
+The complete example is [`examples/window_mean.json`](../examples/window_mean.json).
 
-## Record separation
-
-The domain boundary uses three conceptual records:
-
-| Record | Purpose | May assert |
-| --- | --- | --- |
-| `TelemetryWindow` | Binds a bounded view over retained samples | Which samples, times, channels and policies define the window |
-| `TelemetryFeatureRecord` | Records deterministic or declared derived quantities | What the named execution computed from the referenced window |
-| `StreamQualityDiagnostic` | Reports stream condition or candidate events | What diagnostic values and thresholds were produced, not that a physical fault is verified |
-
-These records do not replace the stack's evidence, execution, result or
-verification artifacts. A production serialization must map each record to
-those existing identities explicitly.
-
-## `TelemetryWindow`
-
-Required information:
-
-| Field | Requirement |
+| Field | Meaning and requirement |
 | --- | --- |
-| `window_id` | Stable identity for this window declaration; distinct from source artifact identities |
-| `source_observation_refs` | Non-empty ordered or explicitly indexed references to retained observations |
-| `channel_id` | Stable channel identity |
-| `value_unit` | Unit of input samples; dimensionless must be explicit |
-| `frame` | Frame/axis declaration when applicable; otherwise explicit `not_applicable` semantics |
-| `event_time_start`, `event_time_end` | Closed/open support convention must be declared |
-| `received_by` | Availability cutoff used for causal evaluation |
-| `clock_basis` | Clock/timebase identity and mapping reference where needed |
-| `sample_order` | Rule used to order equal or ambiguous timestamps |
-| `sample_count` | Count presented to the operation before padding or imputation |
-| `missingness` | Missing count/mask/reference and its interpretation |
-| `late_data_policy` | Reject, revise, buffer or another versioned policy |
-| `out_of_order_policy` | Reject, reorder within a bound or another versioned policy |
-| `calibration_refs` | Ordered list; empty is allowed and not equivalent to calibrated |
+| `operation_id` | Exactly `stfe.window-mean.v1` |
+| `source_batch_ref` | Nonempty reference to the retained source batch |
+| `source_batch_digest` | Lowercase `sha256:` plus 64 hexadecimal digits; canonical source JSON content digest supplied by the adapter |
+| `samples` | Ordered list, at most 4096 presented records; exactly 1–32 consumed |
+| `window` | Object with `start`, `end`, `received_by`, `decision_time`, `sample_period`, `max_lateness` |
+| `channel_id`, `value_unit` | Nonempty scalar channel and unit; dimensionless must be explicit |
+| `frame` | Named scalar source frame, or explicit `not_applicable` |
+| `clock_basis` | Named common clock on which all numeric times are expressed in seconds |
+| `clock_mapping_ref`, `frame_mapping_ref` | Named supplied mappings, including explicit identity mappings |
+| `calibration_refs` | Ordered unique reference list; empty does not mean calibrated |
+| `uncertainty` | Full covariance declaration described below |
+| `execution_id` | Caller-assigned occurrence identity, distinct from evidence, operation, mapping and replay identities |
+| `created_at` | Valid explicit UTC timestamp, up to six fractional digits |
+| `implementation_revision` | Full 40-character lowercase Git revision, declared by the caller |
+| `replay_ref` | Optional nonempty replay reference; absent or null when none |
 
-The window must not embed corrected values as though they were the original
-observations. If a transformation creates replacement sample values, those
-values are a derived artifact with their own identity and source references.
+Each sample has exactly `observation_ref`, `event_time`, `received_at`, `value`, `missing`. Consumed observation references are nonempty and unique. The batch reference must differ from individual observation references. Numeric inputs must be finite native JSON numbers; booleans, strings, implicit numeric conversions and integers not exactly representable in binary64 are refused. `missing` must be the boolean `false` for consumed samples.
 
-## Operation specification
+The source digest and implementation revision are **declarations**, not cryptographic authentication or proof of consumed source bytes. A composing replay verifier must compare them to retained input content and a reviewed provider pin. STFE does not execute an input-supplied module, read an input-supplied path or fetch a reference.
 
-An execution request must bind the full transformation, including:
+## Time and window semantics
 
-- operation identifier and semantic version;
-- implementation revision and numeric backend;
-- `causal` or `offline` mode;
-- window length and units;
-- hop/stride and overlap convention;
-- boundary/padding policy;
-- detrending and centering policy;
-- window function and its parameters;
-- transform type, length, normalization and frequency-coordinate convention;
-- filter coefficients or a content-addressed filter specification;
-- initial filter-state identity and reset/continuation rule;
-- missing-sample and non-finite-value policy;
-- floating-point precision and deterministic-mode declaration; and
-- any feature definitions, thresholds and output ordering.
+All time fields are seconds on the explicitly named common clock. The operation does not parse timestamps or perform clock/frame transformations; a separately named adapter maps source coordinates into this declaration.
 
-A change to any result-affecting field creates a different operation
-configuration or execution identity. Human-readable labels are not sufficient
-identity.
+- Support is the half-open interval `[start, end)`.
+- `sample_period > 0`, `end > start`, `max_lateness >= 0`.
+- `end <= received_by <= decision_time`; a partially elapsed window is unsupported.
+- Exact rational arithmetic over represented binary64 times must establish `(end-start)/sample_period = N`, for integer `1 <= N <= 32`.
+- The consumed event times are exactly `start + i*sample_period`, in presented order.
+- Every consumed record satisfies `event_time <= received_at <= received_by` and `received_at-event_time <= max_lateness`.
+- Receipt times are nondecreasing. Retrospective sorting, duplicate coalescing, padding and imputation are unsupported.
+- Out-of-support records are not consumed. Their event time and record shape must be readable to establish exclusion; their value, receipt and missingness do not affect this window.
 
-## `TelemetryFeatureRecord`
+There is no implicit timestamp tolerance. For example, a supplied decimal grid may be refused when its represented binary64 values are not exactly regular. An integer-second or exactly representable binary-fraction grid avoids that ambiguity. A new operation version would be required to introduce a timing-tolerance or resampling policy.
 
-Required information:
+All windows are stateless, rectangular and causal, with no detrending, padding, filter state, warm-up or automatic hopping. Each invocation declares one complete window. Overlap is permitted only through separately declared windows; covariance **between** output windows is not inferred by this scalar operation.
 
-| Field | Requirement |
+## Uncertainty
+
+`uncertainty` has exactly four fields:
+
+| Field | Values |
 | --- | --- |
-| `feature_record_id` | Identity distinct from operation, execution and input identities |
-| `window_ref` | Exact `TelemetryWindow` consumed |
-| `operation_ref` | Declared operation semantics |
-| `execution_ref` | This invocation/attempt |
-| `created_at` | Processing timestamp with explicit UTC form |
-| `mode` | `causal` or `offline` |
-| `features` | Ordered named values or arrays with units and coordinates |
-| `frequency_axis` | Values, unit, ordering and one-/two-sided convention when spectral output exists |
-| `quality_ref` | Associated diagnostic identity, if emitted |
-| `uncertainty` | Reported, estimated, propagated, unknown or not applicable; missing is not zero |
-| `filter_state_in_ref`, `filter_state_out_ref` | Required for stateful continuation; reset must be explicit |
-| `warmup_status` | Whether all, part or none of the output is in transient/warm-up state |
-| `source_observation_refs` | Retained directly or transitively with a testable resolution path |
-| `replay_ref` | Replay fixture/session identity when produced under replay |
+| `observation_refs` | Exact consumed observation reference order |
+| `status` | `known` or `unknown` |
+| `crosscov_policy` | `declared`, `declared_zero` or `unknown` |
+| `matrix` | Complete `N × N` covariance, or null |
 
-Feature arrays must declare their coordinates and ordering. A bare numeric array
-is ineligible because consumers cannot safely infer bins, units, sidedness,
-channel order or frame.
+`known` requires a complete finite matrix and either `declared` or `declared_zero`. `declared_zero` asserts zero **off-diagonal** cross-covariance, not zero variance; every off-diagonal must actually be zero. `unknown` requires both `crosscov_policy: unknown` and `matrix: null`. A partial diagonal covariance with unknown cross-covariance must therefore remain unknown; STFE does not fabricate a unique uncertainty estimate.
 
-## `StreamQualityDiagnostic`
+Both matrix triangles must agree exactly. Exact rational symmetric elimination verifies PSD of the represented matrix, including zero-pivot coupling. No negative pivot is clamped, no jitter is added and no approximate matrix is substituted.
 
-Required information:
+For `w_i=1/N`, the operation computes `mean = wᵀy` and `variance = wᵀRw` by exact accumulation over the supplied binary64 values and a single final binary64 rounding. Overflow or nonzero-to-zero underflow refuses the operation. A mathematically exact zero for the represented inputs is permitted. Unknown uncertainty produces the mean with null covariance and `status: unknown`, never an empirical scatter estimate or a zero matrix.
 
-- diagnostic identity and subject feature/window reference;
-- named metric, value, unit and applicability;
-- method/threshold specification reference;
-- status such as `nominal`, `degraded`, `indeterminate` or `candidate_event`;
-- sample support and any excluded samples;
-- limitations and uncertainty status; and
-- operation and execution references.
+## Receipt and exchange mapping
 
-`candidate_event` is intentionally not `verified_anomaly`. A later verification
-artifact must identify the diagnostic as its subject, state the checks performed
-and keep internal versus independent verification explicit.
+The top-level `notation.stfe.window-mean-receipt.v1` object contains:
 
-## Time and causality rules
+| Field | Content |
+| --- | --- |
+| `operation_id` | Versioned law |
+| `window` | Consumed raw values and references, source digest, time/window declaration, calibration and uncertainty |
+| `quality` | Sample count, complete warm-up, zero missing count and `nominal_under_declared_grid`; not physical validity |
+| `execution` | Caller-declared occurrence, configuration reference, revision, Python version and creation time |
+| `numerical_result` | Numerical inputs, operation configuration, mean and variance, independent of execution occurrence |
+| `numerical_result_id` | Content identity of that numerical equivalence record |
+| `result_artifact` | Existing `notation.instrument.result-artifact.v1` projection |
 
-For a causal execution with decision time \(t_d\), every consumed sample and
-state artifact must have been available by the declared availability cutoff:
+The generic result has one component named `<channel_id>.mean`, with the source value unit. Covariance uses `feature_space` semantics, a named frame derived from the source frame and an explicit one-element basis. Input references retain the source batch, window and individual observations. Model references retain the operation, configuration and clock/frame mappings. Calibration references occur at artifact and covariance levels.
 
-\[
-\forall o_i \in W,\qquad \operatorname{receivedAt}(o_i) \le t_d.
-\]
+The companion window is required to recover timing, full input covariance, raw values and policy. The generic scalar artifact alone is not a replay bundle. No verification record is minted here.
 
-The output support interval alone does not prove causality. Replay validation
-must perturb or append future samples and show that already emitted causal
-results remain unchanged. Zero-phase filtering, centered windows that reach
-beyond the decision time and retrospective reordering are offline operations
-unless an explicit bounded-delay contract proves otherwise.
+## Identity and canonicalization
 
-## Failure and refusal behavior
+Canonical JSON uses sorted keys, compact separators, unescaped Unicode and no NaN/Infinity, encoded as UTF-8. Negative numerical zero is normalized to `0.0`; numerical input integers become exact binary64 numbers only after the exact-representability check.
 
-An implementation must fail closed or emit an explicit ineligible/indeterminate
-result when required identity, unit, timebase, ordering or configuration is
-missing. It must not silently:
+- Generic `result_id`: `sha256(schema + NUL + canonical artifact without result_id)`, prefixed `sha256:`. This is the existing SET/CIW exchange convention.
+- `window_id`, `quality_id`: SHA-256 of each canonical companion before its identity field is added, prefixed `stfe-window:` or `stfe-quality:`.
+- `operation_config_ref`: SHA-256 of canonical configuration, prefixed `stfe-config:`.
+- `numerical_result_id`: SHA-256 of canonical `numerical_result`, prefixed `stfe-numerical:`.
 
-- treat absent samples as zeros;
-- coerce non-finite values;
-- infer a calibration or frame;
-- repair timestamps without recording the transformation;
-- average duplicate samples without a declared policy;
-- fabricate covariance; or
-- convert a diagnostic into a verified condition.
+The numerical identity includes numerical values, covariance, grid and operation configuration. It excludes evidence references, source-batch digest, calibration references, implementation Git revision, execution ID and creation time. Thus a numerical-equivalent replay can have a new occurrence and new provenance identity. Numerical identity is not source equivalence, authentication, execution verification or scientific equivalence beyond this exact record.
 
-## Mapping to existing instrument exchange
+The window identity includes the source-batch digest and references. Appending future source bytes can change that provenance identity while leaving the numerical result unchanged. Future noninterference tests explicitly distinguish these two properties.
 
-When a scalar ordered feature vector is exported through
-`notation.instrument.result-artifact.v1`:
+## Refusal and bounds
 
-- `result_id` maps to `feature_record_id`;
-- `execution_ref` remains the feature execution identity;
-- `input_refs` include the window and/or source observation batch references;
-- `model_refs` include the operation/filter specification;
-- `components` preserve feature order, numeric value and unit;
-- covariance uses `feature_space` frame semantics and an explicit status; and
-- calibration references are retained at both required levels.
+The CLI accepts at most 1 MiB of UTF-8 JSON, rejects duplicate keys and nonfinite constants, emits one JSON receipt to stdout on success, or a JSON refusal to stderr with exit code 2. The callable validates bounded record counts, text lengths, strict numeric types and versioned field sets. It returns detached JSON-native values and does not mutate the request.
 
-This projection loses domain information unless the window, frequency axis,
-filter state and quality diagnostic remain available as referenced companion
-artifacts. The mapping is therefore explicit and testable, not assumed.
-
-## Compatibility policy
-
-Repository renames and documentation revisions do not change record identity.
-Once contract identifiers and operation IDs are implemented, incompatible field
-or semantic changes require a new version. Recorded executions retain the
-contract and implementation versions under which they ran.
+A successful receipt establishes only the implemented calculation under supplied declarations. It does not establish calibration validity, physical applicability, unique sensor-fault isolability, authenticated source bytes, an SCR execution commitment, an independent verification or ESM admission. A future incompatible policy requires a new operation version.

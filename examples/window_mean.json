@@ -1,0 +1,25 @@
+{
+  "operation_id": "stfe.window-mean.v1",
+  "source_batch_ref": "observation-batch:synthetic-two-point",
+  "source_batch_digest": "sha256:aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+  "samples": [
+    {"observation_ref": "observation:0", "event_time": 0, "received_at": 0.5, "value": 10, "missing": false},
+    {"observation_ref": "observation:1", "event_time": 1, "received_at": 1.5, "value": 14, "missing": false}
+  ],
+  "window": {"start": 0, "end": 2, "received_by": 2, "decision_time": 2, "sample_period": 1, "max_lateness": 0.5},
+  "channel_id": "temperature",
+  "value_unit": "degC",
+  "frame": "sensor-temperature",
+  "clock_basis": "synthetic-clock-seconds",
+  "clock_mapping_ref": "clock-map:synthetic-identity",
+  "frame_mapping_ref": "frame-map:synthetic-identity",
+  "calibration_refs": [],
+  "uncertainty": {
+    "status": "known", "crosscov_policy": "declared",
+    "matrix": [[4, 2], [2, 4]],
+    "observation_refs": ["observation:0", "observation:1"]
+  },
+  "execution_id": "execution:example-1",
+  "created_at": "2026-09-20T00:00:00Z",
+  "implementation_revision": "0000000000000000000000000000000000000000"
+}

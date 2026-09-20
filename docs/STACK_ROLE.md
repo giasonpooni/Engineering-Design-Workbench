@@ -1,121 +1,30 @@
-# Stack role: streaming telemetry feature extraction
+# Stack role: signal-domain feature computation
 
-## Stable responsibility
-
-Streaming Telemetry Feature Extraction is the signal-domain instrument that
-turns bounded, ordered telemetry windows into declared spectral or temporal
-features and stream-quality diagnostics. Its stable responsibility is:
-
-\[
-(\text{samples},\ \text{time semantics},\ \text{source references},\
-\text{operation configuration})
-\longrightarrow
-(\text{derived features},\ \text{quality diagnostics}).
-\]
-
-This boundary is upstream of state estimation and downstream of acquisition.
-It is independently usable and may feed more than one estimator or analysis
-workflow.
-
-## Authority matrix
+The implemented operation maps a bounded scalar telemetry window to an arithmetic mean, propagated or unknown covariance, and stream-quality diagnostics. Its scope is downstream of retained acquisition and upstream of optional estimation.
 
 | Concern | Authority |
 | --- | --- |
-| Source capture and retained raw observations | Provenance-Preserving Data Acquisition / owning evidence subsystem |
-| Windowing, filtering and feature computation | Streaming Telemetry Feature Extraction |
-| Clock mapping or calibration validity | The referenced clock/calibration artifact and its owning subsystem |
-| Geometry and coordinate transforms | Geometric Telemetry Engine or another declared geometry instrument |
-| Latent-state estimation and sensor fusion | State-Inferential-Cortex or another declared estimator |
-| Constraint correction | Constraint-Based State Reconciliation |
-| Stress, fault and estimator evaluation | State Estimation Evaluation Testbed |
-| Operation orchestration and replay inspection | Computational Instrumentation Workbench |
-| Evidence admission and governed state | Evidence and State Management |
+| Source capture, observation bytes and missingness | PPDA / RCI / owning evidence subsystem |
+| Declared scalar window mean | STFE |
+| Clock mapping and calibration applicability | Referenced mapping/calibration owner; not inferred by STFE |
+| Geometry and coordinate transformations | GTE or another declared geometry operation |
+| Latent-state estimation and fusion | [Geometric State Inference Engine](https://github.com/giasonpooni/Geometric-State-Inference-Engine) or a domain estimator |
+| Declared-constraint reconciliation | CBSR |
+| Exchange eligibility and separately implemented evaluation | SET |
+| Session composition, provider pins and replay inspection | CIW |
+| Scientific workload execution identity | SCR where an actual declared workload is bound |
+| Evidence admission and governed state | ESM |
 
-The feature extractor has no authority to rewrite raw evidence, admit canonical
-state, declare a physical fault verified, select an operational action or
-silently repair another instrument's output.
+An STFE mean is a deterministic feature, not a corrected source observation or latent-state estimate. Its covariance is conditional on the complete supplied covariance and linear feature map. Clock/frame mapping references are retained but do not themselves prove mapping validity. A source-batch digest is a supplied content binding, not authentication.
 
-## Composition boundary
+## Implemented interoperability
 
-The intended composition is:
+`stfe.window_mean` returns a companion receipt and the existing `notation.instrument.result-artifact.v1` projection. Known and unknown covariance projections are tested against SET. Optional integration tests exercise CIW's read-only exchange inspector; that inspector's source pin is enforced by CIW.
 
-\[
-\text{raw stream}
-\rightarrow
-\text{qualified measurements/features}
-\rightarrow
-\text{state estimate}
-\rightarrow
-\text{constraint reconciliation}
-\rightarrow
-\text{evaluation}.
-\]
+The local CLI is a bounded subprocess boundary suitable for a pinned CIW adapter. CIW owns composed session persistence and provider provenance. STFE does not import sibling instrument kernels, write ESM state, spend YWIR budgets or claim independent verification. The three geometry scaffolds are not dependencies.
 
-The stream instrument may provide denoised measurements, spectral features,
-vibration indicators, signal-quality scores, time-local residual features and
-candidate event markers. Downstream consumers must still retain the references
-needed to recover the exact source window and operation configuration.
-
-State-Inferential-Cortex remains a separate component because feature
-extraction and latent-state inference make different claims. A deterministic
-FFT result can be numerically correct even when the measurement is physically
-invalid; an estimator can be mathematically coherent while receiving a poorly
-conditioned stream. Keeping identities and diagnostics separate makes those
-failure modes observable.
-
-## Workbench integration state
-
-The component is registered in the public CIW stack map as a planned provider.
-There is currently no executable provider, source pin, adapter, session workflow
-or replay path. Documentation registration is not an implemented integration.
-
-An eventual CIW adapter must bind:
-
-- repository revision and operation identifier;
-- input artifact references and byte/content digests where applicable;
-- window and stream policy;
-- causal/offline mode;
-- execution environment and implementation version;
-- output artifact identities; and
-- verification references without collapsing them into the execution record.
-
-The adapter may invoke and inspect the instrument. It may not translate a
-feature result into canonical evidence or state without a separately declared
-mapping and the owning subsystem's admission process.
-
-## Existing exchange compatibility
-
-The State Estimation Evaluation Testbed validates these existing exchange
-schemas:
-
-- `notation.instrument.observation-batch.v1`;
-- `notation.instrument.result-artifact.v1`; and
-- `notation.instrument.verification-artifact.v1`.
-
-Telemetry windows should reference retained observation batches. Scalar feature
-vectors can be projected into a result artifact when component ordering, units,
-frame semantics, uncertainty status and input references are explicit.
-Frequency arrays, filter state and window policy require a domain extension or
-companion artifact. Such an extension is not automatically interchangeable
-with the generic schemas and must have an explicit, tested mapping.
-
-## Integration admission gates
-
-The stack should not describe this component as executable or integrated until
-all of the following are true:
-
-1. operation semantics and refusal conditions are versioned;
-2. the C++ and NumPy references agree within declared tolerances;
-3. causal replay proves the absence of future-data leakage;
-4. missing, late and out-of-order samples exercise explicit policies;
-5. output records retain complete source and execution identity;
-6. the SET validator accepts any claimed generic exchange projection;
-7. the CIW provider is pinned to a reviewed revision; and
-8. the operating guide states implemented limits and failure behavior.
+The public contract is the bounded window mean currently present in source and tests. FFT/STFT, C++ kernels, offline modes, active buffers, multichannel estimators, GNSS/RTK signal models and hardware qualification are not implemented capabilities here.
 
 ## Public/private boundary
 
-The public repository may contain reusable stream operators, generic contracts,
-synthetic fixtures and conformance tests. Customer telemetry, deployment
-configuration, proprietary calibration profiles, private detector thresholds,
-operational policies and agent prompts remain outside this public interface.
+Public material consists of reusable operations, implemented contracts, synthetic fixtures and reproducible conformance tests. Customer telemetry, deployment configuration, proprietary calibration profiles, private thresholds, agent prompts and internal plans remain outside this interface.

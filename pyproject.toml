@@ -1,0 +1,25 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "streaming-telemetry-feature-extraction"
+version = "0.1.0"
+description = "Bounded causal telemetry window means with explicit covariance and replay identity"
+requires-python = ">=3.11"
+license = {text = "MPL-2.0"}
+dependencies = []
+
+[project.optional-dependencies]
+test = ["pytest>=8,<9", "numpy>=1.26,<3"]
+
+[project.scripts]
+stfe-window-mean = "stfe.__main__:main"
+
+[tool.setuptools]
+packages = ["stfe"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+
