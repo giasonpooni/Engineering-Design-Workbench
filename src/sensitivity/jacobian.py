@@ -25,8 +25,19 @@ class JacobianEstimate:
     def shape(self) -> tuple[int, int]:
         return tuple(self.matrix.shape)  # type: ignore[return-value]
 
+    def structure(self, *, singular_atol: float = 1e-10):
+        """Return the local visible/invisible structure of this estimate."""
+        from .structure import local_structure
+
+        return local_structure(self.matrix, singular_atol=singular_atol)
+
     @property
     def condition_number(self) -> float:
+        if self.matrix.ndim != 2 or self.matrix.shape[0] != self.matrix.shape[1]:
+            raise ValueError(
+                "condition_number requires a square Jacobian; use structure() "
+                "for rectangular maps"
+            )
         return float(np.linalg.cond(self.matrix))
 
 

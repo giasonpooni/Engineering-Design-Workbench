@@ -76,7 +76,7 @@ def check_covariance_fidelity(reference, recovered, name: str) -> None:
 
 
 def push_covariance(chart, covariance, *, inverse: bool = False, name: str = "covariance"):
-    t = np.asarray(chart, dtype=float)
+    t = _require_chart(chart, "chart")
     cov = _require_psd(np.asarray(covariance, dtype=float), name)
     if t.shape != cov.shape:
         raise ValueError(f"{name} does not match the chart")
