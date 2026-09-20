@@ -1,6 +1,6 @@
 # State Estimation Evaluation Testbed
 
-**Specification-stage evaluation of state reconstruction under degraded observations.**
+**Early-stage evaluation infrastructure for state reconstruction under degraded observations.**
 
 This repository defines the state-estimation evaluation responsibility within
 Notation Systems' computational instrumentation stack. Its scope covers
@@ -9,10 +9,10 @@ degradation, with the plant and measurement model declared explicitly.
 
 ## Status and implemented contents
 
-**Specification stage.** This checkout contains a declarative invariant corpus
-and its citation. It has no executable estimator, evaluation runner, numerical
-solver, simulation, benchmark results, or test suite. The repository name
-describes its responsibility; it does not establish an implemented capability.
+This checkout contains a declarative invariant corpus, its citation, and the
+first executable contract slice. It does not yet contain an estimator,
+evaluation runner, numerical solver, simulation, fault-injection runner,
+benchmark results, or physical-validation certificate.
 
 The existing corpus declares:
 
@@ -23,6 +23,26 @@ The existing corpus declares:
 These declarations do not establish physical validity, estimator accuracy,
 observability, or a stability certificate. Noise, missingness, and latency are
 evaluation concerns, not implemented perturbation generators in this checkout.
+
+### Instrument exchange contract
+
+`state_estimation_testbed.contracts` validates the v1 instrument exchange
+boundary for observation batches, numerical result artifacts, verification
+artifacts, and covariance eligibility. It enforces:
+
+- ordered variables, per-component units, coordinate frame, and tangent-space
+  evaluation point;
+- finite, rectangular, square, symmetric, positive-semidefinite covariance,
+  including valid singular matrices and reported effective rank;
+- explicit unknown covariance rather than a fabricated zero matrix;
+- retained source and calibration references; and
+- verification summaries consistent with their checks, with internal and
+  independent verification kept distinct.
+
+Numerical eligibility does not establish calibration validity, sensor truth,
+model adequacy, physical applicability, estimator accuracy, or stability.
+
+Run the executable contract slice with `python -m pytest`.
 
 ## Technical responsibility
 
@@ -38,8 +58,8 @@ executing an evaluation or verifying its result.
 
 ## Relationship to the instrumentation stack
 
-These are component responsibilities, not claims of working integrations in
-this specification-stage repository.
+These are component responsibilities, not claims of complete working
+integrations in this early-stage repository.
 
 | Component | Responsibility |
 | --- | --- |
