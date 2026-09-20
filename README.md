@@ -30,6 +30,11 @@ covariance to the workbench. RCI retains domain ownership; CIW retains
 execution and result identities. Missing, expired-at-acquisition, or
 mismatched calibration yields a refusal with no result.
 
+The additive [v2 covariance-basis contract](docs/ciw-adapter-v2.md) declares
+fitting, reference-standard, and shared-systematic inclusion, prevents
+unsupported independent addition, and commits immutable acquisition-time
+applicability. Existing v1 requests and output bytes remain supported.
+
 ```
 Physical sensor or mechanism
         |

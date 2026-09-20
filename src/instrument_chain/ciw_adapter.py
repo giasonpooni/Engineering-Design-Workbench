@@ -259,6 +259,9 @@ def handle_request(request: object) -> dict:
     """Return one result or one refusal, never a partial result."""
     try:
         _object(request, {"schema", "operation_id", "inputs"}, set(), "request")
+        if request["schema"] == REQUEST_SCHEMA and request["operation_id"] == "rci.calibrate.v2":
+            from .ciw_adapter_v2 import handle_request as handle_v2
+            return handle_v2(request)
         if request["schema"] != REQUEST_SCHEMA or request["operation_id"] != OPERATION_ID:
             raise ValueError("Unsupported request schema or operation_id")
         data = calibrate(request["inputs"])
