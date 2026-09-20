@@ -1,14 +1,11 @@
-# Map
+# Implemented data flow
 
-```mermaid
-flowchart TD
-  Phys["physical instrument"] --> Raw["raw counts r"]
-  Raw --> G["y = g(r; theta) declared"]
-  G --> Qual["four status dimensions"]
-  Qual --> Log["replayable JSONL"]
-  Qual --> CSE["CSE binds digest only"]
-```
+The host example reads the declared assembly, constructs a simulated raw sample,
+applies the declared conversion, retains four separate quality dimensions and
+writes a replayable JSONL record. Observation commitments use canonical payload
+digests independently of delivery metadata.
 
-Caption: conversion is declared, not inferred. Simulated counts are not an
-LVDT. A bound digest is not a millimetre of a beam. JSPT is not imported.
-Firmware stays C when it exists.
+The conversion is declared rather than inferred. Simulated counts are not an
+LVDT measurement. A downstream digest binding does not establish a beam
+measurement or another physical quantity. JSPT is not imported, and no
+acquisition firmware is included.

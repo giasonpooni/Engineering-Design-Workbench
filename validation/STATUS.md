@@ -1,8 +1,8 @@
-# Validation pins
+# Validation status
 
-These files are the end of a tool run. Chat text is not a pin.
+The displacement bundle is a simulated host fixture, explicitly marked
+`not_field_evidence: true`. Its committed digests validate record encoding and
+reproduction; they do not represent measured displacement or physical accuracy.
 
-The displacement bundle is a host stand-in. `not_field_evidence: true`.
-It tests the record format. It is not a measured millimetre.
-
-Status: in-development. Not released.
+The repository is an experimental host implementation. Hardware acquisition,
+calibration traceability and field qualification are not established.

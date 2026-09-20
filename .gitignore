@@ -4,3 +4,12 @@ __pycache__/
 .venv/
 results/*.jsonl
 dist/
+
+# Non-public working material
+/AGENTS.md
+/CLAUDE.md
+/HANDOFF.md
+/docs/*_HANDOFF.md
+/docs/agent-*.md
+/.internal/
+/docs/internal/
