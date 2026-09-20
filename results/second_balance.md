@@ -1,6 +1,6 @@
 # Which second balance would let this repository isolate a fault
 
-Generated with Python 3.12.13, numpy 2.5.3 on Windows-11-10.0.26200-SP0; source sha256 4b6eee3a98dd, git b61f685709 (source dirty). Latency columns are wall-clock on this machine and are not a claim.
+Generated with Python 3.12.14, numpy 2.5.3 on Linux-6.18.44-x86_64-with-glibc2.39; source sha256 aa1224a78712, git 77bf659114 (source dirty). Latency columns are wall-clock on this machine and are not a claim.
 
 A design study of PROPOSED constraint topologies. No instrument, record or estimate appears here; nothing below is a measurement.
 
@@ -76,6 +76,8 @@ Which faults are isolable is structural: it does not move when the declared prio
 | Two-reach Muskingum river | continuity + declared routing | storage 1 bias vs storage 2 bias | 1.41x to 20.31x |
 | Cooling loop, mass and energy over the same pipes | mass + energy only | outlet flow-meter bias vs stored-mass sensor bias | 1.42x to 1.42x |
 | Cooling loop, mass and energy over the same pipes | mass + energy + declared duty | outlet flow-meter bias vs stored-mass sensor bias | 1.38x to 1.38x |
+
+When the smallest separations tie within eight float64 relative epsilons, the reported pair follows fault declaration order. This convention selects a stable representative; it does not change the computed separations or fault classifications.
 
 An amplification near 1 means a fault that can be detected can be named; a large one means the separation is real and useless. **Every separation in this study is actionable** -- the largest is 20.3x. An earlier draft of this study reported the cooling loop's tightest pair at 204,258x. That was a units error, not a finding: it whitened joules against kilograms by giving both unit variance. Declared in kilograms and joules the same pair reads 1.38x. A dimensionless prior is not a neutral choice.
 

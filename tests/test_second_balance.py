@@ -225,3 +225,19 @@ def test_a_declared_A_var_does_not_turn_a_confounded_pair_into_a_separated_one()
     assert cell["A_declared_uncertain"] is True
     assert ["a", "nearly a"] in [sorted(pair) for pair in cell["confounded_pairs"]]
     assert "a" not in cell["isolable"] and "nearly a" not in cell["isolable"]
+
+
+@pytest.mark.parametrize("scale", [1.0, 1e-12])
+@pytest.mark.parametrize("direction", [-np.inf, np.inf])
+def test_roundoff_tied_pair_keeps_declaration_order(scale, direction):
+    first = {"a": "inflow", "b": "middle", "orthogonal_fraction": 0.4 * scale}
+    other = {"a": "middle", "b": "lateral",
+             "orthogonal_fraction": np.nextafter(0.4 * scale, direction)}
+    assert study._tightest_pair([first, other]) is first
+
+
+def test_materially_smaller_separation_wins_even_near_zero():
+    first = {"a": "first", "orthogonal_fraction": 4e-14}
+    smaller = {"a": "smaller", "orthogonal_fraction": 2e-14}
+    assert study._tightest_pair([first, smaller]) is smaller
+    assert study._tightest_pair([]) is None

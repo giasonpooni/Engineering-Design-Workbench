@@ -3,12 +3,12 @@
   "scope": "A design study of PROPOSED constraint topologies. No instrument, record or estimate appears here; nothing below is a measurement.",
   "provenance": {
     "generation": {
-      "python": "3.12.13",
+      "python": "3.12.14",
       "numpy": "2.5.3",
-      "platform": "Windows-11-10.0.26200-SP0",
-      "machine": "AMD64",
-      "source_sha256": "4b6eee3a98dde17624938b0630fc6f2fb3ccad4f2f3d5fae701f4e97f72ebda6",
-      "git_head": "b61f685709f881af0f4011deba414931cd81de39",
+      "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+      "machine": "x86_64",
+      "source_sha256": "aa1224a787123ad73682c3cc6720eb4cdfdc588c0c08e82e3823cf91c7e1f60a",
+      "git_head": "77bf659114e16aafd20b2456a01c1ba526f70861",
       "source_dirty": true,
       "note": "git_head is HEAD at generation time (the parent of the commit containing these results); source_dirty covers src/, run_experiments.py, pyproject.toml and tests/ only"
     }
@@ -303,9 +303,9 @@
                 "middle gauge bias"
               ],
               "tightest_separated_pair": {
-                "a": "middle gauge bias",
-                "b": "outflow gauge bias",
-                "orthogonal_fraction": 0.816496580927726,
+                "a": "storage 1 bias",
+                "b": "middle gauge bias",
+                "orthogonal_fraction": 0.8164965809277261,
                 "isolation_amplification": 1.224744871391589
               }
             },
@@ -375,8 +375,8 @@
               "tightest_separated_pair": {
                 "a": "storage 1 bias",
                 "b": "storage 2 bias",
-                "orthogonal_fraction": 0.04923225997216117,
-                "isolation_amplification": 20.31188494221998
+                "orthogonal_fraction": 0.04923225997215469,
+                "isolation_amplification": 20.311884942222655
               }
             },
             {
@@ -393,8 +393,8 @@
               "tightest_separated_pair": {
                 "a": "outflow gauge bias",
                 "b": "common drift of all three flow gauges",
-                "orthogonal_fraction": 0.7113429746222264,
-                "isolation_amplification": 1.405791630304736
+                "orthogonal_fraction": 0.7113429746222258,
+                "isolation_amplification": 1.4057916303047369
               }
             },
             {
@@ -411,15 +411,15 @@
               "tightest_separated_pair": {
                 "a": "inflow gauge bias",
                 "b": "middle gauge bias",
-                "orthogonal_fraction": 0.44323970119142675,
-                "isolation_amplification": 2.256115590079146
+                "orthogonal_fraction": 0.4432397011920673,
+                "isolation_amplification": 2.2561155900758854
               }
             }
           ],
           "n_priors_refused": 0,
           "amplification_range": [
-            1.405791630304736,
-            20.31188494221998
+            1.4057916303047369,
+            20.311884942222655
           ]
         }
       ]
