@@ -15,5 +15,5 @@ The corpus declares `plant.declared` and a state coordinate `var.x` requiring
 is not evidence that an estimator ran, that a numerical result was verified,
 or that a physical model is valid or stable.
 
-See the [README](../README.md) for specification-stage status and component
+See the [README](../README.md) for current implementation status and component
 responsibilities.
