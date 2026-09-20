@@ -1,11 +1,10 @@
 # sensitivity-gate
 
-CPU crate is opened under `sensitivity-gate/`. No PyO3 yet.
+The `sensitivity-gate/` directory contains an incomplete Rust crate scaffold.
+It includes numerical constants and typed error definitions, but the modules
+`chart`, `covariance`, `matrix`, and `structure` declared by `src/lib.rs` are
+absent from the committed source. The crate therefore does not currently build.
 
-```
-cd rust/sensitivity-gate
-cargo test
-```
-
-The crate owns constitution, Chart, push_covariance, structure, and typed GateError.
-Small dense f64 kernel (LU + Jacobi). Bindings wait until this contract stays green.
+There are no Python bindings, C ABI, Julia bindings, or CUDA backend in this
+repository. The supported implementation is the Python `sensitivity` package;
+see [the kernel documentation](../docs/KERNEL.md) for its numerical constraints.

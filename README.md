@@ -29,7 +29,7 @@ flowchart LR
 ```
 
 Caption: raw entries of J are not invariants. Physical pushforward is.
-Covariance in a closed chart class only. This repo does not own V, IFC, or proofs.
+Coordinate comparisons require a declared invertible chart.
 
 ## What is in the first release
 
@@ -82,27 +82,13 @@ PYTHONPATH=src pytest -q
 
 The quickstart writes `results/quickstart.md`.
 
-## Role next to CSE, RCI, and the torus
+## Using the library
 
-This package owns A2–A5 as code. Domain repos wrap types. Consumption is
-one way: they may pin a git SHA of *this* repo. This package does not
-import GAT, RCI, or `flat_torus`.
+The `sensitivity` package accepts declared models and arrays. Applications can
+use `jacobian_at`, `first_order_covariance`, and `push_covariance` without
+adopting the experiment suite or changing their domain types.
 
-The CSE experiment harness binds *record* digests from RCI and the torus.
-It does not put `sensitivity` in an SP1 guest. A later integer check of
-`P' = T P T^T` on a tiny declared matrix would still be a GAT satellite,
-not a rewrite of this kernel.
-
-Experiment here:
-
-```bash
-uv run --python 3.13 python examples/quickstart.py
-```
-
-Then, in a consumer, wrap `jacobian_at` / `first_order_covariance` /
-`push_covariance`. Do not fork those names.
-
-See [docs/KERNEL.md](docs/KERNEL.md).
+See [docs/KERNEL.md](docs/KERNEL.md) for the API and numerical constraints.
 
 ### Workbench covariance operation
 
@@ -162,9 +148,7 @@ experiment suite.
 ## Scope and limits
 
 First-order, local, explicit compositions only. Global sensitivity,
-discontinuous mode changes, trajectory sensitivities, and a separately
-named Sensitivity Propagation Runtime are compatible extensions—not
-implied capabilities.
+discontinuous mode changes, and trajectory sensitivities are unsupported.
 
 First-order covariance is exact for affine maps. For nonlinear maps the
 testbed reports the Monte Carlo gap instead of treating the formula as

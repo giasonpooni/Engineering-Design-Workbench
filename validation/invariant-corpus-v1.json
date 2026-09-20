@@ -11,7 +11,7 @@
     {
       "id": "alg.no-duplicate",
       "kind": "pin",
-      "statement": "adapter lands only if local TFT-1 / TPT-T is deleted in the same PR."
+      "statement": "Shared coordinate-transform adapters do not duplicate T F T^-1 or T P T^T implementations."
     }
   ],
   "free_coordinates": [

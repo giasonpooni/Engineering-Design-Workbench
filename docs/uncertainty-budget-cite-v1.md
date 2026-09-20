@@ -1,4 +1,8 @@
-# Uncertainty budget cite
+# Uncertainty budget boundary
 
-Canonical: RCI `uncertainty-budget-v1`.
-JSPT may supply a declared J. It does not compute Type A/B budgets.
+The `uncertainty-budget-v1` contract belongs to RCI. JSPT propagates
+covariance through an explicitly declared
+Jacobian; it does not compute Type A or Type B uncertainty budgets.
+
+The implemented JSON covariance operation and its provenance fields are
+specified in [CIW_ADAPTER.md](CIW_ADAPTER.md).

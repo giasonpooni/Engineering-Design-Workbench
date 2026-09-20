@@ -1,55 +1,39 @@
-# Kernel and drift ledger
+# Sensitivity kernel
 
-JSPT owns A2-A5 as code. Domain repos wrap types; they do not fork the law.
-Consumption is one way. This package does not import `set_lcm` or `gat`.
-Peers pin a git SHA, not floating `main`.
+The Python `sensitivity` package operates on arrays and explicitly declared
+models. Domain identifiers, acquisition records, and application decisions
+are outside its interface.
 
-## Ownership
+## Public operations
 
-| Axiom | Shared object | Owner | Domain wrapper |
-| --- | --- | --- | --- |
-| A2 first-order map | `jacobian_at`, `jvp`, `first_order_covariance` | JSPT | FSRT predict uses F, Q; GAT propagate uses J |
-| A2 exact mean | `propagate_belief` / `evaluate` | JSPT | GAT means are re-evaluations |
-| A3 chart law | `x'=Tx+c`, `J'=S J T^{-1}`, `P'=T P T^T`, `F'=T F T^{-1}` | JSPT | FSRT GaussianState + fidelity checks |
-| A4 additive error | `invariant_error`, `retract` | JSPT | FSRT masks, Joseph, declaration |
-| A5 refuse repair | PSD-in-correlation, no clip, cond cap | JSPT constants | FSRT singular-S refusal; GAT fail-closed geometry |
-| Site / IFC / verdict | -- | not shared | FSRT declaration, GAT disposition |
-
-If a function needs a tank id or an IFC id, it does not go here.
-If it only needs ndarray and a law, it does not stay forked in FSRT or GAT.
-
-## Frozen names
-
-`AffineCoordinates`, `transform_jacobian`, `first_order_covariance`,
-`propagate_belief`, `local_structure`, `invariant_error`, `retract`,
-`push_covariance`, `predict`, `update`
-
-Add freely behind them. Do not rename to sound like GAT or FSRT.
-
-## Constitution
-
-- `MAX_CONDITION_NUMBER = 1e12`
-- `ROUND_TRIP_TOLERANCE = 1e-8` in `max(|mean|, sigma)` and sigma-product units
-- solve, do not invert
-- symmetrize after `T P T^T`; never clip or nearest-PSD
-- exact-zero variance keeps zero cross-covariance through a chart round-trip
-- a chart that turns an exact-zero direction into a cross-term is refused
-
-## Ledger
-
-| law | module | consumers |
+| Operation | API | Meaning |
 | --- | --- | --- |
-| `J' = S J T^{-1}` | `coordinates.py` | FSRT adapter, GAT later, JSPT tests |
-| `P' = T P T^T` with fidelity | `coordinates.push_covariance` | `affine.transform_state`, FSRT charts |
-| `Sigma_y = J Sigma J^T` | `covariance.py` | FSRT predict, GAT belief |
-| `f(mu) != J mu` | `structure.py` | GAT honesty, beam example |
-| `ker J` | `structure.py` | none yet (observer later) |
+| Local derivative | `jacobian_at`, `jvp` | Evaluate the local map and its action on a perturbation. |
+| First-order covariance | `first_order_covariance` | Propagate `Sigma_y = J Sigma_x J^T`. |
+| Model-based mean and covariance | `propagate_belief` | Evaluate the mean as `f(mu)` and propagate covariance with the local Jacobian. |
+| Coordinate changes | `AffineCoordinates`, `transform_jacobian`, `push_covariance` | Apply the declared affine chart and verify numerical fidelity. |
+| Local structure | `local_structure` | Report rank, singular values, visible directions, and the null space of the instantaneous map. |
+| Additive state operations | `invariant_error`, `retract`, `predict`, `update` | Apply additive errors and affine Gaussian prediction and conditioning. |
 
-When FSRT or GAT adds an ndarray helper that exists after deleting domain names,
-the review question is why it is not an import.
+A nonlinear model mean is evaluated as `f(mu)`; `J mu` is not a substitute.
+The null space of an instantaneous Jacobian does not establish trajectory
+observability, identifiability, or stability.
 
-## What this repo is not
+## Numerical constraints
 
-SP1 does not live here. An instrument observation digest does not live here.
-A torus report digest does not live here. Those are record or guest objects.
-JSPT takes arrays and a law.
+- Charts must be invertible with 2-norm condition number at most
+  `MAX_CONDITION_NUMBER = 1e12`.
+- `ROUND_TRIP_TOLERANCE = 1e-8` applies in `max(abs(mean), sigma)` units
+  for means and `sigma_i * sigma_j` units for covariance entries.
+- Chart transformations use linear solves to recover coordinates.
+- Covariances are validated in correlation coordinates. Permitted numerical
+  symmetrization does not clip eigenvalues or apply a nearest-PSD repair.
+- Exact-zero variance requires zero cross-covariance. A chart round trip
+  that introduces uncertainty into an exact-zero direction is refused.
+- The Skeel condition estimate is diagnostic and does not alter the chart cap.
+- Matrix norms and singular values depend on the declared coordinates;
+  sensitivity comparisons require an explicit scaling or metric.
+
+These constraints are exercised by the coordinate, covariance, fidelity, and
+metric tests. The public operations are local and first order; see
+[SCOPE.md](SCOPE.md) and [METHODS.md](METHODS.md).

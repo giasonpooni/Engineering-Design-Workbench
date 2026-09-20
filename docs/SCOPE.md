@@ -19,12 +19,11 @@ It does **not** claim to be a general sensitivity-analysis platform.
 - First-order covariance `\u03a3_y \u2248 J \u03a3_x Jᵀ` compared with Monte Carlo.
 - Empirical local-validity sweeps along declared directions.
 
-## Out of scope until implemented and tested
+## Unsupported capabilities
 
 - Global sensitivity indices.
 - Discontinuous mode changes and hybrid switching.
 - Trajectory / tangent-linear sensitivities of ODE or PDE integrators.
-- A separately versioned Sensitivity Propagation Runtime.
 - Automatic discovery of models from source code.
 
 Covariance reuse is intentional: the same Jacobian that maps `\u03b4x` to

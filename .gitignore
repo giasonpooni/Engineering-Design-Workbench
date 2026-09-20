@@ -16,3 +16,7 @@ work/
 *.skp
 .DS_Store
 uv.lock
+
+# Local coordination notes
+/AGENTS.md
+/HANDOFF.md
