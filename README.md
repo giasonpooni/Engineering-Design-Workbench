@@ -1,4 +1,4 @@
-# Fluid State Reconciliation Testbed (FSRT)
+# Fluid State Reconstruction Testbed (FSRT)
 
 **Check whether measurements in a fluid network agree with a declared physical balance.**
 
