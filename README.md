@@ -44,6 +44,10 @@ The example uses two tanks and a declared total of 100 kg. It shows two cases:
 
 The example uses synthetic values and makes no network requests. See the [usage guide](docs/USAGE.md).
 
+For a workbench integration, FSRT also exposes a [pinned JSON subprocess operation](docs/CIW_ADAPTER.md)
+for one simultaneous two-reservoir snapshot. It retains full channel covariance,
+the original observations, model disagreement, and explicit numerical refusals.
+
 ## Explore the examples
 
 | Example | What it demonstrates | Report |
