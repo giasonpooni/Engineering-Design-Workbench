@@ -186,6 +186,7 @@ class _SingleSeriesKF:
         self.innov: list[np.ndarray] = []
         self.innov_var: list[np.ndarray] = []
         self.innov_z: list[np.ndarray] = []
+        self._exact_observation_step: int | None = None
 
     def H(self, j: int) -> np.ndarray:          # (N,) observation row at sampling step j
         raise NotImplementedError
@@ -217,6 +218,11 @@ class _SingleSeriesKF:
             I_KH = np.eye(self.N) - np.outer(k_gain, h)
             P = I_KH @ self._P @ I_KH.T + r * np.outer(k_gain, k_gain)   # Joseph form
             self._P = 0.5 * (P + P.T)
+            # A declared R=0 fixes H(j)x exactly at this sampling step. Retain
+            # that constraint for the reported coordinate transform: expanding
+            # H P H^T can otherwise turn cancellation roundoff into a negative
+            # variance. This says nothing about physical sensor accuracy.
+            self._exact_observation_step = j if r == 0.0 else None
             nu_full[0] = nu
             s_full[0] = s
         self.xf.append(self._x.copy())
@@ -303,7 +309,16 @@ class TideKF(_SingleSeriesKF):
     def reported(self, x: np.ndarray, P: np.ndarray, k: int) -> tuple[np.ndarray, np.ndarray]:
         h = self._rows[k]
         T = np.vstack([h, np.eye(self.N)])                      # (1 + N, N): level, then the states
-        return T @ x, T @ P @ T.T
+        covariance = T @ P @ T.T
+        if k == self._exact_observation_step:
+            # For the just-assimilated noiseless observation, H P = 0, hence
+            # both its variance and cross-covariances are exactly zero. Do not
+            # apply this at future report times, after process noise or when
+            # the observation row changes. The coefficient covariance stays
+            # untouched; no eigenvalue clipping or looser PSD check is used.
+            covariance[0, :] = 0.0
+            covariance[:, 0] = 0.0
+        return T @ x, covariance
 
 
 class TideMonthKF(TideKF):
