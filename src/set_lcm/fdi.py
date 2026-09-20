@@ -49,6 +49,11 @@ NULL_REL_TOL = 1e-12
 # Retained for import compatibility only. Visibility no longer thresholds d(f): detection
 # power depends on covariance and amplitude, whereas nullspace membership does not.
 VISIBLE_D = 1e-12
+# A projected component below this level is floating-point roundoff, not a
+# meaningful separation. Keeping it at zero prevents platform-dependent
+# candidate labels in committed reports while preserving the measured 1e-10
+# near-collinear diagnostic used by the public API tests.
+SEPARATION_ROUNDOFF = 1e-14
 
 
 def residual_covariance(P: np.ndarray, cs: ConstraintSet,
@@ -126,7 +131,8 @@ def _orthogonal_fraction(a: np.ndarray, b: np.ndarray) -> float:
     # The denominator retains the true floating-point norm: projecting an identical
     # vector onto itself should leave exactly zero, not its normalization roundoff.
     orthogonal = a - b * float((a @ b) / (b @ b))
-    return float(np.clip(np.linalg.norm(orthogonal) / np.linalg.norm(a), 0.0, 1.0))
+    separation = float(np.clip(np.linalg.norm(orthogonal) / np.linalg.norm(a), 0.0, 1.0))
+    return 0.0 if separation < SEPARATION_ROUNDOFF else separation
 
 
 @dataclass(frozen=True)

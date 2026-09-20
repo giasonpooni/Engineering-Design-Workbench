@@ -100,7 +100,7 @@ def compute() -> dict:
     out["schema_version"] = "fsre-real-taylor-park-v1"
     # merge, never replace: compute() already put this site's series and drainage areas here
     out["site"] |= {"key": SITE.key, "label": SITE.label,
-                    "declaration": str(DECLARATION_PATH.relative_to(REPO_ROOT))}
+                    "declaration": DECLARATION_PATH.relative_to(REPO_ROOT).as_posix()}
     out["provenance"]["generation"] = provenance()
     out["reporting_split"] = reporting_split()
     out["comparison_with_ridgway"] = _comparison()

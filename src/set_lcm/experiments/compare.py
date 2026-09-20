@@ -132,6 +132,13 @@ EXCEPTIONS: dict[str, tuple[ToleranceException, ...]] = {
                 "across builds; use the same absolute bound as the analytic null-direction test",
         ),
     ),
+    "real_taylor_park.json": (
+        ToleranceException(
+            contains=(".blind.d.null_space (S + G)",), rel_tol=1e-8, abs_tol=1e-30,
+            why="a structurally null direction computed by SVD: measured 0 versus a sub-1e-37 "
+                "roundoff residual across builds; it carries no physical signal",
+        ),
+    ),
     "real_noaa_month.json": (
         ToleranceException(
             contains=(".loglik",),

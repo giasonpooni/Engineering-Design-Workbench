@@ -97,7 +97,12 @@ def _separation(a: np.ndarray, b: np.ndarray) -> float:
     one works in the post-nuisance whitened coordinates the decision is made in.
     """
     orthogonal = a - b * float((a @ b) / (b @ b))
-    return float(np.clip(np.linalg.norm(orthogonal) / np.linalg.norm(a), 0.0, 1.0))
+    separation = float(np.clip(np.linalg.norm(orthogonal) / np.linalg.norm(a), 0.0, 1.0))
+    # Below this fraction the projection is floating-point roundoff, not a
+    # meaningful separation. Treating it as zero keeps a numerically collinear
+    # pair from appearing actionable or changing across BLAS builds. This is
+    # well below the 1e-10 near-collinear case exposed by the public API tests.
+    return 0.0 if separation < 1e-14 else separation
 
 
 def _probability(value, name: str) -> float:
@@ -420,10 +425,19 @@ def diagnose(residual, covariance, hypotheses: Mapping[str, object], *, nuisance
                 continue
             rivals = [(abs(float(own @ other)), other_name, other)
                       for other_name, other in directions.items() if other_name != fit.name]
-            _, nearest_name, nearest = max(rivals)
+            best_score = max(score for score, _, _ in rivals)
+            # Near-tied dot products are numerical ties. Choose the name
+            # deterministically instead of letting the last BLAS bit select a
+            # different rival in a committed report.
+            tied = [rival for rival in rivals
+                    if best_score - rival[0] <= 1e-12]
+            _, nearest_name, nearest = min(tied, key=lambda rival: rival[1])
             separation = _separation(own, nearest)
+            cosine = float(own @ nearest)
+            if separation == 0.0:
+                cosine = 1.0 if cosine >= 0.0 else -1.0
             fits[index] = replace(
-                fit, nearest=nearest_name, nearest_cos=float(np.clip(own @ nearest, -1.0, 1.0)),
+                fit, nearest=nearest_name, nearest_cos=float(np.clip(cosine, -1.0, 1.0)),
                 nearest_orthogonal_fraction=separation,
                 # None, not inf: exact collinearity has no amplitude that separates the pair,
                 # and a result dict is serialized with allow_nan=False by its consumers.

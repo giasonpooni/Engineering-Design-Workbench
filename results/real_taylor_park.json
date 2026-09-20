@@ -109,11 +109,11 @@
     "mean_as_cfs": 29.493540706605224,
     "sd_as_cfs": 24.67597870296676,
     "mean_throughput_cfs": 162.54917050691245,
-    "lag1_autocorr": 0.5377745942920027,
+    "lag1_autocorr": 0.5377745942920026,
     "cumulative_se": 1612.1859322675707,
     "cumulative_in_se": 39.37017952854991,
-    "cumulative_se_ar1": 2938.5393715594532,
-    "cumulative_in_se_ar1": 21.59986359246665,
+    "cumulative_se_ar1": 2938.539371559453,
+    "cumulative_in_se_ar1": 21.599863592466654,
     "cumulative_ci95_ar1": [
       57712.51241852033,
       69231.5867550334
@@ -125,21 +125,21 @@
       "sd": 48.944089989355554,
       "mean_as_cfs": 29.493540706605224,
       "sd_as_cfs": 24.67597870296676,
-      "lag1_autocorr": 0.5377745942920027
+      "lag1_autocorr": 0.5377745942920026
     },
     "centred": {
       "mean": 58.6323951708116,
       "sd": 39.391716462956744,
       "mean_as_cfs": 29.560499231950846,
       "sd_as_cfs": 19.859990383407357,
-      "lag1_autocorr": 0.72890658531674
+      "lag1_autocorr": 0.7289065853167399
     },
     "next_day": {
       "mean": 58.765205469017786,
       "sd": 43.690409490476604,
       "mean_as_cfs": 29.627457757296465,
       "sd_as_cfs": 22.02724811811529,
-      "lag1_autocorr": 0.6644298291807563
+      "lag1_autocorr": 0.6644298291807562
     },
     "smallest_sd": "centred",
     "note": "the centred pairing also averages two flow readings, which reduces the flow's own noise contribution by sqrt(2) whether or not the alignment is right; a smaller sd there is therefore not by itself evidence of the alignment"
@@ -1263,7 +1263,7 @@
       "storage_only": 1.1111111111111112e-05,
       "cumulative_inflow_only": 1.1111111111111112e-05,
       "row_space (S - G)": 2.2222222222222213e-05,
-      "null_space (S + G)": 1.3695501826753678e-37
+      "null_space (S + G)": 0.0
     },
     "row_space_basis": [
       [
@@ -1274,13 +1274,13 @@
     "null_space_basis": [
       [
         0.7071067811865475,
-        0.7071067811865476
+        0.7071067811865475
       ]
     ],
     "structurally_invisible": {
       "direction": [
         0.7071067811865475,
-        0.7071067811865476
+        0.7071067811865475
       ],
       "meaning": "storage and cumulative gauged inflow rising together by the same volume. d(f) = 0 exactly: no covariance makes this visible to the constraint."
     },
@@ -1305,8 +1305,8 @@
             "cusum_applicable": true,
             "constraint_declared": true,
             "threshold": 10.828,
-            "latency_us_p50": 336.8024990777485,
-            "latency_us_p99": 629.641398336389,
+            "latency_us_p50": 622.7000849321485,
+            "latency_us_p99": 1426.3949124142523,
             "windows": {
               "all": {
                 "range": [
@@ -1418,8 +1418,8 @@
             "cusum_applicable": true,
             "constraint_declared": true,
             "threshold": 10.828,
-            "latency_us_p50": 526.1575024633203,
-            "latency_us_p99": 919.7430514177539,
+            "latency_us_p50": 937.7500973641872,
+            "latency_us_p99": 2325.8999921381446,
             "windows": {
               "all": {
                 "range": [
@@ -1543,8 +1543,8 @@
             "cusum_applicable": true,
             "constraint_declared": true,
             "threshold": 10.828,
-            "latency_us_p50": 492.96199722448364,
-            "latency_us_p99": 1563.8356995623321,
+            "latency_us_p50": 939.3999353051186,
+            "latency_us_p99": 2392.6850408315645,
             "windows": {
               "all": {
                 "range": [
@@ -1668,8 +1668,8 @@
             "cusum_applicable": true,
             "constraint_declared": true,
             "threshold": 10.828,
-            "latency_us_p50": 299.3930029333569,
-            "latency_us_p99": 411.0110021429135,
+            "latency_us_p50": 606.0500163584948,
+            "latency_us_p99": 1445.4399468377228,
             "windows": {
               "all": {
                 "range": [
@@ -1790,8 +1790,8 @@
             "cusum_applicable": true,
             "constraint_declared": true,
             "threshold": 10.828,
-            "latency_us_p50": 470.17550241434947,
-            "latency_us_p99": 631.3214536930899,
+            "latency_us_p50": 1035.9999723732471,
+            "latency_us_p99": 2444.274956360455,
             "windows": {
               "all": {
                 "range": [
@@ -1923,8 +1923,8 @@
             "cusum_applicable": true,
             "constraint_declared": true,
             "threshold": 10.828,
-            "latency_us_p50": 581.4630021632183,
-            "latency_us_p99": 756.3046496215973,
+            "latency_us_p50": 1304.0000339969993,
+            "latency_us_p99": 10974.47004867717,
             "windows": {
               "all": {
                 "range": [
@@ -1937,7 +1937,7 @@
                     "n_observed": 1090,
                     "frac_missing": 0.005474452554744547,
                     "n_z": 1090,
-                    "z_mean": -0.0029857980956124906,
+                    "z_mean": -0.00298579809561259,
                     "z_rms": 0.6069881712224249,
                     "z_lag1": 0.9886953160749914,
                     "frac_abs_z_gt_1.96": 0.012844036697247707,
@@ -1949,9 +1949,9 @@
                     "n_observed": 1096,
                     "frac_missing": 0.0,
                     "n_z": 1096,
-                    "z_mean": 0.0034902026127952477,
+                    "z_mean": 0.00349020261279526,
                     "z_rms": 0.15662563992112394,
-                    "z_lag1": 0.5782941250214981,
+                    "z_lag1": 0.578294125021498,
                     "frac_abs_z_gt_1.96": 0.0,
                     "cusum_alarms": 0,
                     "cusum_first_alarm": null
@@ -1961,9 +1961,9 @@
                     "n_observed": 1096,
                     "frac_missing": 0.0,
                     "n_z": 1096,
-                    "z_mean": -2.9549465119476453e-05,
-                    "z_rms": 0.27183172227368635,
-                    "z_lag1": 0.40670773714416864,
+                    "z_mean": -2.9549465119468146e-05,
+                    "z_rms": 0.2718317222736864,
+                    "z_lag1": 0.40670773714416875,
                     "frac_abs_z_gt_1.96": 0.0,
                     "cusum_alarms": 0,
                     "cusum_first_alarm": null
@@ -1973,9 +1973,9 @@
                     "n_observed": 642,
                     "frac_missing": 0.41423357664233573,
                     "n_z": 642,
-                    "z_mean": 0.0004737046199799851,
-                    "z_rms": 0.20591226741857407,
-                    "z_lag1": 0.27727958959367494,
+                    "z_mean": 0.00047370461997998405,
+                    "z_rms": 0.2059122674185741,
+                    "z_lag1": 0.2772795895936749,
                     "frac_abs_z_gt_1.96": 0.0,
                     "cusum_alarms": 0,
                     "cusum_first_alarm": null
@@ -1985,9 +1985,9 @@
                     "n_observed": 642,
                     "frac_missing": 0.41423357664233573,
                     "n_z": 642,
-                    "z_mean": -0.00024404413480581642,
-                    "z_rms": 0.08578265603746618,
-                    "z_lag1": 0.22898528353609243,
+                    "z_mean": -0.00024404413480585776,
+                    "z_rms": 0.08578265603746625,
+                    "z_lag1": 0.2289852835360923,
                     "frac_abs_z_gt_1.96": 0.0,
                     "cusum_alarms": 0,
                     "cusum_first_alarm": null
@@ -1996,7 +1996,7 @@
                 "constraint": {
                   "flag_steps": 0,
                   "first_flag_step": null,
-                  "stat_mean": 0.07221215860142435,
+                  "stat_mean": 0.07221215860142326,
                   "frac_stat_above_threshold": 0.0,
                   "status_counts": {
                     "ok": 1096
@@ -2008,38 +2008,38 @@
             }
           },
           "consistency_stat": {
-            "mean": 0.07221215860142435,
-            "median": 0.007490886501964106,
-            "max": 2.9421825256338017,
+            "mean": 0.07221215860142326,
+            "median": 0.007490886501969784,
+            "max": 2.942182525633587,
             "threshold": 10.828,
             "fraction_over_threshold": 0.0
           },
           "residual_pre": {
-            "mean": 31.662533182825893,
-            "sd": 53.188241663386016,
-            "min": -88.08375183533644,
-            "max": 398.0307239031099,
-            "final": 21.453571522433776,
+            "mean": 31.66253318282584,
+            "sd": 53.18824166338588,
+            "min": -88.083751835351,
+            "max": 398.03072390309535,
+            "final": 21.453571522419224,
             "units": "acre-ft"
           },
           "correction_norm": {
-            "mean": 34.123298260288145,
-            "max": 321.9496854925118,
+            "mean": 34.12329826028814,
+            "max": 321.94968549248824,
             "n_applied": 1096,
             "units": "acre-ft"
           },
           "residual_post": {
-            "mean_abs": 1.759526855383932,
-            "max_abs": 18.479619467441808,
+            "mean_abs": 1.759526855383826,
+            "max_abs": 18.47961946747091,
             "units": "acre-ft"
           },
           "ungauged_cumulative": {
-            "final": 29781.533801693913,
+            "final": 29781.53380169376,
             "min": 0.0,
-            "max": 29781.533801693913,
+            "max": 29781.53380169376,
             "final_sd": 4330.898649161619,
-            "final_in_sd": 6.876525223572032,
-            "final_as_fraction_of_gauged_inflow": 0.08513471641488804,
+            "final_in_sd": 6.876525223571997,
+            "final_as_fraction_of_gauged_inflow": 0.08513471641488761,
             "units": "acre-ft"
           }
         },
@@ -2056,8 +2056,8 @@
             "cusum_applicable": true,
             "constraint_declared": false,
             "threshold": null,
-            "latency_us_p50": 164.48399765067734,
-            "latency_us_p99": 242.96794763358773,
+            "latency_us_p50": 309.24996826797724,
+            "latency_us_p99": 646.2100311182439,
             "windows": {
               "all": {
                 "range": [
@@ -2151,8 +2151,8 @@
             "cusum_applicable": true,
             "constraint_declared": true,
             "threshold": 10.828,
-            "latency_us_p50": 298.6384970427025,
-            "latency_us_p99": 417.0022031757976,
+            "latency_us_p50": 634.6999434754252,
+            "latency_us_p99": 1333.454973064356,
             "windows": {
               "all": {
                 "range": [
@@ -2264,8 +2264,8 @@
             "cusum_applicable": true,
             "constraint_declared": true,
             "threshold": 10.828,
-            "latency_us_p50": 468.3874976763036,
-            "latency_us_p99": 668.8850975478998,
+            "latency_us_p50": 971.4500047266483,
+            "latency_us_p99": 2162.2499334625895,
             "windows": {
               "all": {
                 "range": [
@@ -2388,8 +2388,8 @@
             "cusum_applicable": true,
             "constraint_declared": true,
             "threshold": 10.828,
-            "latency_us_p50": 485.7935018662829,
-            "latency_us_p99": 670.1550006255271,
+            "latency_us_p50": 1016.2999387830496,
+            "latency_us_p99": 2255.8651398867332,
             "windows": {
               "all": {
                 "range": [
@@ -2512,8 +2512,8 @@
             "cusum_applicable": true,
             "constraint_declared": true,
             "threshold": 10.828,
-            "latency_us_p50": 292.9775000666268,
-            "latency_us_p99": 429.10075389954727,
+            "latency_us_p50": 625.4001054912806,
+            "latency_us_p99": 1394.6550316177306,
             "windows": {
               "all": {
                 "range": [
@@ -2634,8 +2634,8 @@
             "cusum_applicable": true,
             "constraint_declared": true,
             "threshold": 10.828,
-            "latency_us_p50": 466.8085020966828,
-            "latency_us_p99": 602.9686519468668,
+            "latency_us_p50": 1036.5999769419432,
+            "latency_us_p99": 2433.649997692552,
             "windows": {
               "all": {
                 "range": [
@@ -2767,8 +2767,8 @@
             "cusum_applicable": true,
             "constraint_declared": true,
             "threshold": 10.828,
-            "latency_us_p50": 600.1009969622828,
-            "latency_us_p99": 790.6424478278493,
+            "latency_us_p50": 1155.4999509826303,
+            "latency_us_p99": 2849.3850259110304,
             "windows": {
               "all": {
                 "range": [
@@ -2781,9 +2781,9 @@
                     "n_observed": 1090,
                     "frac_missing": 0.005474452554744547,
                     "n_z": 1090,
-                    "z_mean": 0.017431549152879873,
-                    "z_rms": 0.6163710810840617,
-                    "z_lag1": 0.9904451474112391,
+                    "z_mean": 0.01743154915287973,
+                    "z_rms": 0.6163710810840609,
+                    "z_lag1": 0.9904451474112393,
                     "frac_abs_z_gt_1.96": 0.01834862385321101,
                     "cusum_alarms": 13,
                     "cusum_first_alarm": 230
@@ -2793,9 +2793,9 @@
                     "n_observed": 1096,
                     "frac_missing": 0.0,
                     "n_z": 1096,
-                    "z_mean": 0.003175155933619168,
-                    "z_rms": 0.15663542021149768,
-                    "z_lag1": 0.5780991954314579,
+                    "z_mean": 0.003175155933619146,
+                    "z_rms": 0.15663542021149765,
+                    "z_lag1": 0.5780991954314578,
                     "frac_abs_z_gt_1.96": 0.0,
                     "cusum_alarms": 0,
                     "cusum_first_alarm": null
@@ -2805,7 +2805,7 @@
                     "n_observed": 1096,
                     "frac_missing": 0.0,
                     "n_z": 1096,
-                    "z_mean": 0.0002682999979867881,
+                    "z_mean": 0.000268299997986794,
                     "z_rms": 0.27178542109971193,
                     "z_lag1": 0.4082673875203893,
                     "frac_abs_z_gt_1.96": 0.0,
@@ -2817,7 +2817,7 @@
                     "n_observed": 642,
                     "frac_missing": 0.41423357664233573,
                     "n_z": 642,
-                    "z_mean": 0.0004985580363542504,
+                    "z_mean": 0.0004985580363542491,
                     "z_rms": 0.2059022932105604,
                     "z_lag1": 0.27748118336727245,
                     "frac_abs_z_gt_1.96": 0.0,
@@ -2829,9 +2829,9 @@
                     "n_observed": 642,
                     "frac_missing": 0.41423357664233573,
                     "n_z": 642,
-                    "z_mean": -0.0001955658570674605,
-                    "z_rms": 0.08573777308323546,
-                    "z_lag1": 0.22926438261113843,
+                    "z_mean": -0.00019556585706746914,
+                    "z_rms": 0.08573777308323545,
+                    "z_lag1": 0.22926438261113846,
                     "frac_abs_z_gt_1.96": 0.0,
                     "cusum_alarms": 0,
                     "cusum_first_alarm": null
@@ -2840,7 +2840,7 @@
                 "constraint": {
                   "flag_steps": 0,
                   "first_flag_step": null,
-                  "stat_mean": 0.04550533606339549,
+                  "stat_mean": 0.04550533606339529,
                   "frac_stat_above_threshold": 0.0,
                   "status_counts": {
                     "ok": 1096
@@ -2852,38 +2852,38 @@
             }
           },
           "consistency_stat": {
-            "mean": 0.04550533606339549,
-            "median": 0.008633473649801115,
-            "max": 1.0526318689629972,
+            "mean": 0.04550533606339529,
+            "median": 0.008633473649801434,
+            "max": 1.0526318689629846,
             "threshold": 10.828,
             "fraction_over_threshold": 0.0
           },
           "residual_pre": {
-            "mean": 53.84851265550164,
-            "sd": 63.549306080869485,
+            "mean": 53.84851265550156,
+            "sd": 63.549306080869414,
             "min": -103.2063636744715,
             "max": 401.3701060102903,
             "final": 70.99546647036914,
             "units": "acre-ft"
           },
           "correction_norm": {
-            "mean": 32.8190682069404,
-            "max": 211.16744090231543,
+            "mean": 32.819068206940265,
+            "max": 211.16744090231592,
             "n_applied": 1096,
             "units": "acre-ft"
           },
           "residual_post": {
-            "mean_abs": 14.948254147738922,
-            "max_abs": 104.90386336206575,
+            "mean_abs": 14.948254147738856,
+            "max_abs": 104.9038633620512,
             "units": "acre-ft"
           },
           "ungauged_cumulative": {
-            "final": 29750.25490951923,
+            "final": 29750.25490951909,
             "min": 0.0,
-            "max": 29750.25490951923,
-            "final_sd": 4344.626561879558,
-            "final_in_sd": 6.847597713127449,
-            "final_as_fraction_of_gauged_inflow": 0.08504530128829332,
+            "max": 29750.25490951909,
+            "final_sd": 4344.626561879572,
+            "final_in_sd": 6.847597713127394,
+            "final_as_fraction_of_gauged_inflow": 0.08504530128829292,
             "units": "acre-ft"
           }
         },
@@ -2900,8 +2900,8 @@
             "cusum_applicable": true,
             "constraint_declared": false,
             "threshold": null,
-            "latency_us_p50": 161.11400327645242,
-            "latency_us_p99": 227.96935008955182,
+            "latency_us_p50": 301.6999689862132,
+            "latency_us_p99": 710.6150500476352,
             "windows": {
               "all": {
                 "range": [
@@ -2995,8 +2995,8 @@
             "cusum_applicable": true,
             "constraint_declared": true,
             "threshold": 10.828,
-            "latency_us_p50": 302.41700005717576,
-            "latency_us_p99": 404.553195767221,
+            "latency_us_p50": 555.8000411838293,
+            "latency_us_p99": 1111.029961612075,
             "windows": {
               "all": {
                 "range": [
@@ -3108,8 +3108,8 @@
             "cusum_applicable": true,
             "constraint_declared": true,
             "threshold": 10.828,
-            "latency_us_p50": 458.32500109099783,
-            "latency_us_p99": 583.944948084536,
+            "latency_us_p50": 899.1999784484506,
+            "latency_us_p99": 1748.415140900759,
             "windows": {
               "all": {
                 "range": [
@@ -3232,8 +3232,8 @@
             "cusum_applicable": true,
             "constraint_declared": true,
             "threshold": 10.828,
-            "latency_us_p50": 463.36550076375715,
-            "latency_us_p99": 764.9278999451781,
+            "latency_us_p50": 894.8500035330653,
+            "latency_us_p99": 1704.2600433342152,
             "windows": {
               "all": {
                 "range": [
@@ -3356,8 +3356,8 @@
             "cusum_applicable": true,
             "constraint_declared": true,
             "threshold": 10.828,
-            "latency_us_p50": 308.09400050202385,
-            "latency_us_p99": 458.48349800508004,
+            "latency_us_p50": 588.0000535398722,
+            "latency_us_p99": 1536.1551544629033,
             "windows": {
               "all": {
                 "range": [
@@ -3478,8 +3478,8 @@
             "cusum_applicable": true,
             "constraint_declared": true,
             "threshold": 10.828,
-            "latency_us_p50": 463.73499935725704,
-            "latency_us_p99": 597.0733003778148,
+            "latency_us_p50": 906.2499739229679,
+            "latency_us_p99": 1965.385058429092,
             "windows": {
               "all": {
                 "range": [
@@ -3611,8 +3611,8 @@
             "cusum_applicable": true,
             "constraint_declared": true,
             "threshold": 10.828,
-            "latency_us_p50": 600.4639981256332,
-            "latency_us_p99": 739.9687474389792,
+            "latency_us_p50": 1105.7499796152115,
+            "latency_us_p99": 2397.994860075413,
             "windows": {
               "all": {
                 "range": [
@@ -3625,9 +3625,9 @@
                     "n_observed": 1090,
                     "frac_missing": 0.005474452554744547,
                     "n_z": 1090,
-                    "z_mean": 0.053149170270718075,
-                    "z_rms": 0.5900625666133242,
-                    "z_lag1": 0.9978047532773704,
+                    "z_mean": 0.05314917027071875,
+                    "z_rms": 0.5900625666133243,
+                    "z_lag1": 0.99780475327737,
                     "frac_abs_z_gt_1.96": 0.012844036697247707,
                     "cusum_alarms": 11,
                     "cusum_first_alarm": 230
@@ -3637,7 +3637,7 @@
                     "n_observed": 1096,
                     "frac_missing": 0.0,
                     "n_z": 1096,
-                    "z_mean": 0.0028034201778049496,
+                    "z_mean": 0.002803420177804954,
                     "z_rms": 0.15656347891603234,
                     "z_lag1": 0.5775206865255271,
                     "frac_abs_z_gt_1.96": 0.0,
@@ -3661,7 +3661,7 @@
                     "n_observed": 642,
                     "frac_missing": 0.41423357664233573,
                     "n_z": 642,
-                    "z_mean": 0.0005456286511423468,
+                    "z_mean": 0.0005456286511423461,
                     "z_rms": 0.20587493452314815,
                     "z_lag1": 0.27752725573587655,
                     "frac_abs_z_gt_1.96": 0.0,
@@ -3673,9 +3673,9 @@
                     "n_observed": 642,
                     "frac_missing": 0.41423357664233573,
                     "n_z": 642,
-                    "z_mean": -1.1995957738864784e-05,
+                    "z_mean": -1.1995957738868157e-05,
                     "z_rms": 0.08526849022436998,
-                    "z_lag1": 0.23121528083048679,
+                    "z_lag1": 0.23121528083048676,
                     "frac_abs_z_gt_1.96": 0.0,
                     "cusum_alarms": 0,
                     "cusum_first_alarm": null
@@ -3684,7 +3684,7 @@
                 "constraint": {
                   "flag_steps": 0,
                   "first_flag_step": null,
-                  "stat_mean": 0.057613797799964374,
+                  "stat_mean": 0.057613797799964464,
                   "frac_stat_above_threshold": 0.0,
                   "status_counts": {
                     "ok": 1096
@@ -3696,38 +3696,38 @@
             }
           },
           "consistency_stat": {
-            "mean": 0.057613797799964374,
-            "median": 0.005786306692088688,
-            "max": 0.5445501406957209,
+            "mean": 0.057613797799964464,
+            "median": 0.00578630669208869,
+            "max": 0.5445501406957194,
             "threshold": 10.828,
             "fraction_over_threshold": 0.0
           },
           "residual_pre": {
-            "mean": 127.62415522025506,
-            "sd": 210.44483269191247,
+            "mean": 127.624155220255,
+            "sd": 210.44483269191267,
             "min": -761.2805435598566,
             "max": 642.0579778094543,
             "final": 330.74042565593845,
             "units": "acre-ft"
           },
           "correction_norm": {
-            "mean": 47.32620421773562,
-            "max": 201.11043420324498,
+            "mean": 47.32620421773573,
+            "max": 201.1104342032462,
             "n_applied": 1096,
             "units": "acre-ft"
           },
           "residual_post": {
-            "mean_abs": 100.46475223889554,
+            "mean_abs": 100.46475223889568,
             "max_abs": 457.7971852736082,
             "units": "acre-ft"
           },
           "ungauged_cumulative": {
-            "final": 29300.788742835597,
+            "final": 29300.788742835728,
             "min": 0.0,
-            "max": 29300.788742835597,
-            "final_sd": 4428.83477022994,
-            "final_in_sd": 6.615913725161243,
-            "final_as_fraction_of_gauged_inflow": 0.08376043883313927,
+            "max": 29300.788742835728,
+            "final_sd": 4428.834770229931,
+            "final_in_sd": 6.615913725161286,
+            "final_as_fraction_of_gauged_inflow": 0.08376043883313965,
             "units": "acre-ft"
           }
         },
@@ -3744,8 +3744,8 @@
             "cusum_applicable": true,
             "constraint_declared": false,
             "threshold": null,
-            "latency_us_p50": 164.34800272691064,
-            "latency_us_p99": 354.08975236350614,
+            "latency_us_p50": 322.6500703021884,
+            "latency_us_p99": 751.7799036577342,
             "windows": {
               "all": {
                 "range": [
@@ -4001,13 +4001,13 @@
     },
     "daf_commit": "ff92a737f702c5c8ccfe0fb6494b2c2b2af91cb2",
     "generation": {
-      "python": "3.13.12",
+      "python": "3.12.13",
       "numpy": "2.5.3",
-      "platform": "Linux-6.18.44-fc-v33-x86_64-with-glibc2.39",
-      "machine": "x86_64",
-      "source_sha256": "33e4e335962bfce362c1a9fbc779463fe3c91490425cc4f05e926a12a8da79a6",
-      "git_head": "ec69c5a08c5ac8d3383964659cbbe6009f138a20",
-      "source_dirty": false,
+      "platform": "Windows-11-10.0.26200-SP0",
+      "machine": "AMD64",
+      "source_sha256": "4b6eee3a98dde17624938b0630fc6f2fb3ccad4f2f3d5fae701f4e97f72ebda6",
+      "git_head": "b61f685709f881af0f4011deba414931cd81de39",
+      "source_dirty": true,
       "note": "git_head is HEAD at generation time (the parent of the commit containing these results); source_dirty covers src/, run_experiments.py, pyproject.toml and tests/ only"
     }
   },
@@ -4079,10 +4079,10 @@
     "independent": false,
     "why_not_independent": "the only run in which U is estimated rather than reported is the one with feedback, and a constraint fed back is absorbed as if it were evidence; U therefore carries the constraint residual rather than measuring it a second time",
     "taylor_park": {
-      "final": 29750.25490951923,
-      "final_sd": 4344.626561879558,
-      "final_in_sd": 6.847597713127449,
-      "final_as_fraction_of_gauged_inflow": 0.08504530128829332,
+      "final": 29750.25490951909,
+      "final_sd": 4344.626561879572,
+      "final_in_sd": 6.847597713127394,
+      "final_as_fraction_of_gauged_inflow": 0.08504530128829292,
       "units": "acre-ft"
     },
     "ridgway": {
@@ -4094,24 +4094,24 @@
     },
     "across_the_sweep": {
       "50": {
-        "final": 29781.533801693913,
+        "final": 29781.53380169376,
         "final_sd": 4330.898649161619,
-        "final_in_sd": 6.876525223572032,
-        "final_as_fraction_of_gauged_inflow": 0.08513471641488804,
+        "final_in_sd": 6.876525223571997,
+        "final_as_fraction_of_gauged_inflow": 0.08513471641488761,
         "units": "acre-ft"
       },
       "200": {
-        "final": 29750.25490951923,
-        "final_sd": 4344.626561879558,
-        "final_in_sd": 6.847597713127449,
-        "final_as_fraction_of_gauged_inflow": 0.08504530128829332,
+        "final": 29750.25490951909,
+        "final_sd": 4344.626561879572,
+        "final_in_sd": 6.847597713127394,
+        "final_as_fraction_of_gauged_inflow": 0.08504530128829292,
         "units": "acre-ft"
       },
       "800": {
-        "final": 29300.788742835597,
-        "final_sd": 4428.83477022994,
-        "final_in_sd": 6.615913725161243,
-        "final_as_fraction_of_gauged_inflow": 0.08376043883313927,
+        "final": 29300.788742835728,
+        "final_sd": 4428.834770229931,
+        "final_in_sd": 6.615913725161286,
+        "final_as_fraction_of_gauged_inflow": 0.08376043883313965,
         "units": "acre-ft"
       }
     }
