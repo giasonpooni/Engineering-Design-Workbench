@@ -52,6 +52,31 @@ With `reset_on_alarm=True`, **both** next-state accumulators are zeroed after an
 
 No input is mutated. The caller chooses which returned `next_state` to carry forward and persists the transition if required. The module does not maintain hidden session state, consult wall-clock time, assign random identities, or store state globally.
 
+## Explicit CUSUM transition and reset
+
+```mermaid
+flowchart TD
+    P["Prior accumulators and count"] --> U["Update active accumulators"]
+    X["Scalar sample and drift"] --> U
+    U --> O["Observed state; count plus one"]
+    O --> G{"Active statistic reaches threshold?"}
+    G -- "no" --> K["Next state equals observed state"]
+    G -- "yes" --> A["Record anomaly and alarm sides"]
+    A --> Q{"Reset requested?"}
+    Q -- "no" --> K
+    Q -- "yes" --> Z["Zero both accumulators; keep count"]
+    K --> R["Return complete transition"]
+    Z --> R
+    O --> R
+```
+
+Solid arrows show one current `cusum_step` call. The result keeps both the
+threshold-crossing observed state and the next state, so a requested reset does
+not erase the alarm evidence. The caller explicitly carries a returned next
+state into another call; this diagram introduces no hidden session, persistence
+or automatic response. Source references, any enclosing execution identity and
+the resulting transition remain distinct from a separate verification claim.
+
 ## Limits of declared identity
 
 Source IDs are preserved verbatim and validated for basic structure; existence and authenticity are not verified. Neither output status is a physical fault diagnosis. There is no public isolation API in this foundation.

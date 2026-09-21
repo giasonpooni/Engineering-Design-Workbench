@@ -13,6 +13,26 @@ The `fdir` Python package provides:
 
 Outputs use `nominal` and `statistical_anomaly`. A `nominal` result means the chosen test did not cross its threshold on that input; it does not prove correct operation. An anomaly does not identify a failed sensor, prove a physical defect, or authorize an action.
 
+## Two explicit diagnostic operations
+
+```mermaid
+flowchart TD
+    I["Innovation and covariance"] --> W["Whitening and NIS"]
+    W --> G{"NIS at or above threshold?"}
+    T["Caller threshold"] --> G
+    G -- "yes" --> A["Statistical anomaly"]
+    G -- "no" --> N["Nominal"]
+    X["Declared scalar sample"] --> C["Pure CUSUM transition"]
+    P["Prior state and policy"] --> C
+    C --> R["Status, observed state and next state"]
+```
+
+Solid arrows show the two current local APIs. The package does not automatically
+feed NIS or a selected residual component into CUSUM: the caller defines the
+scalar stream and supplies its prior state. Both outputs are statistical
+diagnostics; neither path establishes physical fault isolation or authorizes
+an equipment action. See the [system diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md).
+
 ## Install and run
 
 Python 3.11 or newer is required.

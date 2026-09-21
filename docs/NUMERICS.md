@@ -19,6 +19,29 @@ When off-diagonal covariance is present, summing `z_i²` generally does not equa
 
 Under a correctly specified nonsingular Gaussian innovation model, an appropriate NIS distribution can support probability-based threshold selection. This API does not establish those assumptions or infer a confidence probability. The caller explicitly chooses a positive threshold. An NIS crossing can arise from model mismatch, covariance miscalibration, outliers, numerical errors upstream, or a physical fault; this test does not distinguish those causes.
 
+## Correlated innovation and marginal diagnostics
+
+```mermaid
+flowchart TD
+    S["Innovation covariance S"] --> G{"Exactly symmetric and SPD?"}
+    G -- "no" --> F["Refuse diagnostic"]
+    G -- "yes" --> L["Lower Cholesky factor L"]
+    L --> W["Solve L w equals r"]
+    R["Ordered residual r"] --> W
+    W --> N["NIS equals w transpose w"]
+    N --> T["Compare caller threshold"]
+    R --> Z["Marginal z normalization"]
+    S --> Z
+    T --> O["Retained residual diagnostic"]
+    Z --> O
+```
+
+Solid arrows show the current calculation. Marginal normalization and joint
+whitening are distinct branches: correlated marginal components cannot be
+squared and summed as a replacement for NIS. Invalid covariance refuses the
+entire diagnostic. The result retains the source IDs, ordered inputs, score and
+threshold; source identity is preserved rather than authenticated.
+
 ## Covariance admissibility
 
 The package checks exact symmetry and uses Cholesky factorization to reject singular or indefinite covariance. It has no absolute symmetry tolerance that could admit a tiny-scale invalid covariance. For example, `[[1e-200, 2e-200], [2e-200, 1e-200]]` is indefinite and is rejected, while a positive definite covariance at the same scale is admissible when the resulting calculation is representable.
