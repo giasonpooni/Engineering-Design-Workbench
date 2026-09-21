@@ -53,6 +53,23 @@ admission, or independently substantiate a declared external verifier.
 Run the contract, metric, replay-binding and NumPy differential tests with
 `python -m pytest`. The package itself remains dependency-free.
 
+#### Supported Python runtime
+
+Python **3.11 or newer** is required; the hosted test matrix covers 3.11, 3.12,
+and 3.13. The full suite passed on those three runtimes in
+[run 35546181812](https://github.com/giasonpooni/State-Estimation-Evaluation-Testbed/actions/runs/35546181812)
+at revision `1467ec5058b3e7ebd6ba4a45f2d9b49148a2560d`.
+
+That run exposed an unsupported Python 3.10 path: the existing timestamp
+validator's `datetime.fromisoformat` call rejects the accepted UTC timestamp
+`2026-09-20T12:00:00.123456789Z` after its UTC-suffix conversion. The unchanged
+`test_fractional_timestamps_and_distinct_clock_order_are_preserved` regression
+therefore fails on 3.10. The declared runtime floor and CI matrix reflect the
+verified 3.11+ baseline; no test is skipped and no timestamp contract or
+executable validator source is changed to accommodate 3.10. Acceptance retains
+the original timestamp string; this does not claim nanosecond `datetime`
+arithmetic precision.
+
 ### Declared-reference evaluation (API 0.3)
 
 `state_estimation_testbed.evaluate_samples(samples, model_ref=...)` accepts
