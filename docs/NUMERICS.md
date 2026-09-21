@@ -32,6 +32,23 @@ tolerance must be finite and nonnegative. There is no absolute scale floor that
 turns every sufficiently small matrix into a zero matrix. An explicitly nonzero
 absolute tolerance intentionally changes rank under uniform rescaling.
 
+
+```mermaid
+flowchart TD
+    M["Analyzed matrix"] --> S["Scale-normalized SVD"]
+    T["Declared absolute and relative tolerances"] --> Q["Normalized rank threshold tau"]
+    S --> Q
+    S --> R{"Singular value exceeds tau?"}
+    Q --> R
+    R -->|"no"| N["Numerical null directions"]
+    R -->|"yes"| W{"Within weak relative threshold?"}
+    W -->|"yes"| K["Retained weak directions"]
+    W -->|"no"| G["Other retained directions"]
+    B["Extra right vectors of a wide matrix"] --> N
+```
+
+Solid arrows show the implemented classification of right singular directions. Rank counts both retained branches. Full-column conditioning is infinite when rank is below the number of input columns; null directions are not also reported as weak directions.
+
 `singular_values` contains `min(rows, columns)` values, in descending order.
 `numerical_nullspace` is a matrix whose columns are the right singular vectors
 discarded by the rank threshold, plus structural null directions of a wide
@@ -78,6 +95,22 @@ information is formed as `J_white.T @ J_white`. No matrix inverse is formed.
 Rank diagnostics use `J_white` rather than its Gram matrix, avoiding the
 squared conditioning of `F`. Consequently `rank_atol` is in **whitened
 sensitivity singular-value units**, not Fisher eigenvalue units.
+
+
+```mermaid
+flowchart TD
+    J["Raw sensitivity J"] --> D["Apply declared parameter scales"]
+    P["Positive scales, or raw coordinates"] --> D
+    R["Supplied measurement covariance R"] --> C{"Symmetric, positive variances, Cholesky succeeds?"}
+    C -->|"no"| E["Reject; no inverse fallback"]
+    C -->|"yes"| W["Whiten the scaled sensitivity"]
+    D --> W
+    W --> S["SVD rank and direction diagnostics"]
+    W --> F["Fisher: J_white transpose times J_white"]
+    J --> K["Raw sensitivity retained in result"]
+```
+
+Solid arrows show local numerical dependencies. Whitening uses variance normalization and a Cholesky solve. Rank is assessed on the whitened sensitivity, not on its Fisher Gram matrix; the supplied raw sensitivity is preserved.
 
 Full rank establishes local first-order distinguishability under these inputs;
 it does not prove global uniqueness or estimator performance. Rank deficiency

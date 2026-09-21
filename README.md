@@ -1,6 +1,6 @@
 # Observability and Identifiability Testbed
 
-[Stack placement and ownership](docs/STACK.md) · [License](LICENSE)
+[Stack placement and ownership](docs/STACK.md) · [Diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md) · [License](LICENSE)
 
 A bounded scientific instrument for **finite-horizon linear observability** and
 **local parameter sensitivity diagnostics**. Given a declared model or Jacobian,
@@ -11,6 +11,19 @@ The implemented foundation is a Python/NumPy library with analytical fixtures,
 a runnable replay example and CI for Python 3.11 and 3.12. A full-rank result is
 conditional on the supplied model, coordinate scales, horizon and tolerances; it
 is not a claim that a physical plant is observable or globally identifiable.
+
+
+```mermaid
+flowchart TD
+    M["Transition A, observation C, horizon H"] --> O["Build observability matrix O_H"]
+    J["Local sensitivity J and noise R"] --> W["Validate R and whiten sensitivity"]
+    O -->|"declared state scales"| S["Normalized SVD"]
+    W --> S
+    W --> F["Fisher information"]
+    S --> D["Rank, conditioning, null and weak directions"]
+```
+
+Solid arrows show the two implemented numerical paths. Both diagnose supplied models in declared coordinates; neither path estimates a plant state or establishes global identifiability.
 
 ## Install and run
 

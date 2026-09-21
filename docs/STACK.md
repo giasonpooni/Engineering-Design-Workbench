@@ -1,4 +1,6 @@
 # Instrument foundations in the existing stack
+[System diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md) gives the shared topology and authority boundaries. The local README, numerical contract, and operation contract explain this instrument's implemented mechanism; stack relationships do not imply a native execution adapter.
+
 
 These six standalone Python instruments extend Notation Systems' computational
 instrumentation and evidence infrastructure. Each has a bounded numerical API,

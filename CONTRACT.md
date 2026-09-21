@@ -63,6 +63,23 @@ revision and evidence references in `examples/exchange.py` are synthetic fixture
 
 ## Serialization and replay
 
+```mermaid
+flowchart TD
+    R["Returned matrices and rank diagnostics"] --> A["Map arrays to ordered JSON lists"]
+    R --> C{"Condition value finite?"}
+    C -->|"yes"| V["Keep numeric value"]
+    C -->|"no"| N["Explicit null and condition status"]
+    A --> P["Complete mapped numerical result"]
+    V --> P
+    N --> P
+    I["Mapped inputs and distinct execution references"] --> E["Optional SET export and validation"]
+    P --> E
+    E --> O["Result artifact with empty verification refs"]
+```
+
+Solid arrows show the explicit mapping used by the example and the optional implemented exporter. Infinite condition values require a semantic JSON representation; no posterior covariance or independent verification is manufactured. The core numerical API itself returns dataclasses.
+
+
 Use array `.tolist()` when adapting to JSON. Condition diagnostics can be
 positive infinity; strict JSON adapters must represent them explicitly, such as
 `{"value": null, "status": "not_full_column_rank"}`, rather than emitting
