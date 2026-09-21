@@ -10,7 +10,7 @@ import json
 import re
 from collections.abc import Mapping, Sequence
 
-SET_REVISION = "c4d39c755187796ce2c72552a90454871c516c8f"
+SET_REVISION = "bd261a765281a95312f7c91a3857233476294c5b"
 
 
 def _text(value: object, name: str) -> str:

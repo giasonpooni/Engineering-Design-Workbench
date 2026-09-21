@@ -62,7 +62,7 @@ python -m pip install -e '.[test,exchange]'
 python examples/exchange.py
 ```
 
-The optional adapter exports an explicit result mapping into the existing SET `notation.instrument.result-artifact.v1` contract and calls its validator, pinned to commit `c4d39c755187796ce2c72552a90454871c516c8f`. The example performs an actual synthetic ranking and retains all candidate scores and singular statuses. Scalar count diagnostics use covariance status `not_applicable`; they are not assigned a fictional zero covariance. Evidence references, operation, execution, result, and verification identities stay distinct. The example's all-zero source revision is an explicitly unattested synthetic placeholder.
+The optional adapter exports an explicit result mapping into the existing SET `notation.instrument.result-artifact.v1` contract and calls its validator, pinned to commit `bd261a765281a95312f7c91a3857233476294c5b`. The example performs an actual synthetic ranking and retains all candidate scores and singular statuses. Scalar count diagnostics use covariance status `not_applicable`; they are not assigned a fictional zero covariance. Evidence references, operation, execution, result, and verification identities stay distinct. The example's all-zero source revision is an explicitly unattested synthetic placeholder.
 
 This establishes exchange conformance only. It is not native CIW execution, acquisition authorization, evidence admission, source attestation, or independent verification. Core numerical use does not require the exchange dependency.
 

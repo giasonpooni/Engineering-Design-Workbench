@@ -26,7 +26,7 @@ def test_real_ranking_conforms_and_retains_full_numerical_result():
     assert result["scores"][0]["status"] == "singular"
     assert result["scores"][0]["d_opt_logdet"] is None
     assert artifact["computation"]["source_revision_status"] == "caller_supplied_unattested"
-    assert SET_REVISION == "c4d39c755187796ce2c72552a90454871c516c8f"
+    assert SET_REVISION == "bd261a765281a95312f7c91a3857233476294c5b"
     json.dumps(artifact, allow_nan=False)
 
 
