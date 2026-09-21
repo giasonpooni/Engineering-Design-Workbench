@@ -7,8 +7,8 @@ import numpy as np
 import pytest
 
 from geometric_state_inference import (
-    LinearDynamics, LinearObservation, Observation, SO2Geometry, StatePrior,
-    predict, update,
+    LinearDynamics, LinearObservation, Observation, ObservabilityAssessment,
+    SO2Geometry, StatePrior, predict, replay_estimate, update, update_observable,
 )
 
 
@@ -46,6 +46,68 @@ def test_scalar_update_matches_analytic_posterior_and_diagnostics():
     assert result.prior_state_id == state.state_id
     assert result.observation_model_id == "model:identity"
     assert result.dynamics_model_id is None
+
+
+def observability(status="observable", **changes):
+    values = dict(
+        assessment_id="assessment:oit:fixture", model_id="model:identity-2",
+        status=status, rank=2, state_dimension=2, condition_number=1.0,
+        condition_limit=1e8, evidence_refs=("result:oit:fixture",),
+        observation_matrix=((1.0, 0.0), (0.0, 1.0)),
+    )
+    values.update(changes)
+    return ObservabilityAssessment(**values)
+
+
+def test_observable_update_binds_gate_and_replays():
+    state = prior()
+    obs = observation(values=[1.1, 0.8], covariance=np.eye(2), units=("m", "m/s"))
+    model = LinearObservation(np.eye(2), "model:identity-2", measurement_units=("m", "m/s"))
+    gate = observability()
+    result = update_observable(state, obs, model, gate)
+    assert result.observability_assessment_id == gate.assessment_id
+    assert result.replay_snapshot["observability_gate"] == gate.to_dict()
+    replayed = replay_estimate(result.replay_snapshot)
+    assert replayed.state_id == result.state_id
+    assert replayed.observability_assessment_id == gate.assessment_id
+
+
+@pytest.mark.parametrize("gate", [
+    observability("unobservable", rank=1, condition_number=None),
+    observability("ill_conditioned", condition_number=1e9),
+    observability("unresolved", condition_number=None, condition_limit=None),
+])
+def test_observability_gate_blocks_noninformative_classifications(gate):
+    obs = observation(values=[1.1, 0.8], covariance=np.eye(2), units=("m", "m/s"))
+    model = LinearObservation(np.eye(2), "model:identity-2", measurement_units=("m", "m/s"))
+    with pytest.raises(ValueError, match=f"blocked update: {gate.status}"):
+        update_observable(prior(), obs, model, gate)
+
+
+def test_observability_gate_must_bind_model_and_state_dimension():
+    obs = observation(values=[1.1, 0.8], covariance=np.eye(2), units=("m", "m/s"))
+    model = LinearObservation(np.eye(2), "model:identity-2", measurement_units=("m", "m/s"))
+    with pytest.raises(ValueError, match="model_id differs"):
+        update_observable(prior(), obs, model, observability(model_id="other:model"))
+    with pytest.raises(ValueError, match="state dimension differs"):
+        update_observable(
+            prior(), obs, model,
+            observability(rank=1, state_dimension=1, condition_number=1.0,
+                          observation_matrix=((1.0,),)),
+        )
+    changed_model = LinearObservation([[1.0, 0.0], [0.0, 0.0]], "model:identity-2",
+                                      measurement_units=("m", "m/s"))
+    with pytest.raises(ValueError, match="observation_matrix differs"):
+        update_observable(prior(), obs, changed_model, observability())
+
+
+def test_observability_matrix_is_copied_and_must_match_state_dimension():
+    matrix = [[1.0, 0.0], [0.0, 1.0]]
+    gate = observability(observation_matrix=matrix)
+    matrix[1][1] = 0.0
+    assert gate.observation_matrix == ((1.0, 0.0), (0.0, 1.0))
+    with pytest.raises(ValueError, match="columns must equal state dimension"):
+        observability(observation_matrix=[[1.0]])
 
 
 def test_replayed_filter_matches_independent_batch_gaussian_qr_solution():

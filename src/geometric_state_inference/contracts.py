@@ -256,6 +256,81 @@ class LinearObservation:
 
 
 @dataclass(frozen=True)
+class ObservabilityAssessment:
+    """Minimal typed projection of an OIT finite-horizon result.
+
+    This record binds the gating decision; it does not recompute observability
+    inside GSIE and does not turn the OIT result into state-admission authority.
+    """
+
+    assessment_id: str
+    model_id: str
+    status: str
+    rank: int
+    state_dimension: int
+    condition_number: float | None
+    condition_limit: float | None
+    evidence_refs: tuple[str, ...]
+    observation_matrix: tuple[tuple[float, ...], ...]
+    operation_ref: str = "oit.finite-horizon-linear.v1"
+
+    def __post_init__(self) -> None:
+        for name in ("assessment_id", "model_id", "operation_ref"):
+            _identifier(getattr(self, name), name)
+        if self.operation_ref != "oit.finite-horizon-linear.v1":
+            raise ValueError("unsupported observability operation_ref")
+        if self.status not in {"observable", "unobservable", "ill_conditioned", "unresolved"}:
+            raise ValueError("unsupported observability status")
+        for name in ("rank", "state_dimension"):
+            value = getattr(self, name)
+            if isinstance(value, bool) or not isinstance(value, Integral):
+                raise ValueError(f"{name} must be an integer")
+        if not 1 <= self.state_dimension <= MAX_COMPONENTS or not 0 <= self.rank <= self.state_dimension:
+            raise ValueError("observability dimensions are outside the bounded contract")
+        observation_matrix = _array(self.observation_matrix, "observation_matrix", 2)
+        if observation_matrix.shape[1] != self.state_dimension:
+            raise ValueError("observability observation_matrix columns must equal state dimension")
+        object.__setattr__(self, "observation_matrix", tuple(
+            tuple(float(value) for value in row) for row in observation_matrix
+        ))
+        condition = None if self.condition_number is None else _number(
+            self.condition_number, "condition_number",
+        )
+        limit = None if self.condition_limit is None else _number(
+            self.condition_limit, "condition_limit",
+        )
+        if condition is not None and condition < 1:
+            raise ValueError("condition_number must be at least 1 when supplied")
+        if limit is not None and limit < 1:
+            raise ValueError("condition_limit must be at least 1 when supplied")
+        object.__setattr__(self, "condition_number", condition)
+        object.__setattr__(self, "condition_limit", limit)
+        object.__setattr__(self, "evidence_refs", _references(self.evidence_refs))
+        if self.status == "observable":
+            if self.rank != self.state_dimension or condition is None or limit is None or condition > limit:
+                raise ValueError("observable status contradicts rank or conditioning")
+        elif self.status == "ill_conditioned":
+            if self.rank != self.state_dimension or condition is None or limit is None or condition <= limit:
+                raise ValueError("ill_conditioned status contradicts rank or conditioning")
+        elif self.status == "unobservable" and self.rank == self.state_dimension:
+            raise ValueError("unobservable status requires rank deficiency")
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "assessment_id": self.assessment_id,
+            "model_id": self.model_id,
+            "status": self.status,
+            "rank": int(self.rank),
+            "state_dimension": int(self.state_dimension),
+            "condition_number": self.condition_number,
+            "condition_limit": self.condition_limit,
+            "evidence_refs": list(self.evidence_refs),
+            "observation_matrix": [list(row) for row in self.observation_matrix],
+            "operation_ref": self.operation_ref,
+        }
+
+
+@dataclass(frozen=True)
 class Estimate:
     """Numerical result; supplied identities are not verification or authority."""
 
@@ -275,6 +350,7 @@ class Estimate:
     prior_state_id: str
     state_id: str | None = None
     replay_json: str | None = None
+    observability_assessment_id: str | None = None
 
     def __post_init__(self) -> None:
         state = StatePrior(self.time, self.mean, self.covariance, self.frame_id,
@@ -300,6 +376,8 @@ class Estimate:
             _identifier(self.state_id, "state_id")
             if self.state_id == self.prior_state_id:
                 raise ValueError("transition state identity must differ from its predecessor")
+        if self.observability_assessment_id is not None:
+            _identifier(self.observability_assessment_id, "observability_assessment_id")
         _validate_replay_json(self.replay_json)
 
     @property

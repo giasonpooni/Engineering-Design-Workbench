@@ -254,6 +254,7 @@ def export_result_artifact(
     if any(getattr(replayed, name) != getattr(estimate, name) for name in (
         "numerical_result_id", "state_id", "prior_state_id", "observation_id",
         "evidence_refs", "observation_model_id", "dynamics_model_id",
+        "observability_assessment_id",
     )):
         raise ValueError("estimate differs from its bound replay configuration")
     replay_observation = estimate.replay_snapshot["observation"]
@@ -269,6 +270,8 @@ def export_result_artifact(
     ]))
     inputs = list(dict.fromkeys([
         estimate.prior_state_id, observed.observation_id, *observed.evidence_refs,
+        *(() if estimate.observability_assessment_id is None else
+          (estimate.observability_assessment_id,)),
     ]))
     model_refs = [estimate.observation_model_id]
     if estimate.dynamics_model_id is not None:
@@ -329,7 +332,13 @@ def export_result_artifact(
             "posterior_residual": estimate.residual.tolist(),
             "normalized_innovation_squared": estimate.nis,
             "calibration_validity": "not_established",
-            "observability": "not_evaluated",
+            "observability": (
+                "not_evaluated" if estimate.observability_assessment_id is None else {
+                    "status": "observable",
+                    "assessment_id": estimate.observability_assessment_id,
+                    "gate": "required_before_update",
+                }
+            ),
             "physical_validity": "not_established",
         },
         "execution_binding": {

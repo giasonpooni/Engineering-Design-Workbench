@@ -6,7 +6,7 @@ import json
 import numpy as np
 
 from .contracts import (
-    Estimate, LinearDynamics, LinearObservation, Observation, StatePrior,
+    Estimate, LinearDynamics, LinearObservation, Observation, ObservabilityAssessment, StatePrior,
     _digest, _json, _time,
 )
 from .geometry import EuclideanGeometry, SO2Geometry
@@ -72,7 +72,7 @@ def predict(prior: StatePrior, dynamics: LinearDynamics, time: float,
 
 
 def update(prior: StatePrior, observation: Observation, model: LinearObservation,
-           state_geometry=None) -> Estimate:
+           state_geometry=None, *, observability: ObservabilityAssessment | None = None) -> Estimate:
     """Assimilate one independent measurement at exactly the prior timestamp.
 
     Uses linear solves and the Joseph covariance update. Singular innovation
@@ -81,6 +81,19 @@ def update(prior: StatePrior, observation: Observation, model: LinearObservation
     """
     if observation.time != prior.time:
         raise ValueError("observation time must equal prior time; predict explicitly first")
+    if observability is not None:
+        if not isinstance(observability, ObservabilityAssessment):
+            raise ValueError("observability must be an ObservabilityAssessment")
+        if observability.model_id != model.model_id:
+            raise ValueError("observability assessment model_id differs from the observation model")
+        if observability.state_dimension != prior.mean.size:
+            raise ValueError("observability assessment state dimension differs from the prior")
+        if not np.array_equal(observability.observation_matrix, model.matrix):
+            raise ValueError("observability assessment observation_matrix differs from the observation model")
+        if observability.status != "observable":
+            raise ValueError(
+                f"observability gate blocked update: {observability.status}"
+            )
     matrix = model.matrix
     if matrix.shape != (observation.values.size, prior.mean.size):
         raise ValueError("observation matrix dimensions must match measurement and state")
@@ -132,13 +145,31 @@ def update(prior: StatePrior, observation: Observation, model: LinearObservation
                     "measurement_frame_id": measurement_frame},
                 "state_geometry": _geometry_name(state_geom),
                 "noise_policy": "measurement_independent_of_prior"}
+    if observability is not None:
+        snapshot["observability_gate"] = observability.to_dict()
     state_id = _digest("geometric-state-inference.state-transition.v1", {
         "configuration": snapshot, "mean": mean.tolist(), "covariance": covariance.tolist()})
     return Estimate(prior.time, mean, covariance, prior.frame_id, prior.units,
                     innovation, innovation_covariance, residual, nis,
                     observation.observation_id, observation.evidence_refs,
                     model.model_id, prior.dynamics_model_id, prior.state_id,
-                    state_id, _json(snapshot))
+                    state_id, _json(snapshot),
+                    None if observability is None else observability.assessment_id)
+
+
+def update_observable(
+    prior: StatePrior,
+    observation: Observation,
+    model: LinearObservation,
+    observability: ObservabilityAssessment,
+    state_geometry=None,
+) -> Estimate:
+    """Run the existing update only after a bound OIT result says observable."""
+    if not isinstance(observability, ObservabilityAssessment):
+        raise ValueError("observability must be an ObservabilityAssessment")
+    return update(
+        prior, observation, model, state_geometry, observability=observability,
+    )
 
 
 def _restore_geometry(name: str):
@@ -172,7 +203,14 @@ def _replay(snapshot: dict, depth: int = 0):
         observation = Observation(**snapshot["observation"])
         model_data = dict(snapshot["model"])
         model_data["measurement_geometry"] = _restore_geometry(model_data["measurement_geometry"])
-        result = update(prior, observation, LinearObservation(**model_data), geometry)
+        model = LinearObservation(**model_data)
+        if "observability_gate" in snapshot:
+            result = update_observable(
+                prior, observation, model,
+                ObservabilityAssessment(**snapshot["observability_gate"]), geometry,
+            )
+        else:
+            result = update(prior, observation, model, geometry)
     else:
         raise ValueError("replay operation is not supported")
     if result.replay_snapshot != snapshot:
