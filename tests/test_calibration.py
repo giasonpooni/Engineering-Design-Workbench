@@ -7,8 +7,9 @@ import pytest
 
 from mcur import (
     CalibrationError, CalibrationProfile, EnvironmentReading,
-    EnvironmentRequirement, Interval, JointCovariance, Observation,
-    ServingState, ServingStatus, calibrate,
+    CrossCovariancePolicy, EnvironmentRequirement, FeatureCompatibilityState,
+    Interval, JointCovariance, Observation, ServingState, ServingStatus,
+    assess_feature_compatibility, calibrate,
 )
 
 
@@ -61,8 +62,61 @@ def test_analytical_correlated_budget_and_provenance(observation, profile, covar
     assert result.reference_ids == profile.reference_ids
     assert any("first-order" in item for item in result.diagnostics)
     assert any("not certified" in item for item in result.diagnostics)
+    assert any("cross-covariance policy: declared" in item for item in result.diagnostics)
     with pytest.raises(FrozenInstanceError):
         observation.indicated_value = 7.0
+
+
+def test_unknown_cross_covariance_is_representable_but_calculation_refuses(observation, profile):
+    covariance = JointCovariance(
+        ((4.0, 0.0, 0.0), (0.0, 0.25, 0.05), (0.0, 0.05, 1.0)),
+        cross_covariance_policy=CrossCovariancePolicy.UNKNOWN,
+        evidence_ids=("covariance-status:unknown:1",),
+    )
+    with pytest.raises(CalibrationError, match="cross-covariance is unknown.*refused"):
+        calibrate(observation, profile, covariance)
+
+
+@pytest.mark.parametrize("evidence", ["evidence:1", None, ["evidence:1", "evidence:1"]])
+def test_covariance_evidence_requires_distinct_identity_sequence(evidence):
+    with pytest.raises(CalibrationError, match="evidence_ids"):
+        JointCovariance(((1, 0, 0), (0, 0, 0), (0, 0, 0)), evidence_ids=evidence)
+
+
+def test_declared_zero_policy_checks_cross_block_and_retains_evidence(observation, profile):
+    covariance = JointCovariance(
+        ((4.0, 0.0, 0.0), (0.0, 0.25, 0.05), (0.0, 0.05, 1.0)),
+        cross_covariance_policy=CrossCovariancePolicy.DECLARED_ZERO,
+        evidence_ids=("independence:synthetic:1",),
+    )
+    result = calibrate(observation, profile, covariance)
+    assert result.joint_covariance.cross_covariance_policy is CrossCovariancePolicy.DECLARED_ZERO
+    assert result.joint_covariance.evidence_ids == ("independence:synthetic:1",)
+    with pytest.raises(CalibrationError, match="declared_zero.*contradicts"):
+        JointCovariance(
+            ((4.0, 0.1, 0.0), (0.1, 0.25, 0.05), (0.0, 0.05, 1.0)),
+            cross_covariance_policy=CrossCovariancePolicy.DECLARED_ZERO,
+        )
+
+
+def test_affine_mean_compatibility_separates_values_from_uncertainty(profile):
+    compatible = assess_feature_compatibility(
+        profile, "stfe.window-mean.v1", same_profile_for_all_samples=True,
+        joint_temporal_covariance_declared=True,
+    )
+    assert compatible.status is FeatureCompatibilityState.COMPATIBLE
+    assert compatible.value_commutes and compatible.uncertainty_commutes
+    value_only = assess_feature_compatibility(
+        profile, "stfe.window-mean.v1", same_profile_for_all_samples=True,
+        joint_temporal_covariance_declared=False,
+    )
+    assert value_only.status is FeatureCompatibilityState.VALUE_ONLY
+    assert value_only.value_commutes and not value_only.uncertainty_commutes
+    refused = assess_feature_compatibility(
+        profile, "stfe.periodogram.v1", same_profile_for_all_samples=True,
+        joint_temporal_covariance_declared=True,
+    )
+    assert refused.status is FeatureCompatibilityState.REFUSED
 
 
 def test_acquisition_validity_is_separate_from_later_withdrawal(observation, profile, covariance):

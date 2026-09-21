@@ -205,16 +205,44 @@ class CalibrationProfile:
         object.__setattr__(self, "environment_requirements", _environment(self.environment_requirements, EnvironmentRequirement, "environment_requirements"))
 
 
+class CrossCovariancePolicy(str, Enum):
+    """Knowledge state for covariance between indication and coefficients."""
+
+    DECLARED = "declared"
+    DECLARED_ZERO = "declared_zero"
+    UNKNOWN = "unknown"
+
+
 @dataclass(frozen=True, slots=True)
 class JointCovariance:
     values: Matrix3
     order: tuple[str, str, str] = ("x", "g", "b")
+    cross_covariance_policy: CrossCovariancePolicy = CrossCovariancePolicy.DECLARED
+    evidence_ids: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         if tuple(self.order) != ("x", "g", "b"):
             raise CalibrationError("joint covariance order must be ('x', 'g', 'b')")
         object.__setattr__(self, "order", ("x", "g", "b"))
         object.__setattr__(self, "values", _covariance(self.values, 3, "joint covariance [x,g,b]"))
+        if not isinstance(self.cross_covariance_policy, CrossCovariancePolicy):
+            raise CalibrationError("cross_covariance_policy must be a CrossCovariancePolicy")
+        if isinstance(self.evidence_ids, (str, bytes)):
+            raise CalibrationError("joint covariance evidence_ids must be a sequence of identities")
+        try:
+            evidence = tuple(self.evidence_ids)
+        except TypeError as exc:
+            raise CalibrationError("joint covariance evidence_ids must be a sequence of identities") from exc
+        for identity in evidence:
+            _identifier(identity, "joint covariance evidence_id")
+        if len(set(evidence)) != len(evidence):
+            raise CalibrationError("joint covariance evidence_ids must be unique")
+        object.__setattr__(self, "evidence_ids", evidence)
+        if self.cross_covariance_policy == CrossCovariancePolicy.DECLARED_ZERO:
+            if any(self.values[0][index] != 0 or self.values[index][0] != 0 for index in (1, 2)):
+                raise CalibrationError(
+                    "declared_zero cross-covariance contradicts nonzero indication/coefficient terms"
+                )
 
 
 class ServingState(str, Enum):
@@ -271,6 +299,67 @@ class CalibrationResult:
     operation_id: str = "mcur.affine-first-order.v1"
 
 
+class FeatureCompatibilityState(str, Enum):
+    COMPATIBLE = "compatible"
+    VALUE_ONLY = "value_only"
+    REFUSED = "refused"
+
+
+@dataclass(frozen=True, slots=True)
+class FeatureCompatibility:
+    calibration_operation_id: str
+    feature_operation_id: str
+    status: FeatureCompatibilityState
+    value_commutes: bool
+    uncertainty_commutes: bool
+    reason: str
+
+
+def assess_feature_compatibility(
+    profile: CalibrationProfile,
+    feature_operation_id: str,
+    *,
+    same_profile_for_all_samples: bool,
+    joint_temporal_covariance_declared: bool,
+) -> FeatureCompatibility:
+    """Assess the implemented affine-calibration/window-mean interchange.
+
+    An affine map with one shared profile commutes with an arithmetic mean for
+    the value. Uncertainty is only declared compatible when the full temporal
+    covariance, including shared calibration-parameter effects, is supplied.
+    Other feature operations remain refused rather than being guessed.
+    """
+    if not isinstance(profile, CalibrationProfile):
+        raise CalibrationError("profile must be a CalibrationProfile")
+    _identifier(feature_operation_id, "feature_operation_id")
+    if not isinstance(same_profile_for_all_samples, bool):
+        raise CalibrationError("same_profile_for_all_samples must be boolean")
+    if not isinstance(joint_temporal_covariance_declared, bool):
+        raise CalibrationError("joint_temporal_covariance_declared must be boolean")
+    operation = "mcur.affine-first-order.v1"
+    if feature_operation_id != "stfe.window-mean.v1":
+        return FeatureCompatibility(
+            operation, feature_operation_id, FeatureCompatibilityState.REFUSED,
+            False, False, "feature/calibration commutation is not implemented",
+        )
+    if not same_profile_for_all_samples:
+        return FeatureCompatibility(
+            operation, feature_operation_id, FeatureCompatibilityState.REFUSED,
+            False, False, "window samples do not share one affine calibration profile",
+        )
+    if not joint_temporal_covariance_declared:
+        return FeatureCompatibility(
+            operation, feature_operation_id, FeatureCompatibilityState.VALUE_ONLY,
+            True, False,
+            "affine values commute with a mean, but shared-parameter temporal covariance is absent",
+        )
+    return FeatureCompatibility(
+        operation, feature_operation_id, FeatureCompatibilityState.COMPATIBLE,
+        True, True,
+        "one affine profile commutes with an arithmetic mean and full joint uncertainty is declared",
+    )
+
+
 def calibrate(
     observation: Observation,
     profile: CalibrationProfile,
@@ -287,6 +376,10 @@ def calibrate(
         raise CalibrationError("observation and profile must be typed MCUR records")
     if not isinstance(joint_covariance, JointCovariance):
         raise CalibrationError("joint_covariance must be a JointCovariance")
+    if joint_covariance.cross_covariance_policy == CrossCovariancePolicy.UNKNOWN:
+        raise CalibrationError(
+            "indication/coefficient cross-covariance is unknown; calibration refused"
+        )
     for name in ("sensor_id", "quantity_id"):
         if getattr(observation, name) != getattr(profile, name):
             raise CalibrationError(f"{name} mismatch")
@@ -336,6 +429,7 @@ def calibrate(
         "first-order propagation in the joint uncertain inputs [x,g,b]; g*x is jointly nonlinear",
         "reference identities are supplied evidence pointers; traceability is not certified",
         "applicability checked at acquisition event time; serving status is separate",
+        f"cross-covariance policy: {joint_covariance.cross_covariance_policy.value}",
     ]
     if not same_units:
         diagnostics.append("correction_from_indication is undefined for different input/output unit tokens")
