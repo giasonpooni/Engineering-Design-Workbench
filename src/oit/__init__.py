@@ -2,6 +2,7 @@
 
 from .diagnostics import (
     IdentifiabilityResult,
+    ObservabilityStatus,
     ObservabilityResult,
     RankDiagnostics,
     lti_observability,
@@ -10,6 +11,6 @@ from .diagnostics import (
 )
 
 __all__ = [
-    "IdentifiabilityResult", "ObservabilityResult", "RankDiagnostics",
+    "IdentifiabilityResult", "ObservabilityResult", "ObservabilityStatus", "RankDiagnostics",
     "lti_observability", "local_identifiability", "rank_diagnostics",
 ]

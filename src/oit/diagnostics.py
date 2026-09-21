@@ -4,12 +4,13 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from numbers import Integral, Real
-from typing import Sequence
+from typing import Literal, Sequence
 
 import numpy as np
 from numpy.typing import ArrayLike, NDArray
 
 FloatArray = NDArray[np.float64]
+ObservabilityStatus = Literal["observable", "unobservable", "ill_conditioned", "unresolved"]
 
 
 def _readonly(value: ArrayLike) -> FloatArray:
@@ -41,6 +42,15 @@ def _tolerance(value: float, name: str, *, relative: bool = False) -> float:
     if not np.isfinite(number) or number < 0 or (relative and number > 1):
         raise ValueError(f"{name} must be finite and in {'[0, 1]' if relative else '[0, infinity)'}")
     return number
+
+
+def _condition_limit(value: float | None) -> float | None:
+    if value is None:
+        return None
+    limit = _tolerance(value, "condition_limit")
+    if limit < 1:
+        raise ValueError("condition_limit must be at least 1 or None")
+    return limit
 
 
 def _coordinates(
@@ -99,6 +109,17 @@ class ObservabilityResult:
     observability_matrix: FloatArray
     analyzed_matrix: FloatArray
     diagnostics: RankDiagnostics
+    status: ObservabilityStatus
+    condition_limit: float | None
+    classification_reason: str
+
+    @property
+    def rank(self) -> int:
+        return self.diagnostics.rank
+
+    @property
+    def condition_number(self) -> float:
+        return self.diagnostics.condition_number
 
 
 @dataclass(frozen=True)
@@ -165,6 +186,7 @@ def lti_observability(
     transition: ArrayLike, observation: ArrayLike, horizon: int, *,
     state_names: Sequence[str], state_scales: ArrayLike | None = None,
     rank_rtol: float | None = None, rank_atol: float = 0.0, weak_rtol: float = 1e-6,
+    condition_limit: float | None = 1e8,
 ) -> ObservabilityResult:
     """Evaluate O_H = [C; CA; ...; CA**(H-1)] for a discrete-time LTI model.
 
@@ -178,6 +200,7 @@ def lti_observability(
     if isinstance(horizon, (bool, np.bool_)) or not isinstance(horizon, Integral) or horizon < 1:
         raise ValueError("horizon must be a positive integer")
     names, scales = _coordinates(state_names, state_scales, a.shape[0], "state")
+    limit = _condition_limit(condition_limit)
     blocks = []
     current = c
     with np.errstate(over="ignore", invalid="ignore", under="ignore"):
@@ -188,9 +211,30 @@ def lti_observability(
         raw = np.vstack(blocks)
         analyzed = _finite_result(raw * scales if scales is not None else raw.copy(), "scaled observability matrix")
     diagnostics = rank_diagnostics(analyzed, rank_rtol=rank_rtol, rank_atol=rank_atol, weak_rtol=weak_rtol)
+    if not diagnostics.full_column_rank:
+        status: ObservabilityStatus = "unobservable"
+        reason = "finite-horizon observability matrix is rank deficient under the declared tolerance"
+    elif limit is None:
+        status = "unresolved"
+        reason = "full rank was found, but no conditioning acceptance limit was declared"
+    elif diagnostics.condition_number > limit:
+        status = "ill_conditioned"
+        reason = "full rank was found, but the declared conditioning limit was exceeded"
+    else:
+        status = "observable"
+        reason = "full rank and conditioning satisfy the declared finite-horizon policy"
     return ObservabilityResult(
-        names, scales, "scaled coordinates: x = diag(state_scales) z" if scales is not None else "raw model coordinates and units",
-        int(horizon), _readonly(raw), _readonly(analyzed), diagnostics,
+        state_names=names,
+        state_scales=scales,
+        coordinate_mode=("scaled coordinates: x = diag(state_scales) z"
+                         if scales is not None else "raw model coordinates and units"),
+        horizon=int(horizon),
+        observability_matrix=_readonly(raw),
+        analyzed_matrix=_readonly(analyzed),
+        diagnostics=diagnostics,
+        status=status,
+        condition_limit=limit,
+        classification_reason=reason,
     )
 
 

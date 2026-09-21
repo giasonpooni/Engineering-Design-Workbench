@@ -11,6 +11,9 @@ def test_position_velocity_observable_in_two_steps():
     assert result.diagnostics.full_column_rank
     assert result.diagnostics.numerical_nullspace.shape == (2, 0)
     assert result.coordinate_mode == "raw model coordinates and units"
+    assert result.status == "observable"
+    assert result.rank == 2
+    assert result.condition_number == pytest.approx(result.diagnostics.condition_number)
 
 
 def test_unobservable_direction_and_wide_matrix():
@@ -19,6 +22,7 @@ def test_unobservable_direction_and_wide_matrix():
     assert diagnostic.rank == 1
     assert not diagnostic.full_column_rank
     assert np.isinf(diagnostic.condition_number)
+    assert result.status == "unobservable"
     np.testing.assert_allclose(result.analyzed_matrix @ diagnostic.numerical_nullspace, 0, atol=1e-15)
     np.testing.assert_allclose(abs(diagnostic.numerical_nullspace), [[0], [1]], atol=1e-15)
 
@@ -47,6 +51,22 @@ def test_coordinate_scaling_is_explicit_and_changes_condition():
     np.testing.assert_allclose(result.analyzed_matrix, np.eye(2))
     assert result.diagnostics.condition_number == pytest.approx(1.0)
     assert "scaled coordinates" in result.coordinate_mode
+
+
+def test_full_rank_conditioning_and_unresolved_are_distinct():
+    ill = lti_observability(
+        np.eye(2), np.diag([1.0, 1e-9]), 1,
+        state_names=("x", "y"), condition_limit=1e8,
+    )
+    assert ill.rank == 2
+    assert ill.condition_number == pytest.approx(1e9)
+    assert ill.status == "ill_conditioned"
+    unresolved = lti_observability(
+        np.eye(2), np.eye(2), 1, state_names=("x", "y"), condition_limit=None,
+    )
+    assert unresolved.rank == 2
+    assert unresolved.status == "unresolved"
+    assert "no conditioning acceptance limit" in unresolved.classification_reason
 
 
 def test_underdetermined_local_sensitivity_and_fisher():
@@ -124,6 +144,9 @@ def test_invalid_shapes_names_scales_and_tolerances():
             rank_diagnostics([[1]], **kwargs)
     with pytest.raises(ValueError):
         local_identifiability([[1]], np.eye(2), parameter_names=("x",))
+    for limit in (0, 0.5, np.nan, np.inf, True, "10"):
+        with pytest.raises(ValueError):
+            lti_observability([[1]], [[1]], 1, state_names=("x",), condition_limit=limit)
 
 
 def test_overflow_rejected():
