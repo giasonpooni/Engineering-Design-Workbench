@@ -37,7 +37,7 @@ numerical-substrate repository or universal replacement protocol is introduced.
 ## Exchange and identity
 
 Each optional exporter calls SET's validator, pinned in the `exchange` dependency
-to commit `c4d39c755187796ce2c72552a90454871c516c8f`. It retains explicitly mapped
+to commit `bd261a765281a95312f7c91a3857233476294c5b`. It retains explicitly mapped
 input payloads and numerical outputs alongside ordered components, covariance,
 model/calibration references, operation identity and caller-supplied execution
 identity. A supplied Git revision is labelled unattested. Export neither checks

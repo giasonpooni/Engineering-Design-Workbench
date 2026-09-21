@@ -28,7 +28,7 @@ python examples/exchange.py
 python -m pytest
 ```
 
-This extra pins SET at commit `c4d39c755187796ce2c72552a90454871c516c8f`.
+This extra pins SET at commit `bd261a765281a95312f7c91a3857233476294c5b`.
 The example uses synthetic evidence references and an all-zero revision claim
 explicitly marked as unattested. Export conformance is neither independent
 verification nor CIW execution/admission.

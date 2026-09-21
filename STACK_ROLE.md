@@ -14,7 +14,7 @@ model and experiment can distinguish. It is a bounded analysis instrument.
 These relationships describe compatible contracts. The numerical core does not
 import or require neighboring repositories. The optional `oit.exchange` export
 adapter calls the validator from SET at pinned commit
-`c4d39c755187796ce2c72552a90454871c516c8f`, reusing the existing
+`bd261a765281a95312f7c91a3857233476294c5b`, reusing the existing
 `notation.instrument.result-artifact.v1` format. Cross-instrument model adapters
 must preserve evaluation point, column ordering, units/scales, model version,
 numerical tolerances and input lineage. No CIW execution or ESM admission is
