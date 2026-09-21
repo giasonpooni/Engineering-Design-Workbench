@@ -18,6 +18,30 @@ calibration, certified device or safety integrity level.
 Changing a calibration or installation does not rewrite historical observations.
 A board pin label alone does not establish electrical compatibility.
 
+## Calibration applicability and retained observations
+
+```mermaid
+flowchart TD
+    Input["Raw input and connection status"] --> Present{"Raw input available?"}
+    Present -->|"no"| Missing["Raw and indicated values unavailable"]
+    Present -->|"yes"| Convert["Apply declared conversion"]
+    Calibration["Calibration ID, method and range"] --> Convert
+    Convert -->|"supported and in range"| Indicated["Indicated value and declared sigma"]
+    Convert -->|"conversion refused"| Unsupported["Raw retained; indicated value unavailable"]
+    Missing --> Record["Observation with quality and calibration ID"]
+    Indicated --> Record
+    Unsupported --> Record
+    Record --> History["Retained historical record"]
+    Calibration -. "separate validation responsibility" .-> Physical["Physical calibration validity"]
+```
+
+Solid edges show the implemented acquisition/conversion path. The current
+conversion checks method and declared raw range; a status of `applicable` does
+not authenticate the calibration citation, confirm an installation, or prove
+physical accuracy. A changed declaration applies to later observations and
+does not rewrite prior records. The dotted edge marks that physical validation
+is outside this host computation. See the [Instrumentation diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md).
+
 ## Observation and delivery identity
 
 An observation uses the acquisition session and sequence for its identity.

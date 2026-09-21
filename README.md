@@ -20,6 +20,27 @@ calibration and inference have separate status fields. A disconnected channel
 produces unavailable values; a repeated delivery keeps the same observation
 identity. The example's inference status is `not_run`.
 
+## Host-side measurement workflow
+
+```mermaid
+flowchart TD
+    Assembly["Assembly and calibration declaration"] --> Acquire["Acquire simulated sample"]
+    Raw["Raw sample or unavailable input"] --> Acquire
+    Acquire --> Observation["Observation record"]
+    Observation --> Values["Raw and indicated values kept distinct"]
+    Observation --> Quality["Four quality dimensions"]
+    Observation --> Delivery["Outbox and delivery attempt"]
+    Delivery --> Receiver["Receiver keyed by observation ID"]
+    Receiver --> Log["Replayable JSONL log"]
+    Observation --> Digest["Observation commitment"]
+```
+
+Solid arrows describe the implemented host example. Missing acquisition remains
+unavailable; retries preserve the observation identity while recording separate
+delivery attempts. The commitment excludes delivery metadata. Calibration
+parameters and uncertainty are declarations, and the example's inference status
+remains `not_run`. See the [Instrumentation diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md).
+
 ## Run
 
 Use Python 3.12 or newer and [uv](https://docs.astral.sh/uv/):
