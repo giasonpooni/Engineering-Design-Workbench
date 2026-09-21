@@ -12,6 +12,26 @@
 
 All records are frozen. Covariance arrays and iterable record collections are detached into immutable tuples at construction.
 
+
+```mermaid
+flowchart TD
+    O["Acquisition event and indicated observation"] --> A{"Profile applicable at event time?"}
+    P["Profile identities, validity and conditions"] --> A
+    A -->|"no"| E["CalibrationError"]
+    A -->|"yes"| B{"Joint coefficient block matches profile?"}
+    C["Validated joint covariance"] --> B
+    B -->|"no"| E
+    B -->|"yes"| M["Compute corrected value and uncertainty"]
+    M --> R["Result retaining original values and references"]
+    S["Optional serving-status record"] --> I{"Serving profile identity matches?"}
+    I -->|"no"| E
+    I -->|"yes; retain report"| R
+    O -->|"original timestamp and values"| R
+    P -. "artifact and reference IDs" .-> R
+```
+
+Solid arrows show implemented checks and data dependencies; the dotted arrow carries retained references. Event validity uses UTC instants, while the original timestamp survives. An optional serving record is checked separately and cannot make an invalid acquisition applicable.
+
 ## Outputs
 
 `CalibrationResult` returns:

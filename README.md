@@ -1,8 +1,23 @@
 # Metrological Calibration and Uncertainty Runtime
 
-[Stack placement and ownership](docs/STACK.md) · [License](LICENSE)
+[Stack placement and ownership](docs/STACK.md) · [Diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md) · [License](LICENSE)
 
 MCUR is a bounded scientific instrument for applying a declared affine measurement calibration and propagating its joint uncertainty. It keeps the raw observation, indicated value, corrected value, calibration evidence references, applicability checks, and uncertainty budget distinct.
+
+
+```mermaid
+flowchart TD
+    O["Raw and indicated observation"] --> V{"Profile applicable and covariance valid?"}
+    P["Calibration profile and reference IDs"] --> V
+    C["Joint covariance of indication, gain, offset"] --> V
+    V -->|"no"| E["CalibrationError; no corrected result"]
+    V -->|"yes"| M["Apply gain and offset; propagate uncertainty"]
+    M --> R["Corrected value and uncertainty budget"]
+    O -->|"raw and indicated values retained"| R
+    P -. "calibration references retained" .-> R
+```
+
+Solid arrows show implemented checks, arithmetic, and retained values. The dotted arrow carries declared calibration references; it is not a certified traceability chain or a live integration.
 
 The implemented operation is `mcur.affine-first-order.v1`:
 
