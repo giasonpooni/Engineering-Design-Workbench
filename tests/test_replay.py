@@ -265,3 +265,147 @@ def test_resealed_outer_bundle_cannot_hide_stale_native_exchange_result_identity
     step["result_sha256"] = content_digest(step["result"])
     with pytest.raises(ContractError, match="result artifact identity"):
         verify_replay_bundle(seal(value), replay_results=replay(value))
+
+
+def calibrated_bundle():
+    """Binding fixture: FSRT independently owns scientific declaration validity."""
+    experiment = {
+        "schema": "fsrt.calibrated-observable-two-channel.v1",
+        "experiment_id": "experiment:two-channel:1",
+        "claim_scope": "synthetic declared linear case",
+        "channels": [{"channel_id": "left"}, {"channel_id": "right"}],
+        "configuration": {"observability": {"horizon": 2, "condition_limit": 1e8}},
+    }
+    # Exact retained bytes intentionally differ from canonical serialization.
+    raw = b"\n" + canonical_bytes(experiment) + b"\n"
+    operation = "fsrt.declare-calibrated-two-channel.v1"
+    execution = "execution:fsrt:1"
+    result = {
+        "schema": "fsrt.calibrated-observable-declaration.v1",
+        "operation_id": operation,
+        "execution_id": execution,
+        "experiment_id": experiment["experiment_id"],
+        "experiment_digest": "sha256:" + hashlib.sha256(
+            experiment["schema"].encode() + b"\x00" + canonical_bytes(experiment)
+        ).hexdigest(),
+        "channel_order": ["left", "right"],
+        "claim_scope": experiment["claim_scope"],
+        "authority": {"evidence_admission": False, "physical_truth": False,
+                      "calibration_certification": False},
+    }
+    bind_result(result)
+    numerical = {"operation_id": operation, "data": {
+        key: item for key, item in result.items()
+        if key not in {"schema", "operation_id", "execution_id", "result_id"}
+    }}
+    declaration = step("fsrt", operation, execution, ["artifact:experiment:1"], result, numerical)
+    request = {"schema": "ciw.adapter-request.v1", "operation_id": operation,
+               "inputs": {"experiment": experiment, "execution_id": execution}}
+    declaration.update(request=request, request_sha256=content_digest(request))
+    value = {
+        "schema": "ciw.calibrated-observable-session.v1", "session_id": "session:calibrated:1",
+        "created_at": "2026-09-21T12:00:00Z",
+        "source": {"experiment_id": experiment["experiment_id"],
+                   "experiment_digest": content_digest(experiment),
+                   "evidence": [{"artifact_ref": "artifact:experiment:1", "sha256": bytes_digest(raw),
+                                 "bytes_b64": base64.b64encode(raw).decode()}]},
+        "configuration": copy.deepcopy(experiment["configuration"]),
+        "runtimes": {"fsrt": runtime(), "set": runtime()}, "steps": [declaration],
+    }
+    return seal(value)
+
+
+def reseal_step(value):
+    """An attacker may recompute generic hashes; cross-artifact binding remains."""
+    for item in value["steps"]:
+        item["request_sha256"] = content_digest(item["request"])
+        item["result_sha256"] = content_digest(item["result"])
+        item["numerical_result_id"] = content_digest(item["numerical_result"])
+    return seal(value)
+
+
+def test_calibrated_session_retains_exact_experiment_and_requires_fresh_replay():
+    value = calibrated_bundle()
+    value["verification"] = {"outcome": "passed", "independent": True}
+    assert verify_replay_bundle(value)["outcome"] == "indeterminate"
+    receipt = verify_replay_bundle(value, replay_results=replay(value))
+    assert receipt["outcome"] == "passed"
+    assert receipt["independent"] is False
+    assert receipt["binding"]["evidence_digests"] == {
+        "artifact:experiment:1": value["source"]["evidence"][0]["sha256"]}
+    assert receipt["binding"]["configuration_digest"] == content_digest(value["configuration"])
+    assert receipt["binding"]["bundle_digest"] == value["bundle_digest"]
+
+
+@pytest.mark.parametrize("mutation,message", [
+    (lambda v: v["source"].update(experiment_id="substituted"), "experiment identity"),
+    (lambda v: v["source"].update(experiment_digest="sha256:" + "0" * 64), "experiment digest"),
+    (lambda v: v["configuration"]["observability"].update(horizon=9), "configuration differs"),
+    (lambda v: v["steps"][0]["request"]["inputs"]["experiment"].update(experiment_id="other"), "FSRT request"),
+    (lambda v: v["steps"][0]["request"]["inputs"].update(execution_id="execution:other"), "FSRT request"),
+    (lambda v: v["steps"][0]["result"].update(experiment_id="other"), "FSRT declaration"),
+    (lambda v: v["steps"][0]["result"].update(experiment_digest="sha256:" + "0" * 64), "FSRT declaration"),
+    (lambda v: v["steps"][0]["result"].update(execution_id="execution:other"), "execution_id differs"),
+    (lambda v: v["steps"][0]["result"].update(claim_scope="physical truth"), "FSRT declaration"),
+    (lambda v: v["steps"][0]["result"].update(channel_order=["right", "left"]), "FSRT declaration"),
+    (lambda v: v["steps"][0]["result"]["authority"].update(physical_truth=True), "result identity"),
+    (lambda v: v["steps"][0].update(input_refs=[]), "input_refs"),
+    (lambda v: v["steps"][0].update(runtime_ref="set"), "FSRT declaration"),
+])
+def test_calibrated_source_and_declaration_cannot_be_substituted(mutation, message):
+    value = calibrated_bundle()
+    mutation(value)
+    with pytest.raises(ContractError, match=message):
+        verify_replay_bundle(reseal_step(value), replay_results=replay(value))
+
+
+def test_calibrated_retained_bytes_must_be_strict_json_even_when_rehashed():
+    value = calibrated_bundle()
+    evidence = value["source"]["evidence"][0]
+    blob = base64.b64decode(evidence["bytes_b64"])
+    blob = blob.replace(b'{', b'{"experiment_id":"forged",', 1)
+    evidence.update(bytes_b64=base64.b64encode(blob).decode(), sha256=bytes_digest(blob))
+    with pytest.raises(ContractError, match="strict JSON"):
+        verify_replay_bundle(seal(value))
+
+
+def test_calibrated_session_refuses_extra_evidence_and_missing_reexecution():
+    value = calibrated_bundle()
+    with pytest.raises(ContractError, match="missing a step"):
+        verify_replay_bundle(value, replay_results={})
+    actual = replay(value)
+    actual["execution:fsrt:1"]["data"]["experiment_digest"] = "sha256:" + "0" * 64
+    assert verify_replay_bundle(value, replay_results=actual)["outcome"] == "failed"
+    evidence = copy.deepcopy(value["source"]["evidence"][0])
+    evidence["artifact_ref"] = "artifact:extra"
+    value["source"]["evidence"].append(evidence)
+    with pytest.raises(ContractError, match="exactly one experiment"):
+        verify_replay_bundle(seal(value))
+
+
+def test_calibrated_operation_results_bind_execution_and_graph():
+    value = calibrated_bundle()
+    prior = value["steps"][0]["result_id"]
+    result = {"schema": "ciw.calibrated-operation-result.v1",
+              "operation_id": "oit.finite-horizon-linear.v1", "execution_ref": "execution:oit:1",
+              "input_refs": [prior], "data": {"status": "observable", "rank": 2}}
+    result["result_id"] = content_digest(result)
+    value["runtimes"]["oit"] = runtime()
+    value["steps"].append(step("oit", result["operation_id"], result["execution_ref"],
+                               [prior], result, {"operation_id": result["operation_id"],
+                                                 "data": result["data"]}))
+    assert verify_replay_bundle(seal(value), replay_results=replay(value))["outcome"] == "passed"
+    result["execution_ref"] = "execution:substituted"
+    with pytest.raises(ContractError, match="execution_ref differs"):
+        verify_replay_bundle(reseal_step(value), replay_results=replay(value))
+    result["execution_ref"] = "execution:oit:1"
+    result["data"]["rank"] = 1
+    with pytest.raises(ContractError, match="calibrated operation result identity"):
+        verify_replay_bundle(reseal_step(value), replay_results=replay(value))
+
+
+def test_calibrated_fsrt_numerical_projection_must_match_native_declaration():
+    value = calibrated_bundle()
+    value["steps"][0]["numerical_result"]["data"]["claim_scope"] = "different scientific claim"
+    with pytest.raises(ContractError, match="numerical projection"):
+        verify_replay_bundle(reseal_step(value), replay_results=replay(value))

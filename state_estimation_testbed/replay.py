@@ -1,4 +1,4 @@
-"""Content binding for native CIW telemetry sessions, not a replay executor.
+"""Content binding for native CIW scientific sessions, not a replay executor.
 
 The existing verification-artifact v1 envelope is retained.  Numerical replay
 is checked only against outputs supplied by a caller-controlled trusted replay
@@ -25,6 +25,8 @@ _EXCLUDED = frozenset({"bundle_digest", "verification", "replay_receipts"})
 MAX_SESSION_BYTES = 8_388_608
 MAX_STEPS = 32
 MAX_COMPONENTS = 64
+TELEMETRY_SESSION_SCHEMA = "ciw.telemetry-session.v1"
+CALIBRATED_OBSERVABLE_SESSION_SCHEMA = "ciw.calibrated-observable-session.v1"
 
 
 def _json_value(value: object, path: str = "value", depth: int = 0) -> None:
@@ -106,7 +108,7 @@ def _decoded_json(blob: bytes) -> object:
     try:
         value = json.loads(blob, object_pairs_hook=_unique_object, parse_float=checked_float)
     except (ValueError, UnicodeError) as exc:
-        raise ContractError("batch bytes must be strict JSON") from exc
+        raise ContractError("source bytes must be strict JSON") from exc
     _json_value(value)
     return value
 
@@ -156,7 +158,8 @@ def verify_replay_bundle(
     session = _record(bundle, "replay bundle")
     if len(canonical_bytes(session)) > MAX_SESSION_BYTES:
         raise ContractError("replay session exceeds byte budget")
-    if session.get("schema") != "ciw.telemetry-session.v1":
+    session_schema = session.get("schema")
+    if session_schema not in {TELEMETRY_SESSION_SCHEMA, CALIBRATED_OBSERVABLE_SESSION_SCHEMA}:
         raise ContractError("unsupported native CIW replay session schema")
     session_id = _text(session.get("session_id"), "session_id")
     instant = _instant(session.get("created_at"), "created_at")
@@ -164,16 +167,19 @@ def verify_replay_bundle(
     if claimed != replay_bundle_digest(session):
         raise ContractError("bundle_digest does not bind the supplied session")
     source = _record(session.get("source"), "source")
-    batch = _record(source.get("batch"), "source.batch")
-    _exchange(batch)
-    if batch.get("schema") != OBSERVATION_SCHEMA:
-        raise ContractError("source.batch must be an observation-batch v1 artifact")
-    batch_blob = _blob(source.get("batch_bytes_b64"), "source.batch_bytes_b64")
-    if canonical_bytes(_decoded_json(batch_blob)) != canonical_bytes(batch):
-        raise ContractError("source batch bytes do not match batch")
-    # batch_sha256 names exact retained bytes, not a reconstructed serialization.
-    if _digest(source.get("batch_sha256"), "source.batch_sha256") != bytes_digest(batch_blob):
-        raise ContractError("source.batch_sha256 does not bind retained batch bytes")
+    batch = None
+    experiment = None
+    if session_schema == TELEMETRY_SESSION_SCHEMA:
+        batch = _record(source.get("batch"), "source.batch")
+        _exchange(batch)
+        if batch.get("schema") != OBSERVATION_SCHEMA:
+            raise ContractError("source.batch must be an observation-batch v1 artifact")
+        batch_blob = _blob(source.get("batch_bytes_b64"), "source.batch_bytes_b64")
+        if canonical_bytes(_decoded_json(batch_blob)) != canonical_bytes(batch):
+            raise ContractError("source batch bytes do not match batch")
+        # batch_sha256 names exact retained bytes, not a reconstructed serialization.
+        if _digest(source.get("batch_sha256"), "source.batch_sha256") != bytes_digest(batch_blob):
+            raise ContractError("source.batch_sha256 does not bind retained batch bytes")
     raw_evidence = source.get("evidence")
     if not isinstance(raw_evidence, list) or not raw_evidence:
         raise ContractError("source.evidence must be a non-empty array")
@@ -187,14 +193,34 @@ def verify_replay_bundle(
         if bytes_digest(_blob(evidence.get("bytes_b64"), "evidence.bytes_b64")) != digest:
             raise ContractError("evidence digest does not bind retained bytes")
         evidence_digests[ref] = digest
-    retained_refs = set(batch["source_artifact_refs"]) | set(batch["covariance"]["source_refs"])
-    if not retained_refs <= evidence_digests.keys():
-        raise ContractError("source batch references missing retained evidence")
-    if batch["batch_id"] in evidence_digests or session_id in evidence_digests:
-        raise ContractError("session, batch, and evidence identities must differ")
+    if session_schema == TELEMETRY_SESSION_SCHEMA:
+        assert batch is not None
+        retained_refs = set(batch["source_artifact_refs"]) | set(batch["covariance"]["source_refs"])
+        if not retained_refs <= evidence_digests.keys():
+            raise ContractError("source batch references missing retained evidence")
+        if batch["batch_id"] in evidence_digests or session_id in evidence_digests:
+            raise ContractError("session, batch, and evidence identities must differ")
+    else:
+        if len(raw_evidence) != 1:
+            raise ContractError("calibrated-observable session requires exactly one experiment artifact")
+        experiment_blob = _blob(raw_evidence[0].get("bytes_b64"), "evidence.bytes_b64")
+        experiment = _record(_decoded_json(experiment_blob), "calibrated-observable experiment")
+        if experiment.get("schema") != "fsrt.calibrated-observable-two-channel.v1":
+            raise ContractError("unsupported calibrated-observable experiment schema")
+        experiment_id = _text(experiment.get("experiment_id"), "experiment.experiment_id")
+        if source.get("experiment_id") != experiment_id:
+            raise ContractError("source experiment identity differs from retained bytes")
+        if _digest(source.get("experiment_digest"), "source.experiment_digest") != content_digest(experiment):
+            raise ContractError("source experiment digest does not bind retained experiment content")
+        if session_id in evidence_digests:
+            raise ContractError("session and experiment evidence identities must differ")
     configuration = _record(session.get("configuration"), "configuration")
     if not configuration:
         raise ContractError("configuration must retain declared model/prior/settings")
+    if experiment is not None and canonical_bytes(configuration) != canonical_bytes(
+        _record(experiment.get("configuration"), "experiment.configuration")
+    ):
+        raise ContractError("session configuration differs from retained experiment configuration")
     runtimes = _record(session.get("runtimes"), "runtimes")
     if not runtimes:
         raise ContractError("runtimes must retain source pins")
@@ -214,8 +240,8 @@ def verify_replay_bundle(
     if not isinstance(steps, list) or not 1 <= len(steps) <= MAX_STEPS:
         raise ContractError("steps must contain 1 to 32 ordered operations")
     available = set(evidence_digests)
-    # A PPDA step must project raw evidence into the exact source batch; a
-    # reference to a pre-made batch alone cannot prove this acquisition link.
+    # First-step requests/results must bind the retained source; a reference
+    # to evidence alone cannot establish a projection or declaration link.
     occurrences: set[str] = set()
     result_ids: set[str] = set()
     numerical_ids: dict[str, str] = {}
@@ -269,11 +295,65 @@ def verify_replay_bundle(
             raise ContractError("step result_id differs from artifact identity")
         if "execution_ref" in result and result["execution_ref"] != execution_id:
             raise ContractError("result execution_ref differs from step occurrence")
+        if "execution_id" in result and result["execution_id"] != execution_id:
+            raise ContractError("result execution_id differs from step occurrence")
         if "input_refs" in result and list(result["input_refs"]) != list(input_refs):
             raise ContractError("result input_refs differ from step graph")
+        if result.get("schema") == "ciw.calibrated-operation-result.v1":
+            if (set(result) != {"schema", "operation_id", "execution_ref", "input_refs", "data", "result_id"}
+                    or result.get("operation_id") != operation_id
+                    or result_id != content_digest(
+                        {key: item for key, item in result.items() if key != "result_id"})):
+                raise ContractError("calibrated operation result identity does not bind its content")
         if index == 0:
-            if role != "ppda" or canonical_bytes(result) != canonical_bytes(batch):
-                raise ContractError("first step must be pinned PPDA projection of retained evidence into source batch")
+            if session_schema == TELEMETRY_SESSION_SCHEMA:
+                if role != "ppda" or canonical_bytes(result) != canonical_bytes(batch):
+                    raise ContractError("first step must be pinned PPDA projection of retained evidence into source batch")
+            else:
+                if (role != "fsrt" or operation_id != "fsrt.declare-calibrated-two-channel.v1"
+                        or list(input_refs) != list(evidence_digests)):
+                    raise ContractError("first calibrated-observable step must bind the FSRT declaration to retained experiment bytes")
+                inputs = _record(request.get("inputs"), "FSRT request.inputs")
+                if (set(request) != {"schema", "operation_id", "inputs"}
+                        or set(inputs) != {"experiment", "execution_id"}
+                        or request.get("schema") != "ciw.adapter-request.v1"
+                        or request.get("operation_id") != operation_id
+                        or inputs.get("execution_id") != execution_id
+                        or canonical_bytes(inputs.get("experiment")) != canonical_bytes(experiment)):
+                    raise ContractError("FSRT request must bind retained experiment content and execution identity")
+                assert experiment is not None
+                declaration_schema = "fsrt.calibrated-observable-declaration.v1"
+                channels = experiment.get("channels")
+                if not isinstance(channels, list) or len(channels) != 2:
+                    raise ContractError("retained experiment must declare two channels")
+                channel_order = [_text(_record(channel, "experiment channel").get("channel_id"),
+                                       "experiment channel.channel_id") for channel in channels]
+                claim_scope = _text(experiment.get("claim_scope"), "experiment.claim_scope")
+                experiment_domain_digest = "sha256:" + hashlib.sha256(
+                    experiment["schema"].encode("utf-8") + b"\x00" + canonical_bytes(experiment)
+                ).hexdigest()
+                if (result.get("schema") != declaration_schema
+                        or result.get("result_id") != result_id
+                        or result.get("operation_id") != operation_id
+                        or result.get("execution_id") != execution_id
+                        or result.get("experiment_id") != experiment["experiment_id"]
+                        or result.get("experiment_digest") != experiment_domain_digest
+                        or result.get("channel_order") != channel_order
+                        or result.get("claim_scope") != claim_scope):
+                    raise ContractError("FSRT declaration must bind retained experiment content and execution identity")
+                expected_declaration_id = "sha256:" + hashlib.sha256(
+                    declaration_schema.encode("utf-8") + b"\x00" + canonical_bytes(
+                        {key: item for key, item in result.items() if key != "result_id"}
+                    )
+                ).hexdigest()
+                if result_id != expected_declaration_id:
+                    raise ContractError("FSRT declaration result identity does not bind its content")
+                expected_numerical = {"operation_id": operation_id, "data": {
+                    key: item for key, item in result.items()
+                    if key not in {"schema", "operation_id", "execution_id", "result_id"}
+                }}
+                if canonical_bytes(numerical) != canonical_bytes(expected_numerical):
+                    raise ContractError("FSRT numerical projection differs from retained declaration")
         if set(numerical) & {"execution_ref", "execution_id", "created_at", "result_id"}:
             raise ContractError("numerical_result must exclude occurrence identity")
         if replay_results is not None:
@@ -292,7 +372,7 @@ def verify_replay_bundle(
     if replay_results is not None and set(replay_results) != occurrences:
         raise ContractError("fresh replay result keys must match execution identities exactly")
     checks = [{"name": "retained-content-and-exchange-binding", "outcome": "passed",
-               "basis": "Exact evidence bytes, source batch, request/result digests, operation/runtime pins and ordered input graph."},
+               "basis": "Exact evidence bytes, declared source, request/result digests, operation/runtime pins and ordered input graph."},
               {"name": "numerical-replay", "outcome": "indeterminate" if replay_results is None else
                ("passed" if replay_matches else "failed"),
                "basis": "Exact canonical numerical-output comparison against caller-controlled fresh replay; SET does not execute producers."}]

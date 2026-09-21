@@ -15,7 +15,7 @@ degradation, with the plant and measurement model declared explicitly.
 
 This checkout contains a declarative invariant corpus, its citation, executable
 exchange validators, a bounded declared-reference evaluation runner, and a
-content-binding verifier for native CIW telemetry replay sessions. It does not
+content-binding verifier for native CIW telemetry and calibrated-observable replay sessions. It does not
 contain an estimator, simulation, fault-injection runner, benchmark results,
 or physical-validation certificate.
 
@@ -120,11 +120,14 @@ being reported as a perfect zero.
 ### Native CIW replay binding (API 0.3)
 
 `state_estimation_testbed.verify_replay_bundle(bundle, replay_results=...)`
-checks a `ciw.telemetry-session.v1` native session and returns the existing
+checks a `ciw.telemetry-session.v1` or `ciw.calibrated-observable-session.v1`
+native session and returns the existing
 `notation.instrument.verification-artifact.v1` envelope. It does not introduce
 a replacement wire protocol or import an estimator. The full implemented
 [binding interface](docs/replay-binding.md) distinguishes retained evidence,
 operation/runtime pins, execution occurrences, numerical outputs and verification.
+The calibrated session additionally binds retained FSRT experiment bytes to the
+declaration request, result identity, channel order and complete configuration.
 
 The caller must perform fresh computation using separately approved clean
 source/interpreter pins and provide an execution-ID-to-numerical-output mapping.

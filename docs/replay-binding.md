@@ -1,7 +1,7 @@
 # Native CIW session content binding
 
 The verifier bounds canonical session size to 8 MiB, nesting to 64 levels,
-steps to 32, and each exchange artifact to 64 components. Retained batch-byte
+steps to 32, and each exchange artifact to 64 components. Retained source-byte
 decoding rejects duplicate keys, nonfinite values and nonzero floating literals
 that underflow to zero. The caller must use an equivalently strict decoder for
 the outer session: a Python dictionary cannot recover values already lost by
@@ -17,7 +17,8 @@ aliases or implicit substitutions are not accepted. The pinned replay executor
 is still responsible for executing and verifying both declared operations.
 
 Implemented API: `state_estimation_testbed.verify_replay_bundle`.
-Supported subject: CIW's `ciw.telemetry-session.v1`. The result uses the existing
+Supported subjects: CIW's `ciw.telemetry-session.v1` and additive
+`ciw.calibrated-observable-session.v1`. The result uses the existing
 `notation.instrument.verification-artifact.v1` schema, with additive `binding`
 details. Existing exchange validation behavior and wire schemas are unchanged.
 
@@ -53,9 +54,10 @@ an implemented admission action. See the [Instrumentation diagram atlas](https:/
 | Session field | Binding checked |
 | --- | --- |
 | `session_id`, `created_at` | Explicit session identity and UTC instant |
-| `source.batch` | Existing observation-batch v1 contract |
-| `source.batch_bytes_b64`, `source.batch_sha256` | Exact byte digest and strict decoded JSON equality to the batch; duplicate object keys forbidden |
-| `source.evidence[]` | Unique `artifact_ref`, exact retained `bytes_b64`, `sha256`; batch source references must resolve |
+| `source.batch` | Telemetry session: existing observation-batch v1 contract |
+| `source.batch_bytes_b64`, `source.batch_sha256` | Telemetry session: exact byte digest and strict decoded JSON equality to the batch; duplicate object keys forbidden |
+| `source.experiment_id`, `source.experiment_digest` | Calibrated session: identity and canonical content digest of the strictly decoded retained FSRT experiment |
+| `source.evidence[]` | Unique `artifact_ref`, exact retained `bytes_b64`, `sha256`; telemetry batch source references must resolve; calibrated sessions retain exactly one experiment artifact |
 | `configuration` | Full retained configuration digest; prior/model/settings belong in this object and the actual step requests |
 | `runtimes` | Existing `ciw.subprocess-runtime.v1` records, full revision/tree pins and interpreter-byte hash |
 | `steps[]` | Ordered operation/runtime, input graph, distinct execution/result identities, complete request/result hashes and occurrence-free numerical output digest |
@@ -64,12 +66,28 @@ an implemented admission action. See the [Instrumentation diagram atlas](https:/
 Step fields are `operation_id`, `runtime_ref`, `execution_id`, `input_refs`,
 `request`, `request_sha256`, `result`, `result_sha256`, `result_id`,
 `numerical_result`, and `numerical_result_id`. Each `runtime_ref` resolves to
-a key of `runtimes`. The first step is a pinned `ppda` projection from retained
+a key of `runtimes`. In telemetry sessions, the first step is a pinned `ppda` projection from retained
 evidence into the exact `source.batch`; later inputs resolve to retained
 evidence or earlier result identities. Exchange results retain their own
 `result_id`/`batch_id`, `execution_ref` and `input_refs` consistently with the
 step graph. `numerical_result` excludes top-level occurrence `result_id`,
 `execution_id`, `execution_ref` and `created_at` fields.
+
+In calibrated sessions, the first step is the pinned `fsrt` operation
+`fsrt.declare-calibrated-two-channel.v1`. Its request must contain the exact
+decoded experiment and the step execution identity. The native declaration
+must bind that experiment's identity, schema-domain content digest, channel
+order and claim scope; its result identity must bind the declaration content.
+Its numerical projection must match that retained declaration after excluding
+schema, operation and occurrence fields. Every later
+`ciw.calibrated-operation-result.v1` result also binds its own content identity
+with a canonical digest of all fields except `result_id`.
+The session configuration must equal the retained experiment configuration.
+This prevents an otherwise rehashed session from substituting a different
+experiment, model configuration or occurrence. Later steps use the same ordered
+input graph and digest rules as telemetry sessions. FSRT owns scientific
+declaration validation; SET does not repeat clock, calibration, observability,
+estimation, reconciliation or fault-isolation calculations.
 
 Every embedded result-artifact v1 also passes the existing schema-domain
 content-ID check, including a native result nested in a CIW wrapper. Rehashing

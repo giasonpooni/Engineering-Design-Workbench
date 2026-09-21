@@ -8,7 +8,7 @@ This component owns **instrument-exchange validation and estimator evaluation sc
 | Property | Scope |
 | --- | --- |
 | Implementation | Executable contract validators, declared-reference metrics and native replay-content verifier; no estimator |
-| Workbench connection | Existing exchange checker plus CIW telemetry-session content/numerical-replay comparison API |
+| Workbench connection | Existing exchange checker plus CIW telemetry and calibrated-observable session content/numerical-replay comparison API |
 | Inputs | Declared observation batches, result/verification artifacts, covariance metadata, reference samples and retained replay bundle. |
 | Outputs | Structural/numerical eligibility, bias/RMSE/NEES/NIS where supported, scoped verification receipt with evidence/result/runtime binding. |
 
