@@ -8,6 +8,20 @@ The supplied affine clock model is
 
 The anchors `t0` and `T0` are treated as fixed constants. `a` is positive and dimensionless; `t`, `t0`, `T0`, and `b` are in seconds. The inclusive source interval bounds model applicability. A timestamp outside it is rejected; no extrapolation occurs.
 
+
+```mermaid
+flowchart TD
+    T["Device time t"] --> D["Elapsed time: t - t0"]
+    T0["Fixed device origin t0"] --> D
+    D --> A["Delta: a times elapsed + b"]
+    P["Skew a and offset b"] --> A
+    A --> K["Retain reference origin and delta"]
+    R0["Fixed reference origin T0"] --> K
+    K --> S["Scalar event time: T0 + delta"]
+```
+
+Solid arrows show the implemented arithmetic and output representation. The origin/delta pair retains a small correction even when the convenience scalar loses it through rounding; it cannot recover precision already lost in the input.
+
 For covariance ordered as `x = [t, a, b]`, the local Jacobian is
 
 \[
@@ -22,6 +36,22 @@ u^2=a^2C_{tt}+(t-t_0)^2C_{aa}+C_{bb}
 \]
 
 The operation includes correlations between raw timestamp, skew, and offset. If a timestamp helped estimate its clock model, treating these quantities as independent may be unjustified; the caller supplies their joint covariance. This implementation does not estimate it.
+
+
+```mermaid
+flowchart TD
+    N["Nominal time, skew and offset"] --> J["Jacobian: a, t - t0, 1"]
+    A["Fixed device origin"] --> J
+    C["Supplied joint covariance C"] --> V{"Exact symmetry and PSD checks pass?"}
+    V -->|"no"| E["Reject covariance"]
+    V -->|"yes"| Q["Variance: J C J transpose"]
+    J --> Q
+    Q --> F{"Finite and nonnegative?"}
+    F -->|"no"| E
+    F -->|"yes"| U["Variance and standard uncertainty"]
+```
+
+Solid arrows show local validation and first-order propagation. All cross-covariances remain in the quadratic form; neither check success nor a small output variance certifies synchronization accuracy.
 
 ## Precision and checks
 

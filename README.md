@@ -1,8 +1,22 @@
 # Time-Base Reconciliation Runtime
 
-[Stack placement and ownership](docs/STACK.md) · [License](LICENSE)
+[Stack placement and ownership](docs/STACK.md) · [Diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md) · [License](LICENSE)
 
 **TBRT** is a bounded numerical instrument for translating a device event timestamp into an explicitly identified reference clock. It retains the original observation, supplied model, and uncertainty inputs. This repository implements one operation: affine clock reconciliation with first-order joint-covariance propagation.
+
+
+```mermaid
+flowchart TD
+    R["Source timestamp and clock frame"] --> V{"Identity, domain and covariance valid?"}
+    M["Supplied anchored clock model"] --> V
+    C["Joint covariance of time, skew, offset"] --> V
+    V -->|"no"| E["ValueError; no derived observation"]
+    V -->|"yes"| A["Anchored map and first-order propagation"]
+    A --> O["Reference origin, delta and variance"]
+    R -->|"retained unchanged"| O
+```
+
+Solid arrows show implemented checks, numerical dependencies, and retained input data. The derived coordinate accompanies the source observation; it does not replace it.
 
 The model is anchored to reduce arithmetic on large epoch coordinates:
 

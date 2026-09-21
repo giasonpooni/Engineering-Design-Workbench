@@ -26,6 +26,22 @@ All contract records are frozen dataclasses. Covariance is copied and stored in 
 
 ## Failures
 
+```mermaid
+flowchart TD
+    O["Observation and supplied model"] --> I{"Source and requested reference match?"}
+    I -->|"no"| X["ValueError; no partial result"]
+    I -->|"yes"| D{"Nominal time inside inclusive domain?"}
+    D -->|"no"| X
+    D -->|"yes"| C{"Covariance and arithmetic valid?"}
+    C -->|"no"| X
+    C -->|"yes"| R["Derived event-time result"]
+    O -->|"original observation retained"| R
+    M["Receipt and knowledge times"] -->|"metadata only"| R
+```
+
+Solid arrows show the implemented rejection path and returned-data dependencies. Receipt and knowledge instants never substitute for event time. The covariance and arithmetic node summarizes the checks in the numerical contract.
+
+
 Validation failures raise `ValueError`. A rejected call returns no corrected observation. There is no fallback to source time, hidden model extension, clock relabeling, regularization, or state mutation.
 
 ## Identity boundaries
