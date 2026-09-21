@@ -133,6 +133,31 @@ unchanged v1 `data`:
 | `posterior` | Fixed state order | Existing Gaussian posterior **before** reconciliation | Observation and prior |
 | `reconciled` | Fixed state order | Existing final state/covariance, including held results | Posterior and declared total |
 
+### Covariance lineage in the v2 snapshot
+
+```mermaid
+flowchart TD
+    Observation["Observation covariance R"] --> Innovation["Innovation covariance S"]
+    Prior["Declared prior covariance"] --> Innovation
+    Observation --> Posterior["Unprojected posterior covariance"]
+    Prior --> Posterior
+    Posterior --> Gate["Balance consistency and hold gate"]
+    Total["Declared total variance"] --> Gate
+    Gate -->|"correction applied"| Corrected["Reconciled numerical state"]
+    Gate -->|"held"| Held["Posterior numbers retained"]
+    Corrected --> Artifact["Reconciled covariance artifact"]
+    Held --> Artifact
+```
+
+Solid edges show the implemented snapshot calculation. The reconciled artifact
+cites the posterior and declared-total covariance sources; on a hold, its
+numbers equal the posterior while stage identity and status remain distinct.
+Innovation axes contain only present channels; missing measurements retain null
+values and false masks rather than becoming estimates relabeled as observations.
+Full within-snapshot correlation is preserved. Independence between prior,
+observation and declared total is asserted by the caller and remains outside
+what numerical lineage establishes. See the [Instrumentation diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md).
+
 Every generated artifact declares its stage, full source/state orders, observed
 mask, reference meaning, independence assumptions and shared dependencies.
 `upstream_covariance_metadata` retains the input metadata in full, including any

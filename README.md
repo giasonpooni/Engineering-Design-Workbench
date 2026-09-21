@@ -26,6 +26,30 @@ acquisition commit pins retain their historical identities. The new repository
 name does not change the evidence or imply that these experiments were rerun
 against its current revision.
 
+## Guarded reconstruction workflow
+
+```mermaid
+flowchart TD
+    Observations["Arrived observations and evidence refs"] --> Estimator["Declared estimator"]
+    Model["Prior, dynamics and public inputs"] --> Estimator
+    Estimator --> Candidate["Unprojected state and covariance"]
+    Candidate --> Balance["Balance residual and statistic"]
+    Law["Declared balance and uncertainty"] --> Balance
+    Balance --> Guard{"Guard permits correction?"}
+    Guard -->|"yes"| Corrected["Reconciled state and covariance"]
+    Guard -->|"no"| Held["Correction held"]
+    Candidate --> Record["Retained run record"]
+    Corrected --> Record
+    Held --> Record
+```
+
+Solid arrows show the implemented guarded path in the experimental runner.
+Estimator specifications can disable reconciliation or select explicit feedback;
+this drawing does not imply that every run corrects its state. The record keeps
+pre-correction estimates, residuals and correction status. Disagreement is not
+unique fault attribution. The single-snapshot CIW operation is a narrower
+contract, described below and in the [Instrumentation diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md).
+
 ## A practical example
 
 A reservoir has measurements of stored water, incoming flow and outgoing flow. Over the same time interval, conservation relates them:
