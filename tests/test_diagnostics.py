@@ -4,7 +4,7 @@ from dataclasses import FrozenInstanceError
 import numpy as np
 import pytest
 
-from fdir import CusumState, cusum_step, evaluate_residual
+from fdir import CusumState, assess_isolability, cusum_step, evaluate_residual
 
 
 def evaluate(residual, covariance, **overrides):
@@ -110,6 +110,65 @@ def test_residual_inputs_are_not_mutated_or_aliased():
     assert result.variable_order == ("x", "y")
     with pytest.raises(FrozenInstanceError):
         result.nis = 8
+
+
+def test_declared_residual_signatures_isolate_without_rebuilding_estimator():
+    diagnostics = evaluate(
+        [2.0, -4.0], [[1.25, 0.25], [0.25, 1.25]], threshold=9.21,
+        source_ids=["gsie:result:1", "cbsr:result:1"],
+    )
+    result = assess_isolability(
+        diagnostics,
+        {"sensor-1.bias": [1.0, 0.0], "sensor-2.bias": [0.0, -1.0]},
+        cross_covariance_policy="declared",
+        max_unexplained_nis=4.0,
+    )
+    assert diagnostics.status == "statistical_anomaly"
+    assert result.status == "isolated"
+    assert result.isolated_fault == "sensor-2.bias"
+    assert result.candidates == ("sensor-2.bias",)
+    assert result.source_ids == ("gsie:result:1", "cbsr:result:1")
+    scores = {fit.fault_id: fit.unexplained_nis for fit in result.fits}
+    assert scores == pytest.approx({"sensor-1.bias": 12.8, "sensor-2.bias": 3.2})
+
+
+def test_unknown_cross_covariance_reports_ambiguity_not_unique_fault():
+    diagnostics = evaluate([2.0, -4.0], [[1.25, 0.25], [0.25, 1.25]], threshold=9.21)
+    result = assess_isolability(
+        diagnostics,
+        {"sensor-1.bias": [1.0, 0.0], "sensor-2.bias": [0.0, -1.0]},
+        cross_covariance_policy="unknown",
+        max_unexplained_nis=4.0,
+    )
+    assert result.status == "ambiguous"
+    assert result.isolated_fault is None
+    assert "unique fault nomination is refused" in result.reason
+
+
+def test_nominal_residual_never_nominates_a_fault():
+    diagnostics = evaluate([0.1, -0.1], np.eye(2), threshold=9.21)
+    result = assess_isolability(
+        diagnostics, {"sensor-1.bias": [1.0, 0.0]},
+        cross_covariance_policy="declared_zero", max_unexplained_nis=4.0,
+    )
+    assert result.status == "not_detected"
+    assert result.isolated_fault is None
+
+
+@pytest.mark.parametrize("signatures,policy,limit", [
+    ({}, "declared", 1.0),
+    ({"zero": [0.0]}, "declared", 1.0),
+    ({"wrong": [1.0, 0.0]}, "declared", 1.0),
+    ({"one": [1.0]}, "unsupported", 1.0),
+    ({"one": [1.0]}, "declared", -1.0),
+])
+def test_invalid_isolability_declarations_refuse(signatures, policy, limit):
+    diagnostics = evaluate([2.0], [[1.0]], threshold=1.0)
+    with pytest.raises(ValueError):
+        assess_isolability(
+            diagnostics, signatures,
+            cross_covariance_policy=policy, max_unexplained_nis=limit,
+        )
 
 
 def test_cusum_detects_persistent_drift_and_reports_pre_reset_value():

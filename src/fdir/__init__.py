@@ -4,12 +4,15 @@
 from .diagnostics import (
     CusumResult,
     CusumState,
+    FaultFit,
+    IsolabilityAssessment,
     ResidualDiagnostics,
+    assess_isolability,
     cusum_step,
     evaluate_residual,
 )
 
 __all__ = [
-    "CusumResult", "CusumState", "ResidualDiagnostics",
-    "cusum_step", "evaluate_residual",
+    "CusumResult", "CusumState", "FaultFit", "IsolabilityAssessment",
+    "ResidualDiagnostics", "assess_isolability", "cusum_step", "evaluate_residual",
 ]

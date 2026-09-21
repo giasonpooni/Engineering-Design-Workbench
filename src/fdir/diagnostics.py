@@ -3,6 +3,7 @@
 
 from dataclasses import dataclass
 from numbers import Real
+from collections.abc import Mapping
 from typing import Literal, Sequence
 
 import numpy as np
@@ -10,6 +11,8 @@ from numpy.typing import ArrayLike
 
 Status = Literal["nominal", "statistical_anomaly"]
 Direction = Literal["positive", "negative", "two_sided"]
+IsolabilityStatus = Literal["not_detected", "isolated", "ambiguous", "unresolved"]
+CrossCovariancePolicy = Literal["declared", "declared_zero", "unknown"]
 
 
 def _number(value: Real, name: str, *, positive: bool = False,
@@ -71,6 +74,27 @@ class ResidualDiagnostics:
     status: Status
 
 
+@dataclass(frozen=True)
+class FaultFit:
+    fault_id: str
+    fitted_amplitude: float
+    unexplained_nis: float
+    compatible: bool
+
+
+@dataclass(frozen=True)
+class IsolabilityAssessment:
+    detection_status: Status
+    status: IsolabilityStatus
+    cross_covariance_policy: CrossCovariancePolicy
+    max_unexplained_nis: float
+    candidates: tuple[str, ...]
+    isolated_fault: str | None
+    fits: tuple[FaultFit, ...]
+    source_ids: tuple[str, ...]
+    reason: str
+
+
 def evaluate_residual(
     residual: ArrayLike,
     innovation_covariance: ArrayLike,
@@ -120,6 +144,83 @@ def evaluate_residual(
         nis=nis,
         threshold=limit,
         status="statistical_anomaly" if nis >= limit else "nominal",
+    )
+
+
+def assess_isolability(
+    diagnostics: ResidualDiagnostics,
+    fault_signatures: Mapping[str, ArrayLike],
+    *,
+    cross_covariance_policy: CrossCovariancePolicy,
+    max_unexplained_nis: float,
+) -> IsolabilityAssessment:
+    """Fit declared signatures using the retained residual covariance.
+
+    This operation consumes a residual result and never reconstructs an
+    estimator. Unknown cross-covariance always blocks unique nomination.
+    """
+    if not isinstance(diagnostics, ResidualDiagnostics):
+        raise ValueError("diagnostics must be ResidualDiagnostics")
+    if cross_covariance_policy not in ("declared", "declared_zero", "unknown"):
+        raise ValueError("cross_covariance_policy is unsupported")
+    limit = _number(max_unexplained_nis, "max_unexplained_nis", nonnegative=True)
+    if not isinstance(fault_signatures, Mapping) or not fault_signatures:
+        raise ValueError("fault_signatures must be a nonempty mapping")
+    covariance = np.array(diagnostics.innovation_covariance, dtype=float)
+    residual = np.array(diagnostics.raw_residual, dtype=float)
+    try:
+        lower = np.linalg.cholesky(covariance)
+        whitened_residual = np.linalg.solve(lower, residual)
+    except np.linalg.LinAlgError as exc:
+        raise ValueError("retained innovation_covariance is not positive definite") from exc
+    fits: list[FaultFit] = []
+    seen: set[str] = set()
+    for fault_id, declared in fault_signatures.items():
+        if not isinstance(fault_id, str) or not fault_id.strip() or fault_id in seen:
+            raise ValueError("fault signature identities must be distinct nonempty strings")
+        seen.add(fault_id)
+        signature = _array(declared, f"fault_signatures[{fault_id}]")
+        if signature.shape != residual.shape or not np.any(signature):
+            raise ValueError("each fault signature must be a nonzero residual-dimension vector")
+        whitened_signature = np.linalg.solve(lower, signature)
+        denominator = float(whitened_signature @ whitened_signature)
+        amplitude = float(whitened_signature @ whitened_residual) / denominator
+        remainder = whitened_residual - amplitude * whitened_signature
+        unexplained = float(remainder @ remainder)
+        if not np.isfinite(amplitude) or not np.isfinite(unexplained):
+            raise ValueError("fault signature fit exceeds float64 range")
+        fits.append(FaultFit(fault_id, amplitude, unexplained, unexplained <= limit))
+    candidates = tuple(item.fault_id for item in fits if item.compatible)
+    if diagnostics.status == "nominal":
+        status: IsolabilityStatus = "not_detected"
+        isolated = None
+        reason = "the declared residual detector did not cross its threshold"
+    elif cross_covariance_policy == "unknown":
+        status = "ambiguous"
+        isolated = None
+        reason = "cross-covariance is unknown; unique fault nomination is refused"
+    elif len(candidates) == 1:
+        status = "isolated"
+        isolated = candidates[0]
+        reason = "exactly one declared signature satisfies the residual misfit threshold"
+    elif len(candidates) > 1:
+        status = "ambiguous"
+        isolated = None
+        reason = "multiple declared signatures satisfy the residual misfit threshold"
+    else:
+        status = "unresolved"
+        isolated = None
+        reason = "no declared signature explains the detected residual within threshold"
+    return IsolabilityAssessment(
+        detection_status=diagnostics.status,
+        status=status,
+        cross_covariance_policy=cross_covariance_policy,
+        max_unexplained_nis=limit,
+        candidates=candidates,
+        isolated_fault=isolated,
+        fits=tuple(fits),
+        source_ids=diagnostics.source_ids,
+        reason=reason,
     )
 
 
