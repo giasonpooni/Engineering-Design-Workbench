@@ -173,6 +173,13 @@ def test_forged_retained_diagnostics_cannot_change_detection_status():
                           cross_covariance_policy="declared", max_unexplained_nis=1.0)
 
 
+def test_declared_zero_must_match_residual_covariance_coordinates():
+    diagnostics = evaluate([2.0, -4.0], [[1.25, 0.25], [0.25, 1.25]], threshold=9.21)
+    with pytest.raises(ValueError, match="declared_zero.*contradicts"):
+        assess_isolability(diagnostics, {"sensor.bias": [1.0, 0.0]},
+                          cross_covariance_policy="declared_zero", max_unexplained_nis=4.0)
+
+
 @pytest.mark.parametrize("signatures,policy,limit", [
     ({}, "declared", 1.0),
     ({"zero": [0.0]}, "declared", 1.0),

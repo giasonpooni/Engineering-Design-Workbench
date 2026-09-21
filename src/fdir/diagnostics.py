@@ -158,6 +158,8 @@ def assess_isolability(
 
     This operation consumes a residual result and never reconstructs an
     estimator. Unknown cross-covariance always blocks unique nomination.
+    ``declared_zero`` refers to the off-diagonal covariance of these retained
+    residual coordinates, and must agree with the supplied covariance matrix.
     """
     if not isinstance(diagnostics, ResidualDiagnostics):
         raise ValueError("diagnostics must be ResidualDiagnostics")
@@ -175,6 +177,10 @@ def assess_isolability(
         raise ValueError("fault_signatures must be a nonempty mapping")
     covariance = np.array(diagnostics.innovation_covariance, dtype=float)
     residual = np.array(diagnostics.raw_residual, dtype=float)
+    if cross_covariance_policy == "declared_zero" and np.any(
+        covariance != np.diag(np.diag(covariance))
+    ):
+        raise ValueError("declared_zero cross-covariance contradicts retained residual covariance")
     try:
         lower = np.linalg.cholesky(covariance)
         whitened_residual = np.linalg.solve(lower, residual)
