@@ -29,6 +29,29 @@ These declarations do not establish physical validity, estimator accuracy,
 observability, or a stability certificate. Noise, missingness, and latency are
 evaluation concerns, not implemented perturbation generators in this checkout.
 
+### Declared-reference metric workflow
+
+```mermaid
+flowchart TD
+    Results["Existing result artifacts"] --> Check["Validate samples and model refs"]
+    Check --> Truth{"Reference values supplied?"}
+    Truth -->|"yes"| Error["Bias and RMSE"]
+    Truth -->|"no"| Absent["Reference metrics unavailable"]
+    Error --> NEES["NEES if covariance supports it"]
+    Innovation["Innovation and its covariance"] --> NIS["NIS if covariance supports it"]
+    Check --> NIS
+    NEES --> Report["Descriptive evaluation report"]
+    NIS --> Report
+    Absent --> Report
+```
+
+Solid arrows describe the implemented evaluation API. Unknown or singular
+covariance can leave a normalized metric unavailable while other supported
+metrics remain reportable. Invalid inputs are rejected. The report does not
+supply an estimator, generate degraded observations, or establish the reference
+values as physical truth. Replay binding is a separate implemented operation,
+described below and in the [Instrumentation diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md).
+
 ### Instrument exchange contract
 
 `state_estimation_testbed.contracts` validates the v1 instrument exchange

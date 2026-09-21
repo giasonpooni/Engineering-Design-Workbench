@@ -21,6 +21,33 @@ Supported subject: CIW's `ciw.telemetry-session.v1`. The result uses the existin
 `notation.instrument.verification-artifact.v1` schema, with additive `binding`
 details. Existing exchange validation behavior and wire schemas are unchanged.
 
+## Content binding and numerical replay
+
+```mermaid
+flowchart TD
+    Evidence["Retained evidence and batch bytes"] --> Binding["Check content and input graph"]
+    Pins["Operation and runtime declarations"] --> Binding
+    Steps["Requests, execution IDs and results"] --> Binding
+    Binding --> Valid{"Binding valid?"}
+    Valid -->|"no"| Refuse["ContractError"]
+    Valid -->|"yes"| Compare["Compare numerical outputs"]
+    Fresh["Caller-supplied fresh replay map"] --> Compare
+    Compare --> Receipt["Verification artifact"]
+    Receipt --> Outcome["Passed, failed or indeterminate"]
+    Receipt -. "separate policy authority" .-> Admission["Evidence admission"]
+```
+
+Solid arrows show checks performed here and inputs consumed by them. A missing
+fresh replay map yields an indeterminate numerical-replay outcome; disagreement
+yields failed. SET does not launch the producer. The caller obtains fresh outputs
+from separately approved source/interpreter pins and keys them by execution ID.
+Hash agreement alone cannot select or authenticate that executor.
+
+Evidence, operation, execution and result references remain bound in the receipt;
+the receipt receives its own verification identity and declares
+`independent: false`. The dotted admission edge is an authority boundary, not
+an implemented admission action. See the [Instrumentation diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md).
+
 ## Retained subject
 
 | Session field | Binding checked |
