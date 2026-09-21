@@ -6,6 +6,7 @@ from .clock import (
     ReconciledTimestamp,
     TimePoint,
     TimestampObservation,
+    replay_reconciliation,
     reconcile_time,
 )
 
@@ -15,5 +16,6 @@ __all__ = [
     "ReconciledTimestamp",
     "TimePoint",
     "TimestampObservation",
+    "replay_reconciliation",
     "reconcile_time",
 ]

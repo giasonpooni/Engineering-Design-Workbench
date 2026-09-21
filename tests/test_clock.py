@@ -8,6 +8,7 @@ from tbrt import (
     ClockFrame,
     TimePoint,
     TimestampObservation,
+    replay_reconciliation,
     reconcile_time,
 )
 
@@ -26,6 +27,7 @@ def model(**changes):
         skew=2.0,
         offset=0.5,
         valid_device_interval=(100.0, 110.0),
+        synchronization_evidence_ids=("sync-exchange:synthetic:1",),
     )
     return AffineClockModel(**(defaults | changes))
 
@@ -45,6 +47,30 @@ def test_analytical_correlated_propagation():
     assert result.variance == pytest.approx(21.75)
     assert result.standard_uncertainty == pytest.approx(np.sqrt(21.75))
     assert result.propagation == "first-order.v1"
+    assert result.operation_id == "tbrt.affine-clock-reconcile.v1"
+    assert replay_reconciliation(result) == result
+
+
+def test_strict_mapping_requires_retained_synchronization_evidence():
+    without_evidence = model(synchronization_evidence_ids=())
+    with pytest.raises(ValueError, match="synchronization evidence.*refused"):
+        reconcile_time(
+            observation(), without_evidence, np.eye(3),
+            require_synchronization_evidence=True,
+        )
+    result = reconcile_time(
+        observation(), model(), np.eye(3), require_synchronization_evidence=True,
+    )
+    assert result.model.synchronization_evidence_ids == ("sync-exchange:synthetic:1",)
+
+
+def test_synchronization_evidence_identities_are_typed_and_unique():
+    with pytest.raises(ValueError, match="sequence"):
+        model(synchronization_evidence_ids="not-a-sequence")
+    with pytest.raises(ValueError, match="distinct"):
+        model(synchronization_evidence_ids=("same", "same"))
+    with pytest.raises(ValueError, match="nonempty"):
+        model(synchronization_evidence_ids=("",))
 
 
 def test_anchored_delta_survives_large_epoch_rounding():

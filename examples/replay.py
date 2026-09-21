@@ -27,6 +27,7 @@ def main():
         skew=1.00002,
         offset=0.0003,
         valid_device_interval=(1000.0, 1010.0),
+        synchronization_evidence_ids=("synthetic-sync-exchange-0001",),
     )
     covariance = np.diag([1e-6, 1e-10, 4e-6])
     result = reconcile_time(observation, model, covariance, expected_reference=reference)

@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 import math
+from typing import Sequence
 import numpy as np
 from numpy.typing import ArrayLike
 
@@ -14,6 +15,20 @@ _EPS = np.finfo(float).eps
 def _label(value: str, name: str) -> None:
     if not isinstance(value, str) or not value.strip():
         raise ValueError(f"{name} must be a nonempty string")
+
+
+def _labels(values: Sequence[str], name: str) -> tuple[str, ...]:
+    if isinstance(values, (str, bytes)):
+        raise ValueError(f"{name} must be a sequence of distinct nonempty strings")
+    try:
+        result = tuple(values)
+    except TypeError as exc:
+        raise ValueError(f"{name} must be a sequence of distinct nonempty strings") from exc
+    for value in result:
+        _label(value, name)
+    if len(set(result)) != len(result):
+        raise ValueError(f"{name} must contain distinct values")
+    return result
 
 
 def _finite(value: float, name: str) -> float:
@@ -89,6 +104,7 @@ class AffineClockModel:
     skew: float
     offset: float
     valid_device_interval: tuple[float, float]
+    synchronization_evidence_ids: tuple[str, ...] = ()
 
     def __post_init__(self) -> None:
         _label(self.model_id, "model_id")
@@ -109,6 +125,9 @@ class AffineClockModel:
         if lower > upper:
             raise ValueError("valid_device_interval bounds must be ordered")
         object.__setattr__(self, "valid_device_interval", (lower, upper))
+        object.__setattr__(self, "synchronization_evidence_ids", _labels(
+            self.synchronization_evidence_ids, "synchronization_evidence_ids",
+        ))
 
 
 @dataclass(frozen=True)
@@ -122,6 +141,7 @@ class ReconciledTimestamp:
     jacobian: tuple[float, float, float]
     joint_covariance: tuple[tuple[float, ...], ...]
     propagation: str = "first-order.v1"
+    operation_id: str = "tbrt.affine-clock-reconcile.v1"
 
     @property
     def reference_origin(self) -> float:
@@ -189,6 +209,7 @@ def reconcile_time(
     joint_covariance: ArrayLike,
     *,
     expected_reference: ClockFrame | None = None,
+    require_synchronization_evidence: bool = False,
 ) -> ReconciledTimestamp:
     """Map an event using covariance ordered [device_time, skew, offset].
 
@@ -201,6 +222,10 @@ def reconcile_time(
         raise ValueError("observation must be a TimestampObservation")
     if not isinstance(model, AffineClockModel):
         raise ValueError("model must be an AffineClockModel")
+    if not isinstance(require_synchronization_evidence, bool):
+        raise ValueError("require_synchronization_evidence must be boolean")
+    if require_synchronization_evidence and not model.synchronization_evidence_ids:
+        raise ValueError("synchronization evidence is required; clock mapping refused")
     if observation.frame != model.source_frame:
         raise ValueError("observation clock/time-scale/unit differs from model source")
     if expected_reference is not None and expected_reference != model.reference_frame:
@@ -237,3 +262,24 @@ def reconcile_time(
         jacobian=tuple(float(x) for x in jacobian),
         joint_covariance=tuple(tuple(float(x) for x in row) for row in covariance),
     )
+
+
+def replay_reconciliation(result: ReconciledTimestamp) -> ReconciledTimestamp:
+    """Recompute a retained typed reconciliation without reading wall-clock state.
+
+    The result contains the untouched source observation, affine map, ordered
+    covariance and applicability interval required for deterministic replay.
+    A replay does not authenticate the retained synchronization evidence.
+    """
+    if not isinstance(result, ReconciledTimestamp):
+        raise ValueError("result must be a ReconciledTimestamp")
+    replayed = reconcile_time(
+        result.observation,
+        result.model,
+        result.joint_covariance,
+        expected_reference=result.reference_frame,
+        require_synchronization_evidence=bool(result.model.synchronization_evidence_ids),
+    )
+    if replayed != result:
+        raise ValueError("retained reconciliation does not match deterministic replay")
+    return replayed
