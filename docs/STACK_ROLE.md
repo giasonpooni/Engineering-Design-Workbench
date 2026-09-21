@@ -14,6 +14,57 @@ This component owns **scientific workload execution and verification records**. 
 
 Execution, proof verification and physical validity are different claims. Existing state packages keep their admission boundary; the runtime is not a universal owner of other repositories' state.
 
+## Execution records and state projections
+
+The exchange builders preserve separate result and verification identities.
+Solid arrows are local builder inputs and outputs. The dotted edge is a
+declared subject reference only: `verification_artifact_v1` packages supplied
+check outcomes and does not run a verifier.
+
+```mermaid
+flowchart TD
+    execution["Completed ExecutionResult"] --> commitments{"Byte commitments match?"}
+    commitments -->|No| refusal["Reject result export"]
+    commitments -->|Yes| builder["result_artifact_v1"]
+    declared["Interpreted components and covariance"] --> builder
+    references["Input, model and calibration references"] --> builder
+    builder --> result["Result artifact identity"]
+    checks["Declared checks and verifier reference"] --> verification["verification_artifact_v1"]
+    result -.->|Declared subject reference only| verification
+    verification --> receipt["Verification artifact identity"]
+```
+
+Commitment recomputation binds supplied execution bytes; the component
+interpretation remains caller-declared and covariance numerics remain
+`unchecked`. A verification artifact's declared outcome or independence flag
+does not authenticate a verifier. Operation occurrences, result claims and
+admitted evidence retain their own identities.
+
+The canonical-state compiler is another implemented local subsystem. Its solid
+arrows show the validation and projection path, with no backend writeback.
+Dotted edges are explicitly unimplemented backend interfaces, not engines.
+
+```mermaid
+flowchart TD
+    candidate["Candidate state"] --> schema{"Schema valid?"}
+    schema -->|No| refusal["Reject; retain current version"]
+    schema -->|Yes| constraints{"Constraints valid?"}
+    constraints -->|No| refusal
+    constraints -->|Yes| version["New immutable version"]
+    version --> projection["StateProjection"]
+    projection --> morpho["Morpho IR"]
+    morpho --> scene["Three.js descriptor"]
+    morpho --> svg["SVG document"]
+    morpho --> metrics["Graph metrics"]
+    morpho -.->|Interface only; unimplemented| stubs["Simulation and neural interfaces"]
+```
+
+The evidence pool is a separate subsystem and this figure adds no path from
+unreviewed evidence to canonical state. Sources:
+[`execution/instrumentation.py`](../execution/instrumentation.py),
+[`execution/dispatcher.py`](../execution/dispatcher.py), and
+[the compiler architecture](ARCHITECTURE.md). [Diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md).
+
 ## Interoperability
 
 Integrations use the component's documented contract and an explicit adapter. They preserve source observations, ordered quantities, units, coordinate/frame meaning, time semantics, missingness and declared uncertainty where applicable. An unimplemented field or conversion must be reported as unsupported rather than silently inferred.

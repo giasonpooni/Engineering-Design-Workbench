@@ -19,6 +19,35 @@ repository name describes its stable responsibility. Existing `ste.*` and
 `scout.*` identifiers, Python package names, build recipes, schemas and saved
 records retain their identities. See [documentation and compatibility](docs/README.md).
 
+## Checked computation at a glance
+
+Solid arrows show the implemented dispatcher path for a supported, available
+runner. A declaration names the computation before execution; a completed
+result is interpreted before it reaches the existing experiment admission seam.
+
+```mermaid
+flowchart TD
+    candidate["Selected ActionCandidate"] --> specification["ExecutionSpecification"]
+    bytes["Program, configuration and input bytes"] --> specification
+    specification --> runner["Declared runner"]
+    runner --> status{"Execution completed?"}
+    status -->|No| failure["Failed dispatch; no measurement"]
+    status -->|Yes| result["ExecutionResult"]
+    result --> interpret["Caller interpretation"]
+    interpret --> dispatched["Simulation-declared measurement"]
+    dispatched --> admission["Existing experiment admission seam"]
+    specification --> bookkeeping["Specification and occurrence references"]
+    result --> bookkeeping
+    bookkeeping --> dispatched
+```
+
+The `DispatchedMeasurement` type does not assert that a physical measurement
+occurred: this dispatcher marks its extraction as `simulation:`. Execution
+history is retained in record bookkeeping rather than mixed into semantic
+observation identity. Proof verification is a separate operation, not an
+automatic effect of dispatch. See [the boundary diagrams](docs/STACK_ROLE.md#execution-records-and-state-projections)
+and [Diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md).
+
 ## Responsibility in the stack
 
 | Component | Responsibility |
