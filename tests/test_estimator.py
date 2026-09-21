@@ -54,14 +54,19 @@ def observability(status="observable", **changes):
         status=status, rank=2, state_dimension=2, condition_number=1.0,
         condition_limit=1e8, evidence_refs=("result:oit:fixture",),
         observation_matrix=((1.0, 0.0), (0.0, 1.0)),
+        transition_matrix=((1.0, 0.0), (0.0, 1.0)), dynamics_model_id="model:hold",
     )
     values.update(changes)
     return ObservabilityAssessment(**values)
 
 
+def gated_prior():
+    return predict(prior(), LinearDynamics(np.eye(2), np.zeros((2, 2)), "model:hold"), 1.0)
+
+
 def test_observable_update_binds_gate_and_replays():
-    state = prior()
-    obs = observation(values=[1.1, 0.8], covariance=np.eye(2), units=("m", "m/s"))
+    state = gated_prior()
+    obs = observation(time=1.0, values=[1.1, 0.8], covariance=np.eye(2), units=("m", "m/s"))
     model = LinearObservation(np.eye(2), "model:identity-2", measurement_units=("m", "m/s"))
     gate = observability()
     result = update_observable(state, obs, model, gate)
@@ -78,27 +83,39 @@ def test_observable_update_binds_gate_and_replays():
     observability("unresolved", condition_number=None, condition_limit=None),
 ])
 def test_observability_gate_blocks_noninformative_classifications(gate):
-    obs = observation(values=[1.1, 0.8], covariance=np.eye(2), units=("m", "m/s"))
+    obs = observation(time=1.0, values=[1.1, 0.8], covariance=np.eye(2), units=("m", "m/s"))
     model = LinearObservation(np.eye(2), "model:identity-2", measurement_units=("m", "m/s"))
     with pytest.raises(ValueError, match=f"blocked update: {gate.status}"):
-        update_observable(prior(), obs, model, gate)
+        update_observable(gated_prior(), obs, model, gate)
 
 
 def test_observability_gate_must_bind_model_and_state_dimension():
-    obs = observation(values=[1.1, 0.8], covariance=np.eye(2), units=("m", "m/s"))
+    obs = observation(time=1.0, values=[1.1, 0.8], covariance=np.eye(2), units=("m", "m/s"))
     model = LinearObservation(np.eye(2), "model:identity-2", measurement_units=("m", "m/s"))
     with pytest.raises(ValueError, match="model_id differs"):
-        update_observable(prior(), obs, model, observability(model_id="other:model"))
+        update_observable(gated_prior(), obs, model, observability(model_id="other:model"))
     with pytest.raises(ValueError, match="state dimension differs"):
         update_observable(
-            prior(), obs, model,
+            gated_prior(), obs, model,
             observability(rank=1, state_dimension=1, condition_number=1.0,
-                          observation_matrix=((1.0,),)),
+                          observation_matrix=((1.0,),), transition_matrix=((1.0,),)),
         )
     changed_model = LinearObservation([[1.0, 0.0], [0.0, 0.0]], "model:identity-2",
                                       measurement_units=("m", "m/s"))
     with pytest.raises(ValueError, match="observation_matrix differs"):
-        update_observable(prior(), obs, changed_model, observability())
+        update_observable(gated_prior(), obs, changed_model, observability())
+
+
+def test_observability_gate_requires_retained_matching_prediction():
+    obs = observation(time=1.0, values=[1.1, 0.8], covariance=np.eye(2), units=("m", "m/s"))
+    model = LinearObservation(np.eye(2), "model:identity-2", measurement_units=("m", "m/s"))
+    with pytest.raises(ValueError, match="requires a retained prediction"):
+        update_observable(prior(time=1.0), obs, model, observability())
+    with pytest.raises(ValueError, match="dynamics_model_id differs"):
+        update_observable(gated_prior(), obs, model, observability(dynamics_model_id="other:dynamics"))
+    with pytest.raises(ValueError, match="transition_matrix differs"):
+        update_observable(gated_prior(), obs, model,
+                          observability(transition_matrix=[[1.0, 1.0], [0.0, 1.0]]))
 
 
 def test_observability_matrix_is_copied_and_must_match_state_dimension():

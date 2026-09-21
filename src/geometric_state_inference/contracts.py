@@ -272,10 +272,12 @@ class ObservabilityAssessment:
     condition_limit: float | None
     evidence_refs: tuple[str, ...]
     observation_matrix: tuple[tuple[float, ...], ...]
+    transition_matrix: tuple[tuple[float, ...], ...]
+    dynamics_model_id: str
     operation_ref: str = "oit.finite-horizon-linear.v1"
 
     def __post_init__(self) -> None:
-        for name in ("assessment_id", "model_id", "operation_ref"):
+        for name in ("assessment_id", "model_id", "operation_ref", "dynamics_model_id"):
             _identifier(getattr(self, name), name)
         if self.operation_ref != "oit.finite-horizon-linear.v1":
             raise ValueError("unsupported observability operation_ref")
@@ -292,6 +294,12 @@ class ObservabilityAssessment:
             raise ValueError("observability observation_matrix columns must equal state dimension")
         object.__setattr__(self, "observation_matrix", tuple(
             tuple(float(value) for value in row) for row in observation_matrix
+        ))
+        transition_matrix = _array(self.transition_matrix, "transition_matrix", 2)
+        if transition_matrix.shape != (self.state_dimension, self.state_dimension):
+            raise ValueError("observability transition_matrix dimensions must equal state dimension")
+        object.__setattr__(self, "transition_matrix", tuple(
+            tuple(float(value) for value in row) for row in transition_matrix
         ))
         condition = None if self.condition_number is None else _number(
             self.condition_number, "condition_number",
@@ -326,6 +334,8 @@ class ObservabilityAssessment:
             "condition_limit": self.condition_limit,
             "evidence_refs": list(self.evidence_refs),
             "observation_matrix": [list(row) for row in self.observation_matrix],
+            "transition_matrix": [list(row) for row in self.transition_matrix],
+            "dynamics_model_id": self.dynamics_model_id,
             "operation_ref": self.operation_ref,
         }
 

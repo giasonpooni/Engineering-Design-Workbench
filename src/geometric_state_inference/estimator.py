@@ -90,6 +90,18 @@ def update(prior: StatePrior, observation: Observation, model: LinearObservation
             raise ValueError("observability assessment state dimension differs from the prior")
         if not np.array_equal(observability.observation_matrix, model.matrix):
             raise ValueError("observability assessment observation_matrix differs from the observation model")
+        prediction = prior.replay_snapshot
+        if (prior.operation_ref != PREDICT_OPERATION or prediction is None
+                or prediction.get("operation_ref") != PREDICT_OPERATION):
+            raise ValueError("observability gate requires a retained prediction")
+        dynamics = prediction.get("dynamics")
+        if not isinstance(dynamics, dict):
+            raise ValueError("observability gate requires retained prediction dynamics")
+        if (observability.dynamics_model_id != prior.dynamics_model_id
+                or observability.dynamics_model_id != dynamics.get("model_id")):
+            raise ValueError("observability assessment dynamics_model_id differs from the prediction")
+        if not np.array_equal(observability.transition_matrix, dynamics.get("matrix")):
+            raise ValueError("observability assessment transition_matrix differs from the prediction")
         if observability.status != "observable":
             raise ValueError(
                 f"observability gate blocked update: {observability.status}"
@@ -164,7 +176,11 @@ def update_observable(
     observability: ObservabilityAssessment,
     state_geometry=None,
 ) -> Estimate:
-    """Run the existing update only after a bound OIT result says observable."""
+    """Update a retained prediction only after its bound OIT result is observable.
+
+    The assessment must name the exact transition and observation matrices used
+    by this predict/update pair. A raw prior supplies no such replay binding.
+    """
     if not isinstance(observability, ObservabilityAssessment):
         raise ValueError("observability must be an ObservabilityAssessment")
     return update(
