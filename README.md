@@ -2,7 +2,7 @@
 
 Part of **Notation Systems' computational instrumentation and evidence infrastructure** for industrial and cyber-physical systems.
 
-[Stack map](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/STACK.md) · [Component role and interfaces](docs/STACK_ROLE.md)
+[Diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md) · [Stack map](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/STACK.md) · [Component role and interfaces](docs/STACK_ROLE.md)
 
 An experimental runtime for admission and settlement of inference-token budgets.
 It evaluates caller-declared proposals, reuse opportunities and yield observations
@@ -16,6 +16,28 @@ semantic quality independently or control machinery.
 
 **In development.** Checked-in results are scoped development samples. See
 [development status](docs/DEVELOPMENT.md).
+
+## Spend lifecycle
+
+```mermaid
+flowchart TD
+  P["Proposal and department budget"] --> D["decide"]
+  D --> A["Advisory letter and receipt"]
+  P --> R{"reserve rechecks admission"}
+  R -->|"not admitted"| N["No spending capability"]
+  R -->|"admitted"| H["One-use token hold"]
+  H -.->|"caller executes separately"| W["External work"]
+  W -.->|"declared outcome"| S["settle with reservation"]
+  H --> S
+  H --> C["cancel unused hold"]
+  S --> B["Debit spend and release remainder"]
+  C --> F["Release hold without spend"]
+```
+
+Solid arrows are local budget operations; dotted arrows identify caller-owned
+work outside YWIR. An advisory `ADMIT` does not reserve tokens. Settlement and
+cancellation consume the reservation in one host process; neither certifies the
+external work or its scientific claims.
 
 ## Decision flow
 
