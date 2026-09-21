@@ -45,6 +45,29 @@ Input order does not affect output ordering or tie resolution. Exact ties in com
 
 Inputs are copied and never mutated; output matrices are immutable tuples detached from inputs. Supplied covariance and prior symmetry is exact: neither stored triangle is modified. Validation or unrepresentable finite computations raise `ValueError`. NumPy errors from malformed array conversions can also appear as `ValueError`. There is no partial ranking on invalid input and no automatic input covariance repair.
 
+## Ranking content and exchange identity
+
+```mermaid
+flowchart TD
+    C["Candidate IDs and declared models"] --> R["Advisory ranking result"]
+    R --> N["Complete scores and singular statuses"]
+    R --> D["Finite count diagnostics"]
+    N --> E["Explicit optional SET mapping"]
+    D --> E
+    S["Source refs and actual inputs"] --> E
+    X["Operation and execution refs"] --> E
+    E --> B["Bound result artifact"]
+    B -. "conceptual: separate check" .-> V["Independent verification record"]
+```
+
+Solid arrows show the current example's explicit mapping. Candidate IDs name
+alternatives, not executions; a selected candidate remains advisory. The full
+ranking retains singular scores as `null`, while finite count components use
+covariance status `not_applicable`. Source references are declarations, and the
+result digest binds the supplied execution identity. The labelled dotted
+relationship requires a separate verifier; conformance export leaves
+verification references empty and creates no acquisition authority.
+
 ## SET exchange boundary
 
 `edspt.exchange.export_result` accepts explicit JSON mappings, source/evidence references, an operation ID, an execution reference, a caller-supplied UTC creation instant, and a full Git revision. It binds these values and the numerical result into the existing SET result-artifact contract and validates them using the optional source-pinned dependency. It does not infer a scientific component mapping or recompute supplied results; callers are responsible for mapping the actual operation inputs and result faithfully.

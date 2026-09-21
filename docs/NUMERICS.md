@@ -1,5 +1,29 @@
 # Numerical scope and validation
 
+## Information accumulation and score eligibility
+
+```mermaid
+flowchart TD
+    J["Jacobian in declared coordinates"] --> W["Whiten through Cholesky solve"]
+    R["Admissible noise covariance"] --> W
+    W --> F["Information W transpose W"]
+    F --> L["Posterior precision"]
+    P["Independent PSD prior precision"] --> L
+    L --> G{"Numerically full rank?"}
+    G -- "no" --> S["Null scores; retain rank diagnostics"]
+    G -- "yes" --> D["D-opt log determinant"]
+    G -- "yes" --> A["A-opt trace from linear solve"]
+    D --> K["Order by requested criterion"]
+    A --> K
+    S --> K
+```
+
+Solid arrows show the current method for each alternative. Both scores are
+computed only after the posterior passes the numerical rank gate; the requested
+criterion selects the ordering. Prior addition assumes independent information
+in identical parameter coordinates. A singular posterior is unscored rather
+than silently reduced through a pseudoinverse; invalid inputs refuse the call.
+
 All computations use float64. Real, finite numerical arrays are required. Complex, Boolean, and string inputs are rejected rather than coerced into physical numbers.
 
 Supplied covariances and priors must be exactly symmetric as stored. No averaging, clipping, or jitter repairs an input. Every diagonal entry must be nonnegative, including entries tiny relative to other coordinates. A zero diagonal requires its entire row and column to be exactly zero. These checks prevent a global matrix scale from hiding a negative variance or forbidden covariance.

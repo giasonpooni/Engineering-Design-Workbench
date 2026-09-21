@@ -14,6 +14,27 @@ F_c = J_c^T R_c^{-1} J_c, \qquad \Lambda_c = \Lambda_0 + F_c.
 
 D-optimal ranking maximizes `log(det(Λc))`; A-optimal ranking minimizes `trace(Λc⁻¹)`. Both require numerically full-rank posterior precision. Singular candidates retain their information and rank diagnostics, have JSON `null` scores, and are not selected. If every candidate is singular, the selected ID is `null`. Equal computed scores are ordered by candidate ID.
 
+## Finite alternatives and advisory selection
+
+```mermaid
+flowchart TD
+    C["Finite candidate set"] --> F["Candidate information"]
+    F --> L["Posterior precision"]
+    P["Optional prior precision"] --> L
+    L --> G{"Numerically full rank?"}
+    G -- "no" --> S["Retain diagnostics; null score"]
+    G -- "yes" --> R["D-opt and A-opt scores"]
+    R --> A["Rank by requested criterion"]
+    S --> A
+    A -. "conceptual: separate authorization" .-> Q["Acquisition"]
+```
+
+Solid arrows show current local information calculation and ranking for each
+supplied alternative. Singular candidates remain in the result but cannot be
+selected. The labelled dotted arrow is a conceptual downstream relationship;
+an advisory selected ID does not start acquisition. See the
+[system diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md).
+
 ## Run
 
 ```bash
