@@ -70,11 +70,41 @@ Observability and Identifiability Testbed (OIT) and Jacobian and Sensitivity Pro
 | Scientific validity | Requires external validation of model derivatives, noise, feasibility, and physical relevance |
 | Execution authority | Remains with the operator and the governed execution system |
 
-The instrument does not generate candidate locations, optimize over continuous geometries, perform cost or safety optimization, enforce a measurement budget, acquire data, estimate latent state, or certify placement quality. Materials experiments are a possible application of the same mathematics; no materials-specific experiment or model is implemented.
+The instrument does not generate candidate locations, optimize over continuous geometries, perform safety optimization, acquire data, estimate latent state, or certify placement quality. The additive budgeted operation below constrains one advisory selection by a declared available budget; it does not reserve or spend that budget. Materials experiments are a possible application of the same mathematics; no materials-specific experiment or model is implemented.
 
 The Gaussian covariance must be parameter-independent at the supplied linearization. Noise may be correlated within a candidate block through its full covariance. Candidate measurement information must be independent of prior information before precision addition. All candidates and the prior must use exactly the same named, ordered, scaled parameter coordinates. Scores are coordinate-dependent; no parameter-unit invariance is claimed.
 
 See [the contract](docs/CONTRACT.md), [numerical rules](docs/NUMERICS.md), and [stack role](docs/STACK_ROLE.md).
+
+## Budgeted next observation
+
+`rank_budgeted_candidates` extends the same scientific core with an explicit
+model-result binding, a full-rank prior, and a cost feasibility constraint. It
+ranks one next observation or sensor block by expected uncertainty reduction
+relative to the retained prior. Every alternative must declare its cost in the
+budget's unit and declare zero cross-covariance between its noise and the prior
+error. Unknown cross-covariance refuses the calculation.
+
+```python
+from edspt import BudgetedCandidate, Candidate, ModelPrior, rank_budgeted_candidates
+
+prior = ModelPrior("result:declared-model", coordinates, covariance=[[4, 0], [0, 9]])
+result = rank_budgeted_candidates([
+    BudgetedCandidate(Candidate("x", coordinates, [[1, 0]], [[1]]),
+                      1, "sample_credit", prior.model_result_id, "declared_zero"),
+    BudgetedCandidate(Candidate("y", coordinates, [[0, 1]], [[1]]),
+                      3, "sample_credit", prior.model_result_id, "declared_zero"),
+], prior=prior, available_budget=1, budget_unit="sample_credit", criterion="a_opt")
+assert result.selected_candidate_id == "x"
+# x reduces covariance trace by 3.2; y would reduce it by 8.1 but costs 3.
+```
+
+This operation is designed for CIW's identified-model experiment path: a model
+result and conditional GSIE state uncertainty bind the proposed measurements.
+State covariance conditional on fitted dynamics does not become uncertainty in
+the fitted model parameters. The complete result includes the prior baseline,
+all candidate scores, and reasons for excluding unaffordable or numerically
+unresolved candidates. [Contract and integration boundary](docs/BUDGETED_DESIGN.md).
 
 ## Existing result exchange
 
