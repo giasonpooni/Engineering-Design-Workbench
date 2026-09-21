@@ -24,6 +24,31 @@ feature = receipt["result_artifact"]["components"][0]
 
 The example has synthetic references, a placeholder source digest and an all-zero implementation revision. They demonstrate the interface, not an authenticated source or pinned production execution. A composing adapter must replace these declarations and verify their binding to retained bytes and the actual provider revision.
 
+## Window computation at a glance
+
+Solid arrows show `stfe.window_mean` under the supplied declarations. Known
+and unknown uncertainty take different output paths; neither sample scatter
+nor a zero matrix substitutes for missing covariance.
+
+```mermaid
+flowchart TD
+    samples["Ordered scalar samples"] --> causal{"Complete causal grid?"}
+    window["Window, clock and latency declaration"] --> causal
+    causal -->|No| refusal["Refuse with contract reason"]
+    causal -->|Yes| uncertainty{"Uncertainty declaration"}
+    uncertainty -->|Known full covariance| matrix{"Exact symmetry and PSD?"}
+    matrix -->|No| refusal
+    matrix -->|Yes| known["Mean and propagated variance"]
+    uncertainty -->|Unknown with null matrix| unknown["Mean and unknown covariance"]
+    known --> receipt["Window receipt and result artifact"]
+    unknown --> receipt
+```
+
+Malformed or unsupported declarations also refuse. Success establishes the
+bounded calculation, not source authenticity, calibration validity or an
+independent verification. See [causality and identity diagrams](docs/STACK_ROLE.md#causality-and-identity-diagrams)
+and [Diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md).
+
 ## Numerical contract
 
 For ordered values `y`, complete sample covariance `R`, and `w_i=1/N`, the operator computes `mean = wᵀy` and `variance = wᵀRw`.
