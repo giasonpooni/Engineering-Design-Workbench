@@ -21,6 +21,36 @@ Each output is conditional on the supplied model, covariance and frame declarati
 
 No arrow implies an unimplemented live service or native workbench execution adapter. The exercised connection is the public exchange format and CIW's read-only inspector.
 
+## Covariance through prediction and update
+
+```mermaid
+flowchart TD
+    Prior["Prior covariance P"] --> Predict["F P F-transpose + Q"]
+    Dynamics["Declared F and Q"] --> Predict
+    Predict --> Predicted["Predicted covariance P-minus"]
+    Predicted --> Innovation["Innovation covariance S"]
+    Measurement["Declared H and full R"] --> Innovation
+    Innovation --> Solve["Positive-definite S and solve"]
+    Predicted --> Solve
+    Solve --> Joseph["Guarded Joseph update"]
+    Measurement --> Joseph
+    Joseph --> Posterior["Posterior covariance P-plus"]
+    Innovation --> NIS["NIS with pre-update innovation"]
+```
+
+The covariance edges describe local numerical dependencies. Prediction advances
+the declared time; update requires matching observation time, frame and unit
+metadata. Computed covariance sums use the guarded arithmetic described in
+[NUMERICS.md](NUMERICS.md); unsupported or singular innovation updates are
+refused rather than regularized. Full within-vector covariance is retained.
+Measurement independence from the prior remains a supplied model assumption,
+and unknown cross-dependence cannot be inferred from this graph.
+
+Transition identity binds predecessor and configuration. Numerical-content
+identity, exchange-result identity and caller-supplied execution identity remain
+separate, as specified below; repeating this computation is not independent
+verification. See the [Instrumentation diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md).
+
 ## Identity separation
 
 | Identity | Meaning | Authority here |

@@ -4,6 +4,27 @@ A bounded state-estimation instrument in **Notation Systems' computational instr
 
 This project evolves the specification formerly titled **State-Inferential-Cortex** into a small executable estimator. It consumes declared observations, a prior, dynamics and geometry, and produces estimates with covariance, innovations, residuals and diagnostics. Its outputs are candidate estimates; downstream systems retain responsibility for reconciliation, verification, evidence admission and execution policy.
 
+## Estimation workflow
+
+```mermaid
+flowchart TD
+    Prior["Prior state and covariance"] --> Predict["Predict"]
+    Dynamics["Declared F and Q"] --> Predict
+    Predict --> Predicted["Predicted state and covariance"]
+    Predicted --> Update["Measurement update"]
+    Observation["Observation and full R"] --> Update
+    Model["Declared H and geometry"] --> Update
+    Update --> Posterior["Posterior candidate"]
+    Update --> Diagnostics["Innovation, residual and NIS"]
+    Posterior -. "separate role" .-> Reconcile["Constraint reconciliation"]
+```
+
+Solid arrows show the implemented local calculation. The dotted connection names
+an external responsibility; this package does not execute a CBSR handoff.
+Innovation compares the observation with the predicted state; the residual uses
+the posterior. Neither the posterior covariance nor NIS is a physical-validity
+certificate. See the [Instrumentation diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md).
+
 ## Implemented scope
 
 | Capability | Status |
