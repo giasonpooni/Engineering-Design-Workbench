@@ -2,7 +2,7 @@
 
 Part of **Notation Systems' computational instrumentation and evidence infrastructure** for industrial and cyber-physical systems.
 
-[Stack map](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/STACK.md) · [Component role and interfaces](docs/STACK_ROLE.md)
+[Diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md) · [Stack map](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/STACK.md) · [Component role and interfaces](docs/STACK_ROLE.md)
 
 Function-graph plus factor-graph IR for setting up observers on declared
 nonlinear plants. The agent retrieves typed subgraphs, applies an eligibility
@@ -17,6 +17,27 @@ The central question is:
 
 > Given an authored schematic, which subgraphs may call which kernel —
 > and what remains UNRESOLVED?
+
+## Routing and projections
+
+```mermaid
+flowchart TD
+  S["Authored typed schematic"] --> V{"Validate graph"}
+  V -->|"malformed"| X["Refuse input"]
+  V -->|"valid"| G{"Declared kernel eligibility"}
+  V -->|"typed queries"| R["Retrieve subgraphs and blankets"]
+  G -->|"not eligible"| A["Annotations with reasons"]
+  G -->|"eligible and invoked"| K["Explicit companion adapter"]
+  K -->|"sample or refusal"| A
+  K -->|"kernel unavailable: NOT_CHECKED"| A
+  A --> J["JSON graph and call records"]
+  R --> J
+  J --> P["Mermaid and USDA projections"]
+```
+
+Eligibility concerns a declared numerical call. Unknown plants remain
+`UNRESOLVED`; neither a fixture matrix nor a rendered edge establishes a
+current kernel result. The projections do not grant operating authority.
 
 ## Install and run
 

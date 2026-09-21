@@ -14,6 +14,34 @@ This component owns **typed schematic retrieval and kernel eligibility**. The [s
 
 Eligibility routes a declared computation; it grants no physical operating authority. Fixture linearizations remain distinct from live kernel results.
 
+## Binding before dependent calls
+
+```mermaid
+flowchart TD
+  D["Model and ordered port declarations"] --> I["Declaration and call-input identity"]
+  J["Jacobian adapter record"] --> G{"One current non-fixture binding"}
+  I --> G
+  G -->|"missing, stale or ambiguous"| N["NOT_ELIGIBLE"]
+  G -->|"matching content"| K["Dependent numerical adapter"]
+  P["Required covariance or certificate"] --> K
+  K -->|"available"| A["Result or refusal annotation"]
+  K -->|"unavailable"| U["NOT_CHECKED"]
+  N --> R["Retained JSON records"]
+  U --> R
+  A --> R
+  R --> V["Read-only Mermaid or USDA view"]
+```
+
+Solid arrows show implemented routing and record projection. Dependent calls
+cover local structure, covariance and optional Lyapunov evaluation; each retains
+its own required inputs and eligibility checks. A fixture or unbound matrix
+cannot substitute for the current Jacobian record. Stale values remain historical
+records, not current results. Binding checks content consistency and declared
+pins; it does not authenticate execution. JSON carries replay records; USDA is a
+display projection, not lossless execution interchange. No CIW adapter is present.
+
+See the [diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md) for the wider system.
+
 ## Interoperability
 
 Integrations use the component's documented contract and an explicit adapter. They preserve source observations, ordered quantities, units, coordinate/frame meaning, time semantics, missingness and declared uncertainty where applicable. An unimplemented field or conversion must be reported as unsupported rather than silently inferred.
