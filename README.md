@@ -47,7 +47,7 @@ python -m pytest -q
 python examples/exchange.py
 ```
 
-The optional dependency is pinned to SET commit `c4d39c755187796ce2c72552a90454871c516c8f`. Base installations skip exchange tests when SET is absent; CI installs both extras. The example's all-zero source revision is explicitly synthetic and unattested. A real caller must supply its actual source commit and execution reference. Contract conformance neither attests that commit nor verifies physical calibration.
+The optional dependency is pinned to SET commit `bd261a765281a95312f7c91a3857233476294c5b`. Base installations skip exchange tests when SET is absent; CI installs both extras. The example's all-zero source revision is explicitly synthetic and unattested. A real caller must supply its actual source commit and execution reference. Contract conformance neither attests that commit nor verifies physical calibration.
 
 ## Public API
 
