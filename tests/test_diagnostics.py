@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: MPL-2.0
-from dataclasses import FrozenInstanceError
+from dataclasses import FrozenInstanceError, replace
 
 import numpy as np
 import pytest
@@ -153,6 +153,24 @@ def test_nominal_residual_never_nominates_a_fault():
     )
     assert result.status == "not_detected"
     assert result.isolated_fault is None
+
+
+@pytest.mark.parametrize("scale", [1e-200, 1e200])
+def test_signature_scale_does_not_change_isolability(scale):
+    diagnostics = evaluate([2.0, -4.0], [[1.25, 0.25], [0.25, 1.25]], threshold=9.21)
+    result = assess_isolability(
+        diagnostics, {"sensor-1.bias": [scale, 0.0], "sensor-2.bias": [0.0, -scale]},
+        cross_covariance_policy="declared", max_unexplained_nis=4.0,
+    )
+    assert result.isolated_fault == "sensor-2.bias"
+    assert [fit.unexplained_nis for fit in result.fits] == pytest.approx([12.8, 3.2])
+
+
+def test_forged_retained_diagnostics_cannot_change_detection_status():
+    diagnostics = replace(evaluate([2.0], [[1.0]], threshold=1.0), status="nominal")
+    with pytest.raises(ValueError, match="contradict"):
+        assess_isolability(diagnostics, {"sensor.bias": [1.0]},
+                          cross_covariance_policy="declared", max_unexplained_nis=1.0)
 
 
 @pytest.mark.parametrize("signatures,policy,limit", [

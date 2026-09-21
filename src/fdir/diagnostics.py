@@ -161,6 +161,13 @@ def assess_isolability(
     """
     if not isinstance(diagnostics, ResidualDiagnostics):
         raise ValueError("diagnostics must be ResidualDiagnostics")
+    checked = evaluate_residual(
+        diagnostics.raw_residual, diagnostics.innovation_covariance,
+        threshold=diagnostics.threshold, variable_order=diagnostics.variable_order,
+        source_ids=diagnostics.source_ids,
+    )
+    if checked != diagnostics:
+        raise ValueError("retained residual diagnostics contradict their declared inputs")
     if cross_covariance_policy not in ("declared", "declared_zero", "unknown"):
         raise ValueError("cross_covariance_policy is unsupported")
     limit = _number(max_unexplained_nis, "max_unexplained_nis", nonnegative=True)
@@ -182,11 +189,23 @@ def assess_isolability(
         signature = _array(declared, f"fault_signatures[{fault_id}]")
         if signature.shape != residual.shape or not np.any(signature):
             raise ValueError("each fault signature must be a nonzero residual-dimension vector")
-        whitened_signature = np.linalg.solve(lower, signature)
-        denominator = float(whitened_signature @ whitened_signature)
-        amplitude = float(whitened_signature @ whitened_residual) / denominator
-        remainder = whitened_residual - amplitude * whitened_signature
-        unexplained = float(remainder @ remainder)
+        # Signature magnitude is arbitrary. Normalize before each quadratic
+        # operation so equivalent very small/large signatures do not underflow
+        # or overflow the normal-equation denominator.
+        scale = float(np.max(np.abs(signature)))
+        try:
+            with np.errstate(over="raise", invalid="raise", divide="raise"):
+                whitened_signature = np.linalg.solve(lower, signature / scale)
+                white_scale = float(np.max(np.abs(whitened_signature)))
+                if not np.isfinite(white_scale) or white_scale == 0:
+                    raise ValueError("fault signature cannot be resolved in float64")
+                direction = whitened_signature / white_scale
+                coefficient = float(direction @ whitened_residual) / float(direction @ direction)
+                amplitude = (coefficient / white_scale) / scale
+                remainder = whitened_residual - coefficient * direction
+                unexplained = float(remainder @ remainder)
+        except (FloatingPointError, OverflowError) as exc:
+            raise ValueError("fault signature fit exceeds float64 range") from exc
         if not np.isfinite(amplitude) or not np.isfinite(unexplained):
             raise ValueError("fault signature fit exceeds float64 range")
         fits.append(FaultFit(fault_id, amplitude, unexplained, unexplained <= limit))
