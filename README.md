@@ -14,6 +14,11 @@ The package owns the budget decision. Scientific claims and physical decisions
 remain with their domain engines. It does not run a language model, measure
 semantic quality independently or control machinery.
 
+The [observation-design admission adapter](docs/OBSERVATION_DESIGN_ADMISSION.md)
+binds deterministic token advice to a retained EDSPT selection for CIW.
+Observation costs stay with EDSPT; the adapter evaluates explicit inference-token
+declarations and cannot reserve or spend a live budget.
+
 **In development.** Checked-in results are scoped development samples. See
 [development status](docs/DEVELOPMENT.md).
 

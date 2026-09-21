@@ -8,11 +8,17 @@ This component owns **inference-budget admission and settlement**. The [stack ma
 | Property | Scope |
 | --- | --- |
 | Implementation | Executable runtime in development |
-| Workbench connection | Standalone; no CIW adapter |
+| Workbench connection | Deterministic advisory token-admission API for CIW observation-design selection; exact revisions are pinned by the consuming profile. |
 | Inputs | Caller-declared proposals, department budgets, reuse/yield observations and settlements. |
 | Outputs | Admission, refusal or composition decisions, budget state and receipts. |
 
 The runtime evaluates supplied observations; it does not measure model intelligence or scientific truth, execute a model, or authorize equipment.
+
+`evaluate_token_admission` binds explicit inference-token advice to a retained
+EDSPT selection and selected candidate. `replay_token_admission` reexecutes the
+advice and checks complete content. This disposable advisory context does not
+reserve tokens or restore a live host. EDSPT retains observation-cost authority.
+See the [adapter contract](OBSERVATION_DESIGN_ADMISSION.md).
 
 ## Reservation identity and refusal
 
