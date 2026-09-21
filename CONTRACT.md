@@ -58,7 +58,7 @@ Source IDs are preserved verbatim and validated for basic structure; existence a
 
 ## Optional SET export
 
-`fdir.exchange.export_result` accepts explicit JSON mappings and validates the resulting artifact through SET's existing `result-artifact.v1` contract at source revision `c4d39c755187796ce2c72552a90454871c516c8f`. The optional `exchange` dependency is pinned to that revision. Core numerical calls do not import SET.
+`fdir.exchange.export_result` accepts explicit JSON mappings and validates the resulting artifact through SET's existing `result-artifact.v1` contract at source revision `bd261a765281a95312f7c91a3857233476294c5b`. The optional `exchange` dependency is pinned to that revision. Core numerical calls do not import SET.
 
 The helper snapshots inputs and results, binds a deterministic content digest to the input payload, and includes operation, execution, declared source revision, applicability, model references, and calibration references in result identity. Callers supply execution identity and creation time; the helper does not read a clock. Execution identity changes result identity even for identical numerical inputs. JSON nonfinite values and colliding operation/execution/input identities are rejected.
 
