@@ -29,6 +29,30 @@ the caller; CBSR does not invent a confidence level or diagnose a unique fault.
 Its chi-square interpretation would require a justified Gaussian model and a
 correct declared law; neither is established by a numerical receipt.
 
+## Feasibility, hold and output gates
+
+```mermaid
+flowchart TD
+    Input["Typed candidate, full P and exact law"] --> Residual["Exact residual r and covariance S"]
+    Residual --> Feasible{"Residual in range of S?"}
+    Feasible -->|"no"| Refused["Refused receipt"]
+    Feasible -->|"yes"| Threshold{"Normalized residual exceeds limit?"}
+    Threshold -->|"yes"| Held["Held receipt"]
+    Threshold -->|"no"| Solve["Exact rational correction"]
+    Solve --> Encoding{"Output encoding checks pass?"}
+    Encoding -->|"no"| Refused
+    Encoding -->|"yes"| Accepted["Accepted encoded state and covariance"]
+    Accepted --> ResidualOut["Recomputed encoded residual"]
+```
+
+The diagram starts after request validation; exact PSD, conditioning and size
+checks also apply. Solid edges are local control/data flow. The rational
+solution and the delivered binary64 state have different closure guarantees:
+acceptance may retain a nonzero encoded residual, as in `3*x=1`. Held/refused
+receipts preserve the candidate without an output-state identity. These gates
+neither verify source assertions nor issue an admission or fault-isolation
+decision. See the [Instrumentation diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md).
+
 ## Request
 
 The complete example is [affine_exact.json](../examples/affine_exact.json).

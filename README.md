@@ -14,6 +14,27 @@ It retains the raw candidate and returns a replayable receipt with correction,
 pre/post residuals and covariance, feasibility, conditioning, and a declared
 normalized-residual hold policy. It is not a general fusion engine or a plant.
 
+## Reconciliation workflow
+
+```mermaid
+flowchart TD
+    Candidate["Candidate state and full P"] --> Kernel["Exact-affine reconciliation"]
+    Law["Declared exact C x = d"] --> Kernel
+    Policy["Explicit hold threshold"] --> Kernel
+    Candidate --> Retained["Original candidate retained"]
+    Kernel --> Accepted["Accepted: corrected state and P"]
+    Kernel --> Held["Held or refused: no correction"]
+    Accepted --> Receipt["Replayable receipt"]
+    Held --> Receipt
+    Retained --> Receipt
+```
+
+Solid arrows show the bounded local operation. An accepted receipt records
+correction and pre/post residuals; it does not prove the declared law physically
+true. The incoming candidate remains visible in every receipt, and execution,
+numerical-result and output-state identities remain distinct. See the
+[Instrumentation diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md).
+
 ## Run
 
 ```sh
