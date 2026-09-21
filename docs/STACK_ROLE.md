@@ -14,6 +14,27 @@ This component owns **local derivatives, sensitivity and covariance transport**.
 
 First-order propagation is conditional on the supplied model, linearization and uncertainty. A covariance operation does not independently verify the supplied Jacobian.
 
+## Covariance provider boundary
+
+```mermaid
+flowchart TD
+A["Input covariance artifact"] --> V["Check identity, order and covariance"]
+  J["Supplied Jacobian and output frame"] --> V
+  V -->|"invalid"| F["Explicit refusal"]
+  V -->|"linear, local or weighted map"| P["First-order covariance kernel"]
+  V -->|"coordinate change"| C["Invertible chart and round-trip checks"]
+  C -->|"invalid chart"| F
+  P --> O["Validate propagated covariance"]
+  C --> O
+  O -->|"invalid output"| F
+  O -->|"eligible"| R["Full artifact and check diagnostics"]
+  R -. "separate execution boundary" .-> W["CIW records"]
+```
+
+Solid arrows show the implemented JSON provider; dotted arrows mark CIW ownership. Jacobian columns follow input quantities and rows follow output quantities. Frames, units, basis IDs, reference values, correlations and provenance remain explicit in the artifacts. The provider does not infer unit conversions, establish physical frame validity or verify the caller-supplied derivative. Model-based Monte Carlo comparisons remain separate APIs.
+
+[Instrumentation diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md).
+
 ## Interoperability
 
 Integrations use the component's documented contract and an explicit adapter. They preserve source observations, ordered quantities, units, coordinate/frame meaning, time semantics, missingness and declared uncertainty where applicable. An unimplemented field or conversion must be reported as unsupported rather than silently inferred.

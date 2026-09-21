@@ -20,20 +20,23 @@ Its central question is:
 ## Map
 
 ```mermaid
-flowchart LR
-  X["x"] --> F["f"]
-  F --> Y["y"]
-  X --> J["J = Df"]
-  J --> DY["dy ~ J dx"]
-  T["chart T, S"] --> JP["J' = S J T^{-1}"]
+flowchart TD
+X["Input x and perturbation dx"] --> F["Declared model f"]
+  F --> Y["Model output y"]
+  F --> J["Local Jacobian J"]
+  J --> DY["Predicted increment J dx"]
+  X --> DY
+  T["Declared charts T and S"] --> G{"Charts admitted?"}
+  G -->|"no"| R["Refuse without clipping"]
+  G -->|"yes"| JP["Transformed Jacobian S J T inverse"]
   J --> JP
-  JP --> Phys["J' dx' = S J dx"]
-  Cond{"kappa2(T) too large?"} -->|yes| Refuse["refuse · no clip"]
-  T --> Cond
+  JP --> C["Compare physical increments"]
+  DY --> C
 ```
 
-Caption: raw entries of J are not invariants. Physical pushforward is.
-Coordinate comparisons require a declared invertible chart.
+Solid arrows summarize implemented model and coordinate-consistency APIs. Raw Jacobian entries are not invariants: the perturbation and output must move with the declared invertible charts. This model-based diagram is distinct from the covariance endpoint below, which accepts a supplied Jacobian and does not verify that derivative.
+
+[Instrumentation diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md).
 
 ## What is in the first release
 
