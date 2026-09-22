@@ -27,6 +27,7 @@ MAX_STEPS = 32
 MAX_COMPONENTS = 64
 TELEMETRY_SESSION_SCHEMA = "ciw.telemetry-session.v1"
 CALIBRATED_OBSERVABLE_SESSION_SCHEMA = "ciw.calibrated-observable-session.v1"
+CALIBRATED_WINDOW_SESSION_SCHEMA = "ciw.calibrated-window-session.v1"
 
 
 def _json_value(value: object, path: str = "value", depth: int = 0) -> None:
@@ -159,7 +160,7 @@ def verify_replay_bundle(
     if len(canonical_bytes(session)) > MAX_SESSION_BYTES:
         raise ContractError("replay session exceeds byte budget")
     session_schema = session.get("schema")
-    if session_schema not in {TELEMETRY_SESSION_SCHEMA, CALIBRATED_OBSERVABLE_SESSION_SCHEMA}:
+    if session_schema not in {TELEMETRY_SESSION_SCHEMA, CALIBRATED_OBSERVABLE_SESSION_SCHEMA, CALIBRATED_WINDOW_SESSION_SCHEMA}:
         raise ContractError("unsupported native CIW replay session schema")
     session_id = _text(session.get("session_id"), "session_id")
     instant = _instant(session.get("created_at"), "created_at")
@@ -205,7 +206,9 @@ def verify_replay_bundle(
             raise ContractError("calibrated-observable session requires exactly one experiment artifact")
         experiment_blob = _blob(raw_evidence[0].get("bytes_b64"), "evidence.bytes_b64")
         experiment = _record(_decoded_json(experiment_blob), "calibrated-observable experiment")
-        if experiment.get("schema") != "fsrt.calibrated-observable-two-channel.v1":
+        expected_source = ("ciw.calibrated-window-source.v1" if session_schema == CALIBRATED_WINDOW_SESSION_SCHEMA
+                           else "fsrt.calibrated-observable-two-channel.v1")
+        if experiment.get("schema") != expected_source:
             raise ContractError("unsupported calibrated-observable experiment schema")
         experiment_id = _text(experiment.get("experiment_id"), "experiment.experiment_id")
         if source.get("experiment_id") != experiment_id:
@@ -239,6 +242,17 @@ def verify_replay_bundle(
     steps = session.get("steps")
     if not isinstance(steps, list) or not 1 <= len(steps) <= MAX_STEPS:
         raise ContractError("steps must contain 1 to 32 ordered operations")
+    if session_schema == CALIBRATED_WINDOW_SESSION_SCHEMA:
+        expected_graph = [("tbrt", "ciw.tbrt-window.v1"), ("mcur", "ciw.mcur-window.v1"),
+                          ("stfe", "stfe.window-mean.v1"), ("gsie", "ciw.gsie-predict-update.v1")]
+        if ([(step.get("runtime_ref"), step.get("operation_id")) for step in steps] != expected_graph
+                or set(runtimes) != {"tbrt", "mcur", "stfe", "gsie", "set"}):
+            raise ContractError("calibrated window requires its exact four-operation graph and five runtimes")
+        refs = list(evidence_digests)
+        expected_inputs = [refs, refs + [steps[0].get("result_id")],
+                           [steps[0].get("result_id"), steps[1].get("result_id")], [steps[2].get("result_id")]]
+        if [step.get("input_refs") for step in steps] != expected_inputs:
+            raise ContractError("calibrated window input graph differs from retained lineage")
     available = set(evidence_digests)
     # First-step requests/results must bind the retained source; a reference
     # to evidence alone cannot establish a projection or declaration link.
@@ -309,6 +323,10 @@ def verify_replay_bundle(
             if session_schema == TELEMETRY_SESSION_SCHEMA:
                 if role != "ppda" or canonical_bytes(result) != canonical_bytes(batch):
                     raise ContractError("first step must be pinned PPDA projection of retained evidence into source batch")
+            elif session_schema == CALIBRATED_WINDOW_SESSION_SCHEMA:
+                if (request != {"source": experiment} or result.get("schema") != "ciw.calibrated-operation-result.v1"
+                        or numerical != {"operation_id": operation_id, "data": result.get("data")}):
+                    raise ContractError("clock request must bind exact calibrated-window source bytes and numerical projection")
             else:
                 if (role != "fsrt" or operation_id != "fsrt.declare-calibrated-two-channel.v1"
                         or list(input_refs) != list(evidence_digests)):
