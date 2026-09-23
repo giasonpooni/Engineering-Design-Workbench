@@ -1,47 +1,60 @@
 # Translation Surface Dynamics Explorer in the instrumentation stack
 
-Notation Systems develops computational instrumentation and evidence infrastructure for industrial and cyber-physical systems.
-This component owns **trajectory dynamics on translation surfaces**. The [stack map](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/STACK.md) locates all public components and distinguishes implemented paths from specifications and scaffolds.
+Notation Systems develops computational instrumentation and evidence infrastructure.
+This component owns **bounded trajectory dynamics on declared translation
+surfaces**. The [stack map](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/STACK.md)
+locates the public components.
 
 ## Current boundary
 
 | Property | Scope |
 | --- | --- |
-| Implementation | Planned scaffold; metadata checks only |
-| Workbench connection | No numerical implementation or adapter |
-| Inputs | Proposed subject: polygon gluings and declared trajectories on translation surfaces. |
-| Outputs | Current deliverable: project declaration, scope and scaffold checks. |
+| Implementation | Exact rational affine flow on connected square-tiled surfaces, including higher genus |
+| Operation | `tsde.square-tiled-flow.v1` |
+| Inputs | Right/up permutations, interior tile coordinates, direction, duration and event budget |
+| Outputs | Exact request, digests, topology, segments, directed events, invariants and completion status |
+| Workbench connection | CIW owns its explicit adapter and exact provider revision; this package supplies the standalone contract |
 
-It does not yet implement polygon-gluing dynamics. The executable flat-torus reference covers a narrower mathematical object.
-
-## Declared evidence boundary
+The [contract](CONTRACT.md) specifies coordinates, arithmetic, limits and stops.
+Physical units, measurement uncertainty and physical validity are not inferred
+from dimensionless unit squares.
 
 ```mermaid
-flowchart TD
-I["Proposed polygon-gluing declaration"] -. "object and representation" .-> E["Declared evidence boundary"]
-  A["Trajectory assumptions and tolerances"] -. "required declaration" .-> E
-  D["Invariant checks and event log"] -. "required diagnostics" .-> E
-  H["Canonical artifact digest"] -. "required evidence" .-> E
-  F["Flat-torus reference"] -. "separate regression oracle" .-> D
-  E -. "not implemented" .-> N["No numerical admission or trajectory result"]
+flowchart LR
+  I["Permutation gluing and rational motion"] --> V["Connected-surface validation"]
+  V --> T["Vertex classes and genus"]
+  V --> F["Exact affine segments and crossings"]
+  T --> R["Scoped result artifact"]
+  F --> R
+  R --> H["Canonical request and artifact digests"]
+  H -. "versioned integration owned by CIW" .-> W["Workbench records and views"]
 ```
 
-Dotted arrows show declared evidence obligations and the documented external reference role; they are not an implemented dynamics pipeline or admission gate. The object, coordinate representation and trajectory assumptions remain distinct. The flat-torus implementation is a separate regression oracle, not code duplicated here. This scaffold provides neither Jacobi propagation nor covariance geometry or triangle-mesh geodesics.
-
-[Instrumentation diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md).
+Solid arrows are implemented here. The dotted boundary requires the separate CIW
+adapter and provider binding. Digests identify retained content; they are not
+proofs of execution or physical admission decisions. A partial prefix is never
+represented as a completed requested trajectory.
 
 ## Interoperability
 
-Integrations use the component's documented contract and an explicit adapter. They preserve source observations, ordered quantities, units, coordinate/frame meaning, time semantics, missingness and declared uncertainty where applicable. An unimplemented field or conversion must be reported as unsupported rather than silently inferred.
+`translation_surface_dynamics.run(request)` and `validate_request(request)` are
+the API. The CLI accepts one bounded JSON request on stdin and emits one canonical
+JSON result. An adapter must preserve the exact request, operation identity,
+partial status and digests; it may impose smaller resource budgets. Repeated
+executions can have the same result digest. Invocation or occurrence identity
+belongs to the caller and must not be inferred from a content digest.
 
-Evidence identity names the source record; operation identity names the versioned computation; execution identity names an invocation; result identity names its output; verification identity names a scoped check. These are integration requirements, not a claim that every standalone repository already implements all five record types.
-
-Display names and repository locations do not rename packages, schemas, operation IDs, retained corpus keys or historical runtime pins. CIW integrations use the exact source revisions named in its runtime manifests and operating guides; a provider's current default branch is not a substitute for that binding. Published numerical records retain their original run scope.
+Display names and repository locations do not rename packages, schemas,
+operation IDs, retained keys or historical runtime pins. CIW integrations use
+the exact revisions named in their manifests and operating guides. A provider's
+current default branch is not a substitute for that binding.
 
 ## Technical references
 
-- [Overview and runnable instructions](../README.md)
-- [docs/SCOPE.md](SCOPE.md)
-- [CONTRIBUTING.md](../CONTRIBUTING.md)
+- [Overview](../README.md), [contract](CONTRACT.md), [scope](SCOPE.md), [contributor invariants](../CONTRIBUTING.md)
+- [Surface dynamics: square-tiled surfaces](https://flatsurf.github.io/surface-dynamics/examples/square_tiled_surfaces.html)
+- [Origami: mathematical background](https://ag-weitze-schmithusen.github.io/Origami/doc/chap1_mj.html)
 
-Private customer state, deployment configuration and calibration knowledge are outside this public component description. Applicable repository licenses and source-data rights remain controlling; a shared stack identity is not a license grant or a change of repository visibility.
+Private customer state, deployment configuration and calibration knowledge remain
+outside this public description. Licenses and source-data rights remain
+controlling; a shared stack identity changes neither licenses nor visibility.

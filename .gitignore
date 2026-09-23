@@ -4,6 +4,7 @@ __pycache__/
 .venv/
 dist/
 build/
+*.egg-info/
 
 # Local development notes and coordination
 /AGENTS.md

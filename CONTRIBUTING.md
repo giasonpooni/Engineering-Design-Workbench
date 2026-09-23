@@ -9,5 +9,8 @@ limits on every claim.
 - Jacobi propagation, SPD covariance geometry and triangle-mesh geodesics are outside this project.
 - Do not describe a numerical trajectory as exact unless it is derived symbolically.
 
-Run `python -m unittest discover -s tests -v` after changing the scaffold.
+Run `python -m unittest discover -s tests -v` and
+`python scripts/check_installed.py` after changing the provider. The latter
+requires `setuptools>=77` and `wheel` in the build interpreter; it builds and
+tests in temporary directories without source fallback.
 Preserve concurrent work and do not force-push shared history.

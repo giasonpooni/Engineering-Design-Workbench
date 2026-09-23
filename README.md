@@ -1,40 +1,103 @@
 # Translation-Surface Dynamics Explorer
 
-Part of **Notation Systems' computational instrumentation and evidence infrastructure** for industrial and cyber-physical systems.
+Part of **Notation Systems' computational instrumentation and evidence infrastructure**.
 
-[Stack map](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/STACK.md) · [Component role and interfaces](docs/STACK_ROLE.md)
+[Stack map](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/STACK.md) · [Component role](docs/STACK_ROLE.md) · [Request and result contract](docs/CONTRACT.md)
 
-**Status: planned.** Research scaffold concerning polygon gluing and trajectory dynamics on compact translation surfaces.
-This repository does not yet claim a dynamics implementation.
+**Status: implemented bounded reference.** This Python provider follows declared
+straight-line flow across connected square-tiled translation surfaces. Right and
+up tile permutations specify the gluings; left and down use their inverses. The
+included three-square L-shaped surface has genus two, so this operation supports
+more than the flat torus.
 
-The current contents are a project declaration, scope documentation and scaffold
-checks. Those checks validate repository metadata and status; they do not
-validate a numerical algorithm or establish physical accuracy.
+Each segment and boundary-intersection time is derived by rational arithmetic
+from the declared affine motion. Results retain the exact request, gluing
+validation, genus and vertex classes, directed crossing events, segments,
+recomputed invariants, stopping policies and canonical SHA-256 digests. This
+bounded mathematical computation does not establish ergodicity, physical
+accuracy, or cryptographic proof of execution.
 
-## Scaffold status and declared subject
+## Run an experiment
 
-```mermaid
-flowchart TD
-M["Project declaration"] --> C["Metadata and status checks"]
-  R["README planned status"] --> C
-  C --> O["Scaffold test outcome"]
-  I["Polygon gluing and trajectories"] -. "proposed subject" .-> M
-  M -. "not implemented" .-> N["No translation-flow engine"]
-  N -. "no executable connection" .-> W["Workbench integration unavailable"]
+Requires Python 3.11 or newer; there are no runtime dependencies.
+
+```sh
+python -m pip install .
+python -m translation_surface_dynamics < examples/request.json
 ```
 
-Solid arrows show only the implemented scaffold tests. Dotted arrows mark the declared research subject and absent numerical boundaries. Passing metadata checks does not validate an algorithm, produce a scientific result or admit evidence into the workbench.
+The second command uses POSIX shell redirection. In PowerShell:
 
-[Instrumentation diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md).
+```powershell
+Get-Content -Raw examples/request.json | python -m translation_surface_dynamics
+```
 
-## Check the scaffold
+The installed API:
+
+```python
+import json
+from translation_surface_dynamics import run, validate_request
+
+with open("examples/request.json", encoding="utf-8") as source:
+    request = validate_request(json.load(source))
+result = run(request)
+print(result["status"], result["gluing_validation"]["genus"])
+print(result["final_state"], result["artifact_digest"])
+```
+
+The example finishes at time `3`, in tile `1` at `["1/4", "5/6"]`, after four
+gluing events. [The torus-cover fixture](examples/torus-cover.json) supplies a
+genus-one analytical comparison with different tile transitions.
+
+## Completion and bounds
+
+| Status | Meaning |
+| --- | --- |
+| `completed` | Requested duration covered, including a single edge gluing at the endpoint. |
+| `stopped_at_vertex` | Two edges reached simultaneously; no continuation through the vertex chosen. |
+| `event_budget_exhausted` | Next boundary reached, but its gluing not applied. |
+
+Partial results retain a valid prefix and explicit pending edges. A corner or
+budget stop at the requested endpoint is still partial even when `remaining` is
+`"0"`. Regular and singular vertices both stop. Starts must be strictly interior.
+
+The profile accepts 1–32 tiles, 0–1,024 edge events, canonical reduced rational
+strings with 64-bit numerators and denominators, and duration and direction
+component magnitudes at most 1,024. Arithmetic growth beyond 256 bits fails
+without an artifact. The CLI accepts at most 32 KiB and rejects duplicate keys,
+nonfinite values and unsupported fields. See the [full contract](docs/CONTRACT.md).
+
+## Verify the implementation
 
 ```sh
 python -m unittest discover -s tests -v
+python -m pip install "setuptools>=77" wheel
+python scripts/check_installed.py
 ```
 
-See [scope and exclusions](docs/SCOPE.md) and
-[contributor invariants](CONTRIBUTING.md).
+Tests exercise analytical torus unfolding, genus two, inverse flow, noninvolutive
+gluings, rational near-corner ordering, explicit stops, malformed input and digest
+recomputation. The installed-wheel check runs the same algorithm from a separate
+virtual environment outside the source tree. CI runs source and installed-wheel
+checks on Windows and Linux.
+
+## Component boundary
+
+```mermaid
+flowchart LR
+  I["Declared gluing and rational motion"] --> V["Input and topology validation"]
+  V --> F["Bounded exact affine flow"]
+  F --> R["Segments, events, invariants and status"]
+  R --> D["Canonical retained artifact"]
+  D -. "explicit versioned adapter" .-> W["CIW investigation"]
+```
+
+The solid path is implemented here. CIW owns installation, revision binding,
+investigation retention and presentation through its separately versioned
+adapter. A current provider checkout does not imply that a deployed workbench
+has installed it. General polygon gluings, arbitrary real directions, vertex
+continuation, Jacobi fields and moduli-space exploration remain outside this
+profile. See [scope](docs/SCOPE.md) and [contributor invariants](CONTRIBUTING.md).
 
 ## License
 
