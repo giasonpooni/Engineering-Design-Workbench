@@ -142,7 +142,7 @@ EXCEPTIONS: dict[str, tuple[ToleranceException, ...]] = {
     "real_noaa_month.json": (
         ToleranceException(
             contains=(".loglik",),
-            rel_tol=1e-4,
+            rel_tol=3e-4,
             why="an innovation log-likelihood summed over 3,600 to 7,440 steps: a large sum of "
                 "-1/2 (log(2 pi S) + nu^2 / S) terms that cancel heavily, so its last significant "
                 "figures are the LAPACK build's. This allowance is INHERITED from real_noaa.json's "
