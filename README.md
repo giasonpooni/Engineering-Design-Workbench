@@ -511,5 +511,9 @@ catalogue, integration matrix or provider manifests.
 
 Copyright © 2026 Notation Systems.
 
-Licensed under the GNU Affero General Public License v3.0 only
-(AGPL-3.0-only). See [LICENSE](LICENSE).
+PDT first-party application code is licensed under the GNU Affero General Public
+License version 3 or, at your option, any later version (AGPL-3.0-or-later),
+except where a component carries an explicit separate notice. Third-party
+engines, libraries, runtimes, assets and standalone providers retain their
+original licenses. See [LICENSE](LICENSE) and the
+[platform licensing policy](docs/LICENSING.md).
