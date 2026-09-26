@@ -63,6 +63,7 @@ scr-provider-host --provider cpp
 scr-provider-host --provider julia --julia EXE --project DIR --worker FILE --timeout-ms 300000
 scr-provider-host --provider catalyst --julia EXE --project DIR --worker FILE --timeout-ms 300000
 scr-provider-host --provider cantera --python EXE --project DIR --worker FILE --timeout-ms 300000
+scr-provider-host --provider intervals --julia EXE --project DIR --worker FILE --timeout-ms 300000
 ```
 
 Runtime paths are host configuration, never fields accepted from saved data.
@@ -136,6 +137,41 @@ installation/package identities. Catalyst mechanism bytes must hash to the
 snapshotted worker source. Catalyst uses `julia_executable_sha256`; Cantera uses
 `python_executable_sha256`. Both retain the worker identity and per-file hashes,
 without adding a legacy oscillator dependency.
+
+The additive `intervals` family exposes only `scalar-square-interval.v1` with
+`outward-binary64` arithmetic. It snapshots exactly `worker.jl`, `Project.toml`
+and `Manifest.toml`, with no legacy oscillator or reaction dependency. It uses
+the same bounded Julia launcher and process lifetime controls. Its separate
+`ciw.interval-julia-identity.v1` handshake declares Julia 1.10.12, one thread,
+platform and exactly the IntervalArithmetic/JSON3 package versions. File hashes
+must match the snapshot; package and executable qualification remains a caller
+duty. The host neither installs packages nor attests to their binaries.
+
+This profile evaluates the scalar-square linearization remainder requirement
+`u^2 - error_limit <= 0` on a declared closed variation interval. Inputs are
+reduced rational numerator/denominator objects, never decimal coercions. The
+host checks their integer/domain bounds exactly before child dispatch. It checks
+finite, ordered IEEE754 binary64 endpoint bit patterns (16 lowercase hex digits),
+`com` decoration, the guaranteed flag, the fixed configuration and the enclosure
+classification. The declarations are scalar, dimensionless (`input_unit` and
+`output_unit` are `"1"`), frame `dimensionless-cartesian`, clock
+`not_applicable`, with covariance and calibration explicitly not applicable.
+`holds_throughout` requires an upper endpoint at most zero; `fails_throughout`
+requires a strictly positive lower endpoint; otherwise the result is
+`inconclusive`. The host does not recompute the exact extremum: independent
+rational enclosure validation belongs to the workbench oracle. A completed
+transport record is not a physical claim, proof, admission or authorization.
+
+The compiled-host interval tests use an explicitly synthetic scripted child:
+
+```sh
+SCR_NATIVE_REQUIRED=1 SCR_PROVIDER_HOST="$CARGO_TARGET_DIR/debug/scr-provider-host" \
+  python -m pytest -q tests/test_interval_provider_host.py
+```
+
+Those tests cover closure, exact byte/occurrence bindings and protocol/domain
+refusals; they do not qualify IntervalArithmetic execution. The genuine worker
+and installed-provider gates are separate workbench checks.
 
 Windows uses a kill-on-close JobObject after process creation, and its kill
 behavior is tested. A very short creation-to-job-assignment interval remains;

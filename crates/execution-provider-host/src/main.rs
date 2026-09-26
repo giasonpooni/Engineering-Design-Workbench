@@ -1,4 +1,5 @@
 mod ffi;
+mod interval;
 mod native;
 mod output;
 mod process;
@@ -73,8 +74,8 @@ fn options() -> Result<Options, String> {
     }
     let provider = pairs
         .remove("--provider")
-        .ok_or("--provider cpp|julia|catalyst|cantera required")?;
-    if !["cpp", "julia", "catalyst", "cantera"].contains(&provider.as_str()) {
+        .ok_or("--provider cpp|julia|catalyst|cantera|intervals required")?;
+    if !["cpp", "julia", "catalyst", "cantera", "intervals"].contains(&provider.as_str()) {
         return Err("unsupported provider".into());
     }
     let timeout = pairs
@@ -93,7 +94,7 @@ fn options() -> Result<Options, String> {
         worker: pairs.remove("--worker").map(PathBuf::from),
         timeout: Duration::from_millis(timeout),
     };
-    if ["julia", "catalyst"].contains(&out.provider.as_str())
+    if ["julia", "catalyst", "intervals"].contains(&out.provider.as_str())
         && (out.julia.is_none() || out.project.is_none() || out.worker.is_none())
     {
         return Err("Julia requires explicit executable, project, worker".into());
@@ -135,7 +136,9 @@ fn token(s: &str) -> bool {
             .all(|c| c.is_ascii_alphanumeric() || b"-_:./".contains(&c))
 }
 fn semantic(profile: &str) -> Value {
-    if profile == reaction::PROFILE {
+    if profile == interval::PROFILE {
+        interval::semantics()
+    } else if profile == reaction::PROFILE {
         reaction::semantics()
     } else if profile.starts_with("affine-") || profile == "design-qp.v1" {
         json!({"layout":"row-major","input_units":"dimensionless","output_units":"dimensionless","frame":"declared-cartesian","clock":"not-applicable"})
@@ -154,6 +157,8 @@ fn validate(r: &Request, provider: &str) -> Result<(), String> {
         FLOAT_PROFILES.contains(&r.profile.as_str()) || r.profile == "affine-d256.v1"
     } else if reaction::family(provider) {
         r.profile == reaction::PROFILE
+    } else if provider == "intervals" {
+        r.profile == interval::PROFILE
     } else {
         JULIA_PROFILES.contains(&r.profile.as_str())
     };
@@ -163,6 +168,8 @@ fn validate(r: &Request, provider: &str) -> Result<(), String> {
     if r.arithmetic
         != if r.profile == "affine-d256.v1" {
             "exact-d256"
+        } else if r.profile == interval::PROFILE {
+            "outward-binary64"
         } else {
             "binary64"
         }
@@ -204,6 +211,9 @@ impl Host {
         })
     }
     fn ensure_worker(&mut self) -> Result<(), String> {
+        if self.options.provider == "intervals" && self.worker.is_none() {
+            return self.ensure_interval_worker();
+        }
         if reaction::family(&self.options.provider) && self.worker.is_none() {
             return self.ensure_reaction_worker();
         }
@@ -317,6 +327,8 @@ impl Host {
             ]
         } else if reaction::family(&self.options.provider) {
             vec![reaction::PROFILE]
+        } else if self.options.provider == "intervals" {
+            vec![interval::PROFILE]
         } else {
             JULIA_PROFILES.to_vec()
         };
@@ -328,6 +340,7 @@ impl Host {
         let label = match self.options.provider.as_str() {
             "cantera" => "Cantera",
             "catalyst" => "Catalyst",
+            "intervals" => "IntervalArithmetic",
             _ => "Julia",
         };
         let r: Request = serde_json::from_slice(raw).map_err(|e| e.to_string())?;
@@ -359,56 +372,63 @@ impl Host {
         let result: Result<Value, String> = if self.options.provider == "cpp" {
             native::compute(&r.profile, r.payload.get())
         } else {
-            let worker = self.worker.as_mut().unwrap();
-            child_id = Some(worker.id());
-            child_occurrence = Some(self.child_counter);
-            self.child_counter += 1;
-            worker.exchange(raw).and_then(|child_raw| {
-                let response = process::parse(&child_raw)?;
-                child_response = Some(child_raw);
-                let object = response
-                    .as_object()
-                    .ok_or_else(|| format!("{label} response not object"))?;
-                let expected = if response["status"] == "ok" {
-                    vec![
-                        "schema",
-                        "request_id",
-                        "parent_execution_id",
-                        "profile",
-                        "status",
-                        "data",
-                    ]
-                } else {
-                    vec![
-                        "schema",
-                        "request_id",
-                        "parent_execution_id",
-                        "profile",
-                        "status",
-                        "refusal",
-                    ]
-                };
-                if object.len() != expected.len()
-                    || expected.iter().any(|k| !object.contains_key(*k))
-                    || response["schema"] != "ciw.native-interop-response.v1"
-                    || response["request_id"] != r.request_id
-                    || response["parent_execution_id"] != r.parent_execution_id
-                    || response["profile"] != r.profile
-                {
-                    return Err(format!("stale/mismatched {label} response"));
-                }
-                if response["status"] != "ok" {
-                    return Err(format!("{label} refused: {}", response["refusal"]));
-                }
-                if !response["data"].is_object() {
-                    return Err(format!("{label} response data not object"));
-                }
-                if r.profile == "oscillator-tsit5.v1"
-                    && response["data"]["request_id"] != r.request_id
-                {
-                    return Err("inner oscillator request ID differs".into());
-                }
-                Ok(response["data"].clone())
+            let preflight = if self.options.provider == "intervals" {
+                interval::check_input(&process::parse(input_bytes)?)
+            } else {
+                Ok(())
+            };
+            preflight.and_then(|()| {
+                let worker = self.worker.as_mut().unwrap();
+                child_id = Some(worker.id());
+                child_occurrence = Some(self.child_counter);
+                self.child_counter += 1;
+                worker.exchange(raw).and_then(|child_raw| {
+                    let response = process::parse(&child_raw)?;
+                    child_response = Some(child_raw);
+                    let object = response
+                        .as_object()
+                        .ok_or_else(|| format!("{label} response not object"))?;
+                    let expected = if response["status"] == "ok" {
+                        vec![
+                            "schema",
+                            "request_id",
+                            "parent_execution_id",
+                            "profile",
+                            "status",
+                            "data",
+                        ]
+                    } else {
+                        vec![
+                            "schema",
+                            "request_id",
+                            "parent_execution_id",
+                            "profile",
+                            "status",
+                            "refusal",
+                        ]
+                    };
+                    if object.len() != expected.len()
+                        || expected.iter().any(|k| !object.contains_key(*k))
+                        || response["schema"] != "ciw.native-interop-response.v1"
+                        || response["request_id"] != r.request_id
+                        || response["parent_execution_id"] != r.parent_execution_id
+                        || response["profile"] != r.profile
+                    {
+                        return Err(format!("stale/mismatched {label} response"));
+                    }
+                    if response["status"] != "ok" {
+                        return Err(format!("{label} refused: {}", response["refusal"]));
+                    }
+                    if !response["data"].is_object() {
+                        return Err(format!("{label} response data not object"));
+                    }
+                    if r.profile == "oscillator-tsit5.v1"
+                        && response["data"]["request_id"] != r.request_id
+                    {
+                        return Err("inner oscillator request ID differs".into());
+                    }
+                    Ok(response["data"].clone())
+                })
             })
         };
         let result = result.and_then(|data| {
@@ -428,7 +448,9 @@ impl Host {
             {
                 return Err(format!("{label} executable changed during execution"));
             }
-            if reaction::family(&self.options.provider) {
+            if self.options.provider == "intervals" {
+                interval::check_output(&data)?;
+            } else if reaction::family(&self.options.provider) {
                 reaction::check(&self.options.provider, &process::parse(input_bytes)?, &data)?;
                 if self.options.provider == "catalyst"
                     && data["mechanism"]["sha256"] != self.runtime["worker_sha256"]
@@ -519,6 +541,7 @@ fn run() -> Result<(), String> {
             let label = match host.options.provider.as_str() {
                 "cantera" => "Cantera",
                 "catalyst" => "Catalyst",
+                "intervals" => "IntervalArithmetic",
                 _ => "Julia",
             };
             return Err(format!(
