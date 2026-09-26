@@ -1,4 +1,4 @@
-# Documentation index for Notation-Systems-Workbench
+# Documentation index for Parametric Design Terminal
 
 The root [README](../README.md) is the macro entrypoint. This index points to
 the page that owns each kind of detail so status and contracts do not drift
@@ -28,6 +28,7 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 - [State-space transformation contract](STATE_TRANSFORMATIONS.md)
 - [Workbench research context](RESEARCH_CONTEXT.md)
 - [Generic adapters](ADAPTERS.md)
+- [Device and Instrument Gateway proposal](DEVICE_GATEWAY.md) and [acceptance plan](DEVICE_GATEWAY_ACCEPTANCE.md)
 - [Covariance provenance and replay](COVARIANCE.md)
 - [Retained telemetry](TELEMETRY.md) and [shared telemetry](SHARED_TELEMETRY.md)
 - [Calibrated observable process](CALIBRATED_OBSERVABLE.md)
