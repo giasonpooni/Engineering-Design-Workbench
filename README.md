@@ -2,15 +2,17 @@
 
 **State. Variation. Invariance.**
 
-**A terminal-first, multi-engine platform for evidence-backed scientific
-modelling, experimentation and engineering design.**
+**A terminal-first, multi-engine programmable cyber-physical laboratory for
+evidence-backed scientific modelling, experimentation and engineering design.**
 
-The **Parametric Design Testbed (PDT)** is a **programmable computational
-laboratory**. Its central working object is an investigation: the question,
-models, observations, parameters, candidate designs, executions, results and
-checks remain connected. The terminal is a control surface, not the whole
-system; graphical clients and APIs work through the same investigation and
-execution boundaries.
+The **Parametric Design Testbed (PDT)** is a **programmable computational and
+cyber-physical laboratory**. Its central working object is an investigation:
+the question, models, observations, parameters, candidate designs, executions,
+results and checks remain connected. Software-only deployments remain complete
+computational laboratories; supported sensing and apparatus integrations extend
+the same investigation into physical experiments. The terminal is a control
+surface, not the whole system; graphical clients, APIs and an optional MCP
+interface work through the same investigation and execution boundaries.
 
 The base-pilot architecture is now the agreed development baseline.
 Implementation and qualification remain operation-specific; the
@@ -27,22 +29,26 @@ Copyright © 2026 Notation Systems.
 [Documentation index](docs/README.md) · [Workbench overview](docs/WORKBENCH_OVERVIEW.md) ·
 [Systems catalog](docs/SYSTEMS_CATALOG.md) · [Stack map](docs/STACK.md)
 
-## Base pilot: the programmable computational laboratory
+## Base pilot: the programmable computational and cyber-physical laboratory
 
 **Architectural baseline agreed; implementation and qualification in progress.**
 The base pilot brings the existing instruments together around one end-to-end
-investigation lifecycle. It is not a new operating-system kernel, a single
-universal solver, or a requirement to install every project in the reference
-catalog. The development task is to complete and qualify the connections below,
-not to keep expanding the platform's conceptual scope.
+investigation lifecycle and defines the boundary through which supported
+physical apparatus can later participate. It is not a new operating-system
+kernel, a single universal solver, a universal device driver, or a requirement
+to install every project in the reference catalog. The development task is to
+complete and qualify the connections below, not to keep expanding the platform's
+conceptual scope.
 
 ### One investigation, several control surfaces
 
 Terminal commands and scripts remain the reproducible, headless operating path.
-The Python/API surface and optional graphical clients expose supported parts of
-the same investigation. An optional AI assistant may propose models, candidates
-or operation requests; it receives no separate execution or admission authority.
-Closing a viewer must not stop a computation, change evidence or change a result.
+The Python/API surface, optional graphical clients and a future bounded MCP
+surface expose supported parts of the same investigation. An optional reasoning
+assistant may propose models, candidates, measurements or operation requests; it
+receives no separate execution, equipment-control or admission authority.
+Closing a viewer or disconnecting an assistant must not stop a qualified local
+controller, change evidence or change a retained result.
 
 The pilot's end-to-end contract is:
 
@@ -62,18 +68,29 @@ Registered computation / simulation / estimation
 Response + uncertainty status + residuals + scoped checks
           |
           v
+Prepare a supported experiment or apparatus operation when required
+          |
+          v
+Qualified gateway + local device/controller execution
+          |
+          v
+Recorded observations + execution outcome
+          |
+          v
 Retained investigation -> inspection and candidate comparison
           |
           v
-Revise the model/design or propose the next experiment
+Revise the model/design/instrument or propose the next experiment
           |
           +----> new evidence and a new investigation revision
 ```
 
 This is the target lifecycle, not a claim that an automatic workflow planner,
-generic acquisition bus or every provider connection is implemented. A manually
-declared, validated operation graph is sufficient for the initial pilot.
-Physical acquisition or action requires its own supported, authorized path.
+generic acquisition bus, universal device gateway or every provider connection
+is implemented. A manually declared, validated operation graph is sufficient
+for the initial pilot. Physical acquisition or action requires its own supported,
+authorized and qualified path. A submitted command, controller acknowledgement
+and measured physical outcome remain different records.
 
 | Supported-profile question | Required pilot output |
 | --- | --- |
@@ -98,6 +115,7 @@ alternative candidates, is the deliverable rather than only its final plot.
 | **SCR / native execution** | Supply registered execution services, runtime bindings and selected checkers through the existing boundary. A language choice is not a scientific qualification. |
 | **ICRH and scoped verification providers** | Check the particular numerical, contract or replay claims they support. SP1 is optional for selected registered computations; it does not prove all models or observations. |
 | **ESM** | Retain and govern applicable evidence, candidate information, admission, correction and release through separately supported handoffs. A computation never admits its own output. |
+| **Device and Instrument Gateway / local controllers** | Target boundary for supported sensors, DAQ, FPGA nodes, robot arms, machines and laboratory instruments. The gateway exposes typed capabilities, preparation, bounded dispatch and durable outcomes; device controllers retain deadline-critical execution and equipment protections. This is a delivery direction, not a claim of generic hardware support. |
 | **Inspection clients and OpenUSD** | Project retained information for numerical, temporal, spectral, geographic or local 2D/3D inspection. Scene composition, appearance and playback do not create scientific authority. |
 
 This table assigns responsibilities; the current implementation remains recorded
@@ -122,6 +140,7 @@ gates asserted by this README:
 | **Reopen and replay** | Reopen retained records without provider execution; explicitly replay with fresh execution identities while preserving the original history and supported pins. |
 | **Challenge and recover** | Reject altered bindings, incompatible inputs and unsupported assumptions; retain bounded failures, recover without losing prior results and identify affected downstream dependencies. |
 | **Inspect and hand off** | Keep terminal-only operation functional; qualify each supported client/export and ESM handoff separately. OpenUSD remains pending until the export/reload gate below passes. |
+| **Apparatus boundary** | For any supported physical profile, bind device identity, configuration, units, frames, clocks, authorization and operating envelope; distinguish requested action, controller outcome and measured result; demonstrate disconnect, duplicate-request, stale-plan and uncertain-outcome handling. |
 | **Qualify claims** | Retain genuine evidence for each numerical, proof or physical-validation claim; distinguish unavailable/skipped checks from passes and report startup, transfer, computation and checking costs separately. |
 
 The next physical-claim milestone remains the held-out measurement and
@@ -143,9 +162,10 @@ remove verified invariants or displace ongoing implementation work. Success is
 measured by reproducible investigations, correct handoffs and qualified claims,
 not repository count, language share or the size of an integration wish list.
 
-**The terminal is a control surface. The investigation is the central object.
-The scientific providers are the instruments. Evidence preserves what supports
-the result and what still needs to be established.**
+**The terminal and MCP are control surfaces. The investigation is the central
+object. Scientific providers are computational instruments; qualified gateways
+connect physical apparatus. Evidence preserves what was proposed, executed,
+observed, checked and what still needs to be established.**
 
 ## The design language
 
