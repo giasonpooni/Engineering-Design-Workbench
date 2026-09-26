@@ -16,11 +16,13 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 60
     env:
-      CARGO_TARGET_DIR: ${{ runner.temp }}/scr-native-target
-      JULIA_DEPOT_PATH: ${{ runner.temp }}/julia-depot
       JULIA_NUM_THREADS: '1'
     steps:
       - uses: actions/checkout@v4
+      - name: Initialize runner-local runtime paths
+        run: |
+          echo "CARGO_TARGET_DIR=$RUNNER_TEMP/scr-native-target" >> "$GITHUB_ENV"
+          echo "JULIA_DEPOT_PATH=$RUNNER_TEMP/julia-depot" >> "$GITHUB_ENV"
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'

@@ -131,6 +131,10 @@ and `results/reaction-julia-worker.md`. See the
 [operator commands](REACTION_BENCHMARK.md#operator-commands) to reproduce the gate.
 No public CI success is claimed by these local artifacts.
 
+The subsequent [development-window audit](DEVELOPMENT_GAPS.md) records hosted
+workflow findings and follow-up repairs. The test counts above remain the original
+qualification record.
+
 ## Scope and remaining gates
 
 - Windows x86-64 is the qualified reaction platform. New Linux/macOS reaction

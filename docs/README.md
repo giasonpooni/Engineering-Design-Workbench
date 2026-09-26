@@ -47,6 +47,7 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 ## Development and availability
 
 - [Development guide](DEVELOPMENT.md)
+- [Development-window gap audit](DEVELOPMENT_GAPS.md)
 - [Provider availability and exact checkout provisioning](PROVIDER_AVAILABILITY.md)
 - [Stack map](STACK.md) and [stack role](STACK_ROLE.md)
 - [Diagram atlas](DIAGRAMS.md)

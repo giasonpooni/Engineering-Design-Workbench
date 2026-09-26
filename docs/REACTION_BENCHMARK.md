@@ -82,11 +82,14 @@ validates retained bindings without launching a provider or rerunning the oracle
 Replay requires the original qualified runtime and creates fresh occurrences.
 Uncertainty is **not declared**; calibration is **not applicable** to this
 mathematical reference. State admission and hardware actuation are not performed.
-The manual `Reaction benchmark qualification` CI workflow provisions locked
+The manual `Reaction benchmark qualification` CI workflow requires authorized
+`SCR_READ_TOKEN` access to the exact SCR checkout, provisions locked
 environments and runs the installed-wheel gate on Windows. It fails if the
 installation differs from the checked-in qualification; adding a new platform
 requires review, not automatic pin replacement. A workflow definition alone is
-not evidence of a successful CI run.
+not evidence of a successful CI run. Its audit artifacts preserve setup outcomes
+and JUnit/partial benchmark records even if qualification fails. See the
+[development-window audit](DEVELOPMENT_GAPS.md) for the actual hosted status.
 
 Host hashes identify bytes; source-to-binary and complete installed-environment
 attestation remain explicitly unestablished.
@@ -94,7 +97,10 @@ attestation remain explicitly unestablished.
 ## Operator commands
 
 The current qualification is Windows x86-64 with Julia 1.10.12 and managed
-Python 3.12.14. The exact environment is in
+Python 3.12.14 (the original local qualification used a preinstalled bundled
+interpreter). uv 0.10.10 creates the virtual environment; its download catalogue
+does not supply Python 3.12.14. Provision that interpreter separately and bind its
+exact executable; matching a version string is insufficient. The exact environment is in
 [Project.toml](../runtimes/reaction-kinetics/Project.toml),
 [Manifest.toml](../runtimes/reaction-kinetics/Manifest.toml) and the
 [hash-locked Cantera requirements](../runtimes/cantera-reaction/requirements.txt).
@@ -104,7 +110,9 @@ For example, with those executables and uv 0.10.10 already available:
 ```powershell
 $env:JULIA_DEPOT_PATH = 'C:/ciw-runtimes/reaction-julia-depot'
 julia --startup-file=no --project=runtimes/reaction-kinetics -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
-uv venv --python 3.12.14 C:/ciw-runtimes/cantera
+# Bind the separately provisioned interpreter's actual path.
+$python = 'C:/ciw-runtimes/python-3.12.14/python.exe'
+uv venv --no-python-downloads --python $python C:/ciw-runtimes/cantera
 uv pip sync --python C:/ciw-runtimes/cantera/Scripts/python.exe --require-hashes runtimes/cantera-reaction/requirements.txt
 ```
 
@@ -161,3 +169,11 @@ artificial equal-enthalpy model is not a heat-generation source: chemical–ther
 feedback needs a new thermochemical model and coupling validation. OpenUSD,
 general asynchronous fusion, generic ESM admission and physical actuation remain
 separate work with their own contracts and gates.
+
+
+Fixture files are bounded to 256 KiB and validated in full before any provider is
+consulted. Duplicate JSON keys and case names are refused. Each output directory
+retains the exact `fixtures.json` bytes whose digest appears in `report.json`.
+Reopen compares the complete retained workbench with the saved state; a matching
+bundle count alone is insufficient. Reports name both cross-engine bundles and
+the original/fresh occurrences for replay.

@@ -360,6 +360,8 @@ class NativeInteropWorkflow:
         if s["profile"]=="reaction-a-to-b.v1":
             from .reaction_contract import validate_metrics
             validate_metrics(check["metrics"])
+            if check["max_abs_discrepancy"] != check["metrics"]["trajectory_max_abs_mol_m3"]:
+                raise ValueError("Retained reaction concentration discrepancy differs")
         method={"reaction-a-to-b.v1":"independent_python_analytic_reaction_and_rate_law", "affine-binary64.v1":"independent_python_affine_binary64","affine-d256.v1":"independent_python_affine_integer", "oscillator-force-energy.v1":"independent_python_force_energy", "oscillator-tsit5.v1":"independent_python_analytic_oscillator", "control-oscillator.v1":"independent_python_analytic_oscillator", "design-qp.v1":"independent_python_objective_box_projected_gradient"}[s["profile"]]
         if check["outcome"]!="passed" or check["method"]!=method or check["policy"]!=contract.POLICY or check["authority"]!=contract.AUTHORITY:
             raise ValueError("Retained numerical check scope differs")

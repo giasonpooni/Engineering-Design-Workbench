@@ -14,6 +14,7 @@ from unittest.mock import patch
 
 from ciw import native_interop as ni, native_interop_contract as nc, reaction_contract as rc
 from ciw.adapters.oscillator import make_demo_run
+from ciw.adapters.subprocess import _json
 from ciw.session import Session
 from ciw.telemetry import canonical, byte_digest
 
@@ -30,25 +31,47 @@ def forbidden(*a, **kw):
     raise AssertionError("Read-only reopen attempted runtime/reference execution")
 
 
-def inspect_workspace(path, artifacts):
+def inspect_workspace(path, artifacts, expected=None):
     with patch.object(ni,"_invoke",forbidden), patch.object(ni,"_runtime",forbidden), patch.object(nc,"check_output",forbidden), patch.object(rc,"reference",forbidden):
         session=Session.from_workspace(path,artifacts)
+        if expected is not None and canonical(session.workbench.serialize()) != canonical(expected):
+            raise ValueError("Reopen changed retained identities or content")
         summaries=session.workbench.list_bundles()
         for row in summaries:
             session.workbench.inspect_experiment({"bundle_id":row["bundle_id"]})
     return summaries
 
 
-def run(catalyst, cantera, fixtures, destination):
-    destination.mkdir(parents=True,exist_ok=False)
-    raw=fixtures.read_bytes()
-    spec=json.loads(raw)
-    nc.keys(spec,{"schema","cases"})
-    if spec["schema"]!="ciw.reaction-benchmark-fixtures.v1" or not 1<=len(spec["cases"])<=16:
+MAX_FIXTURE_BYTES = 256 * 1024
+
+
+def read_fixtures(path):
+    """Validate every source before creating output or consulting a provider."""
+    with path.open("rb") as stream:
+        raw = stream.read(MAX_FIXTURE_BYTES + 1)
+    if not raw or len(raw) > MAX_FIXTURE_BYTES:
+        raise ValueError("Reaction fixtures exceed their byte budget")
+    spec = _json(raw)
+    nc.keys(spec, {"schema", "cases"})
+    if (spec["schema"] != "ciw.reaction-benchmark-fixtures.v1"
+            or type(spec["cases"]) is not list or not 1 <= len(spec["cases"]) <= 16):
         raise ValueError("Unsupported bounded reaction fixture set")
-    if len({r["name"] for r in spec["cases"]})!=len(spec["cases"]):raise ValueError("Duplicate case name")
+    names = set()
     for case in spec["cases"]:
-        nc.keys(case,{"name","payload"});rc.validate_payload(case["payload"])
+        nc.keys(case, {"name", "payload"})
+        name = case["name"]
+        if type(name) is not str or not name or name in names:
+            raise ValueError("Reaction case names must be nonempty, unique strings")
+        names.add(name)
+        for provider in ("catalyst", "cantera"):
+            nc.make_source(rc.PROFILE, provider, case["payload"], experiment_id=name+":"+provider)
+    return raw, spec
+
+
+def run(catalyst, cantera, fixtures, destination):
+    raw, spec = read_fixtures(fixtures)
+    destination.mkdir(parents=True, exist_ok=False)
+    (destination/"fixtures.json").write_bytes(raw)
     session=Session(make_demo_run(),destination/"artifacts")
     bindings={"catalyst":catalyst.resolve(),"cantera":cantera.resolve()}
     report={"schema":"ciw.reaction-benchmark-report.v1","fixture_sha256":byte_digest(raw),
@@ -77,6 +100,7 @@ def run(catalyst, cantera, fixtures, destination):
             a,b=(output(records[(case["name"],p)][1]) for p in bindings)
             nc.compare(numerical(a),numerical(b))
             report["rows"].append({"gate":case["name"]+":cross-engine","status":"PASS",
+                "bundle_ids":{p:records[(case["name"],p)][0]["bundle_id"] for p in bindings},
                 "concentration_max_abs_mol_m3":nc.compare(a["concentration_mol_m3"],b["concentration_mol_m3"]),
                 "production_rate_max_abs_mol_m3_s":nc.compare(a["production_rate_mol_m3_s"],b["production_rate_mol_m3_s"])})
         # Fresh execution and replay records for each provider retain distinct occurrences.
@@ -88,11 +112,12 @@ def run(catalyst, cantera, fixtures, destination):
             for key in ("execution_id","result_id"):
                 if fresh["steps"][0][key]==old["steps"][0][key]:raise ValueError("Replay reused occurrence identity")
             nc.compare(numerical(output(old)),numerical(output(fresh)))
-            report["rows"].append({"gate":provider+":fresh-replay","status":"PASS","bundle_id":fresh_summary["bundle_id"]})
+            report["rows"].append({"gate":provider+":fresh-replay","status":"PASS","bundle_id":fresh_summary["bundle_id"],
+                "source_bundle_id":summary["bundle_id"],"execution_id":fresh["steps"][0]["execution_id"],"result_id":fresh["steps"][0]["result_id"]})
         session.save_workspace(workspace)
-        reopened=inspect_workspace(workspace,destination/"reopened")
+        reopened=inspect_workspace(workspace,destination/"reopened",session.workbench.serialize())
         if len(reopened)!=len(spec["cases"])*2+2:raise ValueError("Reopen lost history")
-        report["rows"].append({"gate":"provider-free-reopen","status":"PASS","bundle_count":len(reopened)})
+        report["rows"].append({"gate":"provider-free-reopen","status":"PASS","bundle_count":len(reopened),"retained_content_match":True})
         report["outcome"]="passed"
     except Exception as exc:
         session.save_workspace(workspace)
