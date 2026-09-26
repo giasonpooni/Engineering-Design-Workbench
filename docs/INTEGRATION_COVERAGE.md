@@ -19,6 +19,9 @@ operating point.
 The [native interoperability validation report](NATIVE_INTEROP_VALIDATION.md)
 records the later bounded Rust/C++, JuliaControl and JuMP increment separately,
 including its unresolved SP1 and platform gates.
+The later [reaction benchmark validation](REACTION_BENCHMARK_VALIDATION.md)
+records the bounded Catalyst/Cantera profile on that same native operation;
+it does not add chemical measurement, heat coupling or evidence admission.
 
 ## Shared operating session
 

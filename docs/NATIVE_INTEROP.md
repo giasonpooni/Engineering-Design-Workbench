@@ -146,3 +146,11 @@ proof production, independent fresh verification and corruption/claim-swapping
 gates must pass before that status can change under a separately reviewed
 proof integration. Existing heat proof meanings and guest registrations remain
 unchanged.
+
+## Additive reaction provider families
+
+`reaction-a-to-b.v1` uses isolated `catalyst` and `cantera` worker families on
+the same native operation and SCR commitment path. Legacy `cpp`/`julia` profiles
+and runtime closures are preserved. Each new family requires its own qualified
+closure; see [reaction benchmark](REACTION_BENCHMARK.md) for the model, units,
+engine gates and limitations. No generic chemistry importer is enabled.

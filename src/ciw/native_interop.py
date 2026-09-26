@@ -91,6 +91,9 @@ def _depot(value):
 
 
 def _runtime(bindings):
+    if type(bindings) is dict and "provider" in bindings:
+        from .reaction_runtime import runtime
+        return runtime(bindings)
     required={"scr","host","host_sha256"}
     julia={"julia","julia_runtime","julia_depot"}
     if type(bindings) is not dict or not required<=bindings.keys() or not bindings.keys()<=required|julia:
@@ -163,6 +166,8 @@ def _run(command,raw,*,cwd,env,timeout=210):
 def _invoke(s,bindings,runtime,execution_id):
     current,host_bytes,artifacts=_runtime(bindings)
     if current!=runtime: raise ValueError("Native runtime changed before invocation")
+    if "reaction" in runtime and runtime["reaction"]["provider"] != s["provider"]:
+        raise ValueError("Source and bound reaction provider family differ")
     request={"schema":REQUEST_SCHEMA,"request_id":"request-"+uuid.uuid4().hex,
              "parent_execution_id":execution_id,**{k:deepcopy(s[k]) for k in ("profile","arithmetic","semantics","payload")}}
     hello={"schema":"ciw.native-interop-handshake-request.v1","request_id":"handshake-"+uuid.uuid4().hex}
@@ -174,6 +179,9 @@ def _invoke(s,bindings,runtime,execution_id):
         root=Path(temp);exe=root/("scr-provider-host.exe" if os.name=="nt" else "scr-provider-host")
         exe.write_bytes(host_bytes);exe.chmod(0o700)
         command=[str(exe),"--provider",s["provider"],"--timeout-ms","180000"]
+        if s["provider"] in {"catalyst", "cantera"}:
+            from .reaction_runtime import command as reaction_command
+            command += reaction_command(s, bindings, runtime, artifacts, root, env)
         if s["provider"]=="julia":
             if runtime["julia"] is None: raise AdapterRefusal("RUNTIME_UNAVAILABLE","Julia provider is not bound")
             for name,raw in artifacts.items():
@@ -186,7 +194,7 @@ def _invoke(s,bindings,runtime,execution_id):
         seconds=time.perf_counter()-started
         if exe.read_bytes()!=host_bytes: raise ValueError("Host snapshot changed during execution")
         for name,raw in artifacts.items():
-            if s["provider"]=="julia" and (root/name).read_bytes()!=raw: raise ValueError("Julia snapshot changed during execution")
+            if s["provider"]!="cpp" and (root/name).read_bytes()!=raw: raise ValueError("Provider snapshot changed during execution")
     if _runtime(bindings)[0]!=runtime: raise ValueError("Native runtime changed during invocation")
     hello_response,response=frames(out)
     identity=_json(hello_response)
@@ -228,7 +236,7 @@ def _host_check(s,request,response):
         if type(h[name]) is not int or h[name] < (1 if name=="process_id" else 0): raise ValueError("Invalid host occurrence")
     contract.number(h["elapsed_seconds"],0,210)
     _hex(h["child_stderr_hex"],65536)
-    if s["provider"]=="julia":
+    if s["provider"]!="cpp":
         for name in ("child_process_id","child_occurrence"):
             if type(h[name]) is not int or h[name] < (1 if name=="child_process_id" else 0): raise ValueError("Invalid child occurrence")
         if _hex(h["child_request_bytes_hex"])!=canonical(request): raise ValueError("Child request differs")
@@ -247,10 +255,13 @@ def _runtime_link(runtime,s,hello,reply,response):
         raise ValueError("Invalid handshake request")
     if reply["schema"]!="ciw.native-interop-handshake-response.v1" or reply["request_id"]!=hello["request_id"] or reply["status"]!="ok" or reply["cancellation"]!="unsupported":
         raise ValueError("Invalid handshake response")
-    profiles=(["affine-binary64.v1","affine-d256.v1","oscillator-force-energy.v1"] if s["provider"]=="cpp" else
+    profiles=(["reaction-a-to-b.v1"] if s["provider"] in {"catalyst", "cantera"} else ["affine-binary64.v1","affine-d256.v1","oscillator-force-energy.v1"] if s["provider"]=="cpp" else
               ["affine-binary64.v1","affine-d256.v1","oscillator-tsit5.v1","control-oscillator.v1","design-qp.v1"])
     if reply["profiles"]!=profiles or reply["limits"]!={"request_bytes":1048576,"response_bytes":4194304,"diagnostic_bytes":65536,"timeout_ms":180000,"max_requests":256}:
         raise ValueError("Host capabilities differ")
+    if s["provider"] in {"catalyst", "cantera"}:
+        from .reaction_runtime import runtime_link
+        return runtime_link(runtime, s, reply, response)
     identity=reply["identity"]
     common={"provider","host_executable_sha256","native_source_id","native_build","bridge_version"}
     extra={"julia_executable_sha256","worker_sha256","project_sha256","manifest_sha256","oscillator_worker_sha256","worker_identity"}
@@ -294,7 +305,7 @@ class NativeInteropWorkflow:
         raw=binding_path.read_bytes()
         if len(raw)>65536: raise ValueError("Host binding exceeds byte budget")
         bindings=_json(raw)
-        for name in ("scr","host","julia","julia_runtime"):
+        for name in ("scr","host","julia","julia_runtime","executable","runtime"):
             if name in bindings: bindings[name]=str((binding_path.parent/str(bindings[name])).resolve())
         runtime,_,_=_runtime(bindings)
         if expected is not None and expected!={ROLE:runtime}: raise ValueError("Native replay requires the original runtime")
@@ -345,8 +356,11 @@ class NativeInteropWorkflow:
         if canonical(data["output"])!=canonical(response["data"]) or data["authority"]!=contract.AUTHORITY or result["authority"]!=contract.AUTHORITY:
             raise ValueError("Retained native output/authority differs")
         check=data["reference_check"]
-        contract.keys(check,{"outcome","method","max_abs_discrepancy","policy","authority"})
-        method={"affine-binary64.v1":"independent_python_affine_binary64","affine-d256.v1":"independent_python_affine_integer", "oscillator-force-energy.v1":"independent_python_force_energy", "oscillator-tsit5.v1":"independent_python_analytic_oscillator", "control-oscillator.v1":"independent_python_analytic_oscillator", "design-qp.v1":"independent_python_objective_box_projected_gradient"}[s["profile"]]
+        contract.keys(check,{"outcome","method","max_abs_discrepancy","policy","authority"} | ({"metrics"} if s["profile"]=="reaction-a-to-b.v1" else set()))
+        if s["profile"]=="reaction-a-to-b.v1":
+            from .reaction_contract import validate_metrics
+            validate_metrics(check["metrics"])
+        method={"reaction-a-to-b.v1":"independent_python_analytic_reaction_and_rate_law", "affine-binary64.v1":"independent_python_affine_binary64","affine-d256.v1":"independent_python_affine_integer", "oscillator-force-energy.v1":"independent_python_force_energy", "oscillator-tsit5.v1":"independent_python_analytic_oscillator", "control-oscillator.v1":"independent_python_analytic_oscillator", "design-qp.v1":"independent_python_objective_box_projected_gradient"}[s["profile"]]
         if check["outcome"]!="passed" or check["method"]!=method or check["policy"]!=contract.POLICY or check["authority"]!=contract.AUTHORITY:
             raise ValueError("Retained numerical check scope differs")
         contract.number(check["max_abs_discrepancy"],0,1e20)
@@ -362,6 +376,10 @@ class NativeInteropWorkflow:
         if old["profile"]!=new["profile"] or old["arithmetic"]!=new["arithmetic"] or old["semantics"]!=new["semantics"]:
             raise ValueError("Native reproduction semantics differ")
         discrepancy=contract.compare(old["data"],new["data"],exact=old["arithmetic"]=="exact-d256")
+        if old["profile"] == "reaction-a-to-b.v1":
+            # Reaction rates and concentrations have different dimensions. All
+            # fields were checked above; this scalar reports concentration only.
+            discrepancy=contract.compare(old["data"]["concentration_mol_m3"],new["data"]["concentration_mol_m3"])
         v={"schema":"ciw.native-interop-verification.v1","subject_ref":bundle["bundle_digest"],"outcome":"passed",
            "independent":False,"method":"fresh_provider_reproduction_with_separate_python_reference_checks",
            "max_abs_discrepancy":discrepancy,"runtime_digest":digest(bundle["runtimes"]),"reproduction":deepcopy(reproduced),"authority":deepcopy(contract.AUTHORITY)}
@@ -385,7 +403,10 @@ class NativeInteropWorkflow:
             if bundle["source"]!=expected or bundle["configuration"]!=s["configuration"]: raise ValueError("Native source/configuration differs")
             contract.keys(bundle["runtimes"],{ROLE})
             r=bundle["runtimes"][ROLE]
-            contract.keys(r,{"schema","revision","source_tree","host_sha256","host_byte_count","source_to_binary_attestation","julia"})
+            contract.keys(r,{"schema","revision","source_tree","host_sha256","host_byte_count","source_to_binary_attestation","julia"} | ({"reaction"} if s["provider"] in {"catalyst", "cantera"} else set()))
+            if s["provider"] in {"catalyst", "cantera"}:
+                from .reaction_runtime import validate_runtime
+                validate_runtime(r, s["provider"])
             if r["schema"]!="ciw.native-interop-runtime.v1" or r["revision"] not in _pins()["scr_revisions"] or r["source_to_binary_attestation"]!="not_established":
                 raise ValueError("Unsupported retained SCR runtime")
             if not re.fullmatch(r"[a-f0-9]{40}",r["source_tree"]) or not re.fullmatch(r"sha256:[a-f0-9]{64}",r["host_sha256"]): raise ValueError("Malformed retained runtime identity")

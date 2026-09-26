@@ -1,0 +1,99 @@
+name: Reaction benchmark qualification
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-reaction:
+    runs-on: windows-2022
+    timeout-minutes: 120
+    env:
+      CARGO_TARGET_DIR: ${{ runner.temp }}/reaction-target
+      JULIA_DEPOT_PATH: ${{ runner.temp }}/reaction-julia-depot
+      JULIA_NUM_THREADS: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Read the qualified SCR revision
+        id: pin
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          $pin = Get-Content src/ciw/native-interop-runtimes.json -Raw | ConvertFrom-Json
+          $revision = $pin.reaction_families.catalyst.scr_revisions[-1]
+          if (!$revision -or $revision -ne $pin.reaction_families.cantera.scr_revisions[-1]) { throw 'Reaction families require one reviewed host revision' }
+          "revision=$revision" >> $env:GITHUB_OUTPUT
+      - uses: actions/checkout@v4
+        with:
+          repository: giasonpooni/Scientific-Computation-Runtime
+          ref: ${{ steps.pin.outputs.revision }}
+          path: .ciw-reaction-scr
+          token: ${{ secrets.SCR_READ_TOKEN || github.token }}
+          persist-credentials: false
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.10.12'
+      - name: Provision isolated locked runtimes
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          python -m pip install uv==0.10.10 build
+          uv python install 3.12.14
+          $managed = uv python find --managed-python 3.12.14
+          uv venv --python $managed "$env:RUNNER_TEMP/cantera-env"
+          uv pip install --python "$env:RUNNER_TEMP/cantera-env/Scripts/python.exe" --require-hashes -r runtimes/cantera-reaction/requirements.txt
+          julia --startup-file=no --project=runtimes/reaction-kinetics -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
+          rustup toolchain install 1.96.0 --profile minimal
+          rustup default 1.96.0
+          cargo build --locked --manifest-path .ciw-reaction-scr/crates/execution-provider-host/Cargo.toml
+          python -m build --wheel
+          uv venv --python $managed "$env:RUNNER_TEMP/ciw-env"
+          uv pip install --python "$env:RUNNER_TEMP/ciw-env/Scripts/python.exe" (Get-ChildItem dist/*.whl).FullName pytest==9.0.2
+      - name: Bind qualified providers without changing the pins
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          $env:CIW_REACTION_ROOT = (Get-Location).Path
+          @'
+          import hashlib,json,os,pathlib,shutil
+          root=pathlib.Path(os.environ['CIW_REACTION_ROOT'])
+          temp=pathlib.Path(os.environ['RUNNER_TEMP'])
+          host=pathlib.Path(os.environ['CARGO_TARGET_DIR'])/'debug/scr-provider-host.exe'
+          common={'scr':str(root/'.ciw-reaction-scr'),'host':str(host),'host_sha256':'sha256:'+hashlib.sha256(host.read_bytes()).hexdigest(),'runtime':str(root)}
+          for provider,exe in [('catalyst',shutil.which('julia')),('cantera',str(temp/'cantera-env/Scripts/python.exe'))]:
+              row={**common,'provider':provider,'executable':exe}
+              if provider=='catalyst':row['depot']=os.environ['JULIA_DEPOT_PATH']
+              (temp/(provider+'-binding.json')).write_text(json.dumps(row))
+          '@ | python -
+      - name: Installed-wheel end-to-end gate
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          $root = (Get-Location).Path
+          $env:CIW_REACTION_CATALYST_BINDING = "$env:RUNNER_TEMP/catalyst-binding.json"
+          $env:CIW_REACTION_CANTERA_BINDING = "$env:RUNNER_TEMP/cantera-binding.json"
+          $env:CIW_TEST_REACTION_JULIA = (Get-Command julia).Source
+          $env:CIW_TEST_REACTION_JULIA_DEPOT = $env:JULIA_DEPOT_PATH
+          $env:CIW_REACTION_REQUIRE_JULIA = '1'
+          $env:CIW_TEST_REACTION_CANTERA = "$env:RUNNER_TEMP/cantera-env/Scripts/python.exe"
+          $env:CIW_REACTION_REQUIRE_CANTERA = '1'
+          Set-Location $env:RUNNER_TEMP
+          & "$env:RUNNER_TEMP/ciw-env/Scripts/python.exe" -I -m pytest "$root/tests/test_reaction_contract.py" "$root/tests/test_reaction_workflow.py" "$root/tests/test_reaction_julia_worker.py" "$root/tests/test_reaction_cantera_worker.py" --override-ini=pythonpath= -q -p no:cacheprovider --basetemp="$env:RUNNER_TEMP/reaction-tests" --junitxml="$env:RUNNER_TEMP/reaction-tests.xml"
+          [xml]$tests = Get-Content "$env:RUNNER_TEMP/reaction-tests.xml"
+          if (($tests.testsuites.testsuite | Measure-Object -Property skipped -Sum).Sum -ne 0) { throw 'Required reaction tests must not skip' }
+          & "$env:RUNNER_TEMP/ciw-env/Scripts/python.exe" -I "$root/scripts/check_reaction_benchmark.py" run --catalyst "$env:RUNNER_TEMP/catalyst-binding.json" --cantera "$env:RUNNER_TEMP/cantera-binding.json" --fixtures "$root/examples/reaction-benchmark/fixtures.json" --output "$env:RUNNER_TEMP/reaction-evidence"
+          if ($LASTEXITCODE -ne 0) { throw 'Qualified runtime or reaction gate failed; do not broaden pins automatically' }
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: reaction-benchmark-evidence
+          path: ${{ runner.temp }}/reaction-evidence

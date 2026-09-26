@@ -19,7 +19,8 @@ Part of **Notation Systems' computational instrumentation and evidence
 infrastructure** for industrial and cyber-physical systems.
 
 [Documentation index](docs/README.md) · [Workbench overview](docs/WORKBENCH_OVERVIEW.md) ·
-[Systems catalog](docs/SYSTEMS_CATALOG.md) · [Stack map](docs/STACK.md)
+[Systems catalog](docs/SYSTEMS_CATALOG.md) · [Stack map](docs/STACK.md) ·
+[Consolidation roadmap](docs/CONSOLIDATION.md)
 
 ## The design language
 

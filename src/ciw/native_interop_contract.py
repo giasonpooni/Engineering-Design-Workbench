@@ -22,6 +22,7 @@ PROFILES = {
     "oscillator-tsit5.v1": {"julia"},
     "control-oscillator.v1": {"julia"},
     "design-qp.v1": {"julia"},
+    "reaction-a-to-b.v1": {"catalyst", "cantera"},
 }
 AFFINE_SEMANTICS = {"layout": "row-major", "input_units": "dimensionless",
                     "output_units": "dimensionless", "frame": "declared-cartesian", "clock": "not-applicable"}
@@ -64,6 +65,9 @@ def vector(value, size=None, *, exact=False, bound=1e6):
 
 
 def semantics(profile):
+    if profile == "reaction-a-to-b.v1":
+        from .reaction_contract import SEMANTICS
+        return deepcopy(SEMANTICS)
     return deepcopy(AFFINE_SEMANTICS if profile.startswith("affine-") or profile == "design-qp.v1" else OSCILLATOR_SEMANTICS)
 
 
@@ -89,6 +93,9 @@ def times(value, *, singleton=False, uniform=False):
 
 
 def validate_payload(profile, p):
+    if profile == "reaction-a-to-b.v1":
+        from .reaction_contract import validate_payload as validate_reaction
+        return validate_reaction(p)
     if profile.startswith("affine-"):
         keys(p, {"rows", "columns", "a_row_major", "b", "x0", "delta_x"})
         m, n = count(p["rows"]), count(p["columns"])
@@ -226,6 +233,9 @@ def compare(expected, actual, *, exact=False):
 def validate_output(s, data):
     """Structural output checks usable offline; no model evaluation."""
     profile,p=s["profile"],s["payload"]
+    if profile == "reaction-a-to-b.v1":
+        from .reaction_contract import validate_output as validate_reaction
+        return validate_reaction(s, data)
     if profile.startswith("affine-"):
         keys(data,{"rows","columns","baseline_output","contributions","predicted_delta","predicted_output","model_output","residual","denominator"})
         if type(data["rows"]) is not int or type(data["columns"]) is not int or (data["rows"],data["columns"])!=(p["rows"],p["columns"]):
@@ -278,6 +288,9 @@ def validate_output(s, data):
 def check_output(s, data):
     """Fresh independent reference check. Never called by retained inspection."""
     p, profile = s["payload"], s["profile"]
+    if profile == "reaction-a-to-b.v1":
+        from .reaction_contract import check_output as check_reaction
+        return check_reaction(s, data)
     if profile.startswith("affine-"):
         exact = profile == "affine-d256.v1"
         error = compare(affine_reference(p,exact),data,exact=exact)
