@@ -15,7 +15,7 @@ from threading import RLock
 
 from .adapters.protocol import AdapterRefusal
 from .adapters.subprocess import _json
-DECLARED_KINDS = frozenset({"schematic-assessment", "numerical-heat", "proved-heat", "schematic-companions", "bim-quantity", "acquired-dataset", "residual-monitor", "measurement-chain", "geometric-circle", "identified-stability", "flat-torus-reference", "curved-path-transfer", "covariance-geometry", "mesh-path", "translation-flow", "variational-free-energy", "energy-accuracy", "instrument-exchange", "thermal-observer", "machine-manifest", "julia-oscillator"})
+DECLARED_KINDS = frozenset({"schematic-assessment", "numerical-heat", "proved-heat", "schematic-companions", "bim-quantity", "acquired-dataset", "residual-monitor", "measurement-chain", "geometric-circle", "identified-stability", "flat-torus-reference", "curved-path-transfer", "covariance-geometry", "mesh-path", "translation-flow", "variational-free-energy", "energy-accuracy", "instrument-exchange", "thermal-observer", "machine-manifest", "julia-oscillator", "native-interop"})
 REPRODUCED_KINDS = DECLARED_KINDS - {"proved-heat"}
 UPSTREAM_KINDS = {"identified-design": "calibrated-observable", "schematic-companions": "schematic-assessment",
                   "acquired-calibrated-window": "acquired-dataset", "identified-stability": "identified-design"}
@@ -50,6 +50,7 @@ OPERATIONS = {
     "thermal-observer": "ciw.thermal-observer.v1",
     "machine-manifest": "ciw.encoder-position.v1",
     "julia-oscillator": "ciw.julia-oscillator.v1",
+    "native-interop": "ciw.native-interop.v1",
 }
 WORKFLOW_OPERATION_IDS = frozenset(OPERATIONS.values())
 from .candidate_evidence import OPERATIONS as CANDIDATE_OPERATIONS
@@ -61,6 +62,9 @@ _OVERHEAD = 4096
 
 
 def _workflow(kind):
+    if kind == "native-interop":
+        from .native_interop import NativeInteropWorkflow
+        return NativeInteropWorkflow()
     if kind == "machine-manifest":
         from .machine_workflow import MachineManifestWorkflow
         return MachineManifestWorkflow()
@@ -394,6 +398,10 @@ def _validate_links(record, bundles):
         for other in bundles.values():
             if other["bundle_id"] != record["bundle_id"] and other["kind"] == "variational-free-energy" and not occurrences.isdisjoint(native_occurrences(other["native"])):
                 raise ValueError("Free-energy experiments require fresh native stage occurrences")
+    if record["kind"] == "native-interop":
+        from .native_interop import validate_dependency
+        raw = _workflow("native-interop")._validate(native)
+        validate_dependency(_workflow("native-interop")._source(raw), bundles)
     if record["kind"] in DECLARED_KINDS and record["kind"] != "instrument-exchange":
         occurrences = {native["steps"][0]["execution_id"]}
         if record["kind"] in REPRODUCED_KINDS:
@@ -447,7 +455,7 @@ def _validate_links(record, bundles):
         if (_canonical(original["native"]["configuration"]) != _canonical(native["configuration"]) or
                 [step["operation_id"] for step in old_steps] != [step["operation_id"] for step in new_steps]):
             raise ValueError("Replay must preserve the original operation graph and configuration")
-        if any(old["numerical_result_id"] != new["numerical_result_id"] or
+        if any((old["numerical_result_id"] != new["numerical_result_id"] and record["kind"] != "native-interop") or
                old["execution_id"] == new["execution_id"] or
                (old["result_id"] == new["result_id"] and not
                 (record["kind"] == "telemetry" and old["runtime_ref"] == "ppda" and old["result"] == new["result"]))
@@ -604,7 +612,7 @@ class Workbench:
 
     def describe_operations(self):
         with self._lock:
-            return [{"operation_id": operation, "role": {"identified-design": "decision", "schematic-assessment": "schematic_assessment", "numerical-heat": "numerical_execution", "proved-heat": "proved_numerical_execution", "schematic-companions": "local_model_analysis", "bim-quantity": "construction_quantity", "acquired-dataset": "evidence_acquisition", "residual-monitor": "residual_diagnostics", "measurement-chain": "measurement_chain_testbed", "geometric-circle": "geometric_reconciliation", "identified-stability": "stability_assessment", "flat-torus-reference": "geometric_reference", "curved-path-transfer": "geometric_sensitivity", "covariance-geometry": "covariance_geometry", "mesh-path": "mesh_path_baseline", "translation-flow": "translation_dynamics", "variational-free-energy": "variational_inference", "energy-accuracy": "offline_energy_accuracy_analysis", "instrument-exchange": "typed_exchange_adapter", "thermal-observer": "thermal_observer_reference", "machine-manifest": "machine_manifest_reference", "julia-oscillator": "julia_tsit5_provider"}.get(kind, "state_estimator"),
+            return [{"operation_id": operation, "role": {"identified-design": "decision", "schematic-assessment": "schematic_assessment", "numerical-heat": "numerical_execution", "proved-heat": "proved_numerical_execution", "schematic-companions": "local_model_analysis", "bim-quantity": "construction_quantity", "acquired-dataset": "evidence_acquisition", "residual-monitor": "residual_diagnostics", "measurement-chain": "measurement_chain_testbed", "geometric-circle": "geometric_reconciliation", "identified-stability": "stability_assessment", "flat-torus-reference": "geometric_reference", "curved-path-transfer": "geometric_sensitivity", "covariance-geometry": "covariance_geometry", "mesh-path": "mesh_path_baseline", "translation-flow": "translation_dynamics", "variational-free-energy": "variational_inference", "energy-accuracy": "offline_energy_accuracy_analysis", "instrument-exchange": "typed_exchange_adapter", "thermal-observer": "thermal_observer_reference", "machine-manifest": "machine_manifest_reference", "julia-oscillator": "julia_tsit5_provider", "native-interop": "native_computation"}.get(kind, "state_estimator"),
                      "source_kind": kind, "available": kind in self._bindings,
                      "requires_upstream_bundle": kind in UPSTREAM_KINDS,
                      **({"requires_upstream_bundles": "explicit_ordered_source_selection"} if kind == "residual-monitor" else {})}
@@ -862,6 +870,9 @@ class Workbench:
                 if any(identity not in self._bundles for identity in requested):
                     raise ValueError("Select window bundles already retained in this workbench")
                 upstream = {identity: deepcopy(self._bundles[identity]["native"]) for identity in requested}
+            if kind == "native-interop":
+                from .native_interop import validate_dependency
+                validate_dependency(_workflow(kind)._source(base64.b64decode(source["bytes_b64"], validate=True)), self._bundles)
             bindings, reserved = self._reserve(kind)
         try:
             raw = base64.b64decode(source["bytes_b64"], validate=True)
