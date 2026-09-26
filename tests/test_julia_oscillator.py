@@ -125,10 +125,34 @@ def test_session_registers_and_retains_the_julia_operation(fake_worker, monkeypa
 
 
 @pytest.mark.integration
-def test_real_julia_provider_is_explicitly_gated(tmp_path):
-    """This test is only enabled when an operator supplies a real Julia pin."""
-    executable = tmp_path / "julia"
-    runtime = tmp_path / "runtime"
-    if not executable.is_file() or not runtime.is_dir():
-        pytest.skip("Julia 1.10 runtime and instantiated project are not provisioned")
+def test_real_julia_provider_is_explicitly_gated():
+    """An enabled gate must execute the actual provider, not merely find files."""
+    import json
+    import os
+    from pathlib import Path
+    import subprocess
+
+    executable = os.environ.get("CIW_TEST_JULIA")
+    if not executable:
+        pytest.skip("set CIW_TEST_JULIA and CIW_TEST_JULIA_DEPOT for the genuine provider gate")
+    assert Path(executable).is_file(), "configured Julia executable is missing"
+    project = Path(__file__).resolve().parents[1] / "runtimes" / "julia-oscillator"
+    env = dict(os.environ, JULIA_PKG_OFFLINE="true", JULIA_NUM_THREADS="1")
+    if depot := os.environ.get("CIW_TEST_JULIA_DEPOT"):
+        env["JULIA_DEPOT_PATH"] = depot
+    hello = {"schema": "ciw.julia-worker-handshake-request.v1", "request_id": "genuine-handshake", "operation_id": jo.OPERATION}
+    request = {**jo.request_from_source(source()), "request_id": "genuine-solve"}
+    proc = subprocess.run([executable, "--startup-file=no", "--history-file=no", f"--project={project}",
+                           str(project / "oscillator_worker.jl")],
+                          input=jo._frame(canonical(hello))+jo._frame(canonical(request)),
+                          capture_output=True, timeout=300, env=env)
+    assert proc.returncode == 0, proc.stderr.decode(errors="replace")
+    handshake, response = [json.loads(value) for value in jo._frames(proc.stdout)]
+    assert handshake["request_id"] == "genuine-handshake"
+    assert handshake["identity"]["julia_version"].startswith("1.10.")
+    assert response["status"] == "ok", response
+    assert response["request_id"] == response["data"]["request_id"] == "genuine-solve"
+    expected = jo.analytic_oracle(source())
+    for key in ("q_m", "v_m_s", "energy_j"):
+        assert response["data"][key] == pytest.approx(expected[key], abs=2e-8, rel=2e-8)
 
