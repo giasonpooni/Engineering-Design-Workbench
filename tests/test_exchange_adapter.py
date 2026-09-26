@@ -100,8 +100,17 @@ def test_native_exchange_survives_save_reopen_and_replay(monkeypatch, tmp_path):
 
 
 def test_provider_revision_mismatch_is_refused(tmp_path):
+    import subprocess
+
     fake = tmp_path / "provider"
-    fake.mkdir()
+    subprocess.run(["git", "init", "--quiet", str(fake)], check=True, capture_output=True)
+    subprocess.run(["git", "-C", str(fake), "-c", "user.name=CIW test",
+                    "-c", "user.email=ciw-test@example.invalid", "-c", "commit.gpgsign=false",
+                    "commit", "--quiet", "--allow-empty", "--no-verify", "-m", "Unpinned provider fixture"],
+                   check=True, capture_output=True)
+    revision = subprocess.run(["git", "-C", str(fake), "rev-parse", "HEAD"],
+                              check=True, capture_output=True, text=True).stdout.strip()
+    assert revision != adapter.PIN["revision"]
     with pytest.raises(ValueError, match="revision"):
         adapter._runtime(fake)
 
