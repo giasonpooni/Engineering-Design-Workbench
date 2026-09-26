@@ -2,13 +2,20 @@
 
 **State. Variation. Invariance.**
 
-**An evidence-backed environment for exploring design spaces, composing
-scientific models and evaluating engineering decisions.**
+**A terminal-first, multi-engine platform for evidence-backed scientific
+modelling, experimentation and engineering design.**
 
-The **Parametric Design Testbed (PDT)** is a terminal-first laboratory for
-computational engineering design. It connects explicit design parameters and
-model relationships to computed responses, candidate comparisons and retained
-evidence.
+The **Parametric Design Testbed (PDT)** is a **programmable computational
+laboratory**. Its central working object is an investigation: the question,
+models, observations, parameters, candidate designs, executions, results and
+checks remain connected. The terminal is a control surface, not the whole
+system; graphical clients and APIs work through the same investigation and
+execution boundaries.
+
+The base-pilot architecture is now the agreed development baseline.
+Implementation and qualification remain operation-specific; the
+[current scope](#current-scope) and [integration coverage](docs/INTEGRATION_COVERAGE.md)
+distinguish implemented paths, pending integrations and unperformed checks.
 
 Engineering design is the purpose; parametric variation is the method. The
 testbed is where models, numerical operations and verification methods are
@@ -19,6 +26,126 @@ Copyright © 2026 Notation Systems.
 
 [Documentation index](docs/README.md) · [Workbench overview](docs/WORKBENCH_OVERVIEW.md) ·
 [Systems catalog](docs/SYSTEMS_CATALOG.md) · [Stack map](docs/STACK.md)
+
+## Base pilot: the programmable computational laboratory
+
+**Architectural baseline agreed; implementation and qualification in progress.**
+The base pilot brings the existing instruments together around one end-to-end
+investigation lifecycle. It is not a new operating-system kernel, a single
+universal solver, or a requirement to install every project in the reference
+catalog. The development task is to complete and qualify the connections below,
+not to keep expanding the platform's conceptual scope.
+
+### One investigation, several control surfaces
+
+Terminal commands and scripts remain the reproducible, headless operating path.
+The Python/API surface and optional graphical clients expose supported parts of
+the same investigation. An optional AI assistant may propose models, candidates
+or operation requests; it receives no separate execution or admission authority.
+Closing a viewer must not stop a computation, change evidence or change a result.
+
+The pilot's end-to-end contract is:
+
+```text
+Question + intended use
+          |
+          v
+Declared model/profile + parameters + observations and assumptions
+          |
+          v
+Compatible operation graph + permitted candidate variations
+          |
+          v
+Registered computation / simulation / estimation
+          |
+          v
+Response + uncertainty status + residuals + scoped checks
+          |
+          v
+Retained investigation -> inspection and candidate comparison
+          |
+          v
+Revise the model/design or propose the next experiment
+          |
+          +----> new evidence and a new investigation revision
+```
+
+This is the target lifecycle, not a claim that an automatic workflow planner,
+generic acquisition bus or every provider connection is implemented. A manually
+declared, validated operation graph is sufficient for the initial pilot.
+Physical acquisition or action requires its own supported, authorized path.
+
+| Supported-profile question | Required pilot output |
+| --- | --- |
+| What system and question are being studied? | A versioned model, intended use, input meanings, assumptions and applicable domain. |
+| What happens under a permitted change? | A computed response or trajectory, local sensitivity where supported, and explicit approximation limits. |
+| What do the observations imply? | A scoped state/parameter estimate, declared uncertainty, predictive residuals and unresolved quantities. |
+| Which candidate or next measurement is useful? | A comparison under explicit objectives, constraints, information and cost assumptions; a recommendation is not equipment authorization. |
+| What supports the conclusion? | Linked source, operation, execution, result and verification records, with each check's scope and outcome visible. |
+| What changes after new evidence? | A new revision and explicit affected dependencies; impact is not automatically a verdict that an earlier result was wrong. |
+
+These outputs are supported only where the selected profile and provider can
+supply them. Unknown uncertainty stays unknown; unsupported operations stay
+unsupported. The full investigation, including failed attempts, assumptions and
+alternative candidates, is the deliverable rather than only its final plot.
+
+### One environment, separate responsibilities
+
+| Boundary | Responsibility in the base-pilot design |
+| --- | --- |
+| **PDT / existing CIW substrate** | Own the working investigation, study configuration, operation lifecycle, retained history, inspection and explicit replay. |
+| **Scientific providers and domain profiles** | Supply equations, representations, observation models and bounded calculations. Connect approved Python, Julia and C/C++ engines; do not rewrite their science inside PDT. |
+| **SCR / native execution** | Supply registered execution services, runtime bindings and selected checkers through the existing boundary. A language choice is not a scientific qualification. |
+| **ICRH and scoped verification providers** | Check the particular numerical, contract or replay claims they support. SP1 is optional for selected registered computations; it does not prove all models or observations. |
+| **ESM** | Retain and govern applicable evidence, candidate information, admission, correction and release through separately supported handoffs. A computation never admits its own output. |
+| **Inspection clients and OpenUSD** | Project retained information for numerical, temporal, spectral, geographic or local 2D/3D inspection. Scene composition, appearance and playback do not create scientific authority. |
+
+This table assigns responsibilities; the current implementation remains recorded
+in [Architecture](docs/ARCHITECTURE.md) and the
+[systems catalog](docs/SYSTEMS_CATALOG.md). An unavailable governance or proof
+handoff must be explicit, not simulated. Supported computational investigations
+remain usable without canonical admission or a proof service.
+
+### Pilot closure, not unlimited expansion
+
+Completion is demonstrated on bounded, reproducible investigations using the
+existing oscillator/thermal, measurement-chain and curved-path foundations.
+The base pilot must show a shared lifecycle across distinct workloads, not just
+several unrelated demos. The following are acceptance requirements, not passed
+gates asserted by this README:
+
+| Gate | Evidence required to close it |
+| --- | --- |
+| **Compose** | Bind a named model/profile and all required inputs; check quantity, frame, clock, representation and dependency compatibility before execution. |
+| **Execute and compare** | Exercise actual registered providers, including the selected native-language paths; compare against independently implemented references under declared numerical policies. |
+| **Investigate** | Retain a baseline and candidate variation, their assumptions, response and checks; report unresolved or invalid cases without manufacturing a successful result. |
+| **Reopen and replay** | Reopen retained records without provider execution; explicitly replay with fresh execution identities while preserving the original history and supported pins. |
+| **Challenge and recover** | Reject altered bindings, incompatible inputs and unsupported assumptions; retain bounded failures, recover without losing prior results and identify affected downstream dependencies. |
+| **Inspect and hand off** | Keep terminal-only operation functional; qualify each supported client/export and ESM handoff separately. OpenUSD remains pending until the export/reload gate below passes. |
+| **Qualify claims** | Retain genuine evidence for each numerical, proof or physical-validation claim; distinguish unavailable/skipped checks from passes and report startup, transfer, computation and checking costs separately. |
+
+The next physical-claim milestone remains the held-out measurement and
+replayable evidence bundle described in [Next gates](#next-gates). Computational
+pilot closure is not physical validation, production multi-user readiness,
+real-time qualification or a platform-wide industrial certification.
+
+Physics, chemistry/materials, biology, agriculture, AEC, logistics, manufacturing,
+robotics and mathematical or social modelling are profile-extension directions,
+not simultaneous pilot-delivery claims. A new domain contributes its scientific
+meaning, providers and validation cases while reusing this lifecycle. Coupled
+polymer kinetics and heat transfer is one later investigation candidate, not a
+capability established by this README. No single latent space, smooth manifold,
+uncertainty model or evidence standard is assumed across all domains.
+
+Additional engines, clients, proof systems and profiles extend this baseline.
+They must not fork the session/evidence architecture, rename historical records,
+remove verified invariants or displace ongoing implementation work. Success is
+measured by reproducible investigations, correct handoffs and qualified claims,
+not repository count, language share or the size of an integration wish list.
+
+**The terminal is a control surface. The investigation is the central object.
+The scientific providers are the instruments. Evidence preserves what supports
+the result and what still needs to be established.**
 
 ## The design language
 
