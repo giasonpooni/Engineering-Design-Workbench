@@ -1,11 +1,11 @@
-# Parametric Design Testbed
+# Parametric Design Terminal
 
 **State. Variation. Invariance.**
 
 **A terminal-first, multi-engine programmable cyber-physical laboratory for
 evidence-backed scientific modelling, experimentation and engineering design.**
 
-The **Parametric Design Testbed (PDT)** is a **programmable computational and
+The **Parametric Design Terminal (PDT)** is a **programmable computational and
 cyber-physical laboratory**. Its central working object is an investigation:
 the question, models, observations, parameters, candidate designs, executions,
 results and checks remain connected. Software-only deployments remain complete
@@ -20,9 +20,9 @@ Implementation and qualification remain operation-specific; the
 distinguish implemented paths, pending integrations and unperformed checks.
 
 Engineering design is the purpose; parametric variation is the method. The
-testbed is where models, numerical operations and verification methods are
-exercised and challenged, rather than treating a generated candidate as an
-established result.
+terminal is the working environment in which models, numerical operations and
+verification methods are exercised and challenged, rather than treating a
+generated candidate as an established result.
 
 Copyright © 2026 Notation Systems.
 
@@ -224,12 +224,12 @@ useful without an LLM.
 
 ### Testbed, framework and design spaces
 
-**Parametric Design Testbed** names the working environment, not a claim that
+**Parametric Design Terminal** names the working environment, not a claim that
 all investigations form one smooth manifold. The naming hierarchy is:
 
 | Level | Name and role |
 | --- | --- |
-| **Project** | Parametric Design Testbed (PDT): construct, execute, compare and challenge investigations. |
+| **Project** | Parametric Design Terminal (PDT): construct, execute, compare and challenge investigations. |
 | **Core framework** | State, variation and invariance. |
 | **Mathematical architecture** | Interconnected model and design spaces with explicitly supported maps. |
 | **Specialized geometric objects** | Parametric design manifolds where local coordinates, smoothness and admissible variations are defined. |
