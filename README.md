@@ -2,8 +2,8 @@
 
 **State. Variation. Invariance.**
 
-**An evidence-backed environment for modelling, varying and evaluating
-engineered systems.**
+**An evidence-backed environment for exploring design spaces, composing
+scientific models and evaluating engineering decisions.**
 
 The **Parametric Design Testbed (PDT)** is a terminal-first laboratory for
 computational engineering design. It connects explicit design parameters and
@@ -74,6 +74,46 @@ The operator defines the question, assumptions, objectives, constraints and
 standard of evidence. AI assistance is optional; generated candidates are not
 verified results. The terminal, scripts and optional graphical client remain
 useful without an LLM.
+
+### Testbed, framework and design spaces
+
+**Parametric Design Testbed** names the working environment, not a claim that
+all investigations form one smooth manifold. The naming hierarchy is:
+
+| Level | Name and role |
+| --- | --- |
+| **Project** | Parametric Design Testbed (PDT): construct, execute, compare and challenge investigations. |
+| **Core framework** | State, variation and invariance. |
+| **Mathematical architecture** | Interconnected model and design spaces with explicitly supported maps. |
+| **Specialized geometric objects** | Parametric design manifolds where local coordinates, smoothness and admissible variations are defined. |
+
+A model's state describes the system being studied. An investigation's state
+also includes its selected model, parameters, representations, observations,
+executions, results and checks. Continuous parameter variation, a discrete model
+change and a new evidence record are different transitions; none silently
+reinterprets historical records.
+
+The development direction is domain/use-case profiles that select model
+families, observables, representations, registered providers and applicable
+checks through the existing contracts. Manifolds describe suitable smooth
+families; moduli descriptions identify models under declared equivalences.
+Neither construction is assumed for every parameter set. Graphs describe typed
+dependencies, category-theoretic rules can specify compatible composition, and
+topology can describe relevant structural features. They support the same
+investigation rather than create another runtime or proof authority.
+
+A representation must preserve the information the requested calculation needs,
+not merely one invariant. Coordinate changes, lossy encodings, model reductions
+and physical couplings need different contracts. A change of domain is not
+automatically a change of chart on the same manifold. Profile selection
+specializes the testbed; empirical calibration and validation require their own
+applicable evidence.
+
+This is mathematical architecture and research direction, not a newly
+implemented universal profile loader or manifold navigator. Extend the
+[state transformation contract](docs/STATE_TRANSFORMATIONS.md) and
+[project-model foundations](docs/CONTRACT_FOUNDATIONS.md) while retaining
+independent scientific and execution identities.
 
 ### Existing runtime, same substrate
 
@@ -405,6 +445,85 @@ Read [SYSTEMS_CATALOG.md](docs/SYSTEMS_CATALOG.md) for:
 The stack map in [STACK.md](docs/STACK.md) remains the detailed responsibility
 and numerical-foundation reference. [PROVIDER_AVAILABILITY.md](docs/PROVIDER_AVAILABILITY.md)
 describes exact local checkout provisioning without anonymous provider clones.
+
+## OpenUSD scene interchange
+
+**Selected format direction; implementation pending.** Use
+[OpenUSD](https://openusd.org/release/intro.html) for scene and geometry
+interchange alongside PDT's existing scientific records, not instead of them.
+OpenUSD supplies a scene-description data model and composition system with
+layers, references, variant sets and time-sampled attributes. A USD stage
+represents a concrete scene or selected candidate; it is not the entire model
+space, investigation state or evidence ledger.
+
+| OpenUSD element | Intended PDT use |
+| --- | --- |
+| **Prims, transforms and geometry** | Represent supported assets, assemblies, sensor locations and spatial outputs. |
+| **Layers and references** | Assemble reusable scene assets and keep presentation overrides separate from retained source data. |
+| **Variant sets** | Expose supported candidate configurations; selecting a scene variant does not execute or accept a scientific design. |
+| **Time samples** | Display declared trajectories and spatial results under an explicit mapping from model time to scene time. |
+| **Custom metadata and relationships** | Link represented objects to separately retained model, source, result and evidence identities. |
+
+Start with inspectable **`.usda`** text exports. Add **`.usdc`** binary layers
+and **`.usdz`** packages only through separately exercised profiles. These
+formats do not replace the versioned CIW record formats or native scientific
+files. Retain original IFC, chemistry mechanisms, numerical arrays and other
+source artifacts where their domain meaning is required. In PDT, appearance
+materials are not substitutes for validated physical or chemical properties.
+
+```text
+Retained PDT model / candidate / result + explicit mapping
+                          |
+                  Qualified export adapter
+                          |
+            USD scene + bound dependency manifest
+                          |
+             Compatible reader / inspection client
+```
+
+The first profile is export and read-only inspection. A future authoring/import
+path must retain the submitted scene as new candidate evidence and pass the
+appropriate domain checks before use; viewer edits never overwrite the
+scientific source or silently become solver inputs. Existing Godot/GSV and
+terminal paths remain supported without an OpenUSD dependency.
+
+The adapter contract must preserve:
+
+- **Space and time:** explicit `metersPerUnit`, `upAxis`, coordinate/frame
+  mapping and `timeCodesPerSecond` where animated. Preserve the source clock,
+  epoch/offset, sample support and interpolation policy separately; interpolated
+  display values are not new observations. Mixed-unit assets require explicit
+  corrective transforms, not assumed automatic conversion.
+- **Identity and composition:** retain PDT identifiers separately from USD prim
+  paths. Bind the contributing layer/asset digests, layer order, selected
+  variants and exporter/runtime identity; a root-file hash alone does not bind
+  an externally referenced composition. Presentation strength is not evidence
+  authority.
+- **Meaning and access:** declare the supported schema subset and any
+  tessellation, decimation or precision loss. Unsupported geometry or missing
+  references must not be silently approximated. Resolve only configured,
+  bounded assets with host-controlled plugins/resolvers; an imported scene
+  cannot authorize network access, arbitrary code or scientific execution.
+
+Use the upstream C++ API or Python bindings behind a registered adapter; do not
+create another scene format in Rust or force Julia to own scene persistence.
+The existing execution boundary still supervises providers where appropriate.
+OpenUSD scene composition and PDT's scientific-operation composition are
+separate: scene loading does not prove a model, calibrate a sensor, verify an
+SP1 claim or authorize equipment.
+
+**First gate:** export one retained oscillator trajectory, reopen it with a
+pinned OpenUSD runtime and compare the supported geometry, units, sample/time
+mapping and identity links against the original record. Challenge missing or
+altered dependencies and changed unit/frame declarations; keep provider-free
+scientific reopen separate from scene inspection. Only then claim that export
+profile supported. No OpenUSD exporter, importer or viewer integration is
+implemented by this documentation change.
+
+Upstream references: [scene composition](https://openusd.org/release/intro.html),
+[stage metrics](https://openusd.org/release/api/group___usd_geom_linear_units__group.html),
+[time and layer APIs](https://openusd.org/release/api/class_usd_stage.html) and
+[Python tutorials](https://openusd.org/release/tut_usd_tutorials.html).
 
 ## Quickstart
 
