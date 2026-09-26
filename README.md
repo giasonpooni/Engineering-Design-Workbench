@@ -15,8 +15,7 @@ testbed is where models, numerical operations and verification methods are
 exercised and challenged, rather than treating a generated candidate as an
 established result.
 
-Part of **Notation Systems' computational instrumentation and evidence
-infrastructure** for industrial and cyber-physical systems.
+Copyright © 2026 Notation Systems.
 
 [Documentation index](docs/README.md) · [Workbench overview](docs/WORKBENCH_OVERVIEW.md) ·
 [Systems catalog](docs/SYSTEMS_CATALOG.md) · [Stack map](docs/STACK.md)
