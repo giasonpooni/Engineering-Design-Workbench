@@ -94,6 +94,7 @@ pub struct Worker {
     responses: Receiver<Result<Vec<u8>, String>>,
     diagnostics: Arc<Mutex<Diagnostics>>,
     timeout: Duration,
+    label: &'static str,
     #[cfg(windows)]
     _job: Job,
 }
@@ -113,7 +114,18 @@ impl Worker {
                 worker,
             ])
             .env("JULIA_NUM_THREADS", "1")
-            .env("JULIA_PKG_OFFLINE", "true")
+            .env("JULIA_PKG_OFFLINE", "true");
+        Self::spawn(command, timeout, "Julia")
+    }
+    pub fn start_python(executable: &str, worker: &str, timeout: Duration) -> Result<Self, String> {
+        let mut command = Command::new(executable);
+        // Isolated mode excludes user-site packages and PYTHON* environment
+        // configuration. The trusted installation supplies the dependencies.
+        command.args(["-I", "-u", worker]);
+        Self::spawn(command, timeout, "Python")
+    }
+    fn spawn(mut command: Command, timeout: Duration, label: &'static str) -> Result<Self, String> {
+        command
             .stdin(Stdio::piped())
             .stdout(Stdio::piped())
             .stderr(Stdio::piped());
@@ -140,7 +152,7 @@ impl Worker {
         }
         let mut child = command
             .spawn()
-            .map_err(|e| format!("unavailable Julia provider: {e}"))?;
+            .map_err(|e| format!("unavailable {label} provider: {e}"))?;
         #[cfg(windows)]
         let job = match Job::attach(&child) {
             Ok(job) => job,
@@ -170,7 +182,7 @@ impl Worker {
             loop {
                 let next = match read_frame(&mut input, MAX_FRAME) {
                     Ok(Some(v)) => Ok(v),
-                    Ok(None) => Err("Julia worker exited before response".into()),
+                    Ok(None) => Err(format!("{label} worker exited before response")),
                     Err(e) => Err(e),
                 };
                 let stop = next.is_err();
@@ -202,6 +214,7 @@ impl Worker {
             responses: rx,
             diagnostics,
             timeout,
+            label,
             #[cfg(windows)]
             _job: job,
         })
@@ -215,22 +228,25 @@ impl Worker {
     pub fn exchange(&mut self, request: &[u8]) -> Result<Vec<u8>, String> {
         // One request in flight; queued output before a new request is stale.
         if self.responses.try_recv().is_ok() {
-            return Err("unsolicited or stale Julia response".into());
+            return Err(format!("unsolicited or stale {} response", self.label));
         }
         self.input
             .try_send(request.to_vec())
-            .map_err(|_| "Julia writer busy or stopped")?;
+            .map_err(|_| format!("{} writer busy or stopped", self.label))?;
         let deadline = Instant::now() + self.timeout;
         loop {
             if let Some(error) = self.write_error.lock().unwrap().clone() {
                 return Err(error);
             }
             if self.diagnostics.lock().unwrap().overflow {
-                return Err("Julia stderr exceeded bounded diagnostics".into());
+                return Err(format!(
+                    "{} stderr exceeded bounded diagnostics",
+                    self.label
+                ));
             }
             let remaining = deadline.saturating_duration_since(Instant::now());
             if remaining.is_zero() {
-                return Err("Julia worker timeout".into());
+                return Err(format!("{} worker timeout", self.label));
             }
             match self
                 .responses
@@ -238,7 +254,7 @@ impl Worker {
             {
                 Ok(value) => return value,
                 Err(mpsc::RecvTimeoutError::Timeout) => {}
-                Err(_) => return Err("Julia response channel closed".into()),
+                Err(_) => return Err(format!("{} response channel closed", self.label)),
             }
         }
     }

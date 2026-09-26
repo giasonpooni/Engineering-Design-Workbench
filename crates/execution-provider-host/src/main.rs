@@ -2,6 +2,7 @@ mod ffi;
 mod native;
 mod output;
 mod process;
+mod reaction;
 use execution_core::{
     commit, sha256, BackendKind, ExecutionOutcome, ExecutionTrace, InputIdentity, OutputIdentity,
     ProgramIdentity, SPECIFICATION_TAG,
@@ -44,6 +45,7 @@ struct Hello {
 struct Options {
     provider: String,
     julia: Option<String>,
+    python: Option<String>,
     project: Option<PathBuf>,
     worker: Option<PathBuf>,
     timeout: Duration,
@@ -55,6 +57,7 @@ fn options() -> Result<Options, String> {
         if ![
             "--provider",
             "--julia",
+            "--python",
             "--project",
             "--worker",
             "--timeout-ms",
@@ -70,8 +73,8 @@ fn options() -> Result<Options, String> {
     }
     let provider = pairs
         .remove("--provider")
-        .ok_or("--provider cpp|julia required")?;
-    if provider != "cpp" && provider != "julia" {
+        .ok_or("--provider cpp|julia|catalyst|cantera required")?;
+    if !["cpp", "julia", "catalyst", "cantera"].contains(&provider.as_str()) {
         return Err("unsupported provider".into());
     }
     let timeout = pairs
@@ -85,14 +88,25 @@ fn options() -> Result<Options, String> {
     let out = Options {
         provider,
         julia: pairs.remove("--julia"),
+        python: pairs.remove("--python"),
         project: pairs.remove("--project").map(PathBuf::from),
         worker: pairs.remove("--worker").map(PathBuf::from),
         timeout: Duration::from_millis(timeout),
     };
-    if out.provider == "julia"
+    if ["julia", "catalyst"].contains(&out.provider.as_str())
         && (out.julia.is_none() || out.project.is_none() || out.worker.is_none())
     {
         return Err("Julia requires explicit executable, project, worker".into());
+    }
+    if out.provider == "cantera"
+        && (out.python.is_none() || out.project.is_none() || out.worker.is_none())
+    {
+        return Err("Cantera requires explicit Python executable, project, worker".into());
+    }
+    if (out.provider != "cantera" && out.python.is_some())
+        || (out.provider == "cantera" && out.julia.is_some())
+    {
+        return Err("provider refuses unused interpreter configuration".into());
     }
     if out.provider == "cpp"
         && (out.julia.is_some() || out.project.is_some() || out.worker.is_some())
@@ -121,7 +135,9 @@ fn token(s: &str) -> bool {
             .all(|c| c.is_ascii_alphanumeric() || b"-_:./".contains(&c))
 }
 fn semantic(profile: &str) -> Value {
-    if profile.starts_with("affine-") || profile == "design-qp.v1" {
+    if profile == reaction::PROFILE {
+        reaction::semantics()
+    } else if profile.starts_with("affine-") || profile == "design-qp.v1" {
         json!({"layout":"row-major","input_units":"dimensionless","output_units":"dimensionless","frame":"declared-cartesian","clock":"not-applicable"})
     } else {
         json!({"layout":"row-major","input_units":"SI","output_units":"SI","frame":"one-dimensional-inertial","clock":"declared-simulation-time"})
@@ -136,6 +152,8 @@ fn validate(r: &Request, provider: &str) -> Result<(), String> {
     }
     let allowed = if provider == "cpp" {
         FLOAT_PROFILES.contains(&r.profile.as_str()) || r.profile == "affine-d256.v1"
+    } else if reaction::family(provider) {
+        r.profile == reaction::PROFILE
     } else {
         JULIA_PROFILES.contains(&r.profile.as_str())
     };
@@ -186,6 +204,9 @@ impl Host {
         })
     }
     fn ensure_worker(&mut self) -> Result<(), String> {
+        if reaction::family(&self.options.provider) && self.worker.is_none() {
+            return self.ensure_reaction_worker();
+        }
         if self.options.provider != "julia" || self.worker.is_some() {
             return Ok(());
         }
@@ -294,6 +315,8 @@ impl Host {
                 "affine-d256.v1",
                 "oscillator-force-energy.v1",
             ]
+        } else if reaction::family(&self.options.provider) {
+            vec![reaction::PROFILE]
         } else {
             JULIA_PROFILES.to_vec()
         };
@@ -302,6 +325,11 @@ impl Host {
         )
     }
     fn execute(&mut self, raw: &[u8]) -> Result<(Value, bool), String> {
+        let label = match self.options.provider.as_str() {
+            "cantera" => "Cantera",
+            "catalyst" => "Catalyst",
+            _ => "Julia",
+        };
         let r: Request = serde_json::from_slice(raw).map_err(|e| e.to_string())?;
         validate(&r, &self.options.provider)?;
         if self.seen.len() >= 256 || !self.seen.insert(r.request_id.clone()) {
@@ -338,7 +366,9 @@ impl Host {
             worker.exchange(raw).and_then(|child_raw| {
                 let response = process::parse(&child_raw)?;
                 child_response = Some(child_raw);
-                let object = response.as_object().ok_or("Julia response not object")?;
+                let object = response
+                    .as_object()
+                    .ok_or_else(|| format!("{label} response not object"))?;
                 let expected = if response["status"] == "ok" {
                     vec![
                         "schema",
@@ -365,13 +395,13 @@ impl Host {
                     || response["parent_execution_id"] != r.parent_execution_id
                     || response["profile"] != r.profile
                 {
-                    return Err("stale/mismatched Julia response".into());
+                    return Err(format!("stale/mismatched {label} response"));
                 }
                 if response["status"] != "ok" {
-                    return Err(format!("Julia refused: {}", response["refusal"]));
+                    return Err(format!("{label} refused: {}", response["refusal"]));
                 }
                 if !response["data"].is_object() {
-                    return Err("Julia response data not object".into());
+                    return Err(format!("{label} response data not object"));
                 }
                 if r.profile == "oscillator-tsit5.v1"
                     && response["data"]["request_id"] != r.request_id
@@ -382,16 +412,34 @@ impl Host {
             })
         };
         let result = result.and_then(|data| {
-            if self.options.provider == "julia"
-                && self.runtime["julia_executable_sha256"]
-                    != raw_sha(&bytes(
-                        Path::new(self.options.julia.as_ref().unwrap()),
-                        128 * 1024 * 1024,
-                    )?)
+            if self.options.provider != "cpp"
+                && self.runtime[if self.options.provider == "cantera" {
+                    "python_executable_sha256"
+                } else {
+                    "julia_executable_sha256"
+                }] != raw_sha(&bytes(
+                    Path::new(if self.options.provider == "cantera" {
+                        self.options.python.as_ref().unwrap()
+                    } else {
+                        self.options.julia.as_ref().unwrap()
+                    }),
+                    128 * 1024 * 1024,
+                )?)
             {
-                return Err("Julia executable changed during execution".into());
+                return Err(format!("{label} executable changed during execution"));
             }
-            output::check(&r.profile, &process::parse(input_bytes)?, &data)?;
+            if reaction::family(&self.options.provider) {
+                reaction::check(&self.options.provider, &process::parse(input_bytes)?, &data)?;
+                if self.options.provider == "catalyst"
+                    && data["mechanism"]["sha256"] != self.runtime["worker_sha256"]
+                {
+                    return Err(
+                        "Catalyst mechanism bytes differ from the snapshotted worker".into(),
+                    );
+                }
+            } else {
+                output::check(&r.profile, &process::parse(input_bytes)?, &data)?;
+            }
             Ok(data)
         });
         let diagnostics = self
@@ -402,7 +450,7 @@ impl Host {
         let mut response = json!({"schema":"ciw.native-interop-response.v1","request_id":r.request_id,"parent_execution_id":r.parent_execution_id,"profile":r.profile});
         let mut output_bytes = None;
         let mut output_id = None;
-        let fatal = result.is_err() && self.options.provider == "julia";
+        let fatal = result.is_err() && self.options.provider != "cpp";
         match result {
             Ok(data) => {
                 let encoded = serde_json::to_vec(&data).map_err(|e| e.to_string())?;
@@ -468,9 +516,14 @@ fn run() -> Result<(), String> {
             MAX_RESPONSE,
         )?;
         if fatal {
-            return Err(
-                "failed Julia worker terminated and reaped; start a fresh host occurrence".into(),
-            );
+            let label = match host.options.provider.as_str() {
+                "cantera" => "Cantera",
+                "catalyst" => "Catalyst",
+                _ => "Julia",
+            };
+            return Err(format!(
+                "failed {label} worker terminated and reaped; start a fresh host occurrence"
+            ));
         }
     }
     Ok(())

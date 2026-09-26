@@ -61,6 +61,8 @@ The trusted caller launches one of:
 ```text
 scr-provider-host --provider cpp
 scr-provider-host --provider julia --julia EXE --project DIR --worker FILE --timeout-ms 300000
+scr-provider-host --provider catalyst --julia EXE --project DIR --worker FILE --timeout-ms 300000
+scr-provider-host --provider cantera --python EXE --project DIR --worker FILE --timeout-ms 300000
 ```
 
 Runtime paths are host configuration, never fields accepted from saved data.
@@ -103,6 +105,37 @@ worker runs per host. Timeout covers blocked input writes as well as response
 reads. Any child timeout, crash, stale response or stream violation terminates
 and reaps that worker and closes the host; subsequent work requires a fresh
 host occurrence. Cancellation is explicitly unsupported.
+
+The additive `catalyst` and `cantera` families each expose only
+`reaction-a-to-b.v1` with binary64 arithmetic. The legacy `julia` family keeps
+its five profiles and sibling oscillator snapshot unchanged. Catalyst snapshots
+exactly `worker.jl`, `Project.toml` and `Manifest.toml`; Cantera snapshots exactly
+`worker.py` and `requirements.txt`. No packages are installed or resolved by the
+host. The Cantera launcher uses `python -I -u worker.py`; the Julia launcher
+disables startup/history files, sets one Julia thread and enables package
+offline mode. These are trusted executable/project bindings, not code or paths
+loaded from the request. Python isolated mode is not an operating-system sandbox.
+
+The reaction profile is a closed, homogeneous, constant-volume, prescribed
+temperature mathematical benchmark with irreversible first-order `A => B`.
+Its fixed declarations use time-major arrays, mol/m^3 concentrations,
+mol/m^3/s production rates, seconds, kelvin, m^3, the
+`homogeneous-control-volume` frame and `declared-simulation-time` clock.
+Species labels are abstract model species, not a claim about hydrogen chemistry.
+The worker owns engine evaluation; the host checks bounded inputs, exact model
+and species declarations, grid echo, finite N-by-2 output arrays, solver settings,
+and mechanism format/UTF-8 bytes/hash before committing an output. Negative
+numerical samples are retained without clamping. These checks do not establish
+analytical agreement, conservation within tolerance or physical applicability.
+
+Reaction worker handshakes bind exact source/environment file hashes to the
+snapshot. Cantera additionally reports an extension digest and a digest of
+installed distribution file bytes; those reported digests identify artifacts,
+not binary attestation. The caller must independently qualify and pin the
+installation/package identities. Catalyst mechanism bytes must hash to the
+snapshotted worker source. Catalyst uses `julia_executable_sha256`; Cantera uses
+`python_executable_sha256`. Both retain the worker identity and per-file hashes,
+without adding a legacy oscillator dependency.
 
 Windows uses a kill-on-close JobObject after process creation, and its kill
 behavior is tested. A very short creation-to-job-assignment interval remains;
