@@ -4,9 +4,11 @@ The concise provider and loose-tool map is [SYSTEMS_CATALOG.md](SYSTEMS_CATALOG.
 This page remains the detailed responsibility, boundary and numerical-foundation
 reference.
 
-Notation Systems develops computational instrumentation and evidence infrastructure for industrial and cyber-physical systems. The engineering mandate is to connect source observations, explicit mathematical models, computation, inspection and governed state while retaining the evidence needed to reproduce and challenge a result.
+Notation Systems develops computational instrumentation and evidence infrastructure for industrial and cyber-physical systems. The engineering mandate is to build a programmable laboratory that connects source observations, explicit mathematical models, computation, experiment design, qualified apparatus interfaces, inspection and governed state while retaining the evidence needed to reproduce, challenge and revise a result.
 
-The public repositories are components of this stack. Their scientific and engineering functions define their names. The existing physical-economy corpus, acquisition, policy and information-delivery capabilities remain part of the architecture; adding instruments does not replace them.
+The intended end-to-end loop is **question -> model -> computation -> prepared experiment -> supported physical execution -> observation -> revised model or design**. The computational loop is the current substrate; physical sensing and apparatus participation enter only through separately implemented and qualified profiles. A reasoning model may propose work through the same boundaries, but it receives no independent execution, equipment-control or admission authority.
+
+The public repositories are components of this stack. Their scientific and engineering functions define their names. The existing physical-economy corpus, acquisition, policy and information-delivery capabilities remain part of the architecture; adding instruments or device adapters does not replace them.
 
 ## How to read the stack
 
@@ -23,6 +25,9 @@ flowchart TD
     Results --> Replay["Explicit native replay and conformance"]
     Replay --> Results
     Results --> Evidence["Explicit ESM candidate retention"]
+    Results -. qualified future profile .-> Prepared["Prepared physical experiment / apparatus operation"]
+    Prepared -. typed gateway .-> Device["Supported sensor / DAQ / FPGA / robot / machine / lab instrument"]
+    Device -. observations and execution outcome .-> Inputs
 ```
 
 The workbench retains native records in one operating session. Explicit source
