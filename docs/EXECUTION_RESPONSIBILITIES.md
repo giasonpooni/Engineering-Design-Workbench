@@ -1,6 +1,6 @@
 # Execution responsibilities
 
-EDW coordinates mathematical work through declared operations and explicit
+PDT coordinates mathematical work through declared operations and explicit
 provider bindings. Python, Julia, Rust and native libraries can serve different
 parts of that contract; an operation does not have to traverse every language.
 Scientific meaning belongs to the operation's model, inputs, limits and evidence.
@@ -14,11 +14,11 @@ records. The [systems catalog](SYSTEMS_CATALOG.md) and
 
 | Layer | Assigned responsibility | Current boundary |
 | --- | --- | --- |
-| Python / EDW | Assemble studies, coordinate operations, validate scientific records, manage the operator session and retain evidence. | Implemented by [core](../src/ciw/core/), [operation runner](../src/ciw/operations/runner.py), [session](../src/ciw/session.py) and workflow modules. These remain the authoritative host implementations. |
+| Python / PDT | Assemble studies, coordinate operations, validate scientific records, manage the operator session and retain evidence. | Implemented by [core](../src/ciw/core/), [operation runner](../src/ciw/operations/runner.py), [session](../src/ciw/session.py) and workflow modules. These remain the authoritative host implementations. |
 | Execution infrastructure, including selected Rust components | Enforce declared execution boundaries, manage resources and bindings, and run supported native computations or checkers. | CIW's [pinned subprocess adapter](../src/ciw/adapters/subprocess.py) is Python. External SCR supplies execution and proof infrastructure for supported paths. A general Rust supervisor replacing this host is not implemented or required by this allocation. |
-| Julia / JuMP / JuliaControl | Evaluate mathematical models, select constrained design candidates and support time-domain design where a workload is qualified. | The [oscillator](JULIA_OSCILLATOR.md) has a registered Workbench/provider seam and its own provisioning gates. The [JuMP study](DESIGN_ADJUSTMENT.md) has a real worker and exact Python checker, but remains an unregistered source-checkout study. JuliaControl integration remains pending. |
+| Julia / JuMP / JuliaControl | Evaluate mathematical models, select constrained design candidates and support time-domain design where a workload is qualified. | The [oscillator](JULIA_OSCILLATOR.md) has a registered Workbench/provider seam and its own provisioning gates. The [JuMP study](DESIGN_ADJUSTMENT.md) has a real worker and exact Python checker, but remains an unregistered source-checkout study. The [native interoperability](NATIVE_INTEROP.md) operation adds registered package-backed JuliaControl and bounded JuMP/QP profiles through SCR. |
 | C/C++ and other native providers | Supply specialized simulation, numerical kernels and equipment interfaces through qualified adapters. | Each existing provider keeps its own binding and scientific scope. This role does not add a general mechanics engine, hardware plugin system or equipment command path. |
-| SP1 | Prove execution of a selected registered program or checker, followed by separate verification. | [Registered integer heat](PROVED_HEAT.md) supplies the existing profile and genuine prove/verify gate. It does not prove arbitrary Rust, Julia or JuMP execution. A design-checker guest remains pending. |
+| SP1 | Prove execution of a selected registered program or checker, followed by separate verification. | [Registered integer heat](PROVED_HEAT.md) supplies the existing profile and genuine prove/verify gate. It does not prove arbitrary Rust, Julia or JuMP execution. SCR contains an exact-affine checker/guest extension; its genuine proof/verification gate remains separate and pending. |
 
 The [Julia/SCR contract](JULIA_SP1.md) describes specification, computation and
 execution bindings. SCR is an external component, not a synonym for a language.
@@ -73,7 +73,7 @@ rules and remaining SCR/SP1 gates.
 
 This is the immediate implemented path from a proposed change to a checkable
 design result. It contains no equipment command, physical feedback or
-JuliaControl execution.
+JuliaControl execution within that older study. The new native interoperability operation supplies the separate JuliaControl path.
 
 ## Physical execution is a separate boundary
 
@@ -82,7 +82,7 @@ different records with different supporting evidence. Current CIW operations
 are read-only with respect to external equipment. Solver success, a certificate
 check or a proof cannot grant an equipment capability.
 
-For a future qualified equipment interface, EDW would prepare a candidate;
+For a future qualified equipment interface, PDT would prepare a candidate;
 deployment policy would decide whether a bounded command is permitted; the
 equipment interface and local controller would execute it; acquisition would
 retain the observed response with its own calibration, timing and uncertainty.

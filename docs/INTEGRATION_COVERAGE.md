@@ -16,9 +16,13 @@ remaining physical-stream and geometry compositions.
 An additional standalone pipeline does not by itself provide that common
 operating point.
 
+The [native interoperability validation report](NATIVE_INTEROP_VALIDATION.md)
+records the later bounded Rust/C++, JuliaControl and JuMP increment separately,
+including its unresolved SP1 and platform gates.
+
 ## Shared operating session
 
-The [Workbench desktop tab](EXPERIMENT_VIEW.md) projects all twenty-six shared workflow
+The [Workbench desktop tab](EXPERIMENT_VIEW.md) projects the registered shared workflow
 kinds through `experiment.inspect`: retained measurements, state/covariance,
 residuals, native dependencies, evidence and verification. It follows committed
 session changes and keeps replay occurrences separate. This read-only display

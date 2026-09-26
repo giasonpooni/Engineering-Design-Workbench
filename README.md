@@ -258,6 +258,10 @@ CIW records what was measured, supplied, estimated, predicted or checked. Those
 labels are not interchangeable; the single classification table is maintained
 in [Workbench overview](docs/WORKBENCH_OVERVIEW.md#evidence-classes).
 
+The [native interoperability guide](docs/NATIVE_INTEROP.md) describes the bounded
+SCR Rust/C++, JuliaControl and JuMP profiles, exact-byte retention, numerical
+checks and the separate SP1 proof gate.
+
 ## Development and validation
 
 Read [DEVELOPMENT.md](docs/DEVELOPMENT.md) before changing a contract or adding a

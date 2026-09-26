@@ -1,4 +1,4 @@
-# Documentation index for Notation-Systems-Workbench
+# Parametric Design Testbed documentation
 
 The root [README](../README.md) is the macro entrypoint. This index points to
 the page that owns each kind of detail so status and contracts do not drift
@@ -16,6 +16,7 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 | Current provider map and loose-tool collapse rule | [Systems catalog](SYSTEMS_CATALOG.md) |
 | Executable implementation architecture | [Architecture](ARCHITECTURE.md) |
 | Python, Julia, native execution and proof responsibilities | [Execution responsibilities](EXECUTION_RESPONSIBILITIES.md) |
+| Bounded Rust/C++, JuliaControl and JuMP execution | [Native interoperability](NATIVE_INTEROP.md) |
 | Multi-provider assembly and local deployment | [Workbench assembly](WORKBENCH_ASSEMBLY.md) |
 | Current executable paths and remaining gates | [Integration coverage](INTEGRATION_COVERAGE.md) |
 | User-facing instruments and exact commands | [Instrument catalogue](INSTRUMENTS.md) |
@@ -51,4 +52,3 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 
 Historical audits remain linked from the root for context. They do not override
 the current operation catalogue, integration matrix or provider manifests.
-
