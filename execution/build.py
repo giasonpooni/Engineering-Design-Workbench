@@ -416,6 +416,35 @@ def registered_guest_builds():
     ]
 
 
+def pending_guest_builds():
+    """Return guest recipes that are implemented but not yet registered.
+
+    The affine guest is deliberately kept out of ``registered_guest_builds``
+    until its pinned SP1 checkout and toolchain produce an independently
+    verified ELF.  Returning it here gives CI and a developer an executable
+    build gate without fabricating a recipe identity or ELF hash in the
+    generated registry.
+    """
+    from execution.affine import AFFINE_DESCRIPTOR
+
+    return [(AFFINE_DESCRIPTOR, "sp1", "zk/guest-affine", "sp1-affine")]
+
+
+def affine_build_gate(repo_root: pathlib.Path = _REPO) -> GuestBuildRecipe:
+    """Resolve the pending affine recipe or fail with the exact blocker.
+
+    This function does not write a registry entry.  Once the external SP1
+    checkout/toolchain is provisioned, callers can pass the returned recipe
+    to ``build_from_recipe`` and review the resulting source-closure and ELF
+    identities before registration.
+    """
+    descriptor, backend, guest_crate, _ = pending_guest_builds()[0]
+    try:
+        return make_recipe(descriptor, backend, guest_crate, repo_root)
+    except BuildRefused as error:
+        raise BuildRefused(f"affine SP1 build gate unavailable: {error}") from error
+
+
 def rebuild_all_and_write_registry(repo_root: pathlib.Path = _REPO) -> dict:
     """Build every registered guest reproducibly, store recipes under
     zk/recipes/, artifacts under zk/artifacts/, and regenerate

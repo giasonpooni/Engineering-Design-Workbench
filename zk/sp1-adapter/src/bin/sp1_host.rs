@@ -23,9 +23,12 @@ use std::io::Write;
 use execution_core::{
     Expectation, ProofArtifact, ProofBackend, VerificationResult, VerifiedExecution,
 };
-use sp1_adapter::Sp1KernelBackend;
+use sp1_adapter::{affine, Sp1KernelBackend};
 
 fn from_hex(text: &str) -> Result<Vec<u8>, String> {
+    if !text.is_ascii() || !text.bytes().all(|byte| byte.is_ascii_hexdigit()) {
+        return Err("hex input must contain only ASCII hexadecimal digits".into());
+    }
     if !text.len().is_multiple_of(2) {
         return Err(format!("odd-length hex: {text:?}"));
     }
@@ -51,10 +54,102 @@ fn run(args: &[String]) -> Result<(), String> {
     match command {
         "prove" => prove(args),
         "verify" => verify(args),
+        "prove-affine" => prove_affine(args),
+        "verify-affine" => verify_affine(args),
         "export-vk" => export_vk(args),
         "verify-vk" => verify_vk(args),
         other => Err(format!("unknown command {other:?}")),
     }
+}
+
+fn print_affine_public(out: &mut String, public: &affine::AffinePublicValues) {
+    out.push_str(&format!(
+        "affine_input_commitment {}\n",
+        hex(&public.input_commitment)
+    ));
+    if let Some(output) = public.output_commitment {
+        out.push_str(&format!("affine_output_commitment {}\n", hex(&output)));
+    } else {
+        out.push_str("affine_output_commitment absent\n");
+    }
+    out.push_str(&format!(
+        "affine_operation_commitment {}\naffine_profile_commitment {}\n",
+        hex(&public.operation_commitment),
+        hex(&public.profile_commitment)
+    ));
+    out.push_str(&format!(
+        "affine_shape rows={} columns={} denominator={} bound={} exit_code={}\n",
+        public.rows, public.columns, public.denominator, public.bound, public.exit_code
+    ));
+}
+
+fn prove_affine(args: &[String]) -> Result<(), String> {
+    let [_, _, elf_path, descriptor_path, statement_hex, proof_out] = args else {
+        return Err(
+            "usage: prove-affine <elf> <descriptor-file> <statement-hex> <proof-out>".into(),
+        );
+    };
+    let backend = timed("setup", || setup(elf_path, descriptor_path))?;
+    let statement = from_hex(statement_hex)?;
+    let (proof_bytes, public) = backend
+        .prove_affine(&statement)
+        .map_err(|error| format!("prove-affine: {error:?}"))?;
+    std::fs::write(proof_out, &proof_bytes).map_err(|e| format!("writing proof: {e}"))?;
+    let mut out = String::new();
+    out.push_str("ste-host-result v1\ncommand prove-affine\n");
+    out.push_str(&format!(
+        "backend {} {}\nvkey_hash {}\n",
+        backend.backend().name,
+        backend.backend().version,
+        backend.vkey_hash()
+    ));
+    out.push_str("guest_status completed\n");
+    print_affine_public(&mut out, &public);
+    out.push_str(&format!("proof_bytes {}\n", proof_bytes.len()));
+    print!("{out}");
+    std::io::stdout().flush().map_err(|e| e.to_string())
+}
+
+fn verify_affine(args: &[String]) -> Result<(), String> {
+    let [_, _, elf_path, descriptor_path, proof_in, statement_hex] = args else {
+        return Err(
+            "usage: verify-affine <elf> <descriptor-file> <proof-in> <statement-hex>".into(),
+        );
+    };
+    let backend = timed("setup", || setup(elf_path, descriptor_path))?;
+    let proof_bytes =
+        std::fs::read(proof_in).map_err(|e| format!("reading proof {proof_in}: {e}"))?;
+    let statement = from_hex(statement_hex)?;
+    // A malformed statement is a protocol error: no verification question
+    // exists.  A well-formed statement with a bad proof is an answered,
+    // failed question and is reported with exit status zero.
+    affine::check_statement(&statement).map_err(|error| format!("statement refused: {error}"))?;
+    let result = timed("verify-affine", || {
+        backend.verify_affine(&proof_bytes, &statement)
+    });
+    let mut out = String::new();
+    out.push_str("ste-host-result v1\ncommand verify-affine\n");
+    let proof_identity =
+        ProofArtifact::new(backend.backend().clone(), proof_bytes.clone()).identity();
+    out.push_str(&format!(
+        "backend {} {}\nvkey_hash {}\n",
+        backend.backend().name,
+        backend.backend().version,
+        backend.vkey_hash()
+    ));
+    out.push_str(&format!("proof_identity {}\n", proof_identity.to_hex()));
+    match result {
+        Ok(public) => {
+            out.push_str("outcome verified\n");
+            print_affine_public(&mut out, &public);
+        }
+        Err(error) => {
+            out.push_str("outcome failed\n");
+            out.push_str(&format!("failure {error:?}\n"));
+        }
+    }
+    print!("{out}");
+    std::io::stdout().flush().map_err(|e| e.to_string())
 }
 
 /// Component timing on STDERR only -- measurement, never protocol.

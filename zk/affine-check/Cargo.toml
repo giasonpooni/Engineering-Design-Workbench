@@ -1,0 +1,10 @@
+[package]
+name = "ste-affine-check"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+execution-core = { path = "../../crates/execution-core" }
+
+[workspace]

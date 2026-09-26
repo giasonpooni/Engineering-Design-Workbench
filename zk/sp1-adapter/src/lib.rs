@@ -55,6 +55,9 @@ use sp1_sdk::{
     SP1VerificationError, SP1VerifyingKey,
 };
 
+/// The bounded exact affine profile and its profile-specific SP1 convention.
+pub mod affine;
+
 /// The verifier machinery behind the backend -- either the full CPU
 /// prover node (can prove and verify) or the SDK's `LightProver`
 /// ("only executes and verifies but does not generate proofs"), which
@@ -312,6 +315,59 @@ impl Sp1KernelBackend {
         let statement = parse_committed_statement(proof.public_values.as_slice())
             .ok_or_else(|| anyhow::anyhow!("guest committed an unparseable statement"))?;
         Ok((bincode::serialize(&proof)?, statement))
+    }
+
+    /// Prove one already checked `affine-d256.v1` statement and immediately
+    /// verify the resulting SP1 proof.  The generic kernel convention remains
+    /// untouched; this method selects the profile-specific public-values
+    /// parser and refuses if the guest commits anything other than the exact
+    /// checked statement.
+    pub fn prove_affine(
+        &self,
+        statement: &[u8],
+    ) -> anyhow::Result<(Vec<u8>, affine::AffinePublicValues)> {
+        if self.program_binding != ProgramIdentity::of(affine::DESCRIPTOR) {
+            anyhow::bail!("SP1 backend is not bound to the registered affine descriptor");
+        }
+        let checked = affine::check_statement(statement)
+            .map_err(|error| anyhow::anyhow!("affine statement refused: {error}"))?;
+        let (Sp1Client::Full(client), Some(pk)) = (&self.client, self.pk.as_ref()) else {
+            anyhow::bail!("this backend was built from a verification artifact; it cannot prove");
+        };
+        let mut stdin = SP1Stdin::new();
+        stdin.write_vec(statement.to_vec());
+        let proof = client.prove(pk, stdin).core().run()?;
+        self.client.verify(&proof, &self.vk)?;
+        let public = affine::parse_public_values(proof.public_values.as_slice())
+            .map_err(|error| anyhow::anyhow!("guest committed malformed affine values: {error}"))?;
+        if !public.matches(&checked) {
+            anyhow::bail!("guest affine public values do not match checked statement");
+        }
+        Ok((bincode::serialize(&proof)?, public))
+    }
+
+    /// Verify a serialized exact-affine proof against the exact canonical
+    /// statement.  The proof's public values, operation/profile revision,
+    /// fixed bounds, dimensions, input commitment, and output commitment are
+    /// all checked after SP1's cryptographic verification.
+    pub fn verify_affine(
+        &self,
+        proof_bytes: &[u8],
+        statement: &[u8],
+    ) -> anyhow::Result<affine::AffinePublicValues> {
+        if self.program_binding != ProgramIdentity::of(affine::DESCRIPTOR) {
+            anyhow::bail!("SP1 backend is not bound to the registered affine descriptor");
+        }
+        let checked = affine::check_statement(statement)
+            .map_err(|error| anyhow::anyhow!("affine statement refused: {error}"))?;
+        let proof: SP1ProofWithPublicValues = bincode::deserialize(proof_bytes)?;
+        self.client.verify(&proof, &self.vk)?;
+        let public = affine::parse_public_values(proof.public_values.as_slice())
+            .map_err(|error| anyhow::anyhow!("guest committed malformed affine values: {error}"))?;
+        if !public.matches(&checked) {
+            anyhow::bail!("affine proof public values do not match checked statement");
+        }
+        Ok(public)
     }
 }
 
