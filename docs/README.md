@@ -21,6 +21,7 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 | Current executable paths and remaining gates | [Integration coverage](INTEGRATION_COVERAGE.md) |
 | User-facing instruments and exact commands | [Instrument catalogue](INSTRUMENTS.md) |
 | Oscillator demo, inspection and reopen commands | [Oscillator operator card](OSCILLATOR_OPERATOR.md) |
+| Retained native heading candidates and matrix contributions | [Curved-path study](CURVED_PATH_STUDY.md) |
 | Equations, assumptions and bounded what-if previews | [Mathematical model exploration](MODEL_EXPLORATION.md) |
 
 ## Contracts and operations
