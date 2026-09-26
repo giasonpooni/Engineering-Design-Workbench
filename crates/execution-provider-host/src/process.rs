@@ -343,6 +343,27 @@ mod tests {
         }
     }
     #[test]
+    fn captured_julia_binary64_values_survive_parsing_and_retention() {
+        // Decimal tokens captured from genuine Tsit5 and HiGHS responses.
+        // Expected IEEE-754 bits are independent of serde_json's parser.
+        for (token, expected) in [
+            ("-0.9844478744098741", 0xbfef8098d426a0c4_u64),
+            ("3.8941834684251964", 0x400f2749a98c149e_u64),
+            ("0.39999999723076923", 0x3fd9999996a0664f_u64),
+            ("5.999999985739635e-08", 0x3e701b2b29000000_u64),
+        ] {
+            let parsed = parse(token.as_bytes()).unwrap();
+            assert_eq!(parsed.as_f64().unwrap().to_bits(), expected, "{token}");
+            let retained = serde_json::to_vec(&parsed).unwrap();
+            assert_eq!(
+                parse(&retained).unwrap().as_f64().unwrap().to_bits(),
+                expected
+            );
+            let typed: f64 = serde_json::from_str(token).unwrap();
+            assert_eq!(typed.to_bits(), expected);
+        }
+    }
+    #[test]
     fn duplicate_fields_and_contamination_refuse() {
         assert!(parse(br#"{"x":1,"x":2}"#).is_err());
         assert!(parse(br#"{"a":{"x":1,"x":2}}"#).is_err());

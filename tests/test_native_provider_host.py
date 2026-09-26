@@ -250,6 +250,10 @@ def test_genuine_julia_affine_control_tsit5_qp_and_cpp_trajectory_link(host):
         assert result["status"] == "ok", result
         assert result["host"]["child_occurrence"] == index
         assert bytes.fromhex(result["host"]["child_request_bytes_hex"]) == frame(requests[index])[4:]
+        child = json.loads(bytes.fromhex(result["host"]["child_response_bytes_hex"]))
+        outer = {k: v for k, v in result.items() if k != "host"}
+        # Type/value exact transport preservation, not a numerical tolerance.
+        assert json.dumps(child, sort_keys=True) == json.dumps(outer, sort_keys=True)
         assert_identities(result)
     assert len({r["host"]["child_process_id"] for r in results}) == 1
     assert results[0]["data"] == results[2]["data"]
