@@ -19,3 +19,6 @@ zk/risc0/target/
 /AGENTS.md
 /CLAUDE.md
 **/*HANDOFF*.md
+
+# Outer provider host build output
+/crates/execution-provider-host/target/

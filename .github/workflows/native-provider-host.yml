@@ -1,0 +1,39 @@
+name: Native provider host
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'crates/execution-provider-host/**'
+      - 'tests/test_native_provider_host.py'
+      - 'tests/native_host_fixture.rs'
+      - '.github/workflows/native-provider-host.yml'
+  pull_request:
+    paths:
+      - 'crates/execution-provider-host/**'
+      - 'tests/test_native_provider_host.py'
+      - 'tests/native_host_fixture.rs'
+jobs:
+  native-linux:
+    runs-on: ubuntu-latest
+    env:
+      CARGO_TARGET_DIR: ${{ github.workspace }}/../native-target
+      SCR_NATIVE_REQUIRED: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: rustup toolchain install 1.96.0 --profile minimal && rustup default 1.96.0
+      - run: python -m pip install pytest
+      - run: cargo build --locked --manifest-path crates/execution-provider-host/Cargo.toml
+      - run: cargo test --locked --manifest-path crates/execution-provider-host/Cargo.toml
+      - run: SCR_PROVIDER_HOST="$CARGO_TARGET_DIR/debug/scr-provider-host" python -m pytest -q tests/test_native_provider_host.py -k 'not genuine_julia and not windows_child'
+      - name: Address and undefined-behavior sanitizer gate
+        env:
+          CARGO_TARGET_DIR: ${{ github.workspace }}/../native-sanitized
+          CC: clang
+          CXX: clang++
+          CXXFLAGS: -fsanitize=address,undefined
+          SCR_NATIVE_SANITIZE: address,undefined
+          RUSTFLAGS: -C linker=clang++ -C link-arg=-fsanitize=address,undefined
+        run: cargo test --locked --manifest-path crates/execution-provider-host/Cargo.toml

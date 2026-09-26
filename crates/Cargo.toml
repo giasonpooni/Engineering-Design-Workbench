@@ -19,6 +19,7 @@
 # against a backend's serialization becoming our canonical one.
 [workspace]
 resolver = "2"
+exclude = ["execution-provider-host"]
 members = [
     "execution-kernel",
     "execution-serialization",

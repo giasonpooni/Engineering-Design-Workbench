@@ -74,7 +74,8 @@ def _strip_rust_noise(source: str) -> str:
 
 
 def _rust_sources() -> list[pathlib.Path]:
-    files = sorted(CRATES.rglob("*.rs"))
+    files = sorted(path for crate in SUBSTRATE_CRATES
+                   for path in (CRATES / crate).rglob("*.rs"))
     assert files, "expected the Rust substrate to exist under crates/"
     return files
 
@@ -122,7 +123,7 @@ def test_no_verification_function_returns_bool():
     That is Phase 111's failure mode reintroduced by the abstraction."""
     offenders: list[str] = []
     for path in _rust_sources():
-        source = _strip_rust_noise(path.read_text())
+        source = _strip_rust_noise(path.read_text(encoding="utf-8-sig"))
         for name, return_type in _fn_signatures(source):
             if name.startswith("verify") and return_type.strip() == "bool":
                 offenders.append(f"{path.relative_to(REPO)}: fn {name} -> {return_type}")
@@ -141,7 +142,7 @@ def test_no_verification_function_returns_bare_result_unit():
     their shape rather than establishing ours."""
     offenders: list[str] = []
     for path in _rust_sources():
-        source = _strip_rust_noise(path.read_text())
+        source = _strip_rust_noise(path.read_text(encoding="utf-8-sig"))
         for name, return_type in _fn_signatures(source):
             if not name.startswith("verify"):
                 continue
@@ -265,7 +266,7 @@ def test_no_backend_is_named_in_the_substrate():
     backend_paths = ("sp1", "nexus", "risc0", "risc_zero", "bincode", "postcard", "borsh", "serde")
     offenders: list[str] = []
     for path in _rust_sources():
-        source = _strip_rust_noise(path.read_text())
+        source = _strip_rust_noise(path.read_text(encoding="utf-8-sig"))
         for match in re.finditer(r"\buse\s+([\w:]+)", source):
             root = match.group(1).split("::", 1)[0].lower()
             if root in backend_paths:
@@ -303,7 +304,7 @@ def test_python_defines_no_competing_verification_model():
     for path in sorted(REPO.rglob("*.py")):
         if any(part in {".venv", "__pycache__", "tests"} for part in path.parts):
             continue
-        tree = ast.parse(path.read_text())
+        tree = ast.parse(path.read_text(encoding="utf-8-sig"))
         for node in ast.walk(tree):
             if isinstance(node, (ast.ClassDef, ast.FunctionDef)) and node.name in reserved:
                 offenders.append(f"{path.relative_to(REPO)}: {node.name}")
@@ -325,14 +326,15 @@ def test_no_python_verification_package_reappeared():
 # Guard: what this phase deliberately did not build
 # ---------------------------------------------------------------------
 
-def test_no_backend_adapter_crates_exist_yet():
-    """The hard stop, updated by Phase 129: `execution-native` is the one
+def test_frozen_substrate_and_explicit_outer_host_have_separate_ownership():
+    """The explicit outer provider host is a separate std workspace; frozen crates
+    and their zero-dependency guards remain unchanged. Historical Phase 129: `execution-native` is the one
     deliberate addition (a backend that proves nothing and says so). An
     sp1/nexus/risc0 adapter crate appearing here still means the
     boundary was crossed without the phase that was supposed to cross
     it."""
     present = {p.name for p in CRATES.iterdir() if p.is_dir() and p.name != "target"}
-    assert present == set(SUBSTRATE_CRATES), (
+    assert present == set(SUBSTRATE_CRATES) | {"execution-provider-host"}, (
         f"the workspace gained or lost a crate: {sorted(present)}"
     )
 
@@ -345,7 +347,7 @@ def test_the_substrate_does_not_reach_into_the_python_architecture():
     forbidden = ("evidencepool", "evidence_pool", "canonicalstate", "canonical_state", "scout", "graphrag")
     offenders: list[str] = []
     for path in _rust_sources():
-        source = _strip_rust_noise(path.read_text()).lower()
+        source = _strip_rust_noise(path.read_text(encoding="utf-8-sig")).lower()
         for term in forbidden:
             # `scout` appears in the domain tags ("scout.execution.*"),
             # which are string literals -- already stripped above.
