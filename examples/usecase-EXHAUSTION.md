@@ -50,6 +50,16 @@ Keep the 9,074 entries and 50 extras. **Stop expanding folder count solely to
 grow the number.** Next milestone: executable, meaningfully different, checked
 investigations and an execution/coverage report — not folder 9,075.
 
+## Next-layer truth (executable coverage)
+
+Catalog exhaustion is **not** experimental exhaustion. Track the next layer in:
+
+- [`examples/workflows/coverage_report.md`](workflows/coverage_report.md) (human)
+- [`examples/workflows/coverage_report.json`](workflows/coverage_report.json) (machine)
+- [`examples/workflows/computational_profiles.json`](workflows/computational_profiles.json) (deduped profiles + member counts)
+
+Reported unique computational profiles: **10** vs application descriptions **9074**.
+
 ## Regenerate (catalog / export only)
 
 ```bash
