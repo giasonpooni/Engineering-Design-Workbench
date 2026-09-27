@@ -25,8 +25,8 @@ Constraint: `A=[[1,1]]`, `b=[100]`, `b_var=[0.25]`, `cov=I`.
 `S = A P A^T + R = 2.25`. `consistency_stat = r^T S^{-1} r` with `r = Ax - b`.
 Threshold ≈ χ² 0.999 df=1 ≈ `10.8275661707` (scipy if present, else hardcode).
 
-HOST hard reconcile: when not held, `x_hat = x - A^T/S * r`; when held keep `x`
-and `residual_post` null.
+HOST hard reconcile: when not held, `x_hat = x - A^T/S * r`; when held keep
+`x` and `residual_post` null.
 
 ## Caption
 
