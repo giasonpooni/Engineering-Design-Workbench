@@ -1,0 +1,1126 @@
+{
+  "schema": "coverage-report.v1",
+  "generated_at": "2026-09-27T21:14:49.346628+00:00",
+  "freeze": {
+    "catalog_dirs": 9074,
+    "application_description_count": 9074,
+    "unique_computational_profiles": 10,
+    "max_allowed_dirs": 9074,
+    "created_new_usecase_dirs": false
+  },
+  "statement": "Catalog exhausted ≠ experiments exhausted. 9,074 application descriptions collapse to 10 unique computational profiles (operation + model/uncertainty + expected outcome class). Export/teaching emit was exercised for representatives; scientific execution, numerical regimes, independent checking, replay, and ESM-bound observations remain largely not_run, blocked, unavailable, or cite_only.",
+  "verb_family_operation_mapping": [
+    {
+      "verb": "shift-check",
+      "instrument_family": "FSRT (Fluid-State-Reconstruction-Testbed teaching)",
+      "family": "FSRT",
+      "operation_id": "BLOCKED",
+      "operation_note": "HOST replay of published FSRT quickstart; does not mint ciw.fluid-volume.v1; no native set_lcm import",
+      "model_regime": "two-reservoir linear ConstraintSet; P=I HOST hard reconcile",
+      "input_source": "HOST replay",
+      "scenario": "compare a retained pair before the shift window closes :: reconcile-vs-hold on consistency_stat vs χ² threshold",
+      "profile_id": "255c3a6953b25b6b"
+    },
+    {
+      "verb": "gate",
+      "instrument_family": "CSE (BIM quantity conditioning)",
+      "family": "CSE",
+      "operation_id": "ciw.bim-quantity.v1",
+      "operation_note": "quantity-only teaching dispositions",
+      "model_regime": "IFC/--demo quantity conditioning; geometry_authority=QUANTITY_ONLY",
+      "input_source": "synthetic",
+      "scenario": "screen a quantity teaching case before review :: ACCEPT / REQUEST_EVIDENCE / REJECT teaching gate",
+      "profile_id": "9eccaafa8bc49a47"
+    },
+    {
+      "verb": "path-sensitivity",
+      "instrument_family": "CSG (Curved-Surface-Geodesic-Sensitivity)",
+      "family": "CSG",
+      "operation_id": "ciw.curved-path-transfer.v1",
+      "operation_note": "presentation of HOST-sampled constant-curvature Jacobi strip",
+      "model_regime": "declared constant curvature; no surveyed BIM",
+      "input_source": "synthetic",
+      "scenario": "inspect a retained path and sensitivity strip :: path sensitivity / Jacobi strip inspection",
+      "profile_id": "86c913a772e11a44"
+    },
+    {
+      "verb": "drift-watch",
+      "instrument_family": "RESIDUAL_CUSUM / FDIR-OIT",
+      "family": "RESIDUAL_CUSUM",
+      "operation_id": "ciw.residual-monitor.v1",
+      "operation_note": "teaching windows; operation_language residual-monitor / FDIR-OIT",
+      "model_regime": "ordered residual windows; OIT-held does not advance CUSUM",
+      "input_source": "synthetic",
+      "scenario": "review ordered residual windows without advancing held windows :: quiet / diagnostic-candidate / OIT-held strip",
+      "profile_id": "23e0f4100e7ba51e"
+    },
+    {
+      "verb": "proof-gate",
+      "instrument_family": "PROVED_HEAT (SCR/SP1 integer heat)",
+      "family": "PROVED_HEAT",
+      "operation_id": "ciw.proved-heat.v1",
+      "operation_note": "proof-before-result; no ciw.proved-heat.v2",
+      "model_regime": "bounded registered guest [0,100,200,100,0]→[0,65,92,65,0]",
+      "input_source": "synthetic",
+      "scenario": "present a retained proof-gated result without re-verifying it :: UNAVAILABLE when binaries absent; REFUSED on missing/corrupt proof",
+      "profile_id": "4e1754ccff604b3d"
+    },
+    {
+      "verb": "circle-fit",
+      "instrument_family": "GTE geometric circle",
+      "family": "GTE_CIRCLE",
+      "operation_id": "ciw.geometric-circle.v1",
+      "operation_note": "eligibility / held teaching cases",
+      "model_regime": "declared frame bench-plane only",
+      "input_source": "synthetic",
+      "scenario": "review circle eligibility and held cases :: circle eligibility and radial residual screen",
+      "profile_id": "f3bf97b187d9d148"
+    },
+    {
+      "verb": "stability-verdict",
+      "instrument_family": "PLSR identified stability",
+      "family": "PLSR",
+      "operation_id": "ciw.identified-stability.v1",
+      "operation_note": "retained numerical verdict; proof NOT_CHECKED in teaching emit",
+      "model_regime": "identity certificate / level-set; parameter covariance unknown",
+      "input_source": "HOST replay",
+      "scenario": "review a retained stability verdict and level-set case :: NUMERICAL_INCONCLUSIVE / OUTSIDE_LEVEL_SET teaching",
+      "profile_id": "e53d1d4e38444add"
+    },
+    {
+      "verb": "energy-accuracy",
+      "instrument_family": "ENERGY_ACCURACY",
+      "family": "ENERGY_ACCURACY",
+      "operation_id": "ciw.energy-accuracy.v1",
+      "operation_note": "amortized joules/qualified-solve teaching phases",
+      "model_regime": "synthetic fixtures; free energy / joules / time kept separate",
+      "input_source": "synthetic",
+      "scenario": "compare retained energy-accuracy phases :: baseline-qualified and incomplete-bracket phases",
+      "profile_id": "b0e89a20f6c8870e"
+    },
+    {
+      "verb": "free-energy",
+      "instrument_family": "VFE variational free energy",
+      "family": "VFE",
+      "operation_id": "ciw.variational-free-energy.v1",
+      "operation_note": "sensor-bias teaching contrast",
+      "model_regime": "synthetic constant-curvature / unmodelled generator bias",
+      "input_source": "synthetic",
+      "scenario": "review a retained free-energy sensor-bias teaching case :: free-energy numerics without physical calibration claim",
+      "profile_id": "3a74d4435cc207f4"
+    },
+    {
+      "verb": "measurement-chain",
+      "instrument_family": "MEASUREMENT_CHAIN (RCI→FSRT→JSPT testbed)",
+      "family": "MEASUREMENT_CHAIN",
+      "operation_id": "ciw.measurement-chain.v1",
+      "operation_note": "operation_language RCI calibrate.v2 → FSRT snapshot → JSPT",
+      "model_regime": "HOST_SYNTHETIC stages; native results keep not_verified",
+      "input_source": "synthetic",
+      "scenario": "trace a retained measurement-chain receipt :: instrument-chain stage walk / chain audit",
+      "profile_id": "1ad6ec86bd1fcef8"
+    },
+    {
+      "verb": "inventory-balance",
+      "instrument_family": "FSRT (Fluid-State-Reconstruction-Testbed teaching)",
+      "family": "FSRT",
+      "operation_id": "BLOCKED",
+      "operation_note": "HOST replay of published FSRT quickstart; does not mint ciw.fluid-volume.v1; no native set_lcm import",
+      "model_regime": "two-reservoir linear ConstraintSet; P=I HOST hard reconcile",
+      "input_source": "HOST replay",
+      "scenario": "reconcile an inventory teaching pair :: reconcile-vs-hold on consistency_stat vs χ² threshold",
+      "profile_id": "255c3a6953b25b6b"
+    },
+    {
+      "verb": "route-check",
+      "instrument_family": "CSG (Curved-Surface-Geodesic-Sensitivity)",
+      "family": "CSG",
+      "operation_id": "ciw.curved-path-transfer.v1",
+      "operation_note": "presentation of HOST-sampled constant-curvature Jacobi strip",
+      "model_regime": "declared constant curvature; no surveyed BIM",
+      "input_source": "synthetic",
+      "scenario": "compare a route sensitivity strip :: path sensitivity / Jacobi strip inspection",
+      "profile_id": "86c913a772e11a44"
+    },
+    {
+      "verb": "quantity-review",
+      "instrument_family": "CSE (BIM quantity conditioning)",
+      "family": "CSE",
+      "operation_id": "ciw.bim-quantity.v1",
+      "operation_note": "quantity-only teaching dispositions",
+      "model_regime": "IFC/--demo quantity conditioning; geometry_authority=QUANTITY_ONLY",
+      "input_source": "synthetic",
+      "scenario": "review retained quantity cases :: ACCEPT / REQUEST_EVIDENCE / REJECT teaching gate",
+      "profile_id": "9eccaafa8bc49a47"
+    },
+    {
+      "verb": "residual-hold",
+      "instrument_family": "RESIDUAL_CUSUM / FDIR-OIT",
+      "family": "RESIDUAL_CUSUM",
+      "operation_id": "ciw.residual-monitor.v1",
+      "operation_note": "teaching windows; operation_language residual-monitor / FDIR-OIT",
+      "model_regime": "ordered residual windows; OIT-held does not advance CUSUM",
+      "input_source": "synthetic",
+      "scenario": "record a residual hold point :: quiet / diagnostic-candidate / OIT-held strip",
+      "profile_id": "23e0f4100e7ba51e"
+    },
+    {
+      "verb": "thermal-release",
+      "instrument_family": "PROVED_HEAT (SCR/SP1 integer heat)",
+      "family": "PROVED_HEAT",
+      "operation_id": "ciw.proved-heat.v1",
+      "operation_note": "proof-before-result; no ciw.proved-heat.v2",
+      "model_regime": "bounded registered guest [0,100,200,100,0]→[0,65,92,65,0]",
+      "input_source": "synthetic",
+      "scenario": "present a thermal teaching release state :: UNAVAILABLE when binaries absent; REFUSED on missing/corrupt proof",
+      "profile_id": "4e1754ccff604b3d"
+    },
+    {
+      "verb": "radial-screen",
+      "instrument_family": "GTE geometric circle",
+      "family": "GTE_CIRCLE",
+      "operation_id": "ciw.geometric-circle.v1",
+      "operation_note": "eligibility / held teaching cases",
+      "model_regime": "declared frame bench-plane only",
+      "input_source": "synthetic",
+      "scenario": "screen retained radial residuals :: circle eligibility and radial residual screen",
+      "profile_id": "f3bf97b187d9d148"
+    },
+    {
+      "verb": "contour-check",
+      "instrument_family": "PLSR identified stability",
+      "family": "PLSR",
+      "operation_id": "ciw.identified-stability.v1",
+      "operation_note": "retained numerical verdict; proof NOT_CHECKED in teaching emit",
+      "model_regime": "identity certificate / level-set; parameter covariance unknown",
+      "input_source": "HOST replay",
+      "scenario": "compare a contour-level stability case :: NUMERICAL_INCONCLUSIVE / OUTSIDE_LEVEL_SET teaching",
+      "profile_id": "e53d1d4e38444add"
+    },
+    {
+      "verb": "phase-review",
+      "instrument_family": "ENERGY_ACCURACY",
+      "family": "ENERGY_ACCURACY",
+      "operation_id": "ciw.energy-accuracy.v1",
+      "operation_note": "amortized joules/qualified-solve teaching phases",
+      "model_regime": "synthetic fixtures; free energy / joules / time kept separate",
+      "input_source": "synthetic",
+      "scenario": "review a retained phase accuracy strip :: baseline-qualified and incomplete-bracket phases",
+      "profile_id": "b0e89a20f6c8870e"
+    },
+    {
+      "verb": "bias-review",
+      "instrument_family": "VFE variational free energy",
+      "family": "VFE",
+      "operation_id": "ciw.variational-free-energy.v1",
+      "operation_note": "sensor-bias teaching contrast",
+      "model_regime": "synthetic constant-curvature / unmodelled generator bias",
+      "input_source": "synthetic",
+      "scenario": "review a sensor-bias teaching record :: free-energy numerics without physical calibration claim",
+      "profile_id": "3a74d4435cc207f4"
+    },
+    {
+      "verb": "chain-audit",
+      "instrument_family": "MEASUREMENT_CHAIN (RCI→FSRT→JSPT testbed)",
+      "family": "MEASUREMENT_CHAIN",
+      "operation_id": "ciw.measurement-chain.v1",
+      "operation_note": "operation_language RCI calibrate.v2 → FSRT snapshot → JSPT",
+      "model_regime": "HOST_SYNTHETIC stages; native results keep not_verified",
+      "input_source": "synthetic",
+      "scenario": "walk the retained instrument-chain stages :: instrument-chain stage walk / chain audit",
+      "profile_id": "1ad6ec86bd1fcef8"
+    },
+    {
+      "verb": "reservoir-reconcile",
+      "instrument_family": "FSRT (Fluid-State-Reconstruction-Testbed teaching)",
+      "family": "FSRT",
+      "operation_id": "BLOCKED",
+      "operation_note": "HOST replay of published FSRT quickstart; does not mint ciw.fluid-volume.v1; no native set_lcm import",
+      "model_regime": "two-reservoir linear ConstraintSet; P=I HOST hard reconcile",
+      "input_source": "HOST replay",
+      "scenario": "compare two retained reservoir indications :: reconcile-vs-hold on consistency_stat vs χ² threshold",
+      "profile_id": "255c3a6953b25b6b"
+    },
+    {
+      "verb": "jacobi-strip",
+      "instrument_family": "CSG (Curved-Surface-Geodesic-Sensitivity)",
+      "family": "CSG",
+      "operation_id": "ciw.curved-path-transfer.v1",
+      "operation_note": "presentation of HOST-sampled constant-curvature Jacobi strip",
+      "model_regime": "declared constant curvature; no surveyed BIM",
+      "input_source": "synthetic",
+      "scenario": "inspect the retained Jacobi sensitivity strip :: path sensitivity / Jacobi strip inspection",
+      "profile_id": "86c913a772e11a44"
+    },
+    {
+      "verb": "evidence-screen",
+      "instrument_family": "CSE (BIM quantity conditioning)",
+      "family": "CSE",
+      "operation_id": "ciw.bim-quantity.v1",
+      "operation_note": "quantity-only teaching dispositions",
+      "model_regime": "IFC/--demo quantity conditioning; geometry_authority=QUANTITY_ONLY",
+      "input_source": "synthetic",
+      "scenario": "screen retained evidence-needed quantity cases :: ACCEPT / REQUEST_EVIDENCE / REJECT teaching gate",
+      "profile_id": "9eccaafa8bc49a47"
+    },
+    {
+      "verb": "verdict-review",
+      "instrument_family": "PLSR identified stability",
+      "family": "PLSR",
+      "operation_id": "ciw.identified-stability.v1",
+      "operation_note": "retained numerical verdict; proof NOT_CHECKED in teaching emit",
+      "model_regime": "identity certificate / level-set; parameter covariance unknown",
+      "input_source": "HOST replay",
+      "scenario": "review a retained numerical verdict :: NUMERICAL_INCONCLUSIVE / OUTSIDE_LEVEL_SET teaching",
+      "profile_id": "e53d1d4e38444add"
+    }
+  ],
+  "layer_counts_representatives": {
+    "catalog": {
+      "pass": 10
+    },
+    "export": {
+      "pass": 10
+    },
+    "executable": {
+      "not_run": 8,
+      "blocked": 1,
+      "unavailable": 1
+    },
+    "numerical": {
+      "not_run": 8,
+      "blocked": 1,
+      "unavailable": 1
+    },
+    "checking": {
+      "pass": 10
+    },
+    "replay": {
+      "not_run": 8,
+      "blocked": 1,
+      "unavailable": 1
+    },
+    "ESM": {
+      "cite_only": 10
+    }
+  },
+  "layer_counts_all_representative_runs": {
+    "catalog:pass": 16,
+    "export:pass": 16,
+    "executable:not_run": 10,
+    "numerical:not_run": 10,
+    "checking:pass": 15,
+    "replay:not_run": 11,
+    "ESM:cite_only": 16,
+    "executable:blocked": 2,
+    "numerical:blocked": 2,
+    "replay:blocked": 1,
+    "executable:unavailable": 4,
+    "numerical:unavailable": 4,
+    "replay:unavailable": 4,
+    "checking:not_run": 1
+  },
+  "top_incompatible_blocked_reasons": [
+    {
+      "reason": "ESM_real_artifact_bindings_absent_cite_only",
+      "weight": 9074
+    },
+    {
+      "reason": "scientific_execution_requires_workbench_session_or_ICRH",
+      "weight": 7926
+    },
+    {
+      "reason": "FSRT_ciw.fluid-volume.v1_not_minted",
+      "weight": 1148
+    },
+    {
+      "reason": "native_session_ciw.curved-path-transfer.v1_not_invoked",
+      "weight": 1144
+    },
+    {
+      "reason": "native_session_ciw.bim-quantity.v1_not_invoked",
+      "weight": 1138
+    },
+    {
+      "reason": "native_session_ciw.identified-stability.v1_not_invoked",
+      "weight": 1128
+    },
+    {
+      "reason": "PROVED_HEAT_SP1_binaries_or_fresh_verify_unavailable",
+      "weight": 755
+    },
+    {
+      "reason": "native_session_ciw.residual-monitor.v1_not_invoked",
+      "weight": 753
+    },
+    {
+      "reason": "native_session_ciw.energy-accuracy.v1_not_invoked",
+      "weight": 752
+    },
+    {
+      "reason": "native_session_ciw.geometric-circle.v1_not_invoked",
+      "weight": 752
+    },
+    {
+      "reason": "native_session_ciw.measurement-chain.v1_not_invoked",
+      "weight": 752
+    },
+    {
+      "reason": "native_session_ciw.variational-free-energy.v1_not_invoked",
+      "weight": 752
+    }
+  ],
+  "sp1": {
+    "cargo": true,
+    "rustc": true,
+    "sp1_cli": false,
+    "guest_elf_hits": [],
+    "scientific_execution": "unavailable",
+    "reason": "host_binaries_absent_or_unbound"
+  },
+  "representative_runs": [
+    {
+      "profile_id": "9eccaafa8bc49a47",
+      "family": "CSE",
+      "representative_kind": "unique_computational_config",
+      "slug_example": "airport-maintenance-evidence-screen",
+      "commands": [
+        {
+          "command": [
+            "python3",
+            "-c",
+            "usecase_templates.EMIT_FUNCTIONS['CSE'](...)"
+          ],
+          "returncode": 0,
+          "stdout_tail": "wrote /tmp/cov-CSE-vbj22xfw/cse_rep_render.json bytes=8611",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "pass"
+        },
+        {
+          "command": [
+            "python3",
+            "-c",
+            "structural_checks(emitted_json)"
+          ],
+          "returncode": 0,
+          "stdout_tail": "checks_ok=True issues=[]",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "pass"
+        },
+        {
+          "command": [
+            "ciw",
+            "operation.execute",
+            "ciw.bim-quantity.v1"
+          ],
+          "returncode": null,
+          "stdout_tail": "local teaching emit only; workbench session / ICRH not started",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "not_run"
+        }
+      ],
+      "layers": {
+        "catalog": "pass",
+        "export": "pass",
+        "executable": "not_run",
+        "numerical": "not_run",
+        "checking": "pass",
+        "replay": "not_run",
+        "ESM": "cite_only"
+      }
+    },
+    {
+      "profile_id": "86c913a772e11a44",
+      "family": "CSG",
+      "representative_kind": "unique_computational_config",
+      "slug_example": "airport-maintenance-jacobi-strip",
+      "commands": [
+        {
+          "command": [
+            "python3",
+            "-c",
+            "usecase_templates.EMIT_FUNCTIONS['CSG'](...)"
+          ],
+          "returncode": 0,
+          "stdout_tail": "wrote /tmp/cov-CSG-o1fjose1/csg_rep_render.json bytes=7532",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "pass"
+        },
+        {
+          "command": [
+            "python3",
+            "-c",
+            "structural_checks(emitted_json)"
+          ],
+          "returncode": 0,
+          "stdout_tail": "checks_ok=True issues=[]",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "pass"
+        },
+        {
+          "command": [
+            "ciw",
+            "operation.execute",
+            "ciw.curved-path-transfer.v1"
+          ],
+          "returncode": null,
+          "stdout_tail": "local teaching emit only; workbench session / ICRH not started",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "not_run"
+        }
+      ],
+      "layers": {
+        "catalog": "pass",
+        "export": "pass",
+        "executable": "not_run",
+        "numerical": "not_run",
+        "checking": "pass",
+        "replay": "not_run",
+        "ESM": "cite_only"
+      }
+    },
+    {
+      "profile_id": "b0e89a20f6c8870e",
+      "family": "ENERGY_ACCURACY",
+      "representative_kind": "unique_computational_config",
+      "slug_example": "airport-maintenance-energy-accuracy",
+      "commands": [
+        {
+          "command": [
+            "python3",
+            "-c",
+            "usecase_templates.EMIT_FUNCTIONS['ENERGY_ACCURACY'](...)"
+          ],
+          "returncode": 0,
+          "stdout_tail": "wrote /tmp/cov-ENERGY_ACCURACY-x40m30xe/energy_accuracy_rep_render.json bytes=9436",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "pass"
+        },
+        {
+          "command": [
+            "python3",
+            "-c",
+            "structural_checks(emitted_json)"
+          ],
+          "returncode": 0,
+          "stdout_tail": "checks_ok=True issues=[]",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "pass"
+        },
+        {
+          "command": [
+            "ciw",
+            "operation.execute",
+            "ciw.energy-accuracy.v1"
+          ],
+          "returncode": null,
+          "stdout_tail": "local teaching emit only; workbench session / ICRH not started",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "not_run"
+        }
+      ],
+      "layers": {
+        "catalog": "pass",
+        "export": "pass",
+        "executable": "not_run",
+        "numerical": "not_run",
+        "checking": "pass",
+        "replay": "not_run",
+        "ESM": "cite_only"
+      }
+    },
+    {
+      "profile_id": "255c3a6953b25b6b",
+      "family": "FSRT",
+      "representative_kind": "unique_computational_config",
+      "slug_example": "airport-fuel-farm",
+      "commands": [
+        {
+          "command": [
+            "python3",
+            "-c",
+            "usecase_templates.EMIT_FUNCTIONS['FSRT'](...)"
+          ],
+          "returncode": 0,
+          "stdout_tail": "wrote /tmp/cov-FSRT-o7oai6mn/fsrt_rep_render.json bytes=6908",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "pass"
+        },
+        {
+          "command": [
+            "python3",
+            "-c",
+            "structural_checks(emitted_json)"
+          ],
+          "returncode": 0,
+          "stdout_tail": "checks_ok=True issues=[]",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "pass"
+        },
+        {
+          "command": [
+            "native_operation.execute",
+            "ciw.fluid-volume.v1"
+          ],
+          "returncode": null,
+          "stdout_tail": "",
+          "stderr_tail": "HOST replay of published FSRT quickstart; does not mint ciw.fluid-volume.v1; no native set_lcm import",
+          "elapsed_s": 0.0,
+          "status": "blocked"
+        }
+      ],
+      "layers": {
+        "catalog": "pass",
+        "export": "pass",
+        "executable": "blocked",
+        "numerical": "blocked",
+        "checking": "pass",
+        "replay": "blocked",
+        "ESM": "cite_only"
+      }
+    },
+    {
+      "profile_id": "f3bf97b187d9d148",
+      "family": "GTE_CIRCLE",
+      "representative_kind": "unique_computational_config",
+      "slug_example": "airport-maintenance-circle-fit",
+      "commands": [
+        {
+          "command": [
+            "python3",
+            "-c",
+            "usecase_templates.EMIT_FUNCTIONS['GTE_CIRCLE'](...)"
+          ],
+          "returncode": 0,
+          "stdout_tail": "wrote /tmp/cov-GTE_CIRCLE-vnm5_gce/gte_circle_rep_render.json bytes=7607",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "pass"
+        },
+        {
+          "command": [
+            "python3",
+            "-c",
+            "structural_checks(emitted_json)"
+          ],
+          "returncode": 0,
+          "stdout_tail": "checks_ok=True issues=[]",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "pass"
+        },
+        {
+          "command": [
+            "ciw",
+            "operation.execute",
+            "ciw.geometric-circle.v1"
+          ],
+          "returncode": null,
+          "stdout_tail": "local teaching emit only; workbench session / ICRH not started",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "not_run"
+        }
+      ],
+      "layers": {
+        "catalog": "pass",
+        "export": "pass",
+        "executable": "not_run",
+        "numerical": "not_run",
+        "checking": "pass",
+        "replay": "not_run",
+        "ESM": "cite_only"
+      }
+    },
+    {
+      "profile_id": "1ad6ec86bd1fcef8",
+      "family": "MEASUREMENT_CHAIN",
+      "representative_kind": "unique_computational_config",
+      "slug_example": "airport-maintenance-chain-audit",
+      "commands": [
+        {
+          "command": [
+            "python3",
+            "-c",
+            "usecase_templates.EMIT_FUNCTIONS['MEASUREMENT_CHAIN'](...)"
+          ],
+          "returncode": 0,
+          "stdout_tail": "wrote /tmp/cov-MEASUREMENT_CHAIN-hstwvl_6/measurement_chain_rep_render.json bytes=5537",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "pass"
+        },
+        {
+          "command": [
+            "python3",
+            "-c",
+            "structural_checks(emitted_json)"
+          ],
+          "returncode": 0,
+          "stdout_tail": "checks_ok=True issues=[]",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "pass"
+        },
+        {
+          "command": [
+            "ciw",
+            "operation.execute",
+            "ciw.measurement-chain.v1"
+          ],
+          "returncode": null,
+          "stdout_tail": "local teaching emit only; workbench session / ICRH not started",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "not_run"
+        }
+      ],
+      "layers": {
+        "catalog": "pass",
+        "export": "pass",
+        "executable": "not_run",
+        "numerical": "not_run",
+        "checking": "pass",
+        "replay": "not_run",
+        "ESM": "cite_only"
+      }
+    },
+    {
+      "profile_id": "e53d1d4e38444add",
+      "family": "PLSR",
+      "representative_kind": "unique_computational_config",
+      "slug_example": "airport-maintenance-contour-check",
+      "commands": [
+        {
+          "command": [
+            "python3",
+            "-c",
+            "usecase_templates.EMIT_FUNCTIONS['PLSR'](...)"
+          ],
+          "returncode": 0,
+          "stdout_tail": "wrote /tmp/cov-PLSR-x_23c4d6/plsr_rep_render.json bytes=9011",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "pass"
+        },
+        {
+          "command": [
+            "python3",
+            "-c",
+            "structural_checks(emitted_json)"
+          ],
+          "returncode": 0,
+          "stdout_tail": "checks_ok=True issues=[]",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "pass"
+        },
+        {
+          "command": [
+            "ciw",
+            "operation.execute",
+            "ciw.identified-stability.v1"
+          ],
+          "returncode": null,
+          "stdout_tail": "local teaching emit only; workbench session / ICRH not started",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "not_run"
+        }
+      ],
+      "layers": {
+        "catalog": "pass",
+        "export": "pass",
+        "executable": "not_run",
+        "numerical": "not_run",
+        "checking": "pass",
+        "replay": "not_run",
+        "ESM": "cite_only"
+      }
+    },
+    {
+      "profile_id": "4e1754ccff604b3d",
+      "family": "PROVED_HEAT",
+      "representative_kind": "unique_computational_config",
+      "slug_example": "airport-maintenance-proof-gate",
+      "commands": [
+        {
+          "command": [
+            "python3",
+            "-c",
+            "usecase_templates.EMIT_FUNCTIONS['PROVED_HEAT'](...)"
+          ],
+          "returncode": 0,
+          "stdout_tail": "wrote /tmp/cov-PROVED_HEAT-_f4iye6w/proved_heat_rep_render.json bytes=10554",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "pass"
+        },
+        {
+          "command": [
+            "python3",
+            "-c",
+            "structural_checks(emitted_json)"
+          ],
+          "returncode": 0,
+          "stdout_tail": "checks_ok=True issues=[]",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "pass"
+        },
+        {
+          "command": [
+            "scripts/check_proved_heat.py",
+            "(not invoked — binaries/providers)"
+          ],
+          "returncode": null,
+          "stdout_tail": "{\"cargo\": true, \"rustc\": true, \"sp1_cli\": false, \"guest_elf_hits\": [], \"scientific_execution\": \"unavailable\", \"reason\": \"host_binaries_absent_or_unbound\"}",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "unavailable"
+        }
+      ],
+      "layers": {
+        "catalog": "pass",
+        "export": "pass",
+        "executable": "unavailable",
+        "numerical": "unavailable",
+        "checking": "pass",
+        "replay": "unavailable",
+        "ESM": "cite_only"
+      }
+    },
+    {
+      "profile_id": "23e0f4100e7ba51e",
+      "family": "RESIDUAL_CUSUM",
+      "representative_kind": "unique_computational_config",
+      "slug_example": "airport-maintenance-drift-watch",
+      "commands": [
+        {
+          "command": [
+            "python3",
+            "-c",
+            "usecase_templates.EMIT_FUNCTIONS['RESIDUAL_CUSUM'](...)"
+          ],
+          "returncode": 0,
+          "stdout_tail": "wrote /tmp/cov-RESIDUAL_CUSUM-8t8esgr9/residual_cusum_rep_render.json bytes=10632",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "pass"
+        },
+        {
+          "command": [
+            "python3",
+            "-c",
+            "structural_checks(emitted_json)"
+          ],
+          "returncode": 0,
+          "stdout_tail": "checks_ok=True issues=[]",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "pass"
+        },
+        {
+          "command": [
+            "ciw",
+            "operation.execute",
+            "ciw.residual-monitor.v1"
+          ],
+          "returncode": null,
+          "stdout_tail": "local teaching emit only; workbench session / ICRH not started",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "not_run"
+        }
+      ],
+      "layers": {
+        "catalog": "pass",
+        "export": "pass",
+        "executable": "not_run",
+        "numerical": "not_run",
+        "checking": "pass",
+        "replay": "not_run",
+        "ESM": "cite_only"
+      }
+    },
+    {
+      "profile_id": "3a74d4435cc207f4",
+      "family": "VFE",
+      "representative_kind": "unique_computational_config",
+      "slug_example": "airport-maintenance-bias-review",
+      "commands": [
+        {
+          "command": [
+            "python3",
+            "-c",
+            "usecase_templates.EMIT_FUNCTIONS['VFE'](...)"
+          ],
+          "returncode": 0,
+          "stdout_tail": "wrote /tmp/cov-VFE-j4q17_4x/vfe_rep_render.json bytes=5881",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "pass"
+        },
+        {
+          "command": [
+            "python3",
+            "-c",
+            "structural_checks(emitted_json)"
+          ],
+          "returncode": 0,
+          "stdout_tail": "checks_ok=True issues=[]",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "pass"
+        },
+        {
+          "command": [
+            "ciw",
+            "operation.execute",
+            "ciw.variational-free-energy.v1"
+          ],
+          "returncode": null,
+          "stdout_tail": "local teaching emit only; workbench session / ICRH not started",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "not_run"
+        }
+      ],
+      "layers": {
+        "catalog": "pass",
+        "export": "pass",
+        "executable": "not_run",
+        "numerical": "not_run",
+        "checking": "pass",
+        "replay": "not_run",
+        "ESM": "cite_only"
+      }
+    },
+    {
+      "profile_id": "4e1754ccff604b3d",
+      "family": "PROVED_HEAT",
+      "representative_kind": "boundary_refuse",
+      "label": "binaries-absent UNAVAILABLE",
+      "case_ids": [
+        "teaching-statement-binaries-absent"
+      ],
+      "expected": "unavailable",
+      "missing_case_ids": [],
+      "commands": [
+        {
+          "command": [
+            "python3",
+            "-c",
+            "assert case_ids subset of PROVED_HEAT.build_payload()['cases']"
+          ],
+          "returncode": 0,
+          "stdout_tail": "present=['teaching-statement-binaries-absent'] missing=[]",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "pass"
+        }
+      ],
+      "layers": {
+        "catalog": "pass",
+        "export": "pass",
+        "executable": "unavailable",
+        "numerical": "unavailable",
+        "checking": "pass",
+        "replay": "unavailable",
+        "ESM": "cite_only"
+      }
+    },
+    {
+      "profile_id": "4e1754ccff604b3d",
+      "family": "PROVED_HEAT",
+      "representative_kind": "boundary_refuse",
+      "label": "missing-proof REFUSED",
+      "case_ids": [
+        "missing-proof-refused",
+        "missing-guest-elf-pin-refused",
+        "resealed-corrupt-refused"
+      ],
+      "expected": "refuse",
+      "missing_case_ids": [],
+      "commands": [
+        {
+          "command": [
+            "python3",
+            "-c",
+            "assert case_ids subset of PROVED_HEAT.build_payload()['cases']"
+          ],
+          "returncode": 0,
+          "stdout_tail": "present=['missing-guest-elf-pin-refused', 'missing-proof-refused', 'resealed-corrupt-refused'] missing=[]",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "pass"
+        }
+      ],
+      "layers": {
+        "catalog": "pass",
+        "export": "pass",
+        "executable": "unavailable",
+        "numerical": "unavailable",
+        "checking": "pass",
+        "replay": "unavailable",
+        "ESM": "cite_only"
+      }
+    },
+    {
+      "profile_id": "9eccaafa8bc49a47",
+      "family": "CSE",
+      "representative_kind": "boundary_refuse",
+      "label": "quantity REJECT / REQUEST_EVIDENCE",
+      "case_ids": [
+        "held-request-evidence",
+        "refused-violated"
+      ],
+      "expected": "held_or_refuse",
+      "missing_case_ids": [],
+      "commands": [
+        {
+          "command": [
+            "python3",
+            "-c",
+            "assert case_ids subset of CSE.build_payload()['cases']"
+          ],
+          "returncode": 0,
+          "stdout_tail": "present=['held-request-evidence', 'refused-violated'] missing=[]",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "pass"
+        }
+      ],
+      "layers": {
+        "catalog": "pass",
+        "export": "pass",
+        "executable": "not_run",
+        "numerical": "not_run",
+        "checking": "pass",
+        "replay": "not_run",
+        "ESM": "cite_only"
+      }
+    },
+    {
+      "profile_id": "e53d1d4e38444add",
+      "family": "PLSR",
+      "representative_kind": "boundary_refuse",
+      "label": "OUTSIDE_LEVEL_SET / NUMERICAL_INCONCLUSIVE",
+      "case_ids": [
+        "identity-certificate-inconclusive",
+        "level-zero-outside"
+      ],
+      "expected": "inconclusive_or_refuse",
+      "missing_case_ids": [],
+      "commands": [
+        {
+          "command": [
+            "python3",
+            "-c",
+            "assert case_ids subset of PLSR.build_payload()['cases']"
+          ],
+          "returncode": 0,
+          "stdout_tail": "present=['identity-certificate-inconclusive', 'level-zero-outside'] missing=[]",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "pass"
+        }
+      ],
+      "layers": {
+        "catalog": "pass",
+        "export": "pass",
+        "executable": "not_run",
+        "numerical": "not_run",
+        "checking": "pass",
+        "replay": "not_run",
+        "ESM": "cite_only"
+      }
+    },
+    {
+      "profile_id": "255c3a6953b25b6b",
+      "family": "FSRT",
+      "representative_kind": "boundary_refuse",
+      "label": "large-disagreement HELD (operation BLOCKED for fluid-volume mint)",
+      "case_ids": [
+        "large-disagreement-held"
+      ],
+      "expected": "blocked_or_held",
+      "missing_case_ids": [],
+      "commands": [
+        {
+          "command": [
+            "python3",
+            "-c",
+            "assert case_ids subset of FSRT.build_payload()['cases']"
+          ],
+          "returncode": 0,
+          "stdout_tail": "present=['large-disagreement-held'] missing=[]",
+          "stderr_tail": "",
+          "elapsed_s": 0.0,
+          "status": "pass"
+        }
+      ],
+      "layers": {
+        "catalog": "pass",
+        "export": "pass",
+        "executable": "blocked",
+        "numerical": "blocked",
+        "checking": "pass",
+        "replay": "not_run",
+        "ESM": "cite_only"
+      }
+    },
+    {
+      "profile_id": "4e1754ccff604b3d",
+      "family": "PROVED_HEAT",
+      "representative_kind": "sp1_teaching_export",
+      "commands": [
+        {
+          "command": [
+            "/usr/bin/python3",
+            "/workspace/Parametric-Design-Terminal/examples/workflows/emit_sp1_teaching_bundle.py"
+          ],
+          "returncode": 0,
+          "stdout_tail": "orrupt-refused: card=REFUSED\n  retained-historical-requires-fresh: card=HISTORICAL\nok examples/proved-heat/emit_proof_render.py\nok examples/usecase-thermal-proof-gate/emit_render.py\norchestrated=2 emitters=proved-heat,usecase-thermal-proof-gate operation=ciw.proved-heat.v1 fake_proofs=false layer_export=pass layer_scientific_execution=not_run layer_fresh_verify=not_run layer_replay=not_run layer_tamper=not_run layer_esm=cite_only note=run scripts/check_proved_heat.py for execution+verify+tamper\n",
+          "stderr_tail": "",
+          "elapsed_s": 0.105,
+          "status": "pass"
+        }
+      ],
+      "layers": {
+        "catalog": "pass",
+        "export": "pass",
+        "executable": "unavailable",
+        "numerical": "unavailable",
+        "checking": "not_run",
+        "replay": "unavailable",
+        "ESM": "cite_only"
+      }
+    }
+  ],
+  "unmapped_slugs": [],
+  "summary": {
+    "unique_computational_profiles": 10,
+    "representatives_export_executed": 10,
+    "representatives_scientific_not_run_or_blocked": 10,
+    "boundary_refuse_cases": 5,
+    "failures": 0,
+    "failure_labels": []
+  },
+  "esm_policy": {
+    "url": "https://github.com/giasonpooni/Evidence-and-State-Management",
+    "status": "cite_only",
+    "note": "No invented ESM pins. UNADMITTED_CANDIDATE_RETENTION only; may_authorize remains false; real-data cases require artifact digest + field + transform bindings which are absent here."
+  }
+}
