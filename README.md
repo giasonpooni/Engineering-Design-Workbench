@@ -37,22 +37,14 @@ records exercised paths, independent checks and remaining gaps.
 | Save, inspect, reopen and explicitly replay investigations. | Reopening reads retained inputs and results without recomputing them. Replay is a new execution with its own identity. |
 | Run supported measurement, telemetry, calibration, estimation and design workflows. | Uses the exact provider versions and input assumptions listed in the integration guides; not a generic live sensor-fusion service. |
 | Evaluate supported covariance and geometric-path calculations. | Bounded matrix, mesh, translation-flow, flat-torus and curved-path operations; each has its own numerical limits. |
-| Inspect model equations and make bounded what-if previews. | Equation cards and offline previews associated with the oscillator workflow; the full learning curriculum is not implemented. |
-| Follow a retained RMS lesson through the existing statistics operation. | [One worked investigation](docs/LEARNING.md), with a separate Decimal comparison and explicit replay; no new curriculum engine or proof claim. |
+| Inspect model equations and make bounded what-if previews. | Equation cards and offline previews associated with the oscillator workflow. |
+| Follow a retained RMS lesson through the existing statistics operation. | [One worked investigation](docs/LEARNING.md), with a separate Decimal comparison and explicit replay. |
 | Evaluate a recorded machine configuration. | Read-only encoder/gearbox/leadscrew reference workflow, with configuration, inputs and results retained together; no firmware loading or actuation. |
 | Run selected stability and computation checks. | PLSR and registered SCR/SP1 operations have separate requirements and scopes; they do not verify every calculation or physical model. |
 | Inspect results in optional graphical clients. | Godot Experiments and read-only geographic views use retained `ciw.experiment-view.v1` records. Coordinate, strip and mesh panels that carry `ciw.panel-render.v1` are drawn as detached copies (`connect: false`, canvas id distinct from frame). Neither client changes the scientific result. |
 
-An optional host bench can capture GPU energy-to-accuracy logs on a supported
-NVIDIA device. That path is documented in [ENERGY_ACCURACY.md](docs/ENERGY_ACCURACY.md);
-it is not a default client and not a laboratory gateway.
-
-
-The broader laboratory integration is still being completed. Current support
-does **not** establish general-purpose hardware acquisition, equipment control,
-a complete mathematics curriculum or platform-wide industrial qualification.
-Unimplemented research notes are collected in
-[unimplemented directions](docs/UNIMPLEMENTED_DIRECTIONS.md), not in this page.
+Current support does **not** establish general-purpose hardware acquisition,
+equipment control or platform-wide industrial qualification.
 
 ## Quickstart
 
@@ -148,7 +140,7 @@ and checks a workflow supports.
 | --- | --- |
 | **Notations / CIW** | Manage the investigation, selected operations, saved history, inspection and explicit replay. The existing Python session remains authoritative for these records. |
 | **Scientific providers** | Supply domain models and calculations through adapters with explicit source/runtime versions. Each repository retains its own scientific contract, tests and licence. |
-| **Native execution / SCR** | Supply selected native execution adapters where a profile registers them. The Python session remains authoritative. Julia, C/C++ and Rust are not a required install chain. |
+| **Native execution / SCR** | Supply selected native execution adapters where a profile registers them. The Python session remains authoritative. |
 | **Checkers / ICRH, PLSR and selected SP1 paths** | Check the numerical, contract, stability or registered-computation claims they actually support. A computation does not certify itself. |
 | **Evidence handoff / ESM** | Handle separately supported retention, review and release of evidence or candidate state. An inspect copy and a `render` descriptor are not modeling inputs and do not admit corpus state. |
 | **Inspection clients** | Display numerical, temporal, spectral, geographic or local 2D/3D views of retained inspect records. Closing a viewer does not stop the backend or change retained records. |
@@ -201,18 +193,6 @@ In plain language: identify the object, state its rules and assumptions, define
 the change, run a method, and inspect the evidence for the answer. A mathematical
 operation, its algorithm, its implementation and its checks remain distinct.
 
-## Unimplemented directions
-
-The root README stops at implemented operations, retained records and
-inspect clients. OpenUSD scene interchange, a mathematics curriculum
-engine, a required Julia/C++/Rust language chain, category-theoretic
-design manifolds, a general GPU or laboratory gateway, and Evidence and
-State Management admission from a plot or `render` descriptor are
-**not implemented**.
-
-Those notes now live in [unimplemented directions](docs/UNIMPLEMENTED_DIRECTIONS.md).
-They do not extend `experiment.inspect` or `ciw.panel-render.v1`.
-
 ## Evidence boundaries
 
 A saved investigation distinguishes what was supplied, measured, predicted,
@@ -246,8 +226,6 @@ equipment. Unavailable, inconclusive, refused and failed checks remain visible.
 
 **Finish and verify the currently assigned work first.** The agreed initial
 end-to-end demonstration (the **base pilot**) remains the development priority.
-The learning layer, new providers and broader research directions extend that
-work; they do not replace it, reset its queue or justify speculative rewrites.
 
 Use the existing oscillator/thermal, measurement-chain and curved-path foundations
 to close a shared investigation workflow, not a set of disconnected demos.
@@ -260,7 +238,7 @@ These are acceptance requirements, not gates claimed passed by this README:
 | Investigate | Retain baseline/candidate changes, assumptions, responses, uncertainty status and checks, including invalid or unresolved cases. |
 | Reopen and replay | Read saved records without executing providers; explicitly replay with new execution identities and preserved history/version bindings. |
 | Challenge and recover | Reject altered bindings and incompatible inputs; retain bounded failures, recover without losing results and identify affected dependencies. |
-| Inspect and hand off | Keep headless use working; test each inspect client against retained `ciw.experiment-view.v1` records. Scene export is an unimplemented direction, not this gate. |
+| Inspect and hand off | Keep headless use working; test each inspect client against retained `ciw.experiment-view.v1` records. |
 | Physical apparatus | For each supported device, bind configuration and authorization; test disconnects, duplicate requests, stale plans and uncertain outcomes. |
 | Qualify claims | Retain actual evidence for each numerical, proof or physical claim. Report startup, transfer, computation and checking costs separately. |
 

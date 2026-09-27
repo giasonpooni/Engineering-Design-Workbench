@@ -26,6 +26,11 @@ func _canvas_collapsed(render: Dictionary) -> bool:
 	return kind == "mesh" and not title.is_empty() and title != identity and title != frame
 
 
+func _connected_copy(render: Dictionary) -> bool:
+	var kind := str(render.get("kind", ""))
+	return kind in ["plane2d", "strip"] and render.get("connect") == true
+
+
 func _initialize() -> void:
 	_run.call_deferred()
 
@@ -58,9 +63,20 @@ func _run() -> void:
 			push_error("Stamped canvas id equals the declared frame: " + path)
 			quit(1)
 			return
+		if _connected_copy(system_render):
+			push_error("Plane and strip copies stay unconnected: " + path)
+			quit(1)
+			return
 		for item in value.get("system_canvases", []):
-			if typeof(item) == TYPE_DICTIONARY and _canvas_collapsed(item.get("render", {})):
+			if typeof(item) != TYPE_DICTIONARY:
+				continue
+			var entry: Dictionary = item.get("render", {})
+			if _canvas_collapsed(entry):
 				push_error("Stamped canvas id equals the declared frame: " + path)
+				quit(1)
+				return
+			if _connected_copy(entry):
+				push_error("Plane and strip copies stay unconnected: " + path)
 				quit(1)
 				return
 		if view.view.get("bundle_id") != value.bundle_id or view._summary.text.is_empty():
