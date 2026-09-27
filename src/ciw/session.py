@@ -5,6 +5,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import logging
 import math
 import os
 import tempfile
@@ -23,6 +24,8 @@ from .calibration_status import calibration_status
 from .instruments import (
     compute_spectrum, compute_statistics, inspect_sample, run_metadata, validate_run,
 )
+
+LOG = logging.getLogger(__name__)
 
 PROTOCOL_VERSION = 1
 _RESULT_SUMMARY_FIELDS = (
@@ -375,20 +378,31 @@ class Session:
             _keys(payload, {"channel", "interval_s"})
             with self._lock:
                 selected = copy.deepcopy(self.selection)
-            channel = self._channel(payload.get("channel", selected["channel"]))
-            interval = self._interval(payload.get("interval_s", selected["interval_s"]))
+                captured_run = copy.deepcopy(self.run)
+                recording_file = self.recording_file
+            channel = _channel_for_run(captured_run, payload.get("channel", selected["channel"]))
+            interval = _interval_for_run(captured_run, payload.get("interval_s", selected["interval_s"]))
             operation_id = "statistics.v1" if kind == "analysis.stats" else "spectrum.periodogram.v1"
-            data = self.operations.get(operation_id).execute(self.run, {"channel": channel, "interval_s": interval})
+            operation = self.operations.get(operation_id)
+            from .operations.schemas import validate_role
+            validate_role(operation_id, operation.role)
+            # Legacy commands keep their flat result format, but must not give
+            # a provider mutable session evidence or retain provider-owned data.
+            parameters = {"channel": channel, "interval_s": interval}
+            data = copy.deepcopy(operation.execute(copy.deepcopy(captured_run), copy.deepcopy(parameters)))
             result_id = "result-" + uuid.uuid4().hex
             result = {
-                "result_id": result_id, "evidence_id": self.run["evidence_id"],
-                "operation_id": "statistics.v1" if kind == "analysis.stats" else "spectrum.periodogram.v1",
+                "result_id": result_id, "evidence_id": captured_run["evidence_id"],
+                "operation_id": operation_id,
                 "execution_id": "execution-" + uuid.uuid4().hex,
                 "verification_id": None, "verification_status": "not_verified",
-                "run_id": self.run["run_id"], "selection_revision": selected["revision"],
+                "run_id": captured_run["run_id"], "selection_revision": selected["revision"],
                 "channel": channel, "interval_s": interval, "created_at": utc_now(),
-                "recording_file": self.recording_file, "data": data,
+                "recording_file": recording_file, "data": data,
             }
+            # Apply the same structural checks used on reopen before publishing
+            # a result. This validates the record; it does not rerun its numerics.
+            _validate_saved_result(result, captured_run, selected["revision"], recording_file)
             with self._lock:
                 if len(self.results) >= 1024:
                     raise ProtocolError("capacity_exceeded", "Save the workspace and start a new session after 1024 results")
@@ -443,9 +457,32 @@ class Session:
                     if (len(self.executions) >= 1024
                             or (result is not None and len(self.results) >= 1024)):
                         raise ProtocolError("capacity_exceeded", "Save and start a new session after 1024 operations")
-                    write_json(self.output_dir / (execution["execution_id"] + ".json"), execution)
+                    execution_path = self.output_dir / (execution["execution_id"] + ".json")
+                    result_path = None if result is None else self.output_dir / (result["result_id"] + ".json")
+                    try:
+                        # Write the dependency first: a completed execution must
+                        # never precede the result it claims was retained.
+                        if result is not None:
+                            write_json(result_path, result)
+                        write_json(execution_path, execution)
+                    except OSError:
+                        # These identities were freshly allocated by this attempt.
+                        # Best-effort cleanup must not erase prior records, publish
+                        # partial in-memory state, or mask the original failure.
+                        try:
+                            execution_path.unlink(missing_ok=True)
+                        except OSError:
+                            # A completion marker may still exist. Preserve its
+                            # result dependency instead of creating an orphan.
+                            LOG.exception("Unable to remove unpublished operation record: %s", execution_path)
+                        else:
+                            if result_path is not None:
+                                try:
+                                    result_path.unlink(missing_ok=True)
+                                except OSError:
+                                    LOG.exception("Unable to remove unpublished operation record: %s", result_path)
+                        raise
                     if result is not None:
-                        write_json(self.output_dir / (result["result_id"] + ".json"), result)
                         self.results[result["result_id"]] = result
                     self.executions[execution["execution_id"]] = execution
             finally:
