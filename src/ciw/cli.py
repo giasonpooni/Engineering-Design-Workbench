@@ -448,6 +448,8 @@ def parser() -> argparse.ArgumentParser:
     energy_probe.add_argument("--gpu-index", type=int, default=0)
     energy_status = energy_actions.add_parser("status", help="Report GPU energy availability without treating it as a lab gateway")
     energy_status.add_argument("--gpu-index", type=int, default=0)
+    energy_replay_gate = energy_actions.add_parser("replay-log", help="Recompute a retained energy log without opening a device")
+    energy_replay_gate.add_argument("path", type=Path)
     energy_record = energy_actions.add_parser("record", help="Run a bounded Gaussian GPU experiment into a new directory")
     energy_record.add_argument("--problem", type=Path, required=True)
     energy_record.add_argument("--output-dir", type=Path, required=True)
@@ -518,6 +520,9 @@ def main(argv: list[str] | None = None) -> int:
             elif args.energy_command == "status":
                 from .energy_gateway import status
                 print_json(status(args.gpu_index))
+            elif args.energy_command == "replay-log":
+                from .energy_gateway import replay_log
+                print_json(replay_log(args.path))
             elif args.energy_command == "record":
                 from .energy_bench import capture
                 log, report = capture(read_json(args.problem), args.output_dir,

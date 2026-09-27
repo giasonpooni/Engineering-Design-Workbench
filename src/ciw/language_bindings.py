@@ -61,15 +61,21 @@ def inspect_binding(binding_id, path=None):
         report["detail"] = "Retained session path required; runtime was not launched"
         return report
     raw = Path(path).read_bytes()
+    payload = __import__("json").loads(raw.decode("utf-8"))
     if binding_id == "julia-oscillator":
-        from .julia_oscillator import workflow as julia_workflow
-        julia_workflow._validate(__import__("json").loads(raw.decode("utf-8")))
+        from .julia_oscillator import SOURCE_SCHEMA, workflow as julia_workflow
+        if payload.get("schema") == SOURCE_SCHEMA:
+            if "model" not in payload or "time_s" not in payload:
+                raise ValueError("Julia source inspect requires model and time samples")
+            report["status"] = "inspectable"
+            report["detail"] = "Julia source accepted without launching Julia"
+            return report
+        julia_workflow._validate(payload)
         report["status"] = "inspectable"
         report["detail"] = "Julia session accepted without launching Julia"
         return report
     if binding_id == "native-interop-scr":
         from .native_interop import SCHEMA as NATIVE_SCHEMA
-        payload = __import__("json").loads(raw.decode("utf-8"))
         if payload.get("schema") != NATIVE_SCHEMA:
             raise ValueError("Native binding inspect requires a retained native-interop session")
         report["status"] = "inspectable"

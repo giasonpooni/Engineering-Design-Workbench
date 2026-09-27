@@ -56,3 +56,22 @@ def apply_chart(chart_id, point, *, source_frame, target_frame, scales=None):
         "target": mapped,
         "authority": "chart_application_is_not_state_admission",
     }
+
+
+def compose(first_id, second_id, point, *, source_frame, mid_frame, target_frame, first_scales=None, second_scales=None):
+    """Apply two charts in order. The midpoint frame must be declared."""
+    if source_frame == mid_frame or mid_frame == target_frame or source_frame == target_frame:
+        raise ValueError("Composed charts require three distinct frames")
+    first = apply_chart(first_id, point, source_frame=source_frame, target_frame=mid_frame, scales=first_scales)
+    second = apply_chart(second_id, first["target"], source_frame=mid_frame, target_frame=target_frame, scales=second_scales)
+    return {
+        "schema": SCHEMA,
+        "chart_id": first_id + " then " + second_id,
+        "source_frame": source_frame,
+        "mid_frame": mid_frame,
+        "target_frame": target_frame,
+        "source": first["source"],
+        "mid": first["target"],
+        "target": second["target"],
+        "authority": "chart_application_is_not_state_admission",
+    }

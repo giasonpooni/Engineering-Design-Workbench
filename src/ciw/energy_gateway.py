@@ -5,6 +5,8 @@ control gateway and does not admit energy readings as plant state.
 """
 from __future__ import annotations
 
+from pathlib import Path
+
 SCHEMA = "ciw.energy-gateway.v1"
 
 
@@ -29,4 +31,21 @@ def status(device_index=0):
         "sensor": reading.get("sensor"),
         "authority": "not_a_laboratory_gateway",
         "state_admission": "not_performed",
+    }
+
+
+def replay_log(path):
+    """Recompute a retained energy log. No device is opened."""
+    from .energy_records import SCHEMA as LOG_SCHEMA, analyze
+    payload = __import__("json").loads(Path(path).read_text(encoding="utf-8"))
+    if payload.get("schema") != LOG_SCHEMA:
+        raise ValueError("Energy gateway replay requires a retained energy-accuracy log")
+    report = analyze(payload)
+    return {
+        "schema": SCHEMA,
+        "status": "replayed",
+        "authority": "not_a_laboratory_gateway",
+        "state_admission": "not_performed",
+        "device_opened": False,
+        "analysis": report,
     }

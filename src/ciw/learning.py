@@ -136,6 +136,22 @@ def lesson(topic=TOPIC, level="structural"):
     raise ValueError("Unsupported lesson or abstraction level")
 
 
+def sequence():
+    """Ordered lessons on the built-in oscillator. Not a tutor engine."""
+    return [TOPIC, ENERGY_TOPIC]
+
+
+def progress(completed=()):
+    remaining = [topic for topic in sequence() if topic not in list(completed)]
+    return {
+        "schema": "ciw.lesson-progress.v1",
+        "sequence": sequence(),
+        "completed": [topic for topic in sequence() if topic in list(completed)],
+        "next": remaining[0] if remaining else None,
+        "authority": "lesson_progress_is_not_a_curriculum_engine",
+    }
+
+
 def _execute(session, parameters):
     reply = session.handle({
         "protocol_version": 1, "request_id": uuid4().hex,

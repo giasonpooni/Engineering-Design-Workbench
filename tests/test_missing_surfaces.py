@@ -59,11 +59,34 @@ def test_design_chart_refuses_to_collapse_frames():
     assert chart_catalog()["charts"][0]["id"] == "identity"
 
 
-def test_energy_lesson_is_a_second_lesson_not_a_curriculum():
-    catalog = lesson_catalog()
-    assert catalog["available_lessons"] == ["oscillator-rms", ENERGY_TOPIC]
-    energy = lesson(ENERGY_TOPIC, "computational")
-    assert energy["topic"] == ENERGY_TOPIC
-    assert "statistics.v1" in energy["computation"]
+def test_julia_source_binding_inspects_without_julia():
+    report = inspect_binding("julia-oscillator", "examples/julia/oscillator.json")
+    assert report["status"] == "inspectable"
+    assert report["runtime_launched"] is False
+
+
+def test_energy_log_replays_without_opening_a_device():
+    from ciw.energy_gateway import replay_log
+    report = replay_log("examples/energy-accuracy/baseline.json")
+    assert report["status"] == "replayed"
+    assert report["device_opened"] is False
+
+
+def test_design_charts_compose_across_three_frames():
+    from ciw.design_manifold import compose
+    mapped = compose("scale", "identity", [2.0, 4.0], source_frame="model",
+                     mid_frame="display", target_frame="scene", first_scales=[0.5, 0.25])
+    assert mapped["mid"] == [1.0, 1.0]
+    assert mapped["target"] == [1.0, 1.0]
     with pytest.raises(ValueError):
-        lesson("algebra-curriculum")
+        compose("identity", "identity", [1.0], source_frame="a", mid_frame="a", target_frame="b")
+
+
+def test_lesson_progress_sequences_the_two_oscillator_lessons():
+    from ciw.learning import progress
+    state = progress()
+    assert state["next"] == "oscillator-rms"
+    done = progress(["oscillator-rms"])
+    assert done["next"] == "oscillator-energy"
+    finished = progress(["oscillator-rms", "oscillator-energy"])
+    assert finished["next"] is None
