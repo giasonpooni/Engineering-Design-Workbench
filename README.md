@@ -2,7 +2,7 @@
 
 Part of **Notation Systems' computational instrumentation and evidence infrastructure** for industrial and cyber-physical systems.
 
-[Stack map](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/STACK.md) · [Component role and interfaces](docs/STACK_ROLE.md)
+[Notations Engineering Terminal (CIW)](https://github.com/giasonpooni/Notations-Engineering-Terminal) · [Stack map](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/main/docs/STACK.md) · [Component role and interfaces](docs/STACK_ROLE.md)
 
 Python host-side records for a declared measurement chain: assembly metadata,
 raw observations, calibration, quality status, uncertainty and replayable logs.
@@ -39,7 +39,7 @@ Solid arrows describe the implemented host example. Missing acquisition remains
 unavailable; retries preserve the observation identity while recording separate
 delivery attempts. The commitment excludes delivery metadata. Calibration
 parameters and uncertainty are declarations, and the example's inference status
-remains `not_run`. See the [Instrumentation diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md).
+remains `not_run`. See the [Instrumentation diagram atlas](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/main/docs/DIAGRAMS.md).
 
 ## Run
 
