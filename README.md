@@ -1,940 +1,514 @@
 # Parametric Design Terminal
 
-**State. Variation. Invariance.**
+**Run scientific calculations, compare changes, and keep a checkable record.**
 
-**A terminal-first, multi-engine programmable cyber-physical laboratory for
-evidence-backed scientific modelling, experimentation and engineering design.**
+Parametric Design Terminal (PDT) is a terminal-first scientific computing
+workbench. It runs supported models and analysis operations, saves their inputs
+and results, and lets you inspect or reopen a study without running it again.
+For supported workflows, you can vary model parameters, compare the responses,
+and inspect uncertainty, residuals and other checks.
 
-The **Parametric Design Terminal (PDT)** is a **programmable computational and
-cyber-physical laboratory**. Its central working object is an investigation:
-the question, models, observations, parameters, candidate designs, executions,
-results and checks remain connected. Software-only deployments remain complete
-computational laboratories; supported sensing and apparatus integrations extend
-the same investigation into physical experiments. The terminal is a control
-surface, not the whole system; graphical clients, APIs and an optional MCP
-interface work through the same investigation and execution boundaries.
+An **investigation** is the question together with the models, observations,
+settings, calculations and checks used to answer it. PDT keeps these connected
+rather than saving only a final number or plot. Engineering design is the main
+use: change a permitted input, calculate the response, check the result and
+compare candidates.
 
-The base-pilot architecture is now the agreed development baseline.
-Implementation and qualification remain operation-specific; the
-[current scope](#current-scope) and [integration coverage](docs/INTEGRATION_COVERAGE.md)
-distinguish implemented paths, pending integrations and unperformed checks.
+PDT extends the existing **Computational Instrumentation Workbench (CIW)**.
+The Python package and terminal command remain `ciw`; this is not a second
+runtime. The software works without a graphical viewer or an AI assistant.
 
-Engineering design is the purpose; parametric variation is the method. The
-terminal is the working environment in which models, numerical operations and
-verification methods are exercised and challenged, rather than treating a
-generated candidate as an established result.
+[Quickstart](#quickstart) · [What works today](#current-scope) ·
+[How it works](#how-an-investigation-works) · [Development priorities](#next-gates) ·
+[Documentation](docs/README.md)
 
-Copyright © 2026 Notation Systems.
+<a id="current-scope"></a>
+## What works today
 
-[Documentation index](docs/README.md) · [Workbench overview](docs/WORKBENCH_OVERVIEW.md) ·
-[Systems catalog](docs/SYSTEMS_CATALOG.md) · [Stack map](docs/STACK.md)
+Support is specific to each operation. The [operation catalogue](docs/INSTRUMENTS.md)
+contains the commands; [integration coverage](docs/INTEGRATION_COVERAGE.md)
+records exercised paths, independent checks and remaining gaps.
 
-## Base pilot: the programmable computational and cyber-physical laboratory
+| You can | Scope and requirements |
+| --- | --- |
+| Generate a synthetic oscillator recording and calculate statistics or a spectrum. | Built-in example; no external scientific provider or hardware required. |
+| Save, inspect, reopen and explicitly replay investigations. | Reopening reads retained inputs and results without recomputing them. Replay is a new execution with its own identity. |
+| Run supported measurement, telemetry, calibration, estimation and design workflows. | Uses the exact provider versions and input assumptions listed in the integration guides; not a generic live sensor-fusion service. |
+| Evaluate supported covariance and geometric-path calculations. | Bounded matrix, mesh, translation-flow, flat-torus and curved-path operations; each has its own numerical limits. |
+| Inspect model equations and make bounded what-if previews. | Equation cards and offline previews associated with the oscillator workflow; the full learning curriculum is not implemented. |
+| Evaluate a recorded machine configuration. | Read-only encoder/gearbox/leadscrew reference workflow, with configuration, inputs and results retained together; no firmware loading or actuation. |
+| Run selected stability and computation checks. | PLSR and registered SCR/SP1 operations have separate requirements and scopes; they do not verify every calculation or physical model. |
+| Capture and compare GPU energy-to-accuracy measurements. | Explicit host capture requires a supported NVIDIA device and its NVML interface. Shared-session analysis uses retained logs. |
+| Inspect results in optional graphical clients. | Godot views and read-only geographic inspection use retained records; neither changes the scientific result. |
 
-**Architectural baseline agreed; implementation and qualification in progress.**
-The base pilot brings the existing instruments together around one end-to-end
-investigation lifecycle and defines the boundary through which supported
-physical apparatus can later participate. It is not a new operating-system
-kernel, a single universal solver, a universal device driver, or a requirement
-to install every project in the reference catalog. The development task is to
-complete and qualify the connections below, not to keep expanding the platform's
-conceptual scope.
+The broader laboratory integration is still being completed. Current support
+does **not** establish general-purpose hardware acquisition, equipment control,
+a complete mathematics curriculum or platform-wide industrial qualification.
 
-### One investigation, several control surfaces
+## Quickstart
 
-Terminal commands and scripts remain the reproducible, headless operating path.
-The Python/API surface, optional graphical clients and a future bounded MCP
-surface expose supported parts of the same investigation. An optional reasoning
-assistant may propose models, candidates, measurements or operation requests; it
-receives no separate execution, equipment-control or admission authority.
-Closing a viewer or disconnecting an assistant must not stop a qualified local
-controller, change evidence or change a retained result.
+Run these commands from the repository root with **Python 3.11 or newer**.
+The [installation guide](docs/quickstart.md#install) includes virtual-environment
+instructions for Windows, Linux and macOS.
 
-The pilot's end-to-end contract is:
-
-```text
-Question + intended use
-          |
-          v
-Declared model/profile + parameters + observations and assumptions
-          |
-          v
-Compatible operation graph + permitted candidate variations
-          |
-          v
-Registered computation / simulation / estimation
-          |
-          v
-Response + uncertainty status + residuals + scoped checks
-          |
-          v
-Prepare a supported experiment or apparatus operation when required
-          |
-          v
-Qualified gateway + local device/controller execution
-          |
-          v
-Recorded observations + execution outcome
-          |
-          v
-Retained investigation -> inspection and candidate comparison
-          |
-          v
-Revise the model/design/instrument or propose the next experiment
-          |
-          +----> new evidence and a new investigation revision
+```sh
+python -m pip install -e .
+python -m ciw demo --output recordings/demo.json
+python -m ciw analyze stats --recording recordings/demo.json --channel q --start 2 --end 8 --output-dir results/stats
+python -m ciw analyze spectrum --recording recordings/demo.json --channel q --start 0 --end 12 --output-dir results/spectrum
+python -m ciw inspect results/spectrum/workspace.json
 ```
 
-This is the target lifecycle, not a claim that an automatic workflow planner,
-generic acquisition bus, universal device gateway or every provider connection
-is implemented. A manually declared, validated operation graph is sufficient
-for the initial pilot. Physical acquisition or action requires its own supported,
-authorized and qualified path. A submitted command, controller acknowledgement
-and measured physical outcome remain different records.
+This generates a **synthetic damped-oscillator recording**, calculates statistics
+and a spectrum for its displacement (`q`) channel, and inspects the saved spectrum workspace.
+The spectrum is a periodogram power spectral density, not a spectrogram.
 
-| Supported-profile question | Required pilot output |
+The named outputs are:
+
+```text
+recordings/demo.json              generated source recording
+results/stats/workspace.json      saved statistics investigation
+results/spectrum/workspace.json   saved spectrum investigation
+```
+
+Each analysis directory also retains its source recording and result records.
+Use separate output directories to keep distinct workspace snapshots. Inspecting
+or reopening a workspace does not rerun the calculations; additional execution
+requires an explicit request. This demo is not a physical experiment or a
+calibration result.
+
+For a shared terminal/viewer session, use the [full quickstart](docs/quickstart.md).
+For additional scientific providers, use [workbench assembly](docs/WORKBENCH_ASSEMBLY.md)
+and [provider setup](docs/PROVIDER_AVAILABILITY.md). See the
+[oscillator walkthrough](docs/OSCILLATOR_OPERATOR.md) and
+[deployment guide](deploy/README.md) for further operating instructions.
+
+<a id="what-the-testbed-does"></a>
+<a id="one-investigation-several-control-surfaces"></a>
+## How an investigation works
+
+```text
+Model or recorded observations
+             |
+             v
+Choose a supported calculation and declare its inputs
+             |
+             v
+Run the selected implementation
+             |
+             v
+Inspect the result, uncertainty and available checks
+             |
+             v
+Save inputs, settings, result and checks together
+             |
+             +----> reopen without computing
+             +----> compare a candidate change
+             +----> explicitly replay as a new execution
+```
+
+A **residual** measures disagreement, for example between a predicted and an
+observed quantity. An uncertainty estimate describes what the selected model
+and assumptions support. Neither is silently supplied when unavailable, and a
+small residual alone is not proof that a model is correct.
+
+The existing workflows remain in place:
+
+| Workflow | What it does |
 | --- | --- |
-| What system and question are being studied? | A versioned model, intended use, input meanings, assumptions and applicable domain. |
-| What happens under a permitted change? | A computed response or trajectory, local sensitivity where supported, and explicit approximation limits. |
-| What do the observations imply? | A scoped state/parameter estimate, declared uncertainty, predictive residuals and unresolved quantities. |
-| Which candidate or next measurement is useful? | A comparison under explicit objectives, constraints, information and cost assumptions; a recommendation is not equipment authorization. |
-| What supports the conclusion? | Linked source, operation, execution, result and verification records, with each check's scope and outcome visible. |
-| What changes after new evidence? | A new revision and explicit affected dependencies; impact is not automatically a verdict that an earlier result was wrong. |
+| Measurement and estimation | Align observations, apply supported calibration and uncertainty calculations, estimate quantities, evaluate constraints and retain diagnostics. |
+| Design studies | Declare a model and allowed changes, run candidate configurations, compare responses and checks, and retain the basis for revising the design. |
+| Numerical geometry | Evaluate supported paths, coordinate descriptions and sensitivities without treating a displayed shape as a measurement. |
+| Inspection and replay | Read retained records, inspect dependencies and repeat an operation explicitly while preserving its original history. |
 
-These outputs are supported only where the selected profile and provider can
-supply them. Unknown uncertainty stays unknown; unsupported operations stay
-unsupported. The full investigation, including failed attempts, assumptions and
-alternative candidates, is the deliverable rather than only its final plot.
+A failed or refused operation remains part of the investigation. Original
+observations remain distinct from predictions, estimates and corrected values.
+The question, assumptions, objectives and standard of evidence are chosen by
+the operator, not inferred from a successful calculation.
 
-### One environment, separate responsibilities
+<a id="one-environment-separate-responsibilities"></a>
+<a id="existing-runtime-same-substrate"></a>
+## Architecture
 
-| Boundary | Responsibility in the base-pilot design |
+PDT coordinates existing scientific software rather than replacing its equations
+or solvers. A **provider** is a registered implementation of a supported
+calculation. A **profile** describes the particular model, inputs, assumptions
+and checks a workflow supports.
+
+| Component | Responsibility |
 | --- | --- |
-| **PDT / existing CIW substrate** | Own the working investigation, study configuration, operation lifecycle, retained history, inspection and explicit replay. |
-| **Scientific providers and domain profiles** | Supply equations, representations, observation models and bounded calculations. Connect approved Python, Julia and C/C++ engines; do not rewrite their science inside PDT. |
-| **SCR / native execution** | Supply registered execution services, runtime bindings and selected checkers through the existing boundary. A language choice is not a scientific qualification. |
-| **ICRH and scoped verification providers** | Check the particular numerical, contract or replay claims they support. SP1 is optional for selected registered computations; it does not prove all models or observations. |
-| **ESM** | Retain and govern applicable evidence, candidate information, admission, correction and release through separately supported handoffs. A computation never admits its own output. |
-| **Device and Instrument Gateway / local controllers** | Target boundary for supported sensors, DAQ, FPGA nodes, robot arms, machines and laboratory instruments. The gateway exposes typed capabilities, preparation, bounded dispatch and durable outcomes; device controllers retain deadline-critical execution and equipment protections. This is a delivery direction, not a claim of generic hardware support. |
-| **Inspection clients and OpenUSD** | Project retained information for numerical, temporal, spectral, geographic or local 2D/3D inspection. Scene composition, appearance and playback do not create scientific authority. |
+| **PDT / CIW** | Manage the investigation, selected operations, saved history, inspection and explicit replay. The existing Python session remains authoritative for these records. |
+| **Scientific providers** | Supply domain models and calculations through adapters with explicit source/runtime versions. Each repository retains its own scientific contract, tests and licence. |
+| **Native execution / SCR** | Supply supported native execution services and runtime bindings. Python, Julia and C/C++ implementations connect through the applicable registered boundary; no mandatory language chain is imposed. |
+| **Checkers / ICRH, PLSR and selected SP1 paths** | Check the numerical, contract, stability or registered-computation claims they actually support. A computation does not certify itself. |
+| **Evidence handoff / ESM** | Handle separately supported retention, review and release of evidence or candidate state. Producing a result does not approve it as authoritative state. |
+| **Inspection clients** | Display numerical, temporal, spectral, geographic or local 2D/3D views. Closing a viewer does not stop the backend or change retained records. |
 
-This table assigns responsibilities; the current implementation remains recorded
-in [Architecture](docs/ARCHITECTURE.md) and the
-[systems catalog](docs/SYSTEMS_CATALOG.md). An unavailable governance or proof
-handoff must be explicit, not simulated. Supported computational investigations
-remain usable without canonical admission or a proof service.
+The model, calculation and supporting evidence are related but separate records:
+what is being studied, what ran, and why its conclusion should be trusted.
+Unimplemented handoffs must remain explicit. Supported local investigations do
+not require a proof service or an external evidence-governance service.
 
-### Pilot closure, not unlimited expansion
+Every operation must state what it accepts, what it produces, which assumptions
+apply and what information must be preserved. The
+[state transformation contract](docs/STATE_TRANSFORMATIONS.md) records such a
+declaration; validating it does not execute a calculation, prove an invariant
+or authorize equipment. See [architecture](docs/ARCHITECTURE.md),
+[record formats](docs/PROTOCOL.md) and [contract foundations](docs/CONTRACT_FOUNDATIONS.md)
+for the implementation details.
 
-Completion is demonstrated on bounded, reproducible investigations using the
-existing oscillator/thermal, measurement-chain and curved-path foundations.
-The base pilot must show a shared lifecycle across distinct workloads, not just
-several unrelated demos. The following are acceptance requirements, not passed
-gates asserted by this README:
-
-| Gate | Evidence required to close it |
-| --- | --- |
-| **Compose** | Bind a named model/profile and all required inputs; check quantity, frame, clock, representation and dependency compatibility before execution. |
-| **Execute and compare** | Exercise actual registered providers, including the selected native-language paths; compare against independently implemented references under declared numerical policies. |
-| **Investigate** | Retain a baseline and candidate variation, their assumptions, response and checks; report unresolved or invalid cases without manufacturing a successful result. |
-| **Reopen and replay** | Reopen retained records without provider execution; explicitly replay with fresh execution identities while preserving the original history and supported pins. |
-| **Challenge and recover** | Reject altered bindings, incompatible inputs and unsupported assumptions; retain bounded failures, recover without losing prior results and identify affected downstream dependencies. |
-| **Inspect and hand off** | Keep terminal-only operation functional; qualify each supported client/export and ESM handoff separately. OpenUSD remains pending until the export/reload gate below passes. |
-| **Apparatus boundary** | For any supported physical profile, bind device identity, configuration, units, frames, clocks, authorization and operating envelope; distinguish requested action, controller outcome and measured result; demonstrate disconnect, duplicate-request, stale-plan and uncertain-outcome handling. |
-| **Qualify claims** | Retain genuine evidence for each numerical, proof or physical-validation claim; distinguish unavailable/skipped checks from passes and report startup, transfer, computation and checking costs separately. |
-
-The next physical-claim milestone remains the held-out measurement and
-replayable evidence bundle described in [Next gates](#next-gates). Computational
-pilot closure is not physical validation, production multi-user readiness,
-real-time qualification or a platform-wide industrial certification.
-
-Physics, chemistry/materials, biology, agriculture, AEC, logistics, manufacturing,
-robotics and mathematical or social modelling are profile-extension directions,
-not simultaneous pilot-delivery claims. A new domain contributes its scientific
-meaning, providers and validation cases while reusing this lifecycle. Coupled
-polymer kinetics and heat transfer is one later investigation candidate, not a
-capability established by this README. No single latent space, smooth manifold,
-uncertainty model or evidence standard is assumed across all domains.
-
-Additional engines, clients, proof systems and profiles extend this baseline.
-They must not fork the session/evidence architecture, rename historical records,
-remove verified invariants or displace ongoing implementation work. Success is
-measured by reproducible investigations, correct handoffs and qualified claims,
-not repository count, language share or the size of an integration wish list.
-
-**The terminal and MCP are control surfaces. The investigation is the central
-object. Scientific providers are computational instruments; qualified gateways
-connect physical apparatus. Evidence preserves what was proposed, executed,
-observed, checked and what still needs to be established.**
+<a id="composable-instruments-independent-scientific-authority"></a>
+The [systems catalogue](docs/SYSTEMS_CATALOG.md) distinguishes native operations,
+pinned adapters, contracts and pending integrations. A repository link means
+that a project can be found, not that its integration has been exercised.
+[Provider availability](docs/PROVIDER_AVAILABILITY.md) documents setup;
+the [stack map](docs/STACK.md) records the detailed division of responsibilities.
 
 ## The design language
 
-Start with three questions:
+**State. Variation. Invariance.** These are questions about a calculation, not
+additional software components:
 
-| Primitive | Engineering question |
+| Question | Meaning |
 | --- | --- |
-| **State** | What system or candidate design are we describing? |
-| **Variation** | What can change, and through which allowed transformations? |
-| **Invariance** | What must remain true through those transformations? |
+| What are we studying? | The system, its state and the selected model. |
+| What are we changing? | A permitted parameter, input, configuration or model choice. |
+| What must remain true? | The requirements and checks applicable to that particular change. |
 
-Parameters expose selected design choices; they are not the entire state. An
-oscillator's damping is a parameter, while its position and velocity are state
-variables. Varying the parameter changes the predicted response under the
-declared model.
+For an oscillator, position and velocity are state variables; damping is a
+parameter. Changing damping changes the predicted response. Choosing a different
+model is a different kind of change and must not silently reinterpret old
+results. Discrete choices and continuous parameter changes require their own
+supported operations.
 
-Parametric design need not be limited to numerical sliders. A supported profile
-may also expose a material choice, component configuration or model selection.
-Each operation must declare what it actually supports; structural changes must
-remain explicit rather than masquerading as ordinary parameter edits.
-
-The aim is a shared working language across engineering domains, not a separate
-conceptual framework for every instrument. Units, geometry, clocks, uncertainty,
-constraints and numerical methods stay explicit wherever the problem needs
-them. Specialist repositories retain authority over their equations and solvers.
-
-
-### Unified mathematical reasoning and learning layer
-
-The same design language is intended to support a later **learning and applied
-reasoning layer** without creating a second conceptual system. This is a
-development direction after the currently assigned base-pilot work is completed
-and verified; it is not a claim that the full curriculum, theorem-proving
-surface or universal mathematical intermediate representation is implemented
-today.
-
-The compressed reasoning loop is:
+<a id="computational-identity"></a>
+The more detailed reasoning sequence is:
 
 ```text
 State -> Structure -> Transformation -> Computation -> Verification
 ```
 
-or, at its most primitive:
+In plain language: identify the object, state its rules and assumptions, define
+the change, run a method, and inspect the evidence for the answer. A mathematical
+operation, its algorithm, its implementation and its checks remain distinct.
 
-```text
-What exists?
-    |
-What can happen to it?
-    |
-What remains true, and how do we know?
-```
+<a id="unified-mathematical-reasoning-and-learning-layer"></a>
+<a id="one-substrate-two-complementary-uses"></a>
+<a id="proposed-terminal-surfaces"></a>
+### Learning and reasoning direction
 
-Here **state** identifies the object under study; **structure** captures its
-space, relations, constraints, representations and admissible operations;
-**transformation** captures maps, composition, variation and dynamics;
-**computation** binds a mathematical operation to an explicit algorithm and
-execution; and **verification** records the invariant, residual, bound, evidence
-or proof that supports the resulting claim.
+**Planned extension after the currently assigned pilot work is completed and
+verified.** The existing equation cards and previews are a starting point, not
+an implemented universal tutor or theorem prover.
 
-The architecture must continue to preserve these separations:
-
-```text
-mathematical object       != representation
-mathematical transformation != algorithm
-algorithm                 != implementation
-execution result          != verified result
-evidence                  != proof
-physical state            != belief about physical state
-model                     != observation
-approximation             != exact object
-```
-
-These distinctions extend the existing PDT/CIW separation between evidence,
-operation, execution, result and verification identities rather than replacing
-it.
-
-#### One substrate, two complementary uses
-
-The terminal is intended to support both **learning** and **work** over the same
-canonical mathematical objects.
-
-```text
-                     shared mathematical substrate
-                              |
-          +-------------------+-------------------+
-          |                                       |
-          v                                       v
-       LEARN / EXPLORE                         WORK / VERIFY
-  history -> phenomenon                 formalize -> execute
-  mechanism -> structure                compute -> inspect
-  notation -> derivation                residual -> bound/proof
-          |                                       |
-          +-------------------+-------------------+
-                              |
-                              v
-                    reusable mathematical state
-```
-
-A learner should not graduate out of one educational representation and enter a
-different professional one. The same concept should remain identifiable as its
-resolution increases:
-
-```text
-concrete -> geometric -> symbolic -> structural -> formal -> computational -> research
-```
-
-For example, a derivative may first appear as instantaneous change, then as a
-tangent slope, then as (f'(x)), then as the local linear map (Df_x), and
-eventually as a Fréchet, weak or manifold derivative. The ontology remains
-stable while the attached structure becomes richer.
-
-#### Proposed terminal surfaces
-
-The long-term interface is organized around five surfaces:
+The aim is to teach the same mathematics that users execute in the workbench,
+with a concept retaining its identity across explanations, worked examples,
+calculations and checks. The proposed surfaces are:
 
 | Surface | Purpose |
 | --- | --- |
-| **history** | Explain which problem or limitation caused a mathematical capability to emerge, what structure it introduced and what later work it enabled. |
-| **learn** | Build a concept from phenomenon -> state -> structure -> transformation -> notation -> computation -> verification -> generalization. |
-| **explore** | Inspect, derive, bridge, generalize and navigate conceptual or field genealogy. |
-| **work** | Perform supported symbolic, numerical, inferential, optimization and simulation operations through registered providers. |
-| **verify** | Check identities, residuals, error bounds, convergence, invariants, calibration or formal certificates within their declared scope. |
+| `history` | Explain the problems, stories and contributions behind mathematical ideas. |
+| `learn` | Develop a concept through examples, mechanism, notation, calculation and verification. |
+| `explore` | Inspect, derive, connect and generalize concepts. |
+| `work` | Use supported calculations through the existing operation system. |
+| `verify` | Inspect the specific checks, bounds or proofs supporting a claim. |
 
-These surfaces must share semantic objects. A future `learn kernel`,
-`inspect A`, `work kernel A`, `verify`, `why kernel` and
-`bridge kernel observability` path should refer to the same canonical concept,
-not duplicate six incompatible definitions.
+These are **interface proposals**, not commands added by this README. Existing
+`ciw` commands remain the operating interface.
 
-#### Historical prologue and capability map
-
-The learning surface should begin with a substantial historical prologue that
-explains mathematics as the accumulation of capabilities rather than a list of
-isolated subjects:
+<a id="historical-prologue-and-capability-map"></a>
+The built-in curriculum is intended to start with a substantial historical
+prologue covering the development and roles of mathematical fields, followed by
+the shared pedagogy:
 
 ```text
-Arithmetic         -> quantity
-Geometry           -> space and shape
-Algebra            -> symbolic relation
-Analytic geometry  -> coordinate representation
-Calculus           -> local variation and accumulation
-Differential eqs.  -> state evolution
-Probability        -> uncertainty
-Linear algebra     -> multidimensional transformation
-Analysis           -> rigorous convergence and approximation
-Abstract algebra   -> structure and structure-preserving maps
-Topology           -> invariance under continuous transformation
-Numerical analysis -> finite approximation and computation
-Logic              -> inference and proof
-Category theory    -> composition grammar
+Historical problem -> example -> mechanism -> mathematical structure
+                   -> notation -> computation -> verification -> generalization
 ```
 
-The purpose is not historical ornament. The prologue explains *why* each
-mathematical capability became necessary before the system reconstructs the
-subjects through the shared reasoning loop.
+Users should be able to move between concrete, geometric, symbolic, structural,
+formal, computational and research explanations without changing systems.
+Learning remains optional for users who simply need to work. A first executable
+lesson must reuse the same concept and operation records as its calculation and
+checks; it must not introduce a second session, evidence store or execution engine.
 
-#### Applied reasoning and natural-philosophy boundary
+<a id="applied-reasoning-and-natural-philosophy-boundary"></a>
+This also supports the broader inquiry discussed as **natural philosophy**:
+observation, questions, theories, predictions, experiments and revision. The
+workbench assists formalization, computation and comparison; it does not replace
+human judgment about questions, experiments or what the evidence establishes.
+Mathematical proof and empirical validation remain different activities.
 
-PDT should support the computational middle of a broader scientific loop
-without collapsing observation, hypothesis, model, prediction and evidence into
-one record:
+## Physical integration direction
+
+**General instrument and equipment integration remains delivery work.** The
+longer-term laboratory combines computational studies with supported sensors,
+data-acquisition equipment and local controllers. The bounded GPU measurement
+path above is not evidence of a general hardware gateway.
+
+A physical workflow must separate:
 
 ```text
-Observation
-   -> Question
-   -> Theory / hypothesis
-   -> Formalization
-   -> Computation
-   -> Prediction
-   -> Experiment
-   -> Verification / refutation
-   -> Revised theory
+proposed action -> authorization -> device request -> controller outcome
+                                                    -> measured result
 ```
 
-Human inquiry remains responsible for choosing meaningful questions, theories,
-experimental interpretations and standards of evidence. The workbench supplies
-formal representation, computation, comparison and scoped verification. This is
-a complement to proof- and experiment-centred scientific education, not a
-replacement for scientific judgement or empirical validation.
-
-#### Computational identity
-
-For every supported mathematical operation the terminal should be able to expose
-four linked but distinct views:
-
-```text
-MEANING        what mathematical problem is being solved?
-REPRESENTATION how is the object encoded?
-EXECUTION      which algorithm/provider actually ran?
-VERIFICATION   what supports the returned claim?
-```
-
-For example, (Ax=b) is the mathematical problem; LU, QR or an iterative method
-is an algorithm; a Python/Julia/Rust/C++ provider is an implementation; and a
-residual, condition estimate, reference comparison or proof is verification.
-The problem identity must not be collapsed into whichever backend happened to
-execute it.
-
-#### Extension rule
-
-This learning/reasoning layer follows the same superset rule as the rest of PDT:
-
-```text
-finish current assigned work
-    -> run
-    -> observe
-    -> fix
-    -> verify
-    -> audit
-    -> extend the verified substrate
-```
-
-Do not pause base-pilot closure to build speculative curriculum infrastructure.
-Do not fork a second session model, evidence store, execution runtime or
-mathematical ontology. Add the smallest executable vertical slice only after the
-current work is complete, and require learning, computation and verification to
-reuse the same canonical objects and operation contracts.
-
-The design-study pattern is:
-
-```text
-Design question + objectives
-          |
-          v
-Declare model, parameters, allowed variation and requirements
-          |
-          v
-Construct a candidate within the declared domain
-          |
-          v
-Run registered model or measurement operations
-          |
-          v
-Compare responses, uncertainty, constraints and checks
-          |
-          v
-Retain evidence -> revise design choices -> repeat
-```
-
-Support for each part of this pattern is operation-specific. The current scope
-and linked operating guides below distinguish runnable capabilities from
-research goals.
-
-The operator defines the question, assumptions, objectives, constraints and
-standard of evidence. AI assistance is optional; generated candidates are not
-verified results. The terminal, scripts and optional graphical client remain
-useful without an LLM.
-
-### Testbed, framework and design spaces
-
-**Parametric Design Terminal** names the working environment, not a claim that
-all investigations form one smooth manifold. The naming hierarchy is:
-
-| Level | Name and role |
-| --- | --- |
-| **Project** | Parametric Design Terminal (PDT): construct, execute, compare and challenge investigations. |
-| **Core framework** | State, variation and invariance. |
-| **Mathematical architecture** | Interconnected model and design spaces with explicitly supported maps. |
-| **Specialized geometric objects** | Parametric design manifolds where local coordinates, smoothness and admissible variations are defined. |
-
-A model's state describes the system being studied. An investigation's state
-also includes its selected model, parameters, representations, observations,
-executions, results and checks. Continuous parameter variation, a discrete model
-change and a new evidence record are different transitions; none silently
-reinterprets historical records.
-
-The development direction is domain/use-case profiles that select model
-families, observables, representations, registered providers and applicable
-checks through the existing contracts. Manifolds describe suitable smooth
-families; moduli descriptions identify models under declared equivalences.
-Neither construction is assumed for every parameter set. Graphs describe typed
-dependencies, category-theoretic rules can specify compatible composition, and
-topology can describe relevant structural features. They support the same
-investigation rather than create another runtime or proof authority.
-
-A representation must preserve the information the requested calculation needs,
-not merely one invariant. Coordinate changes, lossy encodings, model reductions
-and physical couplings need different contracts. A change of domain is not
-automatically a change of chart on the same manifold. Profile selection
-specializes the testbed; empirical calibration and validation require their own
-applicable evidence.
-
-This is mathematical architecture and research direction, not a newly
-implemented universal profile loader or manifold navigator. Extend the
-[state transformation contract](docs/STATE_TRANSFORMATIONS.md) and
-[project-model foundations](docs/CONTRACT_FOUNDATIONS.md) while retaining
-independent scientific and execution identities.
-
-### Existing runtime, same substrate
-
-PDT is the current project identity for the existing engineering design
-workbench. It extends the **Computational Instrumentation Workbench (CIW)**;
-it does not create a second runtime. The distribution remains
-`computational-instrumentation-workbench`; the Python import and CLI command
-remain `ciw`. References to CIW in source and technical documentation identify
-that existing runtime and its contracts.
-
-The project-name change does not rename schemas, migrate saved records or
-replace numerical engines. New design workloads, representations and checkers
-must plug into the existing substrate rather than create a parallel one.
-
-## What the testbed does
-
-    observe -> align -> calibrate -> propagate uncertainty
-       -> estimate -> evaluate constraints -> diagnose -> advise
-                         \-> retain, inspect, replay
-
-The existing CIW runtime coordinates that loop:
-
-- It captures typed inputs and declared selections.
-- It invokes explicitly registered operations and pinned providers.
-- It preserves clock, frame, unit, calibration, uncertainty and provenance
-  declarations.
-- It separates evidence, operation, execution, result and verification
-  identities.
-- It saves a workspace, reopens it without recomputation, and replays it only
-  through an explicit new execution.
-- It records refusals and runtime failures without manufacturing a successful
-  result.
-
-The registered workflows, exact operation status, commands, pins, limits and
-validation evidence live in [INSTRUMENTS.md](docs/INSTRUMENTS.md) and
-[INTEGRATION_COVERAGE.md](docs/INTEGRATION_COVERAGE.md).
-
-## Current scope
-
-| Area | Current state |
-| --- | --- |
-| Terminal and Python session | Implemented local service, operation dispatch, persistence and replay. |
-| Synthetic instrumentation | Analytic oscillator with statistics, spectrum, saved results and reopening. |
-| Mathematical education and augmentation | Equation cards, declared assumptions and bounded offline what-if previews tied to the Julia oscillator seam. |
-| Measurement and estimation | Pinned RCI/FSRT/JSPT, telemetry, calibrated-process and identified-design paths. |
-| Numerical geometry | Native bounded covariance, mesh-path and translation-flow providers, plus pinned flat-torus and curved-surface references. |
-| Stability and proof | PLSR terminal operation and selected SCR/SP1 registered computation with qualified scopes. |
-| Workstation physical bench | NVML-backed energy-to-accuracy capture and replay when a supported NVIDIA device is available. |
-| Machine configuration | Evidence-bound read-only asset, signal and model manifest workflow with save/reopen/replay tests. |
-| Visualization | Optional Godot client and read-only geographic projection over retained records. |
-| Provider integration | Exact pins and adapter manifests; upstream repositories remain independent sources of truth. |
-
-These are bounded computational capabilities. They do not imply a live DAQ
-bus, generic sensor fusion, physical calibration, equipment actuation or
-independent verification of every numerical result.
-
-## A testbed for parametric design and representation
-
-The research question is:
-
-> Can a shared state/variation/invariant representation make parametric design
-> studies easier to compose and compare while preserving required engineering
-> results and evidence?
-
-PDT tests both the design methods and the representation used to connect them.
-Reference comparisons, held-out inputs and deliberately invalid cases expose
-the limits of each claim. The proposed comparison is deliberately concrete:
-
-```text
-Conventional formulation ------> reference execution ---+
-                                                       |
-Shared state representation ---> registered execution --+--> compare
-                                                            |
-                                  results, invariants, error, cost
-```
-
-Start with one bounded parameter study, such as the existing oscillator model
-exploration. Damping variations expose changes in the trajectory and energy
-trace. Retain the reference formulation, declare the valid input domain and
-tolerances, compare both paths on held-out inputs, and challenge them with
-invalid cases. Extend to measurement/design and geometry workflows only as the
-shared representation earns that extension.
-
-| Question | Evidence to collect |
-| --- | --- |
-| Are the required answers preserved? | Output agreement under declared tolerances, uncertainty semantics, reference comparisons and failure cases. |
-| Is the representation smaller? | Explicit definitions of representation size, duplicated interfaces, adapter code and additional structure required. |
-| Is integration easier? | Work needed to add or modify an operation, with execution and verification costs reported separately. |
-| Are the claims supported? | Retained inputs, source/runtime pins, executions, checks, refusals and replayable results. |
-
-An invariant belongs to a declared transformation and domain. Conservation,
-admissibility constraints and consistency under a change of representation
-need distinct checks; they are not interchangeable. Passing those checks alone
-does not establish output equivalence or physical validity.
-
-This is a research programme, not a completed universal compiler or a measured
-compression result. Category theory, topology and other mathematical machinery
-can support composition and domain structure where a workload needs them.
-The objective is **less duplicated representation, with the required meaning
-and evidence preserved**.
-
-The same three questions also guide the human-facing learning interface:
-understand the state, explore a variation, then inspect what held and what
-failed. Wider participation in scientific and industrial design is a goal to
-validate, alongside the computational claims.
-
-**Build -> run -> observe -> fix -> audit -> continue.**
-
-## Architecture
-
-The project keeps three graphs related but distinct:
-
-1. **Physical/model graph** — components, materials, sensors, equations, units,
-   frames and validity domains.
-2. **Computation graph** — operations, dependencies, solvers, estimates,
-   constraints and visualizations.
-3. **Evidence graph** — source bytes, calibrations, assumptions, executions,
-   results, checks, corrections and dependent conclusions.
-
-The executable rules are in [ARCHITECTURE.md](docs/ARCHITECTURE.md). The exact
-wire and record fields are in [PROTOCOL.md](docs/PROTOCOL.md). The cross-provider
-session is assembled as described in [WORKBENCH_ASSEMBLY.md](docs/WORKBENCH_ASSEMBLY.md).
-The generic state-space transformation contract is described in
-[STATE_TRANSFORMATIONS.md](docs/STATE_TRANSFORMATIONS.md).
-The research vocabulary behind that contract is in
-[RESEARCH_CONTEXT.md](docs/RESEARCH_CONTEXT.md).
-
-The existing `ciw.state-transformation-contract.v1` validates a declaration's
-structure and content identity. It does not execute a transformation, establish
-that an invariant held or authorize equipment. Operation and verification
-records remain separate from the contract.
-
-The intended authority modes are Explore, Observe, Prepare and Operate.
-Current CIW operations are read-only with respect to external equipment.
-Operation success does not authorize an actuator; local protection and machine
-controllers remain independent.
-
-## Kernel architecture
-
-**Development target: a small shared core with typed, composable computational
-kernels.** The families below organize existing instruments and future adapters;
-they are not a claim that a universal kernel library or a complete native fusion
-stack is already implemented. The current-scope table and
-[integration coverage](docs/INTEGRATION_COVERAGE.md) own capability status.
-
-A kernel performs one bounded mathematical operation. A domain profile supplies
-its model, state representation, units, assumptions and validity domain. The
-shared infrastructure supplies registration, execution, retained records and
-verification links. Chemistry, physics, biology, agriculture, AEC, logistics,
-manufacturing and social modelling can then be approached through specialist
-profiles in one environment, without assuming identical equations, uncertainty
-models or standards of evidence. Cross-domain coverage remains a research goal.
-
-### Computational kernel families
-
-| Family | Primitive job | Existing foundation / next extension |
-| --- | --- | --- |
-| **Linear response and numerical algebra** | Scale and combine changes; evaluate local response maps and declared uncertainty propagation. | JSPT and current model previews; extend the common scalar/affine/Jacobian view without replacing their engines. |
-| **Dynamics and geometry** | Propagate a declared state through time or along a geometric path. | Oscillator, thermal and geodesic profiles; add only the solver, coordinate and validity structure each workload requires. |
-| **Inference and sensor fusion** | Predict state, incorporate eligible observations and retain uncertainty and residuals. | FSRT/GSIE and bounded measurement paths; extend toward explicit multi-rate, multi-sensor profiles. |
-| **Constraint reconciliation** | Assess disagreement and, when permitted, compute a correction without hiding the original state. | Existing FSRT/CBSR/CSE paths; preserve held, refused and accepted meanings under each provider's contract. |
-| **Design search and experiment selection** | Compare or select permitted variations under declared objectives and constraints. | Existing bounded selection paths; JuMP/JuliaControl integration remains a separately tested provider extension. |
-| **Claim and certificate checking** | Check a specified property of the model, calculation or candidate. | Existing references, PLSR and ICRH; selected registered SCR/SP1 workloads, not a blanket proof of every result. |
-
-These are responsibilities, not six new services or mandatory directory trees.
-Keep pure numerical routines separate from device I/O, orchestration, storage
-and policy. Reuse domain providers; do not copy their solvers into PDT or create
-an estimator in every language merely to populate the language chart.
-
-For differentiable Euclidean models, the common local-response view is:
-
-```text
-predicted output = starting output + response matrix * input change
-residual         = full model output - predicted output
-```
-
-The change relation is exact for an affine map; a nonlinear linearization must
-name its base point and applicable domain. Other state spaces need their own
-valid change operations, not automatic vector subtraction. The matrix is a
-local sensitivity, not a quantity assumed invariant across every state.
-
-### Kernel contracts
-
-Extend the existing [state transformation contract](docs/STATE_TRANSFORMATIONS.md)
-and operation lifecycle rather than introducing a competing record format.
-Each implemented profile must specify:
-
-- **Meaning:** ordered inputs/outputs, units, frame, clock and interval support,
-  model identity, parameters, preconditions and allowed transformations.
-- **Numerics:** arithmetic, algorithm/runtime pins, tolerances and resource
-  bounds; exact, approximate and stochastic claims must remain distinct.
-  Stochastic profiles must bind their random-stream policy and replay scope.
-- **Uncertainty:** the supported representation, dependencies and propagation
-  assumptions. Preserve full required covariance and correlation; unknown
-  uncertainty is not zero, and covariance is not mandatory for every model.
-- **Evidence:** immutable input bindings, actual execution, outputs, residuals,
-  applicable checks and explicit refusal/inconclusive outcomes. Mathematical
-  agreement, physical validation and permission to use a result stay separate.
-
-Invariants are relative to the named transformation. Conservation, covariance
-transformation, admissibility and evidence integrity require different checks.
-A declaration or passing invariant check alone does not establish the required
-answer. Historical contracts and independently checked reference paths remain
-protected when a new implementation is added.
-
-### Language boundaries
-
-This is the target responsibility split, not a mandatory language pipeline:
-
-| Layer | Responsibility and compatibility boundary |
-| --- | --- |
-| **Python / PDT** | Study orchestration, current authoritative session, scientific records, adapters, inspection and independent references. Existing Python calculations remain supported. |
-| **Rust / SCR** | Extend the existing execution boundary with bounded native dispatch, worker supervision and selected checkers. Do not duplicate the session or evidence store. |
-| **Julia** | Pinned numerical providers for modelling, integration, estimation and design. JuMP and JuliaControl are candidate extensions, not installed capabilities implied by this table. |
-| **C/C++** | Qualified native kernels, simulation libraries and device adapters behind explicit bindings. A language boundary alone provides neither process isolation nor real-time qualification. |
-| **SP1** | Prove a selected registered computation or checker; verify it separately against the expected program, inputs, configuration and outputs. It does not automatically prove Julia execution or physical truth. |
-| **TypeScript / ESM and GSV** | Preserve separate evidence-governance and read-only geographic-inspection responsibilities. A display or candidate-retention receipt cannot admit canonical state. |
-
-```text
-PDT study + typed state + declared operation
-                      |
-             Existing CIW/SCR boundary
-                      |
-          Registered, pinned provider adapters
-             /             |              \
-     Python reference   Julia worker   Rust / C++ kernels
-             \             |              /
-                 Result + diagnostics
-                          |
-       Separate checks / optional registered SP1 proof
-                          |
-            Retain, inspect and compare in PDT
-```
-
-The diagram is a target composition; supported routes remain operation-specific.
-Use bounded process messages first where isolation is required. Introduce typed
-in-process bindings only for a demonstrated need, with ownership, buffer layout,
-endianness, error handling and version compatibility tested. A C++ exception or
-worker failure must not become an empty successful result. Requests and saved
-artifacts must never select arbitrary code, imports or executable paths.
-
-Retain the exact transport bytes and bind a canonical semantic representation
-where cross-language comparison needs it. Distinguish semantic equality from
-transport-byte equality. Cross-backend results must use declared comparison
-policies; pinning software does not itself guarantee bitwise floating-point
-agreement. See [Julia/SP1 contracts](docs/JULIA_SP1.md) for the existing seam.
-
-### Sensor fusion
-
-The first extension should make one bounded observation-to-state loop work
-across the existing interfaces, not add a generic fusion label:
-
-```text
-Recorded or acquired observations + source lineage
-                 |
-   Explicit calibration, clock and frame mappings
-                 |
-      Prior state -> predict -> measurement update
-                 |
-    Posterior + covariance + predictive innovations
-                 |
-   Assess consistency / observability / model limits
-                 |
-        Retain the estimate and its evidence
-```
-
-Each profile must define its measurement models and the dependencies between
-prior, observations, process noise and calibration. Shared sensor errors must
-not be treated as independent; a duplicate observation must not add information
-twice. Keep event time, arrival time and playback separate. Missing samples stay
-missing. Late data require an explicitly supported update/replay policy or an
-explicit hold/refusal, not silent reinterpretation as current measurements.
-
-Reuse the existing calibration, clock, covariance, estimation and diagnostic
-providers. Preserve pre-update predictions and pre-correction residuals; checking
-only a corrected state can hide disagreement. Unsupported cross-covariance or
-rank-deficient inference must remain explicit. A physical balance does not by
-itself identify a faulty sensor, and a satisfied constraint does not make a
-candidate an observation.
-
-Current measurement and telemetry profiles are narrower than this target;
-[coverage](docs/INTEGRATION_COVERAGE.md) and the
-[covariance contract](docs/COVARIANCE.md) specify their limits. No generic live
-sensor bus or hardware controller is introduced by this architecture description.
-
-### Qualification and next executable slice
-
-Start with one declared linear-response or oscillator profile: exchange actual
-requests across the native boundaries, compare against an independent reference,
-and retain the result through the existing session. Extend that same path to a
-bounded two-sensor reconstruction with explicit timing and noise assumptions.
-This supports the existing design-study programme; it does not replace it.
-
-Required gates include genuine worker execution, coordinate/unit/order checks,
-duplicate/dropout/late-data cases, shared-error challenges, stale model/runtime
-bindings, bounded failure recovery, provider-free reopen and explicit fresh
-replay. Proof-enabled profiles additionally require a real proof, independent
-verification and rejection of corrupted or mismatched claims. Report skipped or
-unavailable gates as such, never as passes.
-
-Measure cold startup, warm computation, transfer, checking and proof costs
-separately. Keep exploration and proof production outside any future
-deadline-critical control loop. Qualification for industrial use is per workload
-and deployment: numerical correctness, physical validation, security, recovery
-and timing need their own evidence. No platform-wide industrial-grade or
-real-time claim follows from the choice of languages or these interfaces.
-
-**One environment, shared contracts, specialist kernels, independently qualified
-claims.**
-
-## Composable instruments, independent scientific authority
-
-The surrounding repositories are not copied into this checkout or treated as
-one undocumented monolith. Each keeps its own README, license, tests and
-scientific contract. CIW collapses the *integration surface*: a provider enters
-through a typed adapter, an exact source/runtime pin, retained evidence,
-save/reopen/replay behavior and a qualified validation gate.
-
-Read [SYSTEMS_CATALOG.md](docs/SYSTEMS_CATALOG.md) for:
-
-- links to the independent README for each connected or candidate system;
-- the CIW responsibility and operation boundary;
-- the distinction between Native CIW, Pinned adapter, Contract only and
-  Pending;
-- the current Flat Torus, Curved Surface and ICRH pins;
-- the rule that a repository link is discoverability, while exercised records
-  and replay are integration.
-
-The stack map in [STACK.md](docs/STACK.md) remains the detailed responsibility
-and numerical-foundation reference. [PROVIDER_AVAILABILITY.md](docs/PROVIDER_AVAILABILITY.md)
-describes exact local checkout provisioning without anonymous provider clones.
+Each supported device path must bind identity, configuration, units, coordinate
+frames, clocks, operating limits and authorization. Local controllers retain
+time-critical execution and equipment protections. A recommendation, command
+acknowledgement or display update is not proof of a physical outcome.
+
+An optional assistant or future MCP interface may propose work through the same
+boundaries; neither receives independent equipment-control or approval authority.
+Current CIW scientific operations remain read-only with respect to external
+actuators. The target authority modes are Explore, Observe, Prepare and Operate,
+not a claim that all four are implemented.
+
+<a id="a-testbed-for-parametric-design-and-representation"></a>
+## Research and integration directions
+
+The research question is whether a shared description makes investigations
+easier to connect and compare **without losing required meaning, results or
+evidence**. Compare a conventional formulation with the shared representation
+on the same inputs, independent references and declared tolerances. Include
+invalid and held-out cases, and measure representation size, integration effort,
+error and execution/checking costs separately.
+
+This is a research programme, not a demonstrated universal compiler or a measured
+compression advantage. Broader physics, chemistry/materials, biology, agriculture,
+AEC, logistics, manufacturing, robotics and social-modelling coverage requires
+separately supported models, providers and validation. The learning benefit also
+needs to be tested rather than inferred from the architecture.
+
+<a id="kernel-architecture"></a>
+<a id="computational-kernel-families"></a>
+<a id="language-boundaries"></a>
+<a id="sensor-fusion"></a>
+<a id="qualification-and-next-executable-slice"></a>
+### Extending calculations and sensor fusion
+
+A **computational kernel** performs one bounded mathematical operation. The
+existing and proposed work is organized into six families: numerical algebra and
+local response; dynamics and geometry; inference and sensor fusion; constraint
+reconciliation; design and experiment selection; and claim/certificate checking.
+These are responsibilities, not six new services or a completed universal library.
+
+Extensions reuse existing providers and the CIW/SCR interfaces. Python remains
+responsible for the shared session and records; Julia and C/C++ supply selected
+scientific calculations; Rust supplies supported native execution and checks.
+JuMP and JuliaControl remain candidate extensions. SP1 applies only to selected
+registered computations, not automatically to Julia output or physical truth.
+See [Julia/SP1 contracts](docs/JULIA_SP1.md) and [integration coverage](docs/INTEGRATION_COVERAGE.md).
+
+The next numerical extension starts with an actual bounded linear-response or
+oscillator request, an independent reference comparison and retained results.
+A subsequent two-sensor case must preserve clock/frame mappings, shared errors,
+full required covariance, pre-update predictions and innovations. Duplicate
+observations must not add information twice; missing and late data need explicit
+handling. The [covariance guide](docs/COVARIANCE.md) records current limits.
+
+<a id="kernel-contracts"></a>
+<details>
+<summary>Implementation requirements for numerical extensions</summary>
+
+- Declare input/output order, units, frames, clocks, sample support, model identity,
+  allowed changes and validity domain. Linearization must name its base point;
+  vector subtraction is not assumed valid for every state space.
+- Record arithmetic, tolerances, algorithm/runtime versions, resource limits,
+  and any random-stream and replay policy. Distinguish exact, approximate and
+  stochastic claims; matching software versions do not guarantee bitwise equality.
+- Preserve dependencies and the uncertainty representation a model requires.
+  Unknown uncertainty is not zero; covariance is not appropriate for every model.
+  Keep original observations and pre-correction residuals when computing corrections.
+- Keep numerical routines separate from storage, policy and device I/O. Use bounded
+  process messages where isolation is needed; in-process bindings require tested
+  ownership, buffer layout, endianness, version and error-handling rules.
+- Retain transport bytes and any canonical semantic representation separately.
+  Saved data must not select arbitrary imports, code or executable paths; worker
+  failure must not become an empty successful result.
+- Challenge duplicate, dropout, late-data, shared-error and stale-binding cases.
+  Unsupported cross-covariance or rank-deficient inference must be explicit.
+  A satisfied balance constraint alone does not identify a faulty sensor.
+- Exercise real providers, bounded failure recovery, provider-free reopening and
+  fresh replay. Proof-enabled paths require genuine proof production, independent
+  verification and rejection of corrupted or mismatched claims. Skipped checks
+  are not passes.
+
+</details>
+
+<a id="testbed-framework-and-design-spaces"></a>
+### Advanced descriptions of design spaces
+
+A smooth family of designs may use local coordinates and a manifold description;
+other designs may be discrete or mix both. **Parametric design manifolds** name
+that specialized research case, not every investigation. Equivalence-based model
+descriptions, topology and category-theoretic composition are tools to use where
+a workload requires them, not prerequisites for running PDT.
+
+Changing coordinates, reducing a model, losing information in an encoding and
+coupling two physical models are different operations. A change of domain is not
+automatically a new chart on the same manifold. Required calculation inputs must
+survive a representation change; preserving one invariant alone is insufficient.
+The existing [research context](docs/RESEARCH_CONTEXT.md) and
+[state transformation contract](docs/STATE_TRANSFORMATIONS.md) describe this work.
 
 ## OpenUSD scene interchange
 
-**Selected format direction; implementation pending.** Use
-[OpenUSD](https://openusd.org/release/intro.html) for scene and geometry
-interchange alongside PDT's existing scientific records, not instead of them.
-OpenUSD supplies a scene-description data model and composition system with
-layers, references, variant sets and time-sampled attributes. A USD stage
-represents a concrete scene or selected candidate; it is not the entire model
-space, investigation state or evidence ledger.
+**Selected direction; implementation pending.** OpenUSD is intended to export
+supported geometry and trajectories for inspection alongside the existing
+scientific records. It does not replace the investigation, model or evidence
+formats. Godot, geographic inspection and terminal-only use remain independent
+of an OpenUSD installation.
 
-| OpenUSD element | Intended PDT use |
-| --- | --- |
-| **Prims, transforms and geometry** | Represent supported assets, assemblies, sensor locations and spatial outputs. |
-| **Layers and references** | Assemble reusable scene assets and keep presentation overrides separate from retained source data. |
-| **Variant sets** | Expose supported candidate configurations; selecting a scene variant does not execute or accept a scientific design. |
-| **Time samples** | Display declared trajectories and spatial results under an explicit mapping from model time to scene time. |
-| **Custom metadata and relationships** | Link represented objects to separately retained model, source, result and evidence identities. |
+Start with a read-only `.usda` export of one retained oscillator trajectory.
+Reopen it with a pinned OpenUSD runtime and compare geometry, units, time mapping
+and links to the original result. Challenge missing or altered dependencies
+before claiming that export supported. Binary `.usdc`, packaged `.usdz` and
+scene import are later, separately tested extensions.
 
-Start with inspectable **`.usda`** text exports. Add **`.usdc`** binary layers
-and **`.usdz`** packages only through separately exercised profiles. These
-formats do not replace the versioned CIW record formats or native scientific
-files. Retain original IFC, chemistry mechanisms, numerical arrays and other
-source artifacts where their domain meaning is required. In PDT, appearance
-materials are not substitutes for validated physical or chemical properties.
+<details>
+<summary>Scene-export requirements</summary>
 
-```text
-Retained PDT model / candidate / result + explicit mapping
-                          |
-                  Qualified export adapter
-                          |
-            USD scene + bound dependency manifest
-                          |
-             Compatible reader / inspection client
-```
+Use the upstream C++ API or Python bindings behind a registered adapter, rather
+than inventing another scene format. Prims and transforms describe supported
+assets and spatial outputs; layers and references compose scene assets; variant
+sets expose selected configurations; time samples display trajectories; metadata
+links them to separately retained model and result identities.
 
-The first profile is export and read-only inspection. A future authoring/import
-path must retain the submitted scene as new candidate evidence and pass the
-appropriate domain checks before use; viewer edits never overwrite the
-scientific source or silently become solver inputs. Existing Godot/GSV and
-terminal paths remain supported without an OpenUSD dependency.
+Preserve explicit `metersPerUnit`, `upAxis`, coordinate/frame mappings and
+`timeCodesPerSecond` where relevant. Keep source clocks, epochs, offsets, sample
+support and interpolation policy separate; interpolated display values are not
+new observations. Mixed-unit assets require explicit corrective transforms.
 
-The adapter contract must preserve:
+Keep PDT identifiers separate from scene paths. Bind contributing asset/layer
+digests, layer order, selected variants and exporter/runtime identity; hashing
+only the root file does not bind an externally referenced scene. Declare any
+supported schema subset, tessellation, decimation or precision loss.
 
-- **Space and time:** explicit `metersPerUnit`, `upAxis`, coordinate/frame
-  mapping and `timeCodesPerSecond` where animated. Preserve the source clock,
-  epoch/offset, sample support and interpolation policy separately; interpolated
-  display values are not new observations. Mixed-unit assets require explicit
-  corrective transforms, not assumed automatic conversion.
-- **Identity and composition:** retain PDT identifiers separately from USD prim
-  paths. Bind the contributing layer/asset digests, layer order, selected
-  variants and exporter/runtime identity; a root-file hash alone does not bind
-  an externally referenced composition. Presentation strength is not evidence
-  authority.
-- **Meaning and access:** declare the supported schema subset and any
-  tessellation, decimation or precision loss. Unsupported geometry or missing
-  references must not be silently approximated. Resolve only configured,
-  bounded assets with host-controlled plugins/resolvers; an imported scene
-  cannot authorize network access, arbitrary code or scientific execution.
+Missing references or unsupported geometry must not be silently approximated.
+Only configured, bounded assets and host-controlled plugins/resolvers may be
+used. Loading a scene cannot authorize network access, arbitrary execution,
+scientific operations or equipment control. Future scene edits/imports enter as
+new candidate evidence and require domain checks, never silent source replacement.
+Retain original domain files, including IFC, chemistry mechanisms and numerical
+arrays. Appearance materials are not validated physical properties.
 
-Use the upstream C++ API or Python bindings behind a registered adapter; do not
-create another scene format in Rust or force Julia to own scene persistence.
-The existing execution boundary still supervises providers where appropriate.
-OpenUSD scene composition and PDT's scientific-operation composition are
-separate: scene loading does not prove a model, calibrate a sensor, verify an
-SP1 claim or authorize equipment.
-
-**First gate:** export one retained oscillator trajectory, reopen it with a
-pinned OpenUSD runtime and compare the supported geometry, units, sample/time
-mapping and identity links against the original record. Challenge missing or
-altered dependencies and changed unit/frame declarations; keep provider-free
-scientific reopen separate from scene inspection. Only then claim that export
-profile supported. No OpenUSD exporter, importer or viewer integration is
-implemented by this documentation change.
-
-Upstream references: [scene composition](https://openusd.org/release/intro.html),
-[stage metrics](https://openusd.org/release/api/group___usd_geom_linear_units__group.html),
-[time and layer APIs](https://openusd.org/release/api/class_usd_stage.html) and
+Scene composition and scientific-operation composition remain separate. Keep
+provider-free scientific reopening separate from optional scene inspection.
+Upstream references: [OpenUSD introduction](https://openusd.org/release/intro.html),
+[units](https://openusd.org/release/api/group___usd_geom_linear_units__group.html),
+[stage/time APIs](https://openusd.org/release/api/class_usd_stage.html) and
 [Python tutorials](https://openusd.org/release/tut_usd_tutorials.html).
 
-## Quickstart
-
-From Python 3.11 or newer:
-
-    python -m pip install -e .
-    python -m ciw demo --output recordings/demo.json
-    python -m ciw analyze stats --recording recordings/demo.json --channel q --start 2 --end 8 --output-dir results/stats
-    python -m ciw analyze spectrum --recording recordings/demo.json --channel q --start 0 --end 12 --output-dir results/spectrum
-    python -m ciw inspect results/spectrum/workspace.json
-
-The demo is synthetic and needs no external provider. For the shared
-measurement/design session, follow [WORKBENCH_ASSEMBLY.md](docs/WORKBENCH_ASSEMBLY.md)
-and the [quickstart](docs/quickstart.md). Container and workstation deployment
-notes are in [deploy/README.md](deploy/README.md).
-The command-only oscillator walkthrough is [OSCILLATOR_OPERATOR.md](docs/OSCILLATOR_OPERATOR.md).
-The equation cards and bounded model previews are described in
-[MODEL_EXPLORATION.md](docs/MODEL_EXPLORATION.md).
+</details>
 
 ## Evidence boundaries
 
-CIW records what was measured, supplied, estimated, predicted or checked. Those
-labels are not interchangeable; the single classification table is maintained
-in [Workbench overview](docs/WORKBENCH_OVERVIEW.md#evidence-classes).
+A saved investigation distinguishes what was supplied, measured, predicted,
+estimated, corrected and checked. The classification is maintained in the
+[workbench overview](docs/WORKBENCH_OVERVIEW.md#evidence-classes).
+
+Keep these distinctions explicit:
+
+```text
+mathematical object       != its representation
+mathematical operation    != algorithm != implementation
+execution result          != verified result
+numerical agreement       != physical validation
+supporting evidence       != formal proof
+physical state            != belief about that state
+model                     != observation
+approximation             != exact object
+requested action          != controller outcome != measured outcome
+```
+
+Evidence, operation, execution, result and verification identities remain
+separate. Invariants, residuals, reference comparisons, error bounds, statistical
+checks and proofs support different claims. No single passing check establishes
+everything about a result, and no calculation grants permission to use it on
+equipment. Unavailable, inconclusive, refused and failed checks remain visible.
+
+<a id="base-pilot-the-programmable-computational-and-cyber-physical-laboratory"></a>
+<a id="pilot-closure-not-unlimited-expansion"></a>
+<a id="extension-rule"></a>
+## Next gates
+
+**Finish and verify the currently assigned work first.** The agreed initial
+end-to-end demonstration (the **base pilot**) remains the development priority.
+The learning layer, new providers and broader research directions extend that
+work; they do not replace it, reset its queue or justify speculative rewrites.
+
+Use the existing oscillator/thermal, measurement-chain and curved-path foundations
+to close a shared investigation workflow, not a set of disconnected demos.
+These are acceptance requirements, not gates claimed passed by this README:
+
+| Gate | Required demonstration |
+| --- | --- |
+| Compose | Bind a named model and all inputs; check quantities, units, frames, clocks, representations and dependencies before execution. |
+| Execute and compare | Run actual registered providers and compare against independent references under declared numerical policies. |
+| Investigate | Retain baseline/candidate changes, assumptions, responses, uncertainty status and checks, including invalid or unresolved cases. |
+| Reopen and replay | Read saved records without executing providers; explicitly replay with new execution identities and preserved history/version bindings. |
+| Challenge and recover | Reject altered bindings and incompatible inputs; retain bounded failures, recover without losing results and identify affected dependencies. |
+| Inspect and hand off | Keep headless use working; test each client, export and evidence handoff separately. OpenUSD must pass its export/reload gate. |
+| Physical apparatus | For each supported device, bind configuration and authorization; test disconnects, duplicate requests, stale plans and uncertain outcomes. |
+| Qualify claims | Retain actual evidence for each numerical, proof or physical claim. Report startup, transfer, computation and checking costs separately. |
+
+The next physical-claim milestone remains a held-out reference measurement with
+a replayable evidence bundle and explicit limitations. Pilot completion does not
+establish physical validation of all models, production multi-user readiness,
+hard real-time control or platform-wide industrial certification. Each workload
+and deployment needs its own numerical, physical, security, recovery and timing
+evidence. Proof generation and exploration stay outside deadline-critical control.
 
 ## Development and validation
 
 Read [DEVELOPMENT.md](docs/DEVELOPMENT.md) before changing a contract or adding a
-provider. The normal local checks are:
+provider. Preserve existing commands, saved records, numerical references and
+verified invariants. New workloads must reuse the current session and record
+formats rather than introduce a parallel runtime or evidence store.
 
-    python -m pytest -q
-    python -m compileall -q src
-    git diff --check
+```text
+finish assigned work -> run -> observe -> fix -> verify -> audit -> extend
+```
 
-Provider gates require the exact clean checkouts described in
-[PROVIDER_AVAILABILITY.md](docs/PROVIDER_AVAILABILITY.md). Keep synthetic
-fixtures, live measurements, replay outputs and independent verification
-results distinguishable in both documentation and records.
+The normal local checks are:
 
-## Next gates
+```sh
+python -m pytest -q
+python -m compileall -q src
+git diff --check
+```
 
-The next visible gate is one independently challenged physical claim: a
-held-out reference measurement, a replayable evidence bundle and a result whose
-limitations remain explicit. The detailed integration matrix owns the broader
-provider and runtime backlog; the overview does not promote those candidates to
-current capability.
-
-See [INTEGRATION_COVERAGE.md](docs/INTEGRATION_COVERAGE.md) for the current
-matrix and [SYSTEMS_CATALOG.md](docs/SYSTEMS_CATALOG.md) for provider status.
+Provider-specific checks need the exact clean checkouts and environments listed
+in [provider availability](docs/PROVIDER_AVAILABILITY.md) and the operating guides.
+Report unavailable or skipped checks explicitly. Documentation edits do not
+constitute a new numerical validation result.
 
 ## Documentation map
 
-| Topic | Canonical page |
+| Need | Guide |
 | --- | --- |
-| Engineering design scope and scientific workspace | [Workbench overview](docs/WORKBENCH_OVERVIEW.md) |
-| Provider and instrument map | [Systems catalog](docs/SYSTEMS_CATALOG.md) |
-| Implementation architecture | [Architecture](docs/ARCHITECTURE.md) |
-| Operation catalogue | [Instruments](docs/INSTRUMENTS.md) |
-| Mathematical model exploration | [Model exploration](docs/MODEL_EXPLORATION.md) |
-| Executable coverage and limits | [Integration coverage](docs/INTEGRATION_COVERAGE.md) |
-| Shared assembly and deployment | [Workbench assembly](docs/WORKBENCH_ASSEMBLY.md) |
-| Typed contracts and exchange | [Contract foundations](docs/CONTRACT_FOUNDATIONS.md) |
-| State spaces, transformations and invariants | [State transformation contract](docs/STATE_TRANSFORMATIONS.md) |
-| Research premise and educational vocabulary | [Research context](docs/RESEARCH_CONTEXT.md) |
-| Protocol and identities | [Protocol](docs/PROTOCOL.md) |
-| Development and tests | [Development guide](docs/DEVELOPMENT.md) |
-| Diagrams | [Diagram atlas](docs/DIAGRAMS.md) |
+| Installation and the first run | [Quickstart](docs/quickstart.md) |
+| Model exploration and equation cards | [Model exploration](docs/MODEL_EXPLORATION.md) |
+| Oscillator commands and reopening | [Oscillator operator guide](docs/OSCILLATOR_OPERATOR.md) |
+| Investigation scope and evidence classes | [Workbench overview](docs/WORKBENCH_OVERVIEW.md) |
+| Supported operations and exact commands | [Instruments](docs/INSTRUMENTS.md) |
+| Exercised integrations and remaining gaps | [Integration coverage](docs/INTEGRATION_COVERAGE.md) |
+| Scientific providers and responsibilities | [Systems catalogue](docs/SYSTEMS_CATALOG.md) and [stack map](docs/STACK.md) |
+| Shared session and deployment | [Workbench assembly](docs/WORKBENCH_ASSEMBLY.md) and [deployment](deploy/README.md) |
+| Runtime architecture and record formats | [Architecture](docs/ARCHITECTURE.md) and [protocol](docs/PROTOCOL.md) |
+| Typed inputs, models and machine configuration | [Contract foundations](docs/CONTRACT_FOUNDATIONS.md) |
+| Allowed changes and mathematical assumptions | [State transformation contract](docs/STATE_TRANSFORMATIONS.md) and [research context](docs/RESEARCH_CONTEXT.md) |
+| Tests and contribution requirements | [Development guide](docs/DEVELOPMENT.md) |
+| Architecture diagrams | [Diagram atlas](docs/DIAGRAMS.md) |
 
-The full index is [docs/README.md](docs/README.md). Historical audits remain
-available for context but do not override the current operation catalogue,
-integration matrix or provider manifests.
+The [full index](docs/README.md) points to the document that owns each detail.
+Historical audits provide context but do not override the current operation
+catalogue, integration matrix or provider manifests.
 
 ## License
 
-This project is licensed under the GNU Affero General Public License v3.0 only
+Copyright © 2026 Notation Systems.
+
+Licensed under the GNU Affero General Public License v3.0 only
 (AGPL-3.0-only). See [LICENSE](LICENSE).
