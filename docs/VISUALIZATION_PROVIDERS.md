@@ -62,8 +62,7 @@ python examples/usecase-thermal-proof-gate/emit_render.py
 python examples/usecase-drift-watch/emit_render.py
 ```
 
-`write_render` forces `may_authorize: false` and fills `claim_scope`, `status`,
-`source`, `cards`, `fresh_verifier_occurrence: false` when absent.
+`write_render` forces `may_authorize: false` and fills `claim_scope`, `status`, `source`, `cards`, `fresh_verifier_occurrence: false` when absent.
 
 ## Non-claims
 
