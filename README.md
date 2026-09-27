@@ -1,6 +1,6 @@
 <div align="center">
 
-# Payload Terminal V0
+# Geospatial Systems Compiler (GSC)
 
 ### Notation Systems — data, modelling, and visualization for physical systems.
 
@@ -17,23 +17,32 @@ Explore observations, compare results, and inspect how they were produced.
 
 ## Overview
 
-Payload Terminal is the browser-interface foundation for **Notation Systems**,
-part of its computational instrumentation and evidence infrastructure for
-industrial and cyber-physical systems. It currently contains a map-led
-physical-economy application with commodity analytics and freight workflows.
+**Geospatial Systems Compiler (GSC)** is the current project identity for the
+former **Payload Terminal V0**, the browser-interface foundation for **Notation
+Systems**. Its target is a provenance-aware visualization system that transforms
+supplied physical-system records and computed results into synchronized spatial,
+temporal, relational, and interactive representations. This is representation
+compilation, not evidence admission, scientific execution, or verification.
+
+The existing application is part of Notation Systems' computational
+instrumentation and evidence infrastructure for industrial and cyber-physical
+systems. It currently contains a map-led physical-economy application with
+commodity analytics and freight workflows.
 
 The development direction is a **separately maintained Notation Systems
-homepage and read-only explorer**, connected to existing evidence services,
-visualization clients, and the computational workbench through explicit
-interfaces. Freight remains a worked application, not the definition of the
-whole company. Scientific methods and specialist domain models stay with their
-respective instruments.
+homepage and read-only explorer**, combining the strongest presentation and
+provider-boundary components of this project and Geospatial State Visualization.
+It connects to existing evidence services and the engineering workbench through
+explicit interfaces. Freight remains a worked application, not the definition
+of the whole company. Scientific methods and specialist domain models stay with
+their respective instruments.
 
-**Status:** the existing Next.js application is implemented. The company
-homepage separation, ESM projection adapter, Geospatial State Visualization
-integration, and workbench handoff described below are **planned integrations**,
-not capabilities delivered by this README update. The running interface and
-application metadata have not been rebranded by this documentation change.
+**Status on this branch:** the existing Next.js application is implemented.
+The unified representation compiler, company homepage separation, ESM projection
+adapter, Geospatial State Visualization integration, and workbench handoff below
+remain **integration targets**, not capabilities delivered by this README update.
+The running interface and application metadata have not been rebranded by this
+documentation change.
 
 ## What is already in this repository
 
@@ -89,17 +98,17 @@ scientific or industrial problem.
 
 ## Responsibility in the stack
 
-**Separate application, integrated information and workflow.** Keep this
-frontend outside ESM and connect it through narrow interfaces rather than
-merging repositories or offering only a generic homepage link.
+**Separate application, integrated information and workflow.** Keep GSC outside
+ESM and connect it through narrow interfaces rather than merging it into ESM,
+duplicating the workbench, or offering only a generic homepage link.
 
 | Component | Responsibility |
 | --- | --- |
-| **Payload Terminal / Notation Systems web application** | Company presentation, navigation, local selection, view configuration, and inspection of explicitly supplied records and results. |
+| **Geospatial Systems Compiler (GSC)** | Company presentation, navigation, local selection, representation compilation, view configuration, and inspection of explicitly supplied records and results. The broader compiler is an integration target. |
 | [Evidence and State Management (ESM)](https://github.com/giasonpooni/Evidence-and-State-Management) | Retain and govern evidence, versioned state, admission, and release. |
-| [Computational Instrumentation Workbench](https://github.com/giasonpooni/Computational-Instrumentation-Workbench) | Instrument sessions, adapters, configuration, inspection, and replay. |
+| [Notations Engineering Terminal (CIW)](https://github.com/giasonpooni/Notations-Engineering-Terminal) | The existing workbench: instrument sessions, adapters, configuration, inspection, and replay; `ciw` remains its runtime identity. |
 | [Scientific Computation Runtime](https://github.com/giasonpooni/Scientific-Computation-Runtime) and specialist instruments | Declared computation, numerical methods, result contracts, and diagnostics. |
-| [Geospatial State Visualization (GSV)](https://github.com/giasonpooni/Geospatial-State-Visualization) | Read-only geographic inspection of provider-supplied entities, routes, flows, and temporal state. |
+| [Geospatial State Visualization (GSV)](https://github.com/giasonpooni/Geospatial-State-Visualization) | Existing read-only geographic client and source of globe/provider-boundary components for the GSC integration. |
 
 The following is the **target integration**, not the current deployment:
 
@@ -107,7 +116,7 @@ The following is the **target integration**, not the current deployment:
 Explicitly published demonstration artifacts
                      │
                      ▼
-           NOTATION SYSTEMS WEB APPLICATION
+       GEOSPATIAL SYSTEMS COMPILER / NOTATION SYSTEMS WEB
               Homepage · Explorer · Inspectors
                      │
           ┌──────────┴───────────────────┐
@@ -115,8 +124,8 @@ Explicitly published demonstration artifacts
    Read/projection adapter       Contextual links first;
           │                      authenticated adapter later
           ▼                              ▼
-         ESM                     Existing workbench
- Evidence and released state     Sessions, runs, replay
+         ESM                 Notations Engineering Terminal
+ Evidence and released state     Existing CIW sessions and replay
                                          │
                                          ▼
                                 Runtime and instruments
@@ -129,12 +138,12 @@ ESM is not the route for camera movements or a general solver-dispatch service.
 The web application should retain references and replaceable view caches, not
 create a second canonical corpus or competing execution ledger.
 
-GSV is a separate client whose documented implementation uses a deterministic
-synthetic provider. Its presence elsewhere in the stack does not mean it is
-embedded here or connected to live data. Integration must explicitly map
-supported records to its provider contract; an ESM response is not automatically
-a GSV `WorldSnapshot`. Do not copy private implementation code or datasets into
-this public repository as an integration shortcut.
+GSV's documented standalone implementation uses a deterministic synthetic
+provider. Its presence elsewhere in the stack does not mean it is embedded on
+this branch or connected to live data. Integration must explicitly map supported
+records to its provider contract; an ESM response is not automatically a GSV
+`WorldSnapshot`. Do not copy private implementation code or datasets into this
+public repository as an integration shortcut.
 
 ## Homepage, explorer, and workbench
 
@@ -142,7 +151,7 @@ this public repository as an integration shortcut.
 | --- | --- |
 | **Public homepage** | Explain Notation Systems and demonstrate one investigation using deliberately published artifacts. No credentials for private stores or workbench execution; explanatory content must not require a running scientific backend. |
 | **Read-only explorer** | Inspect exact permitted releases and results, preserve identity and time selection, and open their supporting records. Public access is limited to deliberately published material. |
-| **Private workbench** | Continue investigations, configure supported instruments, execute, and replay through the existing workbench rather than a duplicate application built here. |
+| **Notations Engineering Terminal** | Continue investigations, configure supported instruments, execute, and replay through the existing CIW workbench rather than a duplicate application built here. Private project access is a deployment permission, not a repository title. |
 
 Retention, admission, release, and public publication are different decisions.
 A record held in ESM is not automatically suitable for the homepage. Recorded
@@ -266,8 +275,8 @@ Notation Systems homepage or an integrated scientific workbench. Use Node.js 22
 for consistency with the repository's container build.
 
 ```bash
-git clone https://github.com/giasonpooni/Payload-Terminal-V0.git
-cd Payload-Terminal-V0
+git clone https://github.com/giasonpooni/Geospatial-Systems-Compiler.git
+cd Geospatial-Systems-Compiler
 npm install
 npm run dev
 ```
@@ -392,6 +401,15 @@ See the [physical-economy design](docs/PHYSICAL_ECONOMY.md),
 [deployment guide](DOCKER.md), and [security policy](SECURITY.md).
 Cross-repository links above describe component responsibilities; they do not
 establish that an adapter is connected or a service is publicly deployed.
+
+## Project title and compatibility
+
+Use **Geospatial Systems Compiler (GSC)** and
+`giasonpooni/Geospatial-Systems-Compiler` for the current project and new links.
+**Payload Terminal V0** remains the historical application title. The prior
+`notationsystems/Payload-Terminal-V0` and `giasonpooni/Payload-Terminal-V0`
+locations are historical references, not separate systems. The existing package,
+route, schema, environment, evidence and runtime identities are unchanged.
 
 ## Origin and license
 
