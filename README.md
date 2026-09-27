@@ -2,7 +2,7 @@
 
 Part of **Notation Systems' computational instrumentation and evidence infrastructure** for industrial and cyber-physical systems.
 
-[Diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md) · [Stack map](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/STACK.md) · [Component role and interfaces](docs/STACK_ROLE.md)
+[Diagram atlas](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/main/docs/DIAGRAMS.md) · [Stack map](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/main/docs/STACK.md) · [Component role and interfaces](docs/STACK_ROLE.md)
 
 **Read-only visualization of geographic entities, routes, flows, and temporal state.**
 
@@ -51,12 +51,19 @@ synthetic client.
 | [Provenance-Preserving Data Acquisition](https://github.com/giasonpooni/Provenance-Preserving-Data-Acquisition) | Acquire source material and retain observation lineage. |
 | [Evidence and State Management](https://github.com/giasonpooni/Evidence-and-State-Management) | Retain and govern evidence, versioned state, admission, and release. |
 | [Scientific Computation Runtime](https://github.com/giasonpooni/Scientific-Computation-Runtime) | Specify, dispatch, and record declared scientific computations. |
-| [Computational Instrumentation Workbench](https://github.com/giasonpooni/Computational-Instrumentation-Workbench) | Operate and inspect instruments through sessions and adapters. |
+| [Notations Engineering Terminal (CIW)](https://github.com/giasonpooni/Notations-Engineering-Terminal) | Operate and inspect instruments through the existing CIW sessions and adapters. |
+| [Geospatial Systems Compiler (GSC)](https://github.com/giasonpooni/Geospatial-Systems-Compiler) | Browser presentation and representation-compilation project, formerly Payload Terminal V0; integration of this client's globe and provider boundary is a development target. |
 | **Geospatial State Visualization** | Project geographic state through a provider interface for read-only inspection. |
 
 These are responsibility boundaries, not a claim that cross-repository adapters
 are connected in this build. View commands change camera, selection, layers, or
 playback; they do not admit evidence or commit canonical state.
+
+GSC remains separately maintained from ESM and the engineering workbench.
+Combining visualization components must preserve this client's checked provider
+boundary and synthetic-data labels; it must not create another evidence store,
+scientific runtime, or workbench. This README update does not implement that
+integration or change this repository's current project title.
 
 ## Synthetic data and provenance
 
@@ -156,6 +163,11 @@ name identifies its visualization responsibility. The local package name
 operation IDs, and source values such as `payload:spatial` remain compatible.
 A repository rename does not rewrite schema identity, evidence, execution
 records, or retained runtime pins.
+
+The surrounding workbench's current project title is **Notations Engineering
+Terminal**, with `ciw` retained as its package, command, and contract namespace.
+**Geospatial Systems Compiler** is the current title of the former **Payload
+Terminal V0**. These title updates do not reclassify a view as authoritative state.
 
 ## License
 
