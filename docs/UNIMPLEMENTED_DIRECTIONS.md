@@ -7,6 +7,17 @@ Nothing in this file is a command, a provider, an inspect client, or an
 Evidence and State Management admission route. Naming a direction here
 does not implement it.
 
+The root README no longer treats these as product features:
+
+| Direction | Status on the product page |
+| --- | --- |
+| Oscillator demo | Implemented built-in example; not a curriculum |
+| OpenUSD scene interchange | Not implemented |
+| Julia / C++ / Rust as a required chain | Not required; adapters are optional |
+| GPU energy measurement | Optional host bench only |
+| Category-theoretic design manifolds | Not an implemented runtime |
+| Full mathematics curriculum | Not implemented; one RMS lesson exists |
+
 Related research context: [RESEARCH_CONTEXT.md](RESEARCH_CONTEXT.md),
 [JULIA_SP1.md](JULIA_SP1.md), [NATIVE_INTEROP.md](NATIVE_INTEROP.md),
 [ENERGY_ACCURACY.md](ENERGY_ACCURACY.md), [LEARNING.md](LEARNING.md).
