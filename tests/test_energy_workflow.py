@@ -230,7 +230,7 @@ def test_shared_session_live_transport_save_restore_and_reanalysis(retained, tmp
                             return answer["payload"]
                 source = await call("source.add", source_payload(retained[0]))
                 result = await call("operation.execute", {"operation_id": OPERATION, "parameters": {"source_id": source["source_id"]}})
-                replay = await call("bundle.replay", {"bundle_id": result["bundle_id"]}})
+                replay = await call("bundle.replay", {"bundle_id": result["bundle_id"]})
                 view = await call("experiment.inspect", {"bundle_id": replay["bundle"]["bundle_id"]})
                 assert view["object_context"]["replay_scope"] == energy_workflow.METHOD
                 return result
