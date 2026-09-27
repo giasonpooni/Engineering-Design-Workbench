@@ -111,7 +111,8 @@ fitted curve. Overlay copies keep `source: declared_constraint`; a fitted radius
 cannot be attached by editing the presentation object. A drawn mesh uses the first two declared vertex axes for the 2D
 client and the declared coordinates for the optional 3D canvas; neither projection
 is a surveyed view. Detached mesh copies refuse a path or source/target index
-outside the declared vertices. A strip plot uses the retained parameter as its abscissa and
+outside the declared vertices. Detached strip copies refuse a nonfinite or
+decreasing parameter before that copy reaches a companion canvas. A strip plot uses the retained parameter as its abscissa and
 does not treat that parameter as event time. Jacobi inspections stamp `canvas_id`
 and `canvas_title` on each strip and copy those strips onto `system_canvases` so
 a mixed-unit pose panel keeps a named arclength companion. Mesh-path inspections also copy the

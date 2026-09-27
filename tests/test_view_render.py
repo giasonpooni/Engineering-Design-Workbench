@@ -269,3 +269,24 @@ def test_detach_render_refuses_a_mesh_path_outside_declared_vertices():
         declared_mesh(mesh, path=[0, 1], source_vertex=8)
 
 
+def test_detach_render_refuses_a_decreasing_or_nonfinite_strip_axis():
+    panel = {"values": [0.1, 0.2, 0.15], "units": ["m", "m", "m"]}
+    attach_strip(panel, [0.0, 0.5, 1.0], parameter_name="arclength", parameter_unit="m",
+                 frame="jacobi-path", canvas_id="separation", canvas_title="Native transverse separation")
+    view = {"kind": "curved-path-transfer"}
+    attach_system(view, panel["render"])
+    assert view["system_render"]["samples"][1]["parameter"] == 0.5
+    panel["render"]["samples"][-1]["parameter"] = 0.1
+    assert view["system_render"]["samples"][-1]["parameter"] == 1.0
+    with pytest.raises(ValueError):
+        attach_system(view, panel["render"])
+    panel["render"]["samples"][-1]["parameter"] = 1.0
+    panel["render"]["samples"][2]["value"] = float("nan")
+    with pytest.raises(ValueError):
+        attach_system(view, panel["render"])
+    with pytest.raises(ValueError):
+        attach_system_canvases(view, [
+            {"id": "separation", "title": "Native transverse separation", "render": panel["render"]},
+        ])
+
+

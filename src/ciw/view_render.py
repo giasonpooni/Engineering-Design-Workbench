@@ -65,6 +65,8 @@ def detach_render(render):
         payload["overlays"] = detach_overlays(payload.get("overlays"))
     if payload.get("kind") == "mesh":
         payload.update(detach_mesh_geometry(payload))
+    if payload.get("kind") == "strip":
+        payload["samples"] = detach_strip_samples(payload.get("samples"))
     return payload
 
 
@@ -229,6 +231,30 @@ def attach_plane(panel, *, frame, overlays=(), canvas_id=None, canvas_title=None
     return panel
 
 
+def _finite_number(value, name):
+    if type(value) not in (int, float) or value != value or abs(value) == float("inf"):
+        raise ValueError(name)
+    return float(value)
+
+
+def detach_strip_samples(samples):
+    """Copy declared parameter samples. Nonfinite or decreasing axes are refused."""
+    if not isinstance(samples, list) or not samples:
+        raise ValueError("Strip render requires matching nonempty parameter and value lists")
+    copied = []
+    previous = None
+    for item in samples:
+        if not isinstance(item, dict):
+            raise ValueError("Strip render requires finite numeric samples")
+        abscissa = _finite_number(item.get("parameter"), "Strip render requires finite numeric samples")
+        ordinate = _finite_number(item.get("value"), "Strip render requires finite numeric samples")
+        if previous is not None and abscissa < previous:
+            raise ValueError("Strip render requires a nondecreasing parameter")
+        previous = abscissa
+        copied.append({"parameter": abscissa, "value": ordinate})
+    return copied
+
+
 def strip_from_parameter(parameter, values, *, parameter_name, parameter_unit, value_unit, frame,
                          canvas_id=None, canvas_title=None):
     """Place already-projected samples on a declared parameter axis.
@@ -240,17 +266,10 @@ def strip_from_parameter(parameter, values, *, parameter_name, parameter_unit, v
         raise ValueError("Strip render requires declared parameter and value lists")
     if len(parameter) != len(values) or not values:
         raise ValueError("Strip render requires matching nonempty parameter and value lists")
-    samples = []
-    previous = None
-    for abscissa, ordinate in zip(parameter, values):
-        if type(abscissa) not in (int, float) or type(ordinate) not in (int, float):
-            raise ValueError("Strip render requires finite numeric samples")
-        if abscissa != abscissa or ordinate != ordinate or abs(abscissa) == float("inf") or abs(ordinate) == float("inf"):
-            raise ValueError("Strip render requires finite numeric samples")
-        if previous is not None and abscissa < previous:
-            raise ValueError("Strip render requires a nondecreasing parameter")
-        previous = abscissa
-        samples.append({"parameter": float(abscissa), "value": float(ordinate)})
+    samples = detach_strip_samples([
+        {"parameter": abscissa, "value": ordinate}
+        for abscissa, ordinate in zip(parameter, values)
+    ])
     payload = {
         "schema": SCHEMA,
         "kind": "strip",

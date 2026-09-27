@@ -224,9 +224,16 @@ func _draw_strip(render: Dictionary) -> void:
 	var low := Vector2(INF, INF)
 	var high := Vector2(-INF, -INF)
 	for item in samples:
+		if typeof(item) != TYPE_DICTIONARY:
+			continue
+		if not is_finite(float(item.get("parameter", NAN))) or not is_finite(float(item.get("value", NAN))):
+			continue
 		var point := Vector2(float(item.parameter), float(item.value))
 		low = low.min(point)
 		high = high.max(point)
+	if not is_finite(low.x) or not is_finite(high.x):
+		draw_string(font, Vector2(20, 40), "Strip render has no finite declared samples", HORIZONTAL_ALIGNMENT_LEFT, -1, 14)
+		return
 	var span := high - low
 	span.x = maxf(span.x, 0.05)
 	span.y = maxf(span.y, maxf(absf(high.y), 1.0) * 0.1)
@@ -237,5 +244,9 @@ func _draw_strip(render: Dictionary) -> void:
 	_draw_axes(world, plot, str(render.get("value_unit", "")), caption)
 	_draw_canvas_id(render, plot)
 	for item in samples:
+		if typeof(item) != TYPE_DICTIONARY:
+			continue
+		if not is_finite(float(item.get("parameter", NAN))) or not is_finite(float(item.get("value", NAN))):
+			continue
 		draw_circle(_map(Vector2(float(item.parameter), float(item.value)), world, plot), 4, Color("60dfcd"))
 	draw_string(font, Vector2(plot.end.x - 90, size.y - 15), str(render.get("parameter_unit", "")), HORIZONTAL_ALIGNMENT_RIGHT, 80, 11)
