@@ -101,6 +101,17 @@ class PolicyTests(unittest.TestCase):
         self.assertIn(".github/workflows/cantera-worker.yml", push_paths)
         self.assertEqual(policy.check_workflow(path.name, value, qualification=False), [])
 
+    def test_pyyaml_pin_lives_only_in_the_dev_extra(self):
+        import tomllib
+        root = Path(__file__).resolve().parents[2]
+        project = tomllib.loads((root / "pyproject.toml").read_text(encoding="utf-8"))
+        pins = [item for item in project["project"]["optional-dependencies"]["dev"]
+                if item.startswith("PyYAML==")]
+        self.assertEqual(pins, ["PyYAML==6.0.3"])
+        workflow = (root / ".github/workflows/workflow-contracts.yml").read_text(encoding="utf-8")
+        self.assertIn('python -m pip install -e ".[dev]"', workflow)
+        self.assertNotIn("PyYAML==", workflow)
+
 
 if __name__ == "__main__":
     unittest.main()

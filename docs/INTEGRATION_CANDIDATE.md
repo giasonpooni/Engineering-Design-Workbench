@@ -118,14 +118,17 @@ Their validation pages describe profile-specific evidence and limits. The
 curved study and RMS commands remain independently reproducible from those
 guides; the three benchmark commands above do not qualify them by association.
 
-For routing checks, use a tooling environment with the dependency documented in
-the Workflow contracts job:
+For routing checks, install the dev extra. It pins `PyYAML==6.0.3`. The
+Workflow contracts job installs that same extra and does not carry a second pin:
 
 ```sh
+python -m pip install -e '.[dev]'
 python -m unittest discover -s scripts/tests -p test_ci_policy.py -v
 python scripts/check_ci_policy.py
 actionlint -shellcheck= -pyflakes=
 ```
+
+A passing routing check validates CI selection policy only. It is not qualification.
 
 ## Validation record
 

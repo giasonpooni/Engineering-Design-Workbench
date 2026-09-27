@@ -213,6 +213,16 @@ def parser() -> argparse.ArgumentParser:
     doctor.add_argument("--stack-root", type=Path, help="Declared-workload role directories sra and scr")
     doctor.add_argument("--engine", type=Path, help="Explicit declared-workload execution engine")
     doctor.add_argument("--binding", type=Path, help="Existing native, reaction or interval runtime binding JSON")
+    capabilities = commands.add_parser(
+        "capabilities",
+        help="Print the provider-free capability index; this does not execute or qualify",
+    )
+    capability_actions = capabilities.add_subparsers(dest="capabilities_command")
+    capability_actions.add_parser("list", help="Print every indexed record")
+    capability_show = capability_actions.add_parser(
+        "show", help="Print one indexed record without executing it",
+    )
+    capability_show.add_argument("capability_id")
     from .learning import register_commands
     register_commands(commands)
     demo = commands.add_parser("demo", help="Save deterministic synthetic oscillator evidence")
@@ -471,6 +481,13 @@ def main(argv: list[str] | None = None) -> int:
             report = diagnose(args.profile, stack_root=args.stack_root, engine=args.engine, binding=args.binding)
             print_json(report)
             return 0 if report["status"] == "preflight_passed" else 2
+        if args.command == "capabilities":
+            from .capabilities import catalog, get
+            if args.capabilities_command in (None, "list"):
+                print_json(catalog())
+            else:
+                print_json(get(args.capability_id))
+            return 0
         if args.command == "math":
             from .learning import run_cli
             return run_cli(args)
