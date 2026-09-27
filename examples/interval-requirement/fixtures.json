@@ -1,0 +1,65 @@
+{
+  "schema": "ciw.interval-requirement-fixtures.v1",
+  "cases": [
+    {
+      "name": "dyadic-boundary",
+      "payload": {
+        "model": "scalar-square.v1",
+        "x": {"numerator": 3, "denominator": 1},
+        "variation_lower": {"numerator": -1, "denominator": 2},
+        "variation_upper": {"numerator": 1, "denominator": 2},
+        "error_limit": {"numerator": 1, "denominator": 4}
+      }
+    },
+    {
+      "name": "positive-box",
+      "payload": {
+        "model": "scalar-square.v1",
+        "x": {"numerator": 3, "denominator": 1},
+        "variation_lower": {"numerator": 1, "denominator": 1},
+        "variation_upper": {"numerator": 2, "denominator": 1},
+        "error_limit": {"numerator": 0, "denominator": 1}
+      }
+    },
+    {
+      "name": "mixed-box",
+      "payload": {
+        "model": "scalar-square.v1",
+        "x": {"numerator": 3, "denominator": 1},
+        "variation_lower": {"numerator": -1, "denominator": 1},
+        "variation_upper": {"numerator": 1, "denominator": 1},
+        "error_limit": {"numerator": 1, "denominator": 2}
+      }
+    },
+    {
+      "name": "rational-tenth-boundary",
+      "payload": {
+        "model": "scalar-square.v1",
+        "x": {"numerator": 3, "denominator": 1},
+        "variation_lower": {"numerator": 1, "denominator": 10},
+        "variation_upper": {"numerator": 1, "denominator": 10},
+        "error_limit": {"numerator": 1, "denominator": 100}
+      }
+    },
+    {
+      "name": "zero-width-zero-limit",
+      "payload": {
+        "model": "scalar-square.v1",
+        "x": {"numerator": 0, "denominator": 1},
+        "variation_lower": {"numerator": 0, "denominator": 1},
+        "variation_upper": {"numerator": 0, "denominator": 1},
+        "error_limit": {"numerator": 0, "denominator": 1}
+      }
+    },
+    {
+      "name": "negative-box",
+      "payload": {
+        "model": "scalar-square.v1",
+        "x": {"numerator": 3, "denominator": 1},
+        "variation_lower": {"numerator": -2, "denominator": 1},
+        "variation_upper": {"numerator": -1, "denominator": 1},
+        "error_limit": {"numerator": 1, "denominator": 2}
+      }
+    }
+  ]
+}

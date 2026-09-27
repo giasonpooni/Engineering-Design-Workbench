@@ -3,7 +3,8 @@
   "scr_revisions": [
     "75efd22340f7a9c8048a0f9b4f3e970b681a7cd8",
     "fd61efb3e0e5868d0f95ba27706b64a9afca595f",
-    "7e41b5a104526929c531a069a9872cf92ab277cc"
+    "7e41b5a104526929c531a069a9872cf92ab277cc",
+    "2a144e252607546ca6b20e6dd4613d3a4146758a"
   ],
   "julia_files": {
     "runtimes/native-interop/Project.toml": "sha256:3259c13ab8a6d8285eaf2f92d6a1562378be4be55ed8ea328b3cf78740ace9c5",
@@ -77,6 +78,33 @@
       "scr_trees": {
         "7e41b5a104526929c531a069a9872cf92ab277cc": "87d395d65a4e3ac1a7501f6ba17e61f8aefded1b"
       }
+    }
+  },
+  "interval_family": {
+    "files": {
+      "runtimes/interval-requirement/Project.toml": "sha256:2807b18661ea382d4bb82ba4f7f00431930b45c08ff7bcdfa3bb7877e20a2936",
+      "runtimes/interval-requirement/Manifest.toml": "sha256:f54471373c82d5b1ff993a3f13555c030fc5c90509fdd7cd16620fc84f2014e3",
+      "runtimes/interval-requirement/worker.jl": "sha256:10167228a6db63a2bdf51ae4637745f65561cffc29650592c101d1089f5f70c8"
+    },
+    "executable_sha256": "sha256:29a5cb5bde6a3f4a151f6e714591ca9344638303d9ed2a893ab31ada3de5d103",
+    "worker_identity": {
+      "worker_sha256": "sha256:10167228a6db63a2bdf51ae4637745f65561cffc29650592c101d1089f5f70c8",
+      "project_sha256": "sha256:2807b18661ea382d4bb82ba4f7f00431930b45c08ff7bcdfa3bb7877e20a2936",
+      "julia_version": "1.10.12",
+      "packages": {
+        "IntervalArithmetic": "1.0.12",
+        "JSON3": "1.14.3"
+      },
+      "threads": 1,
+      "platform": "x86_64-w64-mingw32",
+      "schema": "ciw.interval-julia-identity.v1",
+      "manifest_sha256": "sha256:f54471373c82d5b1ff993a3f13555c030fc5c90509fdd7cd16620fc84f2014e3"
+    },
+    "scr_revisions": [
+      "2a144e252607546ca6b20e6dd4613d3a4146758a"
+    ],
+    "scr_trees": {
+      "2a144e252607546ca6b20e6dd4613d3a4146758a": "e7c8751faec29c0e985d89df794c3a8374b704d5"
     }
   }
 }

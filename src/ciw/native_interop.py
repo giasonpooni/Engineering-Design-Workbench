@@ -91,6 +91,9 @@ def _depot(value):
 
 
 def _runtime(bindings):
+    if type(bindings) is dict and bindings.get("provider") == "intervals":
+        from .interval_runtime import runtime
+        return runtime(bindings)
     if type(bindings) is dict and "provider" in bindings:
         from .reaction_runtime import runtime
         return runtime(bindings)
@@ -168,6 +171,8 @@ def _invoke(s,bindings,runtime,execution_id):
     if current!=runtime: raise ValueError("Native runtime changed before invocation")
     if "reaction" in runtime and runtime["reaction"]["provider"] != s["provider"]:
         raise ValueError("Source and bound reaction provider family differ")
+    if "interval" in runtime and s["provider"] != "intervals":
+        raise ValueError("Source and bound interval provider family differ")
     request={"schema":REQUEST_SCHEMA,"request_id":"request-"+uuid.uuid4().hex,
              "parent_execution_id":execution_id,**{k:deepcopy(s[k]) for k in ("profile","arithmetic","semantics","payload")}}
     hello={"schema":"ciw.native-interop-handshake-request.v1","request_id":"handshake-"+uuid.uuid4().hex}
@@ -179,6 +184,9 @@ def _invoke(s,bindings,runtime,execution_id):
         root=Path(temp);exe=root/("scr-provider-host.exe" if os.name=="nt" else "scr-provider-host")
         exe.write_bytes(host_bytes);exe.chmod(0o700)
         command=[str(exe),"--provider",s["provider"],"--timeout-ms","180000"]
+        if s["provider"] == "intervals":
+            from .interval_runtime import command as interval_command
+            command += interval_command(s, bindings, runtime, artifacts, root, env)
         if s["provider"] in {"catalyst", "cantera"}:
             from .reaction_runtime import command as reaction_command
             command += reaction_command(s, bindings, runtime, artifacts, root, env)
@@ -257,8 +265,13 @@ def _runtime_link(runtime,s,hello,reply,response):
         raise ValueError("Invalid handshake response")
     profiles=(["reaction-a-to-b.v1"] if s["provider"] in {"catalyst", "cantera"} else ["affine-binary64.v1","affine-d256.v1","oscillator-force-energy.v1"] if s["provider"]=="cpp" else
               ["affine-binary64.v1","affine-d256.v1","oscillator-tsit5.v1","control-oscillator.v1","design-qp.v1"])
+    if s["provider"] == "intervals":
+        profiles = ["scalar-square-interval.v1"]
     if reply["profiles"]!=profiles or reply["limits"]!={"request_bytes":1048576,"response_bytes":4194304,"diagnostic_bytes":65536,"timeout_ms":180000,"max_requests":256}:
         raise ValueError("Host capabilities differ")
+    if s["provider"] == "intervals":
+        from .interval_runtime import runtime_link
+        return runtime_link(runtime, s, reply, response)
     if s["provider"] in {"catalyst", "cantera"}:
         from .reaction_runtime import runtime_link
         return runtime_link(runtime, s, reply, response)
@@ -362,11 +375,11 @@ class NativeInteropWorkflow:
             validate_metrics(check["metrics"])
             if check["max_abs_discrepancy"] != check["metrics"]["trajectory_max_abs_mol_m3"]:
                 raise ValueError("Retained reaction concentration discrepancy differs")
-        method={"reaction-a-to-b.v1":"independent_python_analytic_reaction_and_rate_law", "affine-binary64.v1":"independent_python_affine_binary64","affine-d256.v1":"independent_python_affine_integer", "oscillator-force-energy.v1":"independent_python_force_energy", "oscillator-tsit5.v1":"independent_python_analytic_oscillator", "control-oscillator.v1":"independent_python_analytic_oscillator", "design-qp.v1":"independent_python_objective_box_projected_gradient"}[s["profile"]]
-        if check["outcome"]!="passed" or check["method"]!=method or check["policy"]!=contract.POLICY or check["authority"]!=contract.AUTHORITY:
+        method={"scalar-square-interval.v1":"independent_python_rational_enclosure", "reaction-a-to-b.v1":"independent_python_analytic_reaction_and_rate_law", "affine-binary64.v1":"independent_python_affine_binary64","affine-d256.v1":"independent_python_affine_integer", "oscillator-force-energy.v1":"independent_python_force_energy", "oscillator-tsit5.v1":"independent_python_analytic_oscillator", "control-oscillator.v1":"independent_python_analytic_oscillator", "design-qp.v1":"independent_python_objective_box_projected_gradient"}[s["profile"]]
+        if check["outcome"]!="passed" or check["method"]!=method or canonical(check["policy"])!=canonical(contract.policy(s["profile"])) or check["authority"]!=contract.AUTHORITY:
             raise ValueError("Retained numerical check scope differs")
         contract.number(check["max_abs_discrepancy"],0,1e20)
-        if s["arithmetic"]=="exact-d256" and check["max_abs_discrepancy"]!=0: raise ValueError("Exact check cannot claim a nonzero discrepancy")
+        if s["arithmetic"] in {"exact-d256", "outward-binary64"} and check["max_abs_discrepancy"]!=0: raise ValueError("Exact check cannot claim a nonzero discrepancy")
         for v in (step["check_seconds"],t["process_seconds"]): contract.number(v,0,3600)
         numeric=_numeric(s,data["output"])
         if step["numerical_result"]!=numeric or step["numerical_result_id"]!=digest(numeric): raise ValueError("Native numerical identity differs")
@@ -405,7 +418,10 @@ class NativeInteropWorkflow:
             if bundle["source"]!=expected or bundle["configuration"]!=s["configuration"]: raise ValueError("Native source/configuration differs")
             contract.keys(bundle["runtimes"],{ROLE})
             r=bundle["runtimes"][ROLE]
-            contract.keys(r,{"schema","revision","source_tree","host_sha256","host_byte_count","source_to_binary_attestation","julia"} | ({"reaction"} if s["provider"] in {"catalyst", "cantera"} else set()))
+            contract.keys(r,{"schema","revision","source_tree","host_sha256","host_byte_count","source_to_binary_attestation","julia"} | ({"reaction"} if s["provider"] in {"catalyst", "cantera"} else {"interval"} if s["provider"] == "intervals" else set()))
+            if s["provider"] == "intervals":
+                from .interval_runtime import validate_runtime
+                validate_runtime(r)
             if s["provider"] in {"catalyst", "cantera"}:
                 from .reaction_runtime import validate_runtime
                 validate_runtime(r, s["provider"])

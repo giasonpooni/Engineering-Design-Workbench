@@ -154,3 +154,13 @@ the same native operation and SCR commitment path. Legacy `cpp`/`julia` profiles
 and runtime closures are preserved. Each new family requires its own qualified
 closure; see [reaction benchmark](REACTION_BENCHMARK.md) for the model, units,
 engine gates and limitations. No generic chemistry importer is enabled.
+
+## Additive interval provider family
+
+`scalar-square-interval.v1` uses the isolated `intervals` worker family on the
+same operation. It accepts exact reduced rational inputs and retains guaranteed
+binary64 enclosures, with an independent exact containment check. The
+[interval contract](INTERVAL_REQUIREMENT.md) defines the three requirement
+outcomes, dimensionless frame and absent physical uncertainty claim. The
+[qualification report](INTERVAL_REQUIREMENT_VALIDATION.md) records the observed
+Windows runtime, installed-wheel tests, fresh replay and provider-free reopen.

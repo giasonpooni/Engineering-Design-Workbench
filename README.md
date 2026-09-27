@@ -5,10 +5,17 @@
 **An evidence-backed environment for modelling, varying and evaluating
 engineered systems.**
 
-The **Parametric Design Testbed (PDT)** is a terminal-first laboratory for
-computational engineering design. It connects explicit design parameters and
-model relationships to computed responses, candidate comparisons and retained
-evidence.
+The **Parametric Design Testbed (PDT)** is a programmable computational
+laboratory for scientific modelling, experimentation and engineering design.
+It connects explicit models and parameters to computed responses, candidate
+comparisons and retained evidence. An investigation is the organizing object;
+the terminal, Python API and graphical clients are ways to operate it.
+
+The multi-domain platform is a development goal. Current capabilities remain
+bounded by their implemented profiles and validation records in the
+[integration coverage](docs/INTEGRATION_COVERAGE.md). The
+[provider development sequence](docs/PROVIDER_DEVELOPMENT.md) separates the next
+executable increments from architectural references and research candidates.
 
 Engineering design is the purpose; parametric variation is the method. The
 testbed is where models, numerical operations and verification methods are
@@ -262,6 +269,10 @@ in [Workbench overview](docs/WORKBENCH_OVERVIEW.md#evidence-classes).
 The [native interoperability guide](docs/NATIVE_INTEROP.md) describes the bounded
 SCR Rust/C++, JuliaControl and JuMP profiles, exact-byte retention, numerical
 checks and the separate SP1 proof gate.
+The [scalar interval requirement](docs/INTERVAL_REQUIREMENT.md) adds a bounded
+JuliaIntervals calculation on that same operation; its
+[validation record](docs/INTERVAL_REQUIREMENT_VALIDATION.md) distinguishes exact
+containment, inconclusive requirements and remaining platform gates.
 
 ## Development and validation
 

@@ -22,6 +22,10 @@ including its unresolved SP1 and platform gates.
 The later [reaction benchmark validation](REACTION_BENCHMARK_VALIDATION.md)
 records the bounded Catalyst/Cantera profile on that same native operation;
 it does not add chemical measurement, heat coupling or evidence admission.
+The [interval requirement qualification](INTERVAL_REQUIREMENT_VALIDATION.md)
+records a scalar polynomial enclosure profile on the same native operation,
+with exact rational containment and explicit inconclusive outcomes. It adds no
+probabilistic uncertainty or physical validation claim.
 
 ## Shared operating session
 

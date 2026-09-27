@@ -23,6 +23,7 @@ PROFILES = {
     "control-oscillator.v1": {"julia"},
     "design-qp.v1": {"julia"},
     "reaction-a-to-b.v1": {"catalyst", "cantera"},
+    "scalar-square-interval.v1": {"intervals"},
 }
 AFFINE_SEMANTICS = {"layout": "row-major", "input_units": "dimensionless",
                     "output_units": "dimensionless", "frame": "declared-cartesian", "clock": "not-applicable"}
@@ -65,6 +66,9 @@ def vector(value, size=None, *, exact=False, bound=1e6):
 
 
 def semantics(profile):
+    if profile == "scalar-square-interval.v1":
+        from .interval_contract import SEMANTICS
+        return deepcopy(SEMANTICS)
     if profile == "reaction-a-to-b.v1":
         from .reaction_contract import SEMANTICS
         return deepcopy(SEMANTICS)
@@ -72,7 +76,16 @@ def semantics(profile):
 
 
 def arithmetic(profile):
+    if profile == "scalar-square-interval.v1":
+        return "outward-binary64"
     return "exact-d256" if profile == "affine-d256.v1" else "binary64"
+
+
+def policy(profile):
+    if profile == "scalar-square-interval.v1":
+        from .interval_contract import CONFIGURATION
+        return deepcopy(CONFIGURATION)
+    return deepcopy(POLICY)
 
 
 def model(value):
@@ -93,6 +106,9 @@ def times(value, *, singleton=False, uniform=False):
 
 
 def validate_payload(profile, p):
+    if profile == "scalar-square-interval.v1":
+        from .interval_contract import validate_payload as validate_interval
+        return validate_interval(p)
     if profile == "reaction-a-to-b.v1":
         from .reaction_contract import validate_payload as validate_reaction
         return validate_reaction(p)
@@ -147,7 +163,7 @@ def source(raw):
         raise ValueError("Unsupported native source/provider profile")
     if type(s["experiment_id"]) is not str or not 1 <= len(s["experiment_id"]) <= 128:
         raise ValueError("Require bounded experiment identity")
-    if s["arithmetic"] != arithmetic(s["profile"]) or s["semantics"] != semantics(s["profile"]) or s["configuration"] != POLICY:
+    if s["arithmetic"] != arithmetic(s["profile"]) or s["semantics"] != semantics(s["profile"]) or canonical(s["configuration"]) != canonical(policy(s["profile"])):
         raise ValueError("Native arithmetic, semantics or check policy differs")
     validate_payload(s["profile"], s["payload"])
     if s["upstream"] is not None:
@@ -162,7 +178,7 @@ def source(raw):
 def make_source(profile, provider, payload, *, experiment_id="native-interop", upstream=None):
     s = {"schema": SCHEMA, "experiment_id": experiment_id, "provider": provider, "profile": profile,
          "arithmetic": arithmetic(profile), "semantics": semantics(profile), "payload": deepcopy(payload),
-         "configuration": deepcopy(POLICY), "upstream": deepcopy(upstream)}
+         "configuration": policy(profile), "upstream": deepcopy(upstream)}
     return source(canonical(s))
 
 
@@ -233,6 +249,9 @@ def compare(expected, actual, *, exact=False):
 def validate_output(s, data):
     """Structural output checks usable offline; no model evaluation."""
     profile,p=s["profile"],s["payload"]
+    if profile == "scalar-square-interval.v1":
+        from .interval_contract import validate_output as validate_interval
+        return validate_interval(s, data)
     if profile == "reaction-a-to-b.v1":
         from .reaction_contract import validate_output as validate_reaction
         return validate_reaction(s, data)
@@ -288,6 +307,9 @@ def validate_output(s, data):
 def check_output(s, data):
     """Fresh independent reference check. Never called by retained inspection."""
     p, profile = s["payload"], s["profile"]
+    if profile == "scalar-square-interval.v1":
+        from .interval_contract import check_output as check_interval
+        return check_interval(s, data)
     if profile == "reaction-a-to-b.v1":
         from .reaction_contract import check_output as check_reaction
         return check_reaction(s, data)

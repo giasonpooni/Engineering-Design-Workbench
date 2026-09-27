@@ -28,6 +28,7 @@ existing benches.
 | Flat Torus Geodesic Reference | Pinned native area-one lattice and winding trajectory, shared inspection/replay | `ciw serve --flat-torus-repo /trusted/ftr`; [contract](GEODESIC_REFERENCES.md) |
 | Curved Surface Geodesic Sensitivity | Pinned native constant-curvature Jacobi transfer and declared covariance | `ciw serve --curved-surface-repo /trusted/csg`; [contract](GEODESIC_REFERENCES.md); [candidate study](CURVED_PATH_STUDY.md) |
 | Reaction A-to-B benchmark | Bounded Catalyst/Cantera profiles on the native SCR operation; mathematical reference only | [Domain, provider qualification and operator gate](REACTION_BENCHMARK.md) |
+| Scalar linearization requirement | JuliaIntervals enclosure of a declared polynomial remainder; exact rational containment check | [Interval profile, outcomes and qualification](INTERVAL_REQUIREMENT.md) |
 | SCR/SP1 registered heat computation | Bounded integer execution and proof verification; exact Linux runtime required | `ciw serve --computation-repo ... --computation-engine ... --sp1-prover ... --sp1-heat-guest ...`; [full setup and contract](PROVED_HEAT.md) |
 | Variational free-energy sensor fusion | Synthetic curved-surface inference with native CSG/GSIE/PLSR, exact Gaussian reference and retained model failure cases | `ciw serve --free-energy-stack-root /trusted/free-energy`; [mathematics, setup and six cases](VARIATIONAL_FREE_ENERGY.md) |
 | GPU energy to accuracy | Actual NVML/CUDA host capture; built-in retained-log analysis, shared view and replay | `ciw energy probe`, `record`, `replay`; [contract and operating guide](ENERGY_ACCURACY.md) |
@@ -383,4 +384,3 @@ setup and workbench commands, input ordering/units/time conventions, versioned
 output and status semantics, saved-evidence and replay instructions, verification
 state and limits, and links to validation evidence. A successful installation or
 standalone example alone does not establish a completed workbench integration.
-
