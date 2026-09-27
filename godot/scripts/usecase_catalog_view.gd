@@ -174,7 +174,7 @@ func _make_usecase_card(record: Dictionary) -> PanelContainer:
     var lesson := str(scenario.get("lesson", indexed.get("sentence", data.get("caption", "retained presentation"))))
     var source := str(data.get("source", indexed.get("source", "HOST_FROM_OWNED_CONFIG")))
     details.add_child(Kit.make_label("%s  ·  %s" % [lesson, source], 11, Kit.MUTED))
-    details.add_child(Kit.make_label("%s/%s" % [str(record["folder"]), str(record["file"])] , 10, Kit.MUTED))
+    details.add_child(Kit.make_label("%s/%s" % [str(record["folder"]), str(record["file"])], 10, Kit.MUTED))
     var verify := Kit.verification_label(data)
     var verify_label := Kit.make_label(verify, 10, Kit.AMBER)
     verify_label.horizontal_alignment = HORIZONTAL_ALIGNMENT_RIGHT
