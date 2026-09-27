@@ -23,33 +23,42 @@ permissions:
   contents: read
 
 concurrency:
-  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || (github.event_name == 'push' && github.ref) || github.run_id }}
   cancel-in-progress: true
 
 jobs:
   exchange:
+    env:
+      CIW_PROVIDER_READ_TOKEN: ${{ ((github.event_name == 'push' && (github.ref == 'refs/heads/main' || startsWith(github.ref, 'refs/tags/'))) || github.event_name == 'workflow_dispatch') && secrets.CIW_PROVIDER_READ_TOKEN || '' }}
     runs-on: ubuntu-latest
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
+      - name: Configure read-only private-provider access
+        run: python scripts/ci_provider_access.py configure
       - uses: actions/checkout@v4
         with:
           repository: giasonpooni/State-Estimation-Evaluation-Testbed
+          token: ${{ env.CIW_PROVIDER_READ_TOKEN }}
           ref: 542e672be512bf43b61253f2b2a43cd967cb3062
           path: .exchange/set
           persist-credentials: false
       - uses: actions/checkout@v4
         with:
           repository: giasonpooni/Provenance-Preserving-Data-Acquisition
+          token: ${{ env.CIW_PROVIDER_READ_TOKEN }}
           ref: a29845e13e55de30b24ae752b896058041d653e6
           path: .exchange/acquisition
           persist-credentials: false
       - uses: actions/checkout@v4
         with:
           repository: giasonpooni/Scientific-Computation-Runtime
+          token: ${{ env.CIW_PROVIDER_READ_TOKEN }}
           ref: 5f0409743e0098a0691a88302a9b3dcdcbcf25fd
           path: .exchange/runtime
           persist-credentials: false
