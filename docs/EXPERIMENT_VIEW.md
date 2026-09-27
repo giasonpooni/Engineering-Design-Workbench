@@ -119,7 +119,8 @@ does not treat that parameter as event time. Strip plots label only the first an
 last declared parameter samples. Plane plots label the first and last declared
 points the same way and still draw no connecting line. Jacobi inspections stamp `canvas_id`
 and `canvas_title` on each strip and copy those strips onto `system_canvases` so
-a mixed-unit pose panel keeps a named arclength companion. Mesh-path inspections also copy the
+a mixed-unit pose panel keeps a named arclength companion. That companion row
+names the retained path frame and parameter unit next to the endpoint labels. Mesh-path inspections also copy the
 same descriptor onto `system_render` so the 3D canvas remains available while a
 sibling scalar panel is selected. The mesh descriptor carries `canvas_id` and
 `canvas_title` from the declared coordinate frame so the 3D viewport can name

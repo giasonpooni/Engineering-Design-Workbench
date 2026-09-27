@@ -300,6 +300,13 @@ func _endpoint_phrase(render: Dictionary) -> String:
 
 
 func _frame_phrase(render: Dictionary) -> String:
+	if str(render.get("kind", "")) == "strip":
+		var bits: Array[String] = []
+		for key in ["parameter_name", "frame", "parameter_unit"]:
+			var value := str(render.get(key, ""))
+			if not value.is_empty() and bits.find(value) < 0:
+				bits.append(value)
+		return " · ".join(bits)
 	var identity := str(render.get("canvas_id", ""))
 	var frame := str(render.get("frame", ""))
 	if not identity.is_empty():

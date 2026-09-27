@@ -90,6 +90,12 @@ func _run() -> void:
 					push_error("Companion endpoints were not listed: " + path)
 					quit(1)
 					return
+				if value.get("system_render", {}).get("kind") == "strip":
+					var frame := str(value.get("system_render", {}).get("frame", ""))
+					if not frame.is_empty() and not view._numbers.text.contains(frame):
+						push_error("Strip path frame was not listed: " + path)
+						quit(1)
+						return
 				var overlays = value.get("system_render", {}).get("overlays", [])
 				if overlays is Array and not overlays.is_empty():
 					var constraint := str(overlays[0].get("constraint_id", overlays[0].get("overlay_title", "")))
