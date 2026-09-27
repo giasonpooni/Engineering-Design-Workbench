@@ -130,7 +130,8 @@ or quotient visible while a residual or scalar panel is selected. When more than
 one declared plane exists, `system_canvases` lists those copies and the desktop
 may switch among them. Switching does not resample, unwrap, or project the path.
 Each copy carries `canvas_id` and `canvas_title` so the plot can name the active
-declared plane. That view-level copy is still presentation.
+declared plane. The companion selector and numeric table also show the active
+copy's first and last declared samples. That view-level copy is still presentation.
 
 ## Read-only projection protocol
 

@@ -75,6 +75,11 @@ func _run() -> void:
 					push_error("Companion canvas identity was not labeled: " + path)
 					quit(1)
 					return
+				var ends := str(value.get("system_render", {}).get("start_label", ""))
+				if not ends.is_empty() and not view._numbers.text.contains(ends):
+					push_error("Companion endpoints were not listed: " + path)
+					quit(1)
+					return
 		print("PASS: retained ", value.kind, " occurrence; ", value.panels.size(), " panels")
 	view.queue_free()
 	reader.free()

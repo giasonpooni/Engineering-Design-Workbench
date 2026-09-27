@@ -276,6 +276,16 @@ func apply_view(value: Dictionary) -> void:
 	_show_json(context)
 
 
+func _endpoint_phrase(render: Dictionary) -> String:
+	var start := str(render.get("start_label", render.get("source_label", "")))
+	var end := str(render.get("end_label", render.get("target_label", "")))
+	if start.is_empty() and end.is_empty():
+		return ""
+	if end.is_empty() or end == start:
+		return start
+	return start + " → " + end
+
+
 func _fill_system_canvases() -> void:
 	if _canvases == null:
 		return
@@ -285,7 +295,11 @@ func _fill_system_canvases() -> void:
 	var default_id := str(view.get("system_canvas_id", ""))
 	for i in items.size():
 		var item: Dictionary = items[i]
-		_canvases.add_item(str(item.get("title", item.get("id", "canvas"))))
+		var title := str(item.get("title", item.get("id", "canvas")))
+		var ends := _endpoint_phrase(item.get("render", {}))
+		if not ends.is_empty():
+			title += " · " + ends
+		_canvases.add_item(title)
 		if str(item.get("id", "")) == default_id:
 			selected = i
 	if _canvases.item_count > 0:
@@ -331,6 +345,9 @@ func _select_panel(index: int) -> void:
 	rows.append("Full covariance: " + JSON.stringify(panel.covariance))
 	if panel.has("render"):
 		rows.append("Presentation render: " + str(panel.render.get("kind", "")) + " · " + str(panel.render.get("note", panel.render.get("projection", "display only"))))
+		var panel_ends := _endpoint_phrase(panel.render)
+		if not panel_ends.is_empty():
+			rows.append("Panel endpoints: " + panel_ends + " · display only")
 	if view.get("system_render") != null:
 		var canvas_id := str(view.get("system_canvas_id", ""))
 		if _canvases != null and _canvases.visible and _canvases.selected >= 0:
@@ -338,6 +355,9 @@ func _select_panel(index: int) -> void:
 			if _canvases.selected < items.size():
 				canvas_id = str(items[_canvases.selected].get("id", canvas_id))
 		rows.append("View system canvas: " + system_kind + (" · " + canvas_id if not canvas_id.is_empty() else "") + " · display only")
+		var companion_ends := _endpoint_phrase(system_render)
+		if not companion_ends.is_empty():
+			rows.append("Companion endpoints: " + companion_ends + " · display only")
 	rows.append("Basis: " + JSON.stringify(panel.context))
 	rows.append("Source: " + JSON.stringify(panel.provenance))
 	_numbers.text = "\n".join(rows)
