@@ -6,12 +6,24 @@ var panel: Dictionary = {}
 
 
 func set_panel(value: Dictionary) -> void:
+	var render: Dictionary = value.get("render", {})
+	var panel_id := str(value.get("panel_id", ""))
+	var canvas_id := str(render.get("canvas_id", ""))
+	if not value.has("values") and not panel_id.is_empty() and not canvas_id.is_empty() and panel_id != canvas_id:
+		panel = {}
+		queue_redraw()
+		return
 	panel = value
 	queue_redraw()
 
 
 func _draw() -> void:
 	var render: Dictionary = panel.get("render", {}) if not panel.is_empty() else {}
+	var panel_id := str(panel.get("panel_id", ""))
+	var canvas_id := str(render.get("canvas_id", ""))
+	if not panel.has("values") and not panel_id.is_empty() and not canvas_id.is_empty() and panel_id != canvas_id:
+		draw_string(ThemeDB.fallback_font, Vector2(20, 40), "Companion canvas identity does not match the detached descriptor", HORIZONTAL_ALIGNMENT_LEFT, -1, 14)
+		return
 	var kind := str(render.get("kind", ""))
 	if kind == "plane2d":
 		# Retained sample identities. Never honor render.connect.

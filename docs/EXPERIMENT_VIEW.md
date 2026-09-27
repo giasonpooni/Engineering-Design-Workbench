@@ -149,7 +149,8 @@ may switch among them. Switching does not resample, unwrap, or project the path.
 A canvas entry id must match the detached descriptor's canvas_id; a cover copy
 cannot be labeled as the quotient by editing the presentation object. The entry
 title must match the detached canvas_title the same way. The Workbench selector
-ignores an entry whose render.canvas_id does not match that id. Companion plane rows name the declared frame (`area-one-flat-quotient` or the
+ignores an entry whose render.canvas_id does not match that id. The companion
+plot draws nothing when payload panel_id and render.canvas_id disagree. Companion plane rows name the declared frame (`area-one-flat-quotient` or the
 GTE coordinate frame). The plane plot axis caption uses that same frame. Copy ids stay on the canvas selector. Each copy carries `canvas_id` and `canvas_title` so the plot can name the active
 declared plane. The companion selector and numeric table also show the active
 copy's first and last declared samples. When the active copy carries a declared

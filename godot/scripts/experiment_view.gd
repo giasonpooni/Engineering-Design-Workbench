@@ -403,40 +403,26 @@ func _canvas_render() -> Dictionary:
 	if not identity.is_empty() and str(fallback.get("canvas_id", "")) not in ["", identity]:
 		return {}
 	return fallback
-	if _canvases == null:
-		return
-	_canvases.clear()
-	var items: Array = view.get("system_canvases", [])
-	var selected := 0
-	var default_id := str(view.get("system_canvas_id", ""))
-	for i in items.size():
-		var item: Dictionary = items[i]
-		var title := str(item.get("title", item.get("id", "canvas")))
-		var frame := _frame_phrase(item.get("render", {}))
-		if not frame.is_empty() and title.find(frame) < 0:
-			title += " · " + frame
-		var ends := _endpoint_phrase(item.get("render", {}))
-		if not ends.is_empty():
-			title += " · " + ends
-		var extent := _mesh_extent_phrase(item.get("render", {}))
-		if not extent.is_empty() and title.find(extent) < 0:
-			title += " · " + extent
-		var overlays := _overlay_phrase(item.get("render", {}))
-		if not overlays.is_empty():
-			title += " · " + overlays
-		_canvases.add_item(title)
-		if str(item.get("id", "")) == default_id:
-			selected = i
-	if _canvases.item_count > 0:
-		_canvases.select(selected)
 
 
-func _canvas_render() -> Dictionary:
-	var items: Array = view.get("system_canvases", [])
-	if _canvases != null and _canvases.selected >= 0 and _canvases.selected < items.size():
-		return items[_canvases.selected].get("render", {})
-	return view.get("system_render", {})
-
+func _companion_payload(system_render: Dictionary) -> Dictionary:
+	if system_render.is_empty():
+		return {}
+	var payload := {"render": system_render}
+	var panel_id := str(system_render.get("canvas_id", ""))
+	var title := str(system_render.get("canvas_title", ""))
+	if _canvases != null and _canvases.selected >= 0 and _canvases.selected < _canvases.item_count:
+		panel_id = str(_canvases.get_item_metadata(_canvases.selected))
+		if title.is_empty():
+			title = str(_canvases.get_item_text(_canvases.selected))
+	var offered := str(system_render.get("canvas_id", ""))
+	if not offered.is_empty() and not panel_id.is_empty() and offered != panel_id:
+		return {}
+	if not panel_id.is_empty():
+		payload["panel_id"] = panel_id
+	if not title.is_empty():
+		payload["title"] = title
+	return payload
 
 func _select_panel(index: int) -> void:
 	var panel: Dictionary = view.panels[index]
@@ -456,11 +442,7 @@ func _select_panel(index: int) -> void:
 	if _canvases != null:
 		_canvases.visible = show_companion and _canvases.item_count > 1
 	if show_companion:
-		var payload := {"render": system_render}
-		if _canvases != null and _canvases.selected >= 0 and _canvases.selected < _canvases.item_count:
-			payload["panel_id"] = str(_canvases.get_item_metadata(_canvases.selected))
-			payload["title"] = str(system_render.get("canvas_title", _canvases.get_item_text(_canvases.selected)))
-		_system_plot.set_panel(payload)
+		_system_plot.set_panel(_companion_payload(system_render))
 	else:
 		_system_plot.set_panel({})
 	var rows: Array[String] = []
