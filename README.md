@@ -1,8 +1,8 @@
-# Curved-Surface Geodesic Sensitivity Runtime
+# Curved Surface Runtime
 
 Part of **Notation Systems' computational instrumentation and evidence infrastructure** for industrial and cyber-physical systems.
 
-[Stack map](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/STACK.md) · [Component role and interfaces](docs/STACK_ROLE.md)
+[Notations Engineering Terminal (CIW)](https://github.com/giasonpooni/Notations-Engineering-Terminal) · [Stack map](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/main/docs/STACK.md) · [Component role and interfaces](docs/STACK_ROLE.md)
 
 **How a small error in how a path is started grows into a deviation further
 along a curved surface — and exactly how far that prediction can be trusted.**
@@ -11,6 +11,11 @@ Path sensitivity for curved-surface manufacturing and robotic inspection, in
 two layers: deterministic tolerance contracts on top, and a numerical engine
 underneath checked against closed-form references, convergence behavior and
 declared numerical invariants.
+
+The current project title is **Curved Surface Runtime**, formerly
+**Curved-Surface Geodesic Sensitivity Runtime**. This title does not broaden the
+implemented numerical scope. The `geodesic_testbed` package, boundary schemas,
+provenance strings, report digests and historical runtime pins remain unchanged.
 
 ## Parametric-surface computation
 
@@ -29,7 +34,7 @@ S["Declared surface and chart"] --> G{"Initial chart valid?"}
 
 Solid arrows show the implemented parametric-surface path. A chart exit during integration is reported in diagnostics. The transfer coordinates are transverse offset and heading; deterministic tolerance bounds and covariance propagation are separate uses of that map. Reference checks support numerical scope only: this repository supplies neither a triangle-mesh solver nor physical validation.
 
-[Instrumentation diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md).
+[Instrumentation diagram atlas](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/main/docs/DIAGRAMS.md).
 
 ![Curvature-aware path sensitivity on parametric surfaces](figures/surfaces-testbed-v1.png)
 
