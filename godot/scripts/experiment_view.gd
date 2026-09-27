@@ -276,7 +276,17 @@ func apply_view(value: Dictionary) -> void:
 	_show_json(context)
 
 
-func _endpoint_phrase(render: Dictionary) -> String:
+func _overlay_phrase(render: Dictionary) -> String:
+	var names: Array[String] = []
+	for overlay in render.get("overlays", []):
+		if typeof(overlay) != TYPE_DICTIONARY:
+			continue
+		if overlay.get("kind") != "declared_circle" or overlay.get("source") != "declared_constraint":
+			continue
+		var name := str(overlay.get("overlay_title", overlay.get("constraint_id", "")))
+		if not name.is_empty() and names.find(name) < 0:
+			names.append(name)
+	return " · ".join(names)
 	var start := str(render.get("start_label", render.get("source_label", "")))
 	var end := str(render.get("end_label", render.get("target_label", "")))
 	if start.is_empty() and end.is_empty():
@@ -299,6 +309,9 @@ func _fill_system_canvases() -> void:
 		var ends := _endpoint_phrase(item.get("render", {}))
 		if not ends.is_empty():
 			title += " · " + ends
+		var overlays := _overlay_phrase(item.get("render", {}))
+		if not overlays.is_empty():
+			title += " · " + overlays
 		_canvases.add_item(title)
 		if str(item.get("id", "")) == default_id:
 			selected = i
@@ -348,6 +361,9 @@ func _select_panel(index: int) -> void:
 		var panel_ends := _endpoint_phrase(panel.render)
 		if not panel_ends.is_empty():
 			rows.append("Panel endpoints: " + panel_ends + " · display only")
+		var panel_overlays := _overlay_phrase(panel.render)
+		if not panel_overlays.is_empty():
+			rows.append("Panel constraint: " + panel_overlays + " · declared_constraint · display only")
 	if view.get("system_render") != null:
 		var canvas_id := str(view.get("system_canvas_id", ""))
 		if _canvases != null and _canvases.visible and _canvases.selected >= 0:
@@ -358,6 +374,9 @@ func _select_panel(index: int) -> void:
 		var companion_ends := _endpoint_phrase(system_render)
 		if not companion_ends.is_empty():
 			rows.append("Companion endpoints: " + companion_ends + " · display only")
+		var companion_overlays := _overlay_phrase(system_render)
+		if not companion_overlays.is_empty():
+			rows.append("Companion constraint: " + companion_overlays + " · declared_constraint · display only")
 	rows.append("Basis: " + JSON.stringify(panel.context))
 	rows.append("Source: " + JSON.stringify(panel.provenance))
 	_numbers.text = "\n".join(rows)

@@ -80,6 +80,13 @@ func _run() -> void:
 					push_error("Companion endpoints were not listed: " + path)
 					quit(1)
 					return
+				var overlays = value.get("system_render", {}).get("overlays", [])
+				if overlays is Array and not overlays.is_empty():
+					var constraint := str(overlays[0].get("constraint_id", overlays[0].get("overlay_title", "")))
+					if not constraint.is_empty() and not view._numbers.text.contains(constraint):
+						push_error("Companion constraint was not listed: " + path)
+						quit(1)
+						return
 		print("PASS: retained ", value.kind, " occurrence; ", value.panels.size(), " panels")
 	view.queue_free()
 	reader.free()
