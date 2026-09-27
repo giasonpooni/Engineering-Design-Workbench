@@ -61,6 +61,11 @@ func _run() -> void:
 					push_error("Mesh canvas identity was not labeled: " + path)
 					quit(1)
 					return
+				var source := str(value.get("system_render", {}).get("source_label", ""))
+				if not source.is_empty() and not view._numbers.text.contains(source):
+					push_error("Mesh source vertex was not listed: " + path)
+					quit(1)
+					return
 			if value.get("system_render", {}).get("kind") in ["plane2d", "strip"] and render.get("kind") != value.system_render.kind:
 				if not view._system_plot.visible or view._system_plot.panel.get("render", {}).get("kind") != value.system_render.kind:
 					push_error("Companion canvas was not applied: " + path)

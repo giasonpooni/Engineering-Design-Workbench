@@ -360,7 +360,8 @@ func _select_panel(index: int) -> void:
 		rows.append("Presentation render: " + str(panel.render.get("kind", "")) + " · " + str(panel.render.get("note", panel.render.get("projection", "display only"))))
 		var panel_ends := _endpoint_phrase(panel.render)
 		if not panel_ends.is_empty():
-			rows.append("Panel endpoints: " + panel_ends + " · display only")
+			var panel_row := "Panel vertices" if str(panel.render.get("kind", "")) == "mesh" else "Panel endpoints"
+			rows.append(panel_row + ": " + panel_ends + " · display only")
 		var panel_overlays := _overlay_phrase(panel.render)
 		if not panel_overlays.is_empty():
 			rows.append("Panel constraint: " + panel_overlays + " · declared_constraint · display only")
@@ -373,7 +374,8 @@ func _select_panel(index: int) -> void:
 		rows.append("View system canvas: " + system_kind + (" · " + canvas_id if not canvas_id.is_empty() else "") + " · display only")
 		var companion_ends := _endpoint_phrase(system_render)
 		if not companion_ends.is_empty():
-			rows.append("Companion endpoints: " + companion_ends + " · display only")
+			var row_name := "Companion vertices" if system_kind == "mesh" else "Companion endpoints"
+			rows.append(row_name + ": " + companion_ends + " · display only")
 		var companion_overlays := _overlay_phrase(system_render)
 		if not companion_overlays.is_empty():
 			rows.append("Companion constraint: " + companion_overlays + " · declared_constraint · display only")

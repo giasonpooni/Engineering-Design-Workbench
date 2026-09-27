@@ -3,7 +3,7 @@ from copy import deepcopy
 from fractions import Fraction
 
 from .experiment_view import SCHEMA, _panel
-from .view_render import attach_system, declared_mesh
+from .view_render import attach_system_canvases, declared_mesh
 
 
 def project(record, source, declaration, revision):
@@ -74,5 +74,9 @@ def project(record, source, declaration, revision):
         "raw_observations": [], "raw_declaration": declaration, "verification": bundle["verification"], "runtimes": bundle["runtimes"],
         "authority": {"read_only": True, "numerical_replay": "not_performed_by_inspection", "state_admission": "not_performed"}})
     if record["kind"] == "mesh-path" and panels and panels[0].get("render"):
-        attach_system(view, panels[0]["render"])
+        attach_system_canvases(view, [{
+            "id": panels[0]["panel_id"],
+            "title": panels[0].get("title") or "Declared mesh path",
+            "render": panels[0]["render"],
+        }], default_id=panels[0]["panel_id"])
     return view
