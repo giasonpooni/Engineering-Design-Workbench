@@ -327,6 +327,9 @@ func _identity_extra(render: Dictionary) -> String:
 	var bits: Array[String] = []
 	var identity := _canvas_id_phrase(render)
 	var frame := _frame_phrase(render)
+	var declared := _declared_frame(render)
+	if not declared.is_empty() and not frame.is_empty() and not frame.contains("frame " + declared):
+		frame = frame.replace(declared, "frame " + declared)
 	var extent := _mesh_extent_phrase(render)
 	if not identity.is_empty():
 		bits.append(identity)
