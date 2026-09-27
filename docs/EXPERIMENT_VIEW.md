@@ -109,7 +109,10 @@ client and the declared coordinates for the optional 3D canvas; neither projecti
 is a surveyed view. A strip plot uses the retained parameter as its abscissa and
 does not treat that parameter as event time. Mesh-path inspections also copy the
 same descriptor onto `system_render` so the 3D canvas remains available while a
-sibling scalar panel is selected. That view-level copy is still presentation.
+sibling scalar panel is selected. Circle-geometry and flat-torus inspections copy
+the declared plane onto `system_render` so a companion canvas keeps the constraint
+or quotient visible while a residual or scalar panel is selected. That view-level
+copy is still presentation.
 
 ## Read-only projection protocol
 

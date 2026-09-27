@@ -130,3 +130,17 @@ def test_attach_system_copies_the_mesh_and_survives_panel_mutation():
     assert view["system_render"]["vertices"][0][0] == 0
     with pytest.raises(ValueError):
         attach_system(view, {"kind": "mesh"})
+
+
+def test_attach_system_keeps_a_declared_plane_and_circle_overlay():
+    panel = {"labels": ["o0.x", "o0.y"], "values": [1.0, 0.0], "units": ["m", "m"]}
+    overlay = declared_circle_overlay(
+        {"kind": "circle", "center_m": [0.0, 0.0], "radius_m": 1.0, "constraint_id": "reference-circle"})
+    attach_plane(panel, frame="bench-plane", overlays=[overlay])
+    view = {"kind": "geometric-circle", "panels": [panel]}
+    attach_system(view, panel["render"])
+    assert view["system_render"]["kind"] == "plane2d"
+    assert view["system_render"]["overlays"][0]["source"] == "declared_constraint"
+    panel["render"]["points"][0]["x"] = 99
+    assert view["system_render"]["points"][0]["x"] == 1.0
+

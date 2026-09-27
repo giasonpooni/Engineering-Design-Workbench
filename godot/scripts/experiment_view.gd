@@ -15,6 +15,7 @@ var _summary: Label
 var _status: Label
 var _panels: OptionButton
 var _plot = Plot.new()
+var _system_plot = Plot.new()
 var _system = SystemsView.new()
 var _numbers: TextEdit
 var _graph: Tree
@@ -71,6 +72,9 @@ func _ready() -> void:
 	_plot.custom_minimum_size.y = 220
 	_plot.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scientific.add_child(_plot)
+	_system_plot.custom_minimum_size.y = 180
+	_system_plot.visible = false
+	scientific.add_child(_system_plot)
 	_system.custom_minimum_size.y = 220
 	_system.visible = false
 	scientific.add_child(_system)
@@ -152,6 +156,8 @@ func apply_snapshot(snapshot: Dictionary) -> void:
 		selected_result = ""
 		view.clear()
 		_plot.set_panel({})
+		_system_plot.set_panel({})
+		_system_plot.visible = false
 		if _system != null:
 			_system.set_system({})
 		_panels.clear()
@@ -191,6 +197,8 @@ func _select_bundle(bundle_id: String) -> void:
 	selected_result = ""
 	view.clear()
 	_plot.set_panel({})
+	_system_plot.set_panel({})
+	_system_plot.visible = false
 	if _system != null:
 		_system.set_system({})
 	_numbers.text = ""
@@ -258,10 +266,20 @@ func apply_view(value: Dictionary) -> void:
 func _select_panel(index: int) -> void:
 	var panel: Dictionary = view.panels[index]
 	_plot.set_panel(panel)
-	var render: Dictionary = panel.get("render", {})
-	if str(render.get("kind", "")) != "mesh":
-		render = view.get("system_render", {})
-	_system.set_system(render)
+	var panel_render: Dictionary = panel.get("render", {})
+	var panel_kind := str(panel_render.get("kind", ""))
+	var system_render: Dictionary = view.get("system_render", {})
+	var system_kind := str(system_render.get("kind", ""))
+	if panel_kind == "mesh":
+		_system.set_system(panel_render)
+	else:
+		_system.set_system(system_render)
+	if system_kind == "plane2d" and panel_kind != "plane2d":
+		_system_plot.visible = true
+		_system_plot.set_panel({"render": system_render})
+	else:
+		_system_plot.visible = false
+		_system_plot.set_panel({})
 	var rows: Array[String] = []
 	for i in panel.values.size():
 		rows.append("%s = %s %s" % [panel.labels[i], JSON.stringify(panel.values[i]), panel.units[i]])

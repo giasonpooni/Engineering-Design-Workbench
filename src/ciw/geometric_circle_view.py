@@ -3,7 +3,7 @@ from copy import deepcopy
 
 from .experiment_view import SCHEMA, _panel
 from .geometric_circle import request
-from .view_render import attach_plane, declared_circle_overlay
+from .view_render import attach_plane, attach_system, declared_circle_overlay
 
 
 def project(record, source, declaration, revision):
@@ -42,7 +42,7 @@ def project(record, source, declaration, revision):
                        ("correction_norm_m", "Candidate correction magnitude")):
         panels.append(_panel(key, label, ids, data["diagnostics"][key], ["m"] * len(ids), None, provenance,
                              covariance_status="not_propagated_for_this_diagnostic"))
-    return deepcopy({"schema": SCHEMA, "catalog_revision": revision, "bundle_id": record["bundle_id"],
+    view = deepcopy({"schema": SCHEMA, "catalog_revision": revision, "bundle_id": record["bundle_id"],
         "kind": record["kind"], "label": source["label"], "source_id": source["source_id"],
         "evidence_id": source["evidence_id"], "upstream_bundle_id": record["upstream_bundle_id"],
         "replay_source_bundle_ids": [r["source_bundle_digest"] for r in native.get("replay_receipts", [])],
@@ -53,8 +53,8 @@ def project(record, source, declaration, revision):
         "raw_observations": [{"observation_id": identifier, "time_s": observations["time_s"][index],
                               "point_m": observations["points_m"][index]} for index, identifier in enumerate(ids)],
         "raw_declaration": declaration, "verification": native["verification"], "runtimes": native["runtimes"],
-        "system_render": {"schema": "ciw.panel-render.v1", "kind": "declared_overlay",
-                          "overlays": [declared_circle_overlay(data["constraint"])],
-                          "authority": {"read_only": True, "computation": "not_performed",
-                                        "physical_geometry": "not_established"}},
         "authority": {"read_only": True, "numerical_replay": "not_performed_by_inspection", "state_admission": "not_performed"}})
+    plane = next((panel.get("render") for panel in panels if panel.get("render", {}).get("kind") == "plane2d"), None)
+    if plane is not None:
+        attach_system(view, plane)
+    return view

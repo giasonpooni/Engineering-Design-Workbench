@@ -53,6 +53,11 @@ func _run() -> void:
 				push_error("View system canvas was not applied: " + path)
 				quit(1)
 				return
+			if value.get("system_render", {}).get("kind") == "plane2d" and render.get("kind") != "plane2d":
+				if not view._system_plot.visible or view._system_plot.panel.get("render", {}).get("kind") != "plane2d":
+					push_error("Companion plane canvas was not applied: " + path)
+					quit(1)
+					return
 		print("PASS: retained ", value.kind, " occurrence; ", value.panels.size(), " panels")
 	view.queue_free()
 	reader.free()
