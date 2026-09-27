@@ -3,6 +3,7 @@ from copy import deepcopy
 from fractions import Fraction
 
 from .experiment_view import SCHEMA, _panel
+from .view_render import attach_system_canvases, declared_mesh
 
 
 def project(record, source, declaration, revision):
@@ -42,6 +43,12 @@ def project(record, source, declaration, revision):
         panels.append(_panel("vertex-distances", "Shortest distances along mesh edges", ["vertex-" + str(i) for i,v in selected],
             [v for i,v in selected], [mesh["units"]] * len(selected), None, provenance,
             metric="edge_length_graph", uncertainty="not_estimated"))
+        mesh_render = declared_mesh(mesh, path=solution.get("target_path") or (),
+                                    source_vertex=request.get("source_vertex"),
+                                    target_vertex=request.get("target_vertex"),
+                                    canvas_id="vertex-distances",
+                                    canvas_title="Shortest distances along mesh edges")
+        panels[0]["render"] = mesh_render
         if solution["reachable"]:
             panels.append(_panel("target-bounds", "Target path and Euclidean lower bound",
                 ["edge_path", "euclidean_lower_bound"], [solution["target_distance"], data["bounds"]["target_lower_bound"]],
@@ -57,7 +64,7 @@ def project(record, source, declaration, revision):
             None, provenance, status=data["status"], observation_time="not_applicable"))
         panels.append(_panel("crossings", "Directed edge crossings", ["events"], [len(data["events"])],
             ["count"], None, provenance, status=data["status"], vertex_continuation="not_inferred"))
-    return deepcopy({"schema": SCHEMA, "catalog_revision": revision, "bundle_id": record["bundle_id"],
+    view = deepcopy({"schema": SCHEMA, "catalog_revision": revision, "bundle_id": record["bundle_id"],
         "kind": record["kind"], "label": source["label"], "source_id": source["source_id"], "evidence_id": source["evidence_id"],
         "upstream_bundle_id": None, "replay_source_bundle_ids": [r["source_bundle_digest"] for r in bundle.get("replay_receipts", [])],
         "experiment_id": declaration["experiment_id"], "fusion_context": None, "object_context": context,
@@ -66,3 +73,10 @@ def project(record, source, declaration, revision):
             ("operation_id", "execution_id", "result_id", "numerical_result_id", "input_refs")}}]},
         "raw_observations": [], "raw_declaration": declaration, "verification": bundle["verification"], "runtimes": bundle["runtimes"],
         "authority": {"read_only": True, "numerical_replay": "not_performed_by_inspection", "state_admission": "not_performed"}})
+    if record["kind"] == "mesh-path" and panels and panels[0].get("render"):
+        attach_system_canvases(view, [{
+            "id": panels[0]["panel_id"],
+            "title": panels[0].get("title") or "Declared mesh path",
+            "render": panels[0]["render"],
+        }], default_id=panels[0]["panel_id"])
+    return view

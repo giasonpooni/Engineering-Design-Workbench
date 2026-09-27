@@ -11,7 +11,13 @@ The client connects to `ws://127.0.0.1:8765`. The service remains usable if this
 The **Experiments** tab is the shared view of retained process, calibrated-window,
 telemetry and identified-design bundles. It follows `workbench.changed`, displays
 native values and full covariance, links instrument dependencies to retained
-results, and marks disconnected data stale. See the [experiment view guide](../docs/EXPERIMENT_VIEW.md)
+results, and marks disconnected data stale. Coordinate, mesh and declared-parameter
+panels that include a presentation `render` descriptor are drawn in the declared
+plane, as a declared wireframe, or on the retained parameter axis. Mesh-path
+views also reuse the oscillator 3D canvas for the declared vertices; the numeric
+table remains authoritative. `canvas_id` is the canvas entry; `frame` is the
+declared coordinate or path frame. The plot corner and numeric table keep those
+names distinct. See the [experiment view guide](../docs/EXPERIMENT_VIEW.md)
 for provider setup, protocol, scientific boundaries and testing. The existing
 oscillator viewport is available in the **Oscillator** tab.
 
@@ -25,9 +31,12 @@ Checks, run from the repository root:
 godot --headless --path godot --editor --import --quit
 godot --headless --path godot --script res://tests/protocol_smoke.gd
 godot --headless --path godot --script res://tests/channel_generality.gd
+godot --headless --path godot --script res://tests/retained_views.gd -- view.json
 ```
 
 The channel generality check needs no service: it supplies snapshots directly and asserts that the channel selector, the numeric cards, the selection round-trip and the phase-portrait axes all come from the record rather than from any compiled-in channel list, across records of two, three and five channels.
+
+`retained_views.gd` needs actual `experiment.inspect` JSON. It draws every panel and fails if a stamped `canvas_id` equals the declared `frame` (`Stamped canvas id equals the declared frame`). Untitled standalone meshes may still use the frame as a default id.
 
 The protocol smoke needs a running service. It connects two clients, loads the recorded run, changes the cursor in one, observes the broadcast in the other, checks numerical inspection against the retained record, verifies the interval did not change, restores the original cursor, and verifies inspection refresh after reconnect at the same revision. It fails after 15 seconds if the service is unavailable. Do not run it during an interactive session where another user is changing the same selection.
 

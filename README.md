@@ -37,16 +37,20 @@ records exercised paths, independent checks and remaining gaps.
 | Save, inspect, reopen and explicitly replay investigations. | Reopening reads retained inputs and results without recomputing them. Replay is a new execution with its own identity. |
 | Run supported measurement, telemetry, calibration, estimation and design workflows. | Uses the exact provider versions and input assumptions listed in the integration guides; not a generic live sensor-fusion service. |
 | Evaluate supported covariance and geometric-path calculations. | Bounded matrix, mesh, translation-flow, flat-torus and curved-path operations; each has its own numerical limits. |
-| Inspect model equations and make bounded what-if previews. | Equation cards and offline previews associated with the oscillator workflow; the full learning curriculum is not implemented. |
-| Follow a retained RMS lesson through the existing statistics operation. | [One worked investigation](docs/LEARNING.md), with a separate Decimal comparison and explicit replay; no new curriculum engine or proof claim. |
+| Inspect model equations and make bounded what-if previews. | Equation cards and offline previews associated with the oscillator workflow. |
+| Follow a retained RMS lesson through the existing statistics operation. | [One worked investigation](docs/LEARNING.md), with a separate Decimal comparison and explicit replay. |
 | Evaluate a recorded machine configuration. | Read-only encoder/gearbox/leadscrew reference workflow, with configuration, inputs and results retained together; no firmware loading or actuation. |
 | Run selected stability and computation checks. | PLSR and registered SCR/SP1 operations have separate requirements and scopes; they do not verify every calculation or physical model. |
-| Capture and compare GPU energy-to-accuracy measurements. | Explicit host capture requires a supported NVIDIA device and its NVML interface. Shared-session analysis uses retained logs. |
-| Inspect results in optional graphical clients. | Godot views and read-only geographic inspection use retained records; neither changes the scientific result. |
+| Inspect results in optional graphical clients. | Godot Experiments and read-only geographic views use retained `ciw.experiment-view.v1` records. Coordinate, strip and mesh panels that carry `ciw.panel-render.v1` are drawn as detached copies (`connect: false`, canvas id distinct from frame). Neither client changes the scientific result. |
+| Export a retained inspect canvas to ASCII USDA. | `ciw export usda --compare` matches retained points. `--usd-bin` opens the copy with a pinned usdcat/usdview; a missing pin is refused. |
+| Inspect registered language bindings. | `ciw bindings` inspects without launching. `ciw bindings julia-oscillator --create` runs create only with pinned `--julia` and `--runtime`. |
+| Report GPU energy availability. | `ciw energy measure` is one NVML read, measurement only. `replay-log` recomputes a retained log. No actuation. |
+| Read oscillator lessons. | `ciw math work` accepts oscillator-rms, oscillator-energy and oscillator-velocity. Three lessons, not a curriculum engine. |
+| Apply a declared design chart. | `ciw chart identity|scale` maps finite coordinates between named frames. A chart is not a manifold runtime or state admission. |
+| Read a second oscillator lesson. | `ciw math learn oscillator-energy` is a second lesson on the same recording. It is not a curriculum engine. |
 
-The broader laboratory integration is still being completed. Current support
-does **not** establish general-purpose hardware acquisition, equipment control,
-a complete mathematics curriculum or platform-wide industrial qualification.
+Current support does **not** establish general-purpose hardware acquisition,
+equipment control or platform-wide industrial qualification.
 
 ## Quickstart
 
@@ -142,10 +146,10 @@ and checks a workflow supports.
 | --- | --- |
 | **Notations / CIW** | Manage the investigation, selected operations, saved history, inspection and explicit replay. The existing Python session remains authoritative for these records. |
 | **Scientific providers** | Supply domain models and calculations through adapters with explicit source/runtime versions. Each repository retains its own scientific contract, tests and licence. |
-| **Native execution / SCR** | Supply supported native execution services and runtime bindings. Python, Julia and C/C++ implementations connect through the applicable registered boundary; no mandatory language chain is imposed. |
+| **Native execution / SCR** | Supply selected native execution adapters where a profile registers them. The Python session remains authoritative. |
 | **Checkers / ICRH, PLSR and selected SP1 paths** | Check the numerical, contract, stability or registered-computation claims they actually support. A computation does not certify itself. |
-| **Evidence handoff / ESM** | Handle separately supported retention, review and release of evidence or candidate state. Producing a result does not approve it as authoritative state. |
-| **Inspection clients** | Display numerical, temporal, spectral, geographic or local 2D/3D views. Closing a viewer does not stop the backend or change retained records. |
+| **Evidence handoff / ESM** | Handle separately supported retention, review and release of evidence or candidate state. An inspect copy and a `render` descriptor are not modeling inputs and do not admit corpus state. |
+| **Inspection clients** | Display numerical, temporal, spectral, geographic or local 2D/3D views of retained inspect records. Closing a viewer does not stop the backend or change retained records. |
 
 The model, calculation and supporting evidence are related but separate records:
 what is being studied, what ran, and why its conclusion should be trusted.
@@ -195,216 +199,6 @@ In plain language: identify the object, state its rules and assumptions, define
 the change, run a method, and inspect the evidence for the answer. A mathematical
 operation, its algorithm, its implementation and its checks remain distinct.
 
-<a id="unified-mathematical-reasoning-and-learning-layer"></a>
-<a id="one-substrate-two-complementary-uses"></a>
-<a id="proposed-terminal-surfaces"></a>
-### Learning and reasoning direction
-
-**Planned extension after the currently assigned pilot work is completed and
-verified.** The existing equation cards and previews are a starting point, not
-an implemented universal tutor or theorem prover.
-
-The aim is to teach the same mathematics that users execute in the workbench,
-with a concept retaining its identity across explanations, worked examples,
-calculations and checks. The proposed surfaces are:
-
-| Surface | Purpose |
-| --- | --- |
-| `history` | Explain the problems, stories and contributions behind mathematical ideas. |
-| `learn` | Develop a concept through examples, mechanism, notation, calculation and verification. |
-| `explore` | Inspect, derive, connect and generalize concepts. |
-| `work` | Use supported calculations through the existing operation system. |
-| `verify` | Inspect the specific checks, bounds or proofs supporting a claim. |
-
-These are **interface proposals**, not commands added by this README. Existing
-`ciw` commands remain the operating interface.
-
-<a id="historical-prologue-and-capability-map"></a>
-The built-in curriculum is intended to start with a substantial historical
-prologue covering the development and roles of mathematical fields, followed by
-the shared pedagogy:
-
-```text
-Historical problem -> example -> mechanism -> mathematical structure
-                   -> notation -> computation -> verification -> generalization
-```
-
-Users should be able to move between concrete, geometric, symbolic, structural,
-formal, computational and research explanations without changing systems.
-Learning remains optional for users who simply need to work. A first executable
-lesson must reuse the same concept and operation records as its calculation and
-checks; it must not introduce a second session, evidence store or execution engine.
-
-<a id="applied-reasoning-and-natural-philosophy-boundary"></a>
-This also supports the broader inquiry discussed as **natural philosophy**:
-observation, questions, theories, predictions, experiments and revision. The
-workbench assists formalization, computation and comparison; it does not replace
-human judgment about questions, experiments or what the evidence establishes.
-Mathematical proof and empirical validation remain different activities.
-
-## Physical integration direction
-
-**General instrument and equipment integration remains delivery work.** The
-longer-term laboratory combines computational studies with supported sensors,
-data-acquisition equipment and local controllers. The bounded GPU measurement
-path above is not evidence of a general hardware gateway.
-
-A physical workflow must separate:
-
-```text
-proposed action -> authorization -> device request -> controller outcome
-                                                    -> measured result
-```
-
-Each supported device path must bind identity, configuration, units, coordinate
-frames, clocks, operating limits and authorization. Local controllers retain
-time-critical execution and equipment protections. A recommendation, command
-acknowledgement or display update is not proof of a physical outcome.
-
-An optional assistant or future MCP interface may propose work through the same
-boundaries; neither receives independent equipment-control or approval authority.
-Current CIW scientific operations remain read-only with respect to external
-actuators. The target authority modes are Explore, Observe, Prepare and Operate,
-not a claim that all four are implemented.
-
-<a id="a-testbed-for-parametric-design-and-representation"></a>
-## Research and integration directions
-
-The research question is whether a shared description makes investigations
-easier to connect and compare **without losing required meaning, results or
-evidence**. Compare a conventional formulation with the shared representation
-on the same inputs, independent references and declared tolerances. Include
-invalid and held-out cases, and measure representation size, integration effort,
-error and execution/checking costs separately.
-
-This is a research programme, not a demonstrated universal compiler or a measured
-compression advantage. Broader physics, chemistry/materials, biology, agriculture,
-AEC, logistics, manufacturing, robotics and social-modelling coverage requires
-separately supported models, providers and validation. The learning benefit also
-needs to be tested rather than inferred from the architecture.
-
-<a id="kernel-architecture"></a>
-<a id="computational-kernel-families"></a>
-<a id="language-boundaries"></a>
-<a id="sensor-fusion"></a>
-<a id="qualification-and-next-executable-slice"></a>
-### Extending calculations and sensor fusion
-
-A **computational kernel** performs one bounded mathematical operation. The
-existing and proposed work is organized into six families: numerical algebra and
-local response; dynamics and geometry; inference and sensor fusion; constraint
-reconciliation; design and experiment selection; and claim/certificate checking.
-These are responsibilities, not six new services or a completed universal library.
-
-Extensions reuse existing providers and the CIW/SCR interfaces. Python remains
-responsible for the shared session and records; Julia and C/C++ supply selected
-scientific calculations; Rust supplies supported native execution and checks.
-JuMP and JuliaControl remain candidate extensions. SP1 applies only to selected
-registered computations, not automatically to Julia output or physical truth.
-See [Julia/SP1 contracts](docs/JULIA_SP1.md) and [integration coverage](docs/INTEGRATION_COVERAGE.md).
-
-The next numerical extension starts with an actual bounded linear-response or
-oscillator request, an independent reference comparison and retained results.
-A subsequent two-sensor case must preserve clock/frame mappings, shared errors,
-full required covariance, pre-update predictions and innovations. Duplicate
-observations must not add information twice; missing and late data need explicit
-handling. The [covariance guide](docs/COVARIANCE.md) records current limits.
-
-<a id="kernel-contracts"></a>
-<details>
-<summary>Implementation requirements for numerical extensions</summary>
-
-- Declare input/output order, units, frames, clocks, sample support, model identity,
-  allowed changes and validity domain. Linearization must name its base point;
-  vector subtraction is not assumed valid for every state space.
-- Record arithmetic, tolerances, algorithm/runtime versions, resource limits,
-  and any random-stream and replay policy. Distinguish exact, approximate and
-  stochastic claims; matching software versions do not guarantee bitwise equality.
-- Preserve dependencies and the uncertainty representation a model requires.
-  Unknown uncertainty is not zero; covariance is not appropriate for every model.
-  Keep original observations and pre-correction residuals when computing corrections.
-- Keep numerical routines separate from storage, policy and device I/O. Use bounded
-  process messages where isolation is needed; in-process bindings require tested
-  ownership, buffer layout, endianness, version and error-handling rules.
-- Retain transport bytes and any canonical semantic representation separately.
-  Saved data must not select arbitrary imports, code or executable paths; worker
-  failure must not become an empty successful result.
-- Challenge duplicate, dropout, late-data, shared-error and stale-binding cases.
-  Unsupported cross-covariance or rank-deficient inference must be explicit.
-  A satisfied balance constraint alone does not identify a faulty sensor.
-- Exercise real providers, bounded failure recovery, provider-free reopening and
-  fresh replay. Proof-enabled paths require genuine proof production, independent
-  verification and rejection of corrupted or mismatched claims. Skipped checks
-  are not passes.
-
-</details>
-
-<a id="testbed-framework-and-design-spaces"></a>
-### Advanced descriptions of design spaces
-
-A smooth family of designs may use local coordinates and a manifold description;
-other designs may be discrete or mix both. **Parametric design manifolds** name
-that specialized research case, not every investigation. Equivalence-based model
-descriptions, topology and category-theoretic composition are tools to use where
-a workload requires them, not prerequisites for running Notations.
-
-Changing coordinates, reducing a model, losing information in an encoding and
-coupling two physical models are different operations. A change of domain is not
-automatically a new chart on the same manifold. Required calculation inputs must
-survive a representation change; preserving one invariant alone is insufficient.
-The existing [research context](docs/RESEARCH_CONTEXT.md) and
-[state transformation contract](docs/STATE_TRANSFORMATIONS.md) describe this work.
-
-## OpenUSD scene interchange
-
-**Selected direction; implementation pending.** OpenUSD is intended to export
-supported geometry and trajectories for inspection alongside the existing
-scientific records. It does not replace the investigation, model or evidence
-formats. Godot, geographic inspection and terminal-only use remain independent
-of an OpenUSD installation.
-
-Start with a read-only `.usda` export of one retained oscillator trajectory.
-Reopen it with a pinned OpenUSD runtime and compare geometry, units, time mapping
-and links to the original result. Challenge missing or altered dependencies
-before claiming that export supported. Binary `.usdc`, packaged `.usdz` and
-scene import are later, separately tested extensions.
-
-<details>
-<summary>Scene-export requirements</summary>
-
-Use the upstream C++ API or Python bindings behind a registered adapter, rather
-than inventing another scene format. Prims and transforms describe supported
-assets and spatial outputs; layers and references compose scene assets; variant
-sets expose selected configurations; time samples display trajectories; metadata
-links them to separately retained model and result identities.
-
-Preserve explicit `metersPerUnit`, `upAxis`, coordinate/frame mappings and
-`timeCodesPerSecond` where relevant. Keep source clocks, epochs, offsets, sample
-support and interpolation policy separate; interpolated display values are not
-new observations. Mixed-unit assets require explicit corrective transforms.
-
-Keep Notations investigation and result identifiers separate from scene paths. Bind contributing asset/layer
-digests, layer order, selected variants and exporter/runtime identity; hashing
-only the root file does not bind an externally referenced scene. Declare any
-supported schema subset, tessellation, decimation or precision loss.
-
-Missing references or unsupported geometry must not be silently approximated.
-Only configured, bounded assets and host-controlled plugins/resolvers may be
-used. Loading a scene cannot authorize network access, arbitrary execution,
-scientific operations or equipment control. Future scene edits/imports enter as
-new candidate evidence and require domain checks, never silent source replacement.
-Retain original domain files, including IFC, chemistry mechanisms and numerical
-arrays. Appearance materials are not validated physical properties.
-
-Scene composition and scientific-operation composition remain separate. Keep
-provider-free scientific reopening separate from optional scene inspection.
-Upstream references: [OpenUSD introduction](https://openusd.org/release/intro.html),
-[units](https://openusd.org/release/api/group___usd_geom_linear_units__group.html),
-[stage/time APIs](https://openusd.org/release/api/class_usd_stage.html) and
-[Python tutorials](https://openusd.org/release/tut_usd_tutorials.html).
-
-</details>
-
 ## Evidence boundaries
 
 A saved investigation distinguishes what was supplied, measured, predicted,
@@ -438,8 +232,6 @@ equipment. Unavailable, inconclusive, refused and failed checks remain visible.
 
 **Finish and verify the currently assigned work first.** The agreed initial
 end-to-end demonstration (the **base pilot**) remains the development priority.
-The learning layer, new providers and broader research directions extend that
-work; they do not replace it, reset its queue or justify speculative rewrites.
 
 Use the existing oscillator/thermal, measurement-chain and curved-path foundations
 to close a shared investigation workflow, not a set of disconnected demos.
@@ -452,7 +244,7 @@ These are acceptance requirements, not gates claimed passed by this README:
 | Investigate | Retain baseline/candidate changes, assumptions, responses, uncertainty status and checks, including invalid or unresolved cases. |
 | Reopen and replay | Read saved records without executing providers; explicitly replay with new execution identities and preserved history/version bindings. |
 | Challenge and recover | Reject altered bindings and incompatible inputs; retain bounded failures, recover without losing results and identify affected dependencies. |
-| Inspect and hand off | Keep headless use working; test each client, export and evidence handoff separately. OpenUSD must pass its export/reload gate. |
+| Inspect and hand off | Keep headless use working; test each inspect client against retained `ciw.experiment-view.v1` records. |
 | Physical apparatus | For each supported device, bind configuration and authorization; test disconnects, duplicate requests, stale plans and uncertain outcomes. |
 | Qualify claims | Retain actual evidence for each numerical, proof or physical claim. Report startup, transfer, computation and checking costs separately. |
 

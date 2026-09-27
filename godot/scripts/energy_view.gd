@@ -6,6 +6,7 @@ var _camera: Camera3D
 var _surface: MeshInstance3D
 var _trajectory: MeshInstance3D
 var _marker: MeshInstance3D
+var _target: MeshInstance3D
 var _axes: MeshInstance3D
 var _labels: Array[Label3D] = []
 var _points: PackedVector3Array = []
@@ -18,6 +19,7 @@ var _pitch := 0.42
 var _origin := Vector3.ZERO
 var _scale := Vector3.ONE
 var _stale := true
+var _caption: Label
 
 
 func _ready() -> void:
@@ -48,13 +50,22 @@ func _ready() -> void:
 	_trajectory = MeshInstance3D.new()
 	_axes = MeshInstance3D.new()
 	_marker = MeshInstance3D.new()
-	for item in [_surface, _trajectory, _axes, _marker]:
+	_target = MeshInstance3D.new()
+	for item in [_surface, _trajectory, _axes, _marker, _target]:
 		_world.add_child(item)
 	_surface.material_override = _material(Color(0.24, 0.42, 0.66, 0.36), true)
 	_trajectory.material_override = _material(Color("60dfcd"))
 	_axes.material_override = _material(Color("4e647e"))
 	_marker.material_override = _material(Color("ffcc80"))
+	_target.material_override = _material(Color("60dfcd"))
 	_marker.visible = false
+	_target.visible = false
+	_caption = Label.new()
+	_caption.add_theme_font_size_override("font_size", 12)
+	_caption.add_theme_color_override("font_color", Color("a4b4c8"))
+	_caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_caption.position = Vector2(8, 6)
+	add_child(_caption)
 	_update_camera()
 
 
@@ -113,6 +124,8 @@ func set_run(run: Dictionary) -> void:
 		path.surface_end()
 	_trajectory.mesh = path
 	_marker.visible = false
+	if _target != null:
+		_target.visible = false
 	if not _points.is_empty() or not vertices.is_empty():
 		_center = (low + high) * 0.5
 		_base_radius = maxf((high - low).length() * 1.05, 1.0)
@@ -125,6 +138,137 @@ func set_run(run: Dictionary) -> void:
 		_update_camera()
 
 
+func _declared_frame(render: Dictionary) -> String:
+	var frame: Variant = render.get("frame", "")
+	if typeof(frame) == TYPE_DICTIONARY:
+		return str(frame.get("id", frame.get("frame_id", "")))
+	return str(frame)
+
+
+func _axis_labels(render: Dictionary, planar_z: bool = false) -> Array:
+	var unit := str(render.get("unit", ""))
+	var frame := _declared_frame(render)
+	var head := unit
+	if not frame.is_empty():
+		frame = "frame " + frame
+	if not unit.is_empty() and not frame.is_empty():
+		head = unit + " · " + frame
+	elif not frame.is_empty():
+		head = frame
+	return [head, "1", "" if planar_z else "2"]
+
+
+func set_system(render: Dictionary, expected_id: String = "") -> void:
+	## Declared mesh/path geometry. Hidden unless this panel or the view carries a mesh.
+	if _surface == null:
+		return
+	var kind := str(render.get("kind", ""))
+	var offered := str(render.get("canvas_id", ""))
+	if kind == "mesh" and not expected_id.is_empty() and not offered.is_empty() and offered != expected_id:
+		kind = ""
+	visible = kind == "mesh"
+	_marker.visible = false
+	if not visible:
+		_surface.mesh = null
+		_trajectory.mesh = null
+		_marker.visible = false
+		_target.visible = false
+		if _caption != null:
+			_caption.text = ""
+		return
+	_origin = Vector3.ZERO
+	_scale = Vector3.ONE
+	_sample_indices = []
+	var vertices := PackedVector3Array()
+	var low := Vector3(INF, INF, INF)
+	var high := Vector3(-INF, -INF, -INF)
+	var planar_z := true
+	if render.has("declared_planar"):
+		planar_z = bool(render.declared_planar)
+	for value in render.get("vertices", []):
+		var coords: Array = value
+		var y := 0.0
+		var z := 0.0
+		if coords.size() > 1:
+			y = float(coords[1])
+		if coords.size() > 2:
+			z = float(coords[2])
+			if not is_zero_approx(z):
+				planar_z = false
+		var point := Vector3(float(coords[0]), y, z)
+		vertices.append(point)
+		low = low.min(point)
+		high = high.max(point)
+	var indices := PackedInt32Array()
+	for face in render.get("triangles", []):
+		indices.append(int(face[0]))
+		indices.append(int(face[1]))
+		indices.append(int(face[2]))
+	var arrays: Array = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = vertices
+	arrays[Mesh.ARRAY_INDEX] = indices
+	var mesh := ArrayMesh.new()
+	if not vertices.is_empty() and not indices.is_empty():
+		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	_surface.mesh = mesh
+	_points.clear()
+	for index in render.get("path", []):
+		if int(index) >= 0 and int(index) < vertices.size():
+			_points.append(vertices[int(index)])
+	var path := ImmediateMesh.new()
+	if _points.size() > 1:
+		path.surface_begin(Mesh.PRIMITIVE_LINE_STRIP)
+		for point in _points:
+			path.surface_add_vertex(point)
+		path.surface_end()
+	_trajectory.mesh = path
+	_marker.visible = false
+	if not vertices.is_empty():
+		_center = (low + high) * 0.5
+		_base_radius = maxf((high - low).length() * 1.05, 1.0)
+		_radius = _base_radius
+		var sphere := SphereMesh.new()
+		sphere.radius = _base_radius * 0.02
+		sphere.height = sphere.radius * 2
+		_marker.mesh = sphere
+		_target.mesh = sphere.duplicate()
+		_marker.visible = false
+		_target.visible = false
+		if render.get("source_vertex") != null and int(render.source_vertex) < vertices.size():
+			_marker.visible = true
+			_marker.position = vertices[int(render.source_vertex)]
+		if render.get("target_vertex") != null and int(render.target_vertex) < vertices.size():
+			_target.visible = true
+			_target.position = vertices[int(render.target_vertex)]
+		_build_axes(low, high, _axis_labels(render, planar_z))
+		if render.get("source_vertex") != null and int(render.source_vertex) < vertices.size():
+			_mark_vertex(str(render.get("source_label", "source %s" % int(render.source_vertex))), vertices[int(render.source_vertex)])
+		if render.get("target_vertex") != null and int(render.target_vertex) < vertices.size():
+			_mark_vertex(str(render.get("target_label", "target %s" % int(render.target_vertex))), vertices[int(render.target_vertex)])
+		_update_camera()
+	if _caption != null:
+		var bits: Array[String] = []
+		var title := str(render.get("canvas_title", render.get("frame", "")))
+		var identity := str(render.get("canvas_id", ""))
+		var frame := _declared_frame(render)
+		if not title.is_empty():
+			bits.append(title)
+		if not identity.is_empty() and identity != title and identity != frame:
+			bits.append("canvas " + identity)
+		if not frame.is_empty() and bits.find(frame) < 0 and bits.find("frame " + frame) < 0:
+			bits.append("frame " + frame)
+		if render.get("source_vertex") != null:
+			bits.append("source " + str(render.source_vertex))
+		if render.get("target_vertex") != null:
+			bits.append("target " + str(render.target_vertex))
+		if planar_z:
+			bits.append("declared planar vertices · display only")
+		else:
+			bits.append("declared vertices · display only")
+		_caption.text = " · ".join(bits)
+
+
 func _build_axes(low: Vector3, high: Vector3, labels: Array) -> void:
 	for label in _labels:
 		label.queue_free()
@@ -133,6 +277,8 @@ func _build_axes(low: Vector3, high: Vector3, labels: Array) -> void:
 	axis_mesh.surface_begin(Mesh.PRIMITIVE_LINES)
 	var corners := [Vector3(high.x, low.y, low.z), Vector3(low.x, high.y, low.z), Vector3(low.x, low.y, high.z)]
 	for index in range(3):
+		if index >= labels.size() or str(labels[index]).is_empty():
+			continue
 		axis_mesh.surface_add_vertex(low)
 		axis_mesh.surface_add_vertex(corners[index])
 		var label := Label3D.new()
@@ -144,16 +290,38 @@ func _build_axes(low: Vector3, high: Vector3, labels: Array) -> void:
 		label.position = corners[index]
 		_world.add_child(label)
 		_labels.append(label)
+	var draw_z := labels.size() > 2 and not str(labels[2]).is_empty()
 	for step in range(1, 6):
 		var fraction := float(step) / 6.0
 		var x := lerpf(low.x, high.x, fraction)
-		var z := lerpf(low.z, high.z, fraction)
-		axis_mesh.surface_add_vertex(Vector3(x, low.y, low.z))
-		axis_mesh.surface_add_vertex(Vector3(x, low.y, high.z))
-		axis_mesh.surface_add_vertex(Vector3(low.x, low.y, z))
-		axis_mesh.surface_add_vertex(Vector3(high.x, low.y, z))
+		if draw_z:
+			var z := lerpf(low.z, high.z, fraction)
+			axis_mesh.surface_add_vertex(Vector3(x, low.y, low.z))
+			axis_mesh.surface_add_vertex(Vector3(x, low.y, high.z))
+			axis_mesh.surface_add_vertex(Vector3(low.x, low.y, z))
+			axis_mesh.surface_add_vertex(Vector3(high.x, low.y, z))
+		else:
+			var y := lerpf(low.y, high.y, fraction)
+			axis_mesh.surface_add_vertex(Vector3(x, low.y, low.z))
+			axis_mesh.surface_add_vertex(Vector3(x, high.y, low.z))
+			axis_mesh.surface_add_vertex(Vector3(low.x, y, low.z))
+			axis_mesh.surface_add_vertex(Vector3(high.x, y, low.z))
 	axis_mesh.surface_end()
 	_axes.mesh = axis_mesh
+
+
+func _mark_vertex(text: String, position: Vector3) -> void:
+	if text.is_empty():
+		return
+	var label := Label3D.new()
+	label.text = text
+	label.font_size = 28
+	label.pixel_size = _base_radius * 0.0013
+	label.modulate = Color("dce6f1")
+	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	label.position = position + Vector3(0, _base_radius * 0.08, 0)
+	_world.add_child(label)
+	_labels.append(label)
 
 
 func set_sample(index: int) -> void:

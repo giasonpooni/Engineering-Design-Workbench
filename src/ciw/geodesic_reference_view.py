@@ -2,6 +2,7 @@
 from copy import deepcopy
 
 from .experiment_view import SCHEMA, _panel
+from .view_render import attach_plane, attach_strip, attach_system_canvases
 
 
 def project(record, source, declaration, revision):
@@ -29,6 +30,8 @@ def project(record, source, declaration, revision):
             panels.append(_panel(field, title, labels, values, ["normalized_length"] * len(values), None, provenance,
                 path_parameter=trajectory["times"], coordinate_representation=field, covariance_status="not_applicable",
                 topology="identified_flat_parallelogram", physical_embedding="not_established"))
+            attach_plane(panels[-1], frame="area-one-flat-quotient",
+                         canvas_id=field, canvas_title=title)
     else:
         transfer = data["record"]
         length_unit = transfer["units"]["length"]
@@ -55,7 +58,10 @@ def project(record, source, declaration, revision):
             panels.append(_panel(name, title, labels, values, [unit] * len(grid), None, provenance,
                 frame_id=transfer["frame"], arclength=grid, axis_quantity="arclength",
                 covariance_status="joint_cross_arclength_covariance_not_supplied"))
-    return deepcopy({"schema": SCHEMA, "catalog_revision": revision, "bundle_id": record["bundle_id"],
+            attach_strip(panels[-1], grid, parameter_name="arclength",
+                         parameter_unit=length_unit, frame=transfer["frame"],
+                         canvas_id=name, canvas_title=title)
+    view = deepcopy({"schema": SCHEMA, "catalog_revision": revision, "bundle_id": record["bundle_id"],
         "kind": record["kind"], "label": source["label"], "source_id": source["source_id"], "evidence_id": source["evidence_id"],
         "upstream_bundle_id": None, "replay_source_bundle_ids": [r["source_bundle_digest"] for r in bundle.get("replay_receipts", [])],
         "experiment_id": declaration["experiment_id"], "fusion_context": None, "object_context": context,
@@ -64,3 +70,9 @@ def project(record, source, declaration, revision):
             ("operation_id", "execution_id", "result_id", "numerical_result_id", "input_refs")}}]},
         "raw_observations": [], "raw_declaration": declaration, "verification": bundle["verification"], "runtimes": bundle["runtimes"],
         "authority": {"read_only": True, "numerical_replay": "not_performed_by_inspection", "state_admission": "not_performed"}})
+    preferred = next((panel for panel in panels if panel.get("panel_id") in ("parallelogram_points", "separation")), None)
+    canvases = [{"id": panel["panel_id"], "title": panel["title"], "render": panel["render"]}
+                for panel in panels if panel.get("render", {}).get("kind") in ("plane2d", "strip")]
+    if canvases:
+        attach_system_canvases(view, canvases, default_id=(preferred["panel_id"] if preferred else canvases[0]["id"]))
+    return view

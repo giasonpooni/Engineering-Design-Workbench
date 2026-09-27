@@ -229,6 +229,28 @@ def parser() -> argparse.ArgumentParser:
     register_commands(commands)
     demo = commands.add_parser("demo", help="Save deterministic synthetic oscillator evidence")
     demo.add_argument("--output", type=Path, default=Path("recordings/demo.json"))
+    export = commands.add_parser("export", help="Write a read-only inspect copy")
+    export_actions = export.add_subparsers(dest="export_command", required=True)
+    usda = export_actions.add_parser("usda", help="Write ASCII USDA from a retained recording or inspect view")
+    usda.add_argument("path", type=Path)
+    usda.add_argument("--output", type=Path, required=True)
+    usda.add_argument("--compare", action="store_true",
+                      help="Reload the written USDA points and match them to the source")
+    usda.add_argument("--usd-bin", type=Path,
+                      help="Pinned usdcat or usdview executable used to open the copy")
+    bindings = commands.add_parser("bindings", help="Inspect registered language bindings without a language chain")
+    bindings.add_argument("binding_id", nargs="?", help="python-session, julia-oscillator, or native-interop-scr")
+    bindings.add_argument("--path", type=Path, help="Retained session or source to inspect without launching a runtime")
+    bindings.add_argument("--create", action="store_true", help="Run create through the julia-oscillator binding")
+    bindings.add_argument("--output", type=Path, help="Bundle output for --create")
+    bindings.add_argument("--julia", type=Path, help="Pinned julia executable")
+    bindings.add_argument("--runtime", type=Path, help="Pinned julia-oscillator runtime directory")
+    chart = commands.add_parser("chart", help="Apply a declared design chart to finite coordinates")
+    chart.add_argument("chart_id", choices=["identity", "scale"])
+    chart.add_argument("--point", required=True, help="Comma-separated finite coordinates")
+    chart.add_argument("--source-frame", required=True)
+    chart.add_argument("--target-frame", required=True)
+    chart.add_argument("--scales", help="Comma-separated factors for the scale chart")
     analyze = commands.add_parser("analyze", help="Run headless analysis and save a reopenable workspace")
     analyze.add_argument("operation", choices=["stats", "spectrum"])
     analyze.add_argument("--recording", type=Path)
@@ -430,6 +452,12 @@ def parser() -> argparse.ArgumentParser:
     energy_actions = energy.add_subparsers(dest="energy_command", required=True)
     energy_probe = energy_actions.add_parser("probe", help="Read an actual NVML counter without running a workload")
     energy_probe.add_argument("--gpu-index", type=int, default=0)
+    energy_status = energy_actions.add_parser("status", help="Report GPU energy availability without treating it as a lab gateway")
+    energy_status.add_argument("--gpu-index", type=int, default=0)
+    energy_measure = energy_actions.add_parser("measure", help="One NVML counter read; measurement only")
+    energy_measure.add_argument("--gpu-index", type=int, default=0)
+    energy_replay_gate = energy_actions.add_parser("replay-log", help="Recompute a retained energy log without opening a device")
+    energy_replay_gate.add_argument("path", type=Path)
     energy_record = energy_actions.add_parser("record", help="Run a bounded Gaussian GPU experiment into a new directory")
     energy_record.add_argument("--problem", type=Path, required=True)
     energy_record.add_argument("--output-dir", type=Path, required=True)
@@ -497,6 +525,15 @@ def main(argv: list[str] | None = None) -> int:
             if args.energy_command == "probe":
                 from .energy_bench import probe
                 print_json(probe(args.gpu_index))
+            elif args.energy_command == "status":
+                from .energy_gateway import status
+                print_json(status(args.gpu_index))
+            elif args.energy_command == "measure":
+                from .energy_gateway import measure
+                print_json(measure(args.gpu_index))
+            elif args.energy_command == "replay-log":
+                from .energy_gateway import replay_log
+                print_json(replay_log(args.path))
             elif args.energy_command == "record":
                 from .energy_bench import capture
                 log, report = capture(read_json(args.problem), args.output_dir,
@@ -564,6 +601,32 @@ def main(argv: list[str] | None = None) -> int:
             write_json(args.output, run)
             print_json({"recording_file": str(args.output), "run_id": run["run_id"],
                         "evidence_id": run["evidence_id"], "sample_count": len(run["time_s"])})
+        elif args.command == "export":
+            from .usda_export import SCHEMA, export_payload, write_usda
+            text = export_payload(read_json(args.path))
+            write_usda(args.output, text)
+            result = {"usda_file": str(args.output), "schema": SCHEMA,
+                      "authority": "inspection_copy_not_observation"}
+            if args.compare:
+                from .usda_export import compare_export
+                result["compare"] = compare_export(read_json(args.path), text)
+            if args.usd_bin is not None:
+                from .usda_export import open_with_runtime
+                result["open"] = open_with_runtime(args.output, args.usd_bin)
+            print_json(result)
+        elif args.command == "bindings":
+            from .language_bindings import catalog, create, inspect_binding
+            if args.create:
+                print_json(create(args.binding_id or "julia-oscillator", args.path, args.output,
+                                  julia=args.julia, runtime=args.runtime))
+            else:
+                print_json(catalog() if args.binding_id is None else inspect_binding(args.binding_id, args.path))
+        elif args.command == "chart":
+            from .design_manifold import apply_chart
+            point = [float(item) for item in args.point.split(",")]
+            scales = None if args.scales is None else [float(item) for item in args.scales.split(",")]
+            print_json(apply_chart(args.chart_id, point, source_frame=args.source_frame,
+                                   target_frame=args.target_frame, scales=scales))
         elif args.command == "analyze":
             run = load_run(args.recording)
             session = Session(run, args.output_dir)

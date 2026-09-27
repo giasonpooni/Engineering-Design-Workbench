@@ -1,0 +1,555 @@
+"""Presentation render descriptors copy retained values and refuse invention."""
+from copy import deepcopy
+
+import pytest
+
+from ciw.view_render import (
+    AUTHORITY,
+    SCHEMA,
+    attach_plane,
+    attach_strip,
+    attach_system,
+    attach_system_canvases,
+    declared_circle_overlay,
+    declared_mesh,
+    detach_overlay,
+    detach_render,
+    plane_from_interleaved,
+    strip_from_parameter,
+)
+
+
+def test_plane_pairs_retained_coordinates_without_connecting_them():
+    values = [1.0, 0.0, 0.0, 1.0]
+    labels = ["p0.x", "p0.y", "p1.x", "p1.y"]
+    units = ["m"] * 4
+    render = plane_from_interleaved(values, labels, units, frame="bench-plane")
+    assert render["schema"] == SCHEMA
+    assert render["kind"] == "plane2d"
+    assert render["connect"] is False
+    assert render["start_label"] == "p0"
+    assert render["end_label"] == "p1"
+    assert render["authority"] == AUTHORITY
+    assert render["points"] == [{"label": "p0", "x": 1.0, "y": 0.0}, {"label": "p1", "x": 0.0, "y": 1.0}]
+    render["points"][0]["x"] = 99
+    assert values[0] == 1.0
+
+
+def test_attach_plane_is_additive_and_detached_from_panel_values():
+    panel = {"panel_id": "observed_points_m", "labels": ["a.x", "a.y"], "values": [0.5, -0.25],
+             "units": ["m", "m"]}
+    attach_plane(panel, frame={"id": "bench-plane"})
+    assert panel["values"] == [0.5, -0.25]
+    assert panel["render"]["points"][0] == {"label": "a", "x": 0.5, "y": -0.25}
+    panel["render"]["points"][0]["y"] = 8
+    assert panel["values"][1] == -0.25
+
+
+@pytest.mark.parametrize("values,labels,units", [
+    ([1.0], ["a.x"], ["m"]),
+    ([1.0, 2.0, 3.0], ["a.x", "a.y", "b.x"], ["m", "m", "m"]),
+    ([1.0, 2.0], ["a.x", "a.y"], ["m", "s"]),
+    ([1.0, float("nan")], ["a.x", "a.y"], ["m", "m"]),
+    ([1.0, float("inf")], ["a.x", "a.y"], ["m", "m"]),
+])
+def test_plane_render_refuses_ambiguous_or_nonfinite_values(values, labels, units):
+    with pytest.raises(ValueError):
+        plane_from_interleaved(values, labels, units, frame="bench-plane")
+
+
+def test_declared_circle_overlay_copies_constraint_and_does_not_fit():
+    constraint = {"kind": "circle", "center_m": [0.0, 0.0], "radius_m": 1.0, "constraint_id": "reference-circle"}
+    overlay = declared_circle_overlay(constraint)
+    assert overlay["center"] == [0.0, 0.0]
+    assert overlay["radius"] == 1.0
+    assert overlay["source"] == "declared_constraint"
+    assert overlay["constraint_id"] == "reference-circle"
+    assert overlay["overlay_title"] == "reference-circle"
+    overlay["radius"] = 4
+    assert constraint["radius_m"] == 1.0
+    with pytest.raises(ValueError):
+        declared_circle_overlay({"kind": "ellipse", "center_m": [0, 0], "radius_m": 1})
+    with pytest.raises(ValueError):
+        declared_circle_overlay({"kind": "circle", "center_m": [0, 0], "radius_m": float("nan")})
+    with pytest.raises(ValueError):
+        declared_circle_overlay({"kind": "circle", "center_m": [0, 0], "radius_m": 1.0, "constraint_id": ""})
+
+
+def test_declared_mesh_copies_faces_and_retained_path_indices():
+    mesh = {"vertices": [[0, 0, 0], [1, 0, 0], [1, 1, 0], [0, 1, 0]],
+            "triangles": [[0, 1, 2], [0, 2, 3]], "units": "normalized_length",
+            "coordinate_frame": "synthetic-planar-square"}
+    render = declared_mesh(mesh, path=[1, 0, 3], source_vertex=1, target_vertex=3)
+    assert render["kind"] == "mesh"
+    assert render["path"] == [1, 0, 3]
+    assert render["source_label"] == "source 1"
+    assert render["target_label"] == "target 3"
+    assert render["declared_planar"] is True
+    assert render["canvas_id"] == "synthetic-planar-square"
+    assert render["canvas_title"] == "synthetic-planar-square"
+    assert render["projection"] == "first_two_declared_axes"
+    render["vertices"][0][0] = 9
+    assert mesh["vertices"][0][0] == 0
+    with pytest.raises(ValueError):
+        declared_mesh(mesh, path=[8])
+    with pytest.raises(ValueError):
+        declared_mesh({"vertices": [[0, 0]], "triangles": []})
+    lifted = declared_mesh({"vertices": [[0, 0, 1], [1, 0, 0], [0, 1, 0]],
+                            "triangles": [[0, 1, 2]], "units": "normalized_length",
+                            "coordinate_frame": "lifted-triangle"})
+    assert lifted["declared_planar"] is False
+    named = declared_mesh(mesh, path=[1, 0, 3], source_vertex=1, target_vertex=3,
+                         canvas_id="vertex-distances",
+                         canvas_title="Shortest distances along mesh edges")
+    assert named["canvas_id"] == "vertex-distances"
+    assert named["canvas_title"] == "Shortest distances along mesh edges"
+    assert named["frame"] == "synthetic-planar-square"
+    named["canvas_id"] = named["frame"]
+    with pytest.raises(ValueError, match="Stamped canvas id equals the declared frame"):
+        detach_render(named)
+    named["canvas_id"] = "vertex-distances"
+    copied = detach_render(named)
+    assert copied["canvas_id"] == "vertex-distances"
+    assert copied["frame"] == "synthetic-planar-square"
+
+
+def test_interleaved_native_points_keep_declared_circle_as_overlay_only():
+    constraint = {"kind": "circle", "center_m": [0.0, 0.0], "radius_m": 1.0, "constraint_id": "reference-circle"}
+    panel = {"labels": ["o0.x", "o0.y", "o1.x", "o1.y"], "values": [1.0, 0.0, 0.0, 1.0], "units": ["m"] * 4}
+    attach_plane(panel, frame="bench-plane", overlays=[declared_circle_overlay(constraint)])
+    assert [point["x"] for point in panel["render"]["points"]] == [1.0, 0.0]
+    assert panel["render"]["overlays"][0]["source"] == "declared_constraint"
+    assert panel["values"] == [1.0, 0.0, 0.0, 1.0]
+
+
+def test_strip_uses_declared_parameter_and_refuses_a_decreasing_axis():
+    parameter = [0.0, 0.5, 1.0]
+    values = [0.1, 0.2, 0.15]
+    render = strip_from_parameter(parameter, values, parameter_name="arclength",
+                                  parameter_unit="m", value_unit="m", frame="path")
+    assert render["kind"] == "strip"
+    assert render["connect"] is False
+    assert render["start_label"] == "arclength=0.0"
+    assert render["end_label"] == "arclength=1.0"
+    assert render["start_parameter"] == 0.0
+    assert render["end_parameter"] == 1.0
+    assert render["samples"][1] == {"parameter": 0.5, "value": 0.2}
+    render["samples"][0]["value"] = 9
+    assert values[0] == 0.1
+    panel = {"values": [0.1, 0.2, 0.15], "units": ["m", "m", "m"]}
+    attach_strip(panel, parameter, parameter_name="arclength", parameter_unit="m", frame="path")
+    assert panel["render"]["parameter_name"] == "arclength"
+    attach_strip(panel, parameter, parameter_name="arclength", parameter_unit="m",
+                 frame="path", canvas_id="separation", canvas_title="Native transverse separation")
+    assert panel["render"]["canvas_id"] == "separation"
+    assert panel["render"]["canvas_title"] == "Native transverse separation"
+    with pytest.raises(ValueError):
+        strip_from_parameter([1.0, 0.0], [1.0, 2.0], parameter_name="s",
+                             parameter_unit="m", value_unit="m", frame="path")
+    with pytest.raises(ValueError):
+        strip_from_parameter([0.0, float("nan")], [1.0, 2.0], parameter_name="s",
+                             parameter_unit="m", value_unit="m", frame="path")
+    with pytest.raises(ValueError):
+        attach_strip({"values": [1.0, 2.0], "units": ["m", "radian"]},
+                     [0.0, 1.0], parameter_name="s", parameter_unit="m", frame="path")
+
+
+def test_attach_system_copies_the_mesh_and_survives_panel_mutation():
+    mesh = {"vertices": [[0, 0, 0], [1, 0, 0], [0, 1, 0]],
+            "triangles": [[0, 1, 2]], "units": "normalized_length",
+            "coordinate_frame": "synthetic-triangle"}
+    render = declared_mesh(mesh, path=[0, 1], source_vertex=0, target_vertex=1)
+    view = {"kind": "mesh-path", "panels": [{"render": render}]}
+    attach_system(view, render)
+    assert view["system_render"]["kind"] == "mesh"
+    assert view["system_render"]["path"] == [0, 1]
+    assert view["system_render"]["canvas_id"] == "synthetic-triangle"
+    render["path"].append(2)
+    view["panels"][0]["render"]["vertices"][0][0] = 9
+    assert view["system_render"]["path"] == [0, 1]
+    assert view["system_render"]["vertices"][0][0] == 0
+    with pytest.raises(ValueError):
+        attach_system(view, {"kind": "mesh"})
+
+
+def test_mesh_path_system_canvas_keeps_entry_id_off_the_frame():
+    mesh = {"vertices": [[0, 0, 0], [1, 0, 0], [0, 1, 0]],
+            "triangles": [[0, 1, 2]], "units": "normalized_length",
+            "coordinate_frame": "synthetic-planar-square"}
+    render = declared_mesh(mesh, path=[0, 2], source_vertex=0, target_vertex=2,
+                          canvas_id="vertex-distances",
+                          canvas_title="Shortest distances along mesh edges")
+    view = {"kind": "mesh-path"}
+    attach_system_canvases(view, [{
+        "id": "vertex-distances",
+        "title": "Shortest distances along mesh edges",
+        "render": render,
+    }], default_id="vertex-distances")
+    assert view["system_canvas_id"] == "vertex-distances"
+    assert view["system_render"]["canvas_id"] == "vertex-distances"
+    assert view["system_render"]["canvas_title"] == "Shortest distances along mesh edges"
+    assert view["system_render"]["frame"] == "synthetic-planar-square"
+    assert view["system_render"]["declared_planar"] is True
+    render["canvas_id"] = "synthetic-planar-square"
+    with pytest.raises(ValueError):
+        attach_system_canvases(view, [{
+            "id": "vertex-distances",
+            "title": "Shortest distances along mesh edges",
+            "render": render,
+        }], default_id="vertex-distances")
+
+
+def test_gte_system_canvas_keeps_entry_ids_off_the_frame():
+    overlay = declared_circle_overlay(
+        {"kind": "circle", "center_m": [0.0, 0.0], "radius_m": 1.0, "constraint_id": "reference-circle"})
+    observed = {"labels": ["o0.x", "o0.y"], "values": [1.0, 0.0], "units": ["m", "m"]}
+    projected = {"labels": ["o0.x", "o0.y"], "values": [0.8, 0.2], "units": ["m", "m"]}
+    attach_plane(observed, frame="bench-plane", overlays=[overlay],
+                 canvas_id="observed_points_m", canvas_title="Retained observed coordinates")
+    attach_plane(projected, frame="bench-plane", overlays=[overlay],
+                 canvas_id="projected_points_m", canvas_title="Projected candidate coordinates")
+    view = {"kind": "geometric-circle"}
+    attach_system_canvases(view, [
+        {"id": "observed_points_m", "title": "Retained observed coordinates", "render": observed["render"]},
+        {"id": "projected_points_m", "title": "Projected candidate coordinates", "render": projected["render"]},
+    ], default_id="observed_points_m")
+    assert view["system_canvas_id"] == "observed_points_m"
+    assert view["system_render"]["canvas_id"] == "observed_points_m"
+    assert view["system_render"]["frame"] == "bench-plane"
+    assert view["system_canvases"][1]["render"]["canvas_id"] == "projected_points_m"
+    assert view["system_canvases"][1]["render"]["frame"] == "bench-plane"
+    assert view["system_render"]["overlays"][0]["constraint_id"] == "reference-circle"
+    observed["render"]["canvas_id"] = "bench-plane"
+    with pytest.raises(ValueError, match="Stamped canvas id equals the declared frame"):
+        detach_render(observed["render"])
+
+
+def test_jacobi_system_canvas_keeps_entry_ids_off_the_path_frame():
+    separation = {"values": [0.1, 0.2], "units": ["m", "m"]}
+    heading = {"values": [0.01, 0.02], "units": ["radian", "radian"]}
+    attach_strip(separation, [0.0, 1.0], parameter_name="arclength", parameter_unit="m",
+                 frame="geodesic-reference", canvas_id="separation",
+                 canvas_title="Native transverse separation")
+    attach_strip(heading, [0.0, 1.0], parameter_name="arclength", parameter_unit="m",
+                 frame="geodesic-reference", canvas_id="heading-change",
+                 canvas_title="Native heading change")
+    view = {"kind": "curved-path-transfer"}
+    attach_system_canvases(view, [
+        {"id": "separation", "title": "Native transverse separation", "render": separation["render"]},
+        {"id": "heading-change", "title": "Native heading change", "render": heading["render"]},
+    ], default_id="separation")
+    assert view["system_canvas_id"] == "separation"
+    assert view["system_render"]["canvas_id"] == "separation"
+    assert view["system_render"]["frame"] == "geodesic-reference"
+    assert view["system_render"]["parameter_name"] == "arclength"
+    assert view["system_canvases"][1]["render"]["canvas_id"] == "heading-change"
+    assert view["system_canvases"][1]["render"]["frame"] == "geodesic-reference"
+    separation["render"]["canvas_id"] = "geodesic-reference"
+    with pytest.raises(ValueError):
+        detach_render(separation["render"])
+
+
+def test_attach_system_keeps_a_declared_plane_and_circle_overlay():
+    panel = {"labels": ["o0.x", "o0.y"], "values": [1.0, 0.0], "units": ["m", "m"]}
+    overlay = declared_circle_overlay(
+        {"kind": "circle", "center_m": [0.0, 0.0], "radius_m": 1.0, "constraint_id": "reference-circle"})
+    attach_plane(panel, frame="bench-plane", overlays=[overlay])
+    view = {"kind": "geometric-circle", "panels": [panel]}
+    attach_system(view, panel["render"])
+    assert view["system_render"]["kind"] == "plane2d"
+    assert view["system_render"]["overlays"][0]["source"] == "declared_constraint"
+    panel["render"]["points"][0]["x"] = 99
+    assert view["system_render"]["points"][0]["x"] == 1.0
+
+
+def test_attach_system_canvases_copies_declared_planes_without_resampling():
+    cover = {"labels": ["a.x", "a.y"], "values": [0.1, 0.2], "units": ["m", "m"]}
+    wrapped = {"labels": ["b.x", "b.y"], "values": [0.3, 0.4], "units": ["m", "m"]}
+    attach_plane(cover, frame="area-one-flat-quotient")
+    attach_plane(wrapped, frame="area-one-flat-quotient")
+    view = {"kind": "flat-torus-reference"}
+    attach_system_canvases(view, [
+        {"id": "cover_points", "title": "Lifted path coordinates", "render": cover["render"]},
+        {"id": "parallelogram_points", "title": "Wrapped quotient coordinates", "render": wrapped["render"]},
+    ], default_id="parallelogram_points")
+    assert view["system_canvas_id"] == "parallelogram_points"
+    assert view["system_render"]["canvas_id"] == "parallelogram_points"
+    assert view["system_render"]["canvas_title"] == "Wrapped quotient coordinates"
+    assert [item["id"] for item in view["system_canvases"]] == ["cover_points", "parallelogram_points"]
+    assert view["system_canvases"][0]["render"]["canvas_id"] == "cover_points"
+    assert view["system_render"]["points"][0]["x"] == 0.3
+    cover["render"]["points"][0]["x"] = 9
+    assert view["system_canvases"][0]["render"]["points"][0]["x"] == 0.1
+    with pytest.raises(ValueError):
+        attach_system_canvases(view, [
+            {"id": "cover_points", "title": "Lifted", "render": cover["render"]},
+        ], default_id="missing")
+    with pytest.raises(ValueError):
+        attach_system_canvases(view, [
+            {"id": "cover_points", "title": "Lifted", "render": cover["render"]},
+            {"id": "cover_points", "title": "Duplicate", "render": wrapped["render"]},
+        ])
+    cover["render"]["canvas_id"] = "cover_points"
+    with pytest.raises(ValueError):
+        attach_system_canvases(view, [
+            {"id": "parallelogram_points", "title": "Wrapped quotient coordinates", "render": cover["render"]},
+        ])
+    attach_system_canvases(view, [
+        {"id": "cover_points", "title": "Lifted path coordinates", "render": cover["render"]},
+    ])
+    assert view["system_render"]["canvas_id"] == "cover_points"
+    cover["render"]["canvas_title"] = "Lifted path coordinates"
+    misplaced = dict(cover["render"])
+    misplaced["canvas_id"] = "parallelogram_points"
+    with pytest.raises(ValueError):
+        attach_system_canvases(view, [
+            {"id": "parallelogram_points", "title": "Wrapped quotient coordinates", "render": misplaced},
+        ])
+    attach_system_canvases(view, [
+        {"id": "cover_points", "title": "Lifted path coordinates", "render": cover["render"]},
+    ])
+    assert view["system_render"]["canvas_title"] == "Lifted path coordinates"
+    cover["render"]["canvas_id"] = "area-one-flat-quotient"
+    with pytest.raises(ValueError):
+        detach_render(cover["render"])
+
+
+
+
+def test_attach_system_canvases_keeps_declared_strips_on_a_named_arclength_axis():
+    first = {"values": [0.1, 0.2], "units": ["m", "m"]}
+    second = {"values": [0.01, 0.02], "units": ["radian", "radian"]}
+    attach_strip(first, [0.0, 1.0], parameter_name="arclength", parameter_unit="m",
+                 frame="jacobi-path", canvas_id="separation", canvas_title="Native transverse separation")
+    attach_strip(second, [0.0, 1.0], parameter_name="arclength", parameter_unit="m",
+                 frame="jacobi-path", canvas_id="heading-change", canvas_title="Native heading change")
+    view = {"kind": "curved-path-transfer"}
+    attach_system_canvases(view, [
+        {"id": "separation", "title": "Native transverse separation", "render": first["render"]},
+        {"id": "heading-change", "title": "Native heading change", "render": second["render"]},
+    ], default_id="separation")
+    assert view["system_canvas_id"] == "separation"
+    assert view["system_render"]["kind"] == "strip"
+    assert view["system_render"]["parameter_name"] == "arclength"
+    assert view["system_render"]["canvas_title"] == "Native transverse separation"
+    first["render"]["samples"][0]["value"] = 9
+    assert view["system_render"]["samples"][0]["value"] == 0.1
+
+
+def test_detach_render_refuses_connect_on_plane_and_strip():
+    panel = {"labels": ["a.x", "a.y"], "values": [1.0, 0.0], "units": ["m", "m"]}
+    attach_plane(panel, frame="bench-plane")
+    copied = detach_render(panel["render"])
+    assert copied["connect"] is False
+    panel["render"]["connect"] = True
+    with pytest.raises(ValueError, match="Plane and strip copies stay unconnected"):
+        detach_render(panel["render"])
+    assert panel["render"]["connect"] is True
+    strip = {"values": [0.1, 0.2], "units": ["m", "m"]}
+    attach_strip(strip, [0.0, 1.0], parameter_name="arclength", parameter_unit="m",
+                 frame="path", canvas_id="separation", canvas_title="Native transverse separation")
+    view = {"kind": "curved-path-transfer"}
+    attach_system(view, strip["render"])
+    assert view["system_render"]["connect"] is False
+    strip["render"]["connect"] = True
+    with pytest.raises(ValueError, match="Plane and strip copies stay unconnected"):
+        attach_system(view, strip["render"])
+    with pytest.raises(ValueError):
+        detach_render({"kind": "strip", "connect": True})
+
+
+def test_detach_render_keeps_declared_circles_and_refuses_fitted_overlays():
+    constraint = {"kind": "circle", "center_m": [0.0, 0.0], "radius_m": 1.0, "constraint_id": "reference-circle"}
+    overlay = declared_circle_overlay(constraint)
+    panel = {"labels": ["o0.x", "o0.y"], "values": [1.0, 0.0], "units": ["m", "m"]}
+    attach_plane(panel, frame="bench-plane", overlays=[overlay])
+    panel["render"]["overlays"][0]["radius"] = 4
+    panel["render"]["overlays"][0]["source"] = "fitted_residual"
+    view = {"kind": "geometric-circle"}
+    with pytest.raises(ValueError, match="Circle overlay refuses fitted or estimated geometry"):
+        attach_system(view, panel["render"])
+    restored = declared_circle_overlay(constraint)
+    attach_plane(panel, frame="bench-plane", overlays=[restored])
+    attach_system(view, panel["render"])
+    panel["render"]["overlays"][0]["radius"] = 9
+    assert view["system_render"]["overlays"][0]["radius"] == 1.0
+    assert view["system_render"]["overlays"][0]["source"] == "declared_constraint"
+    assert view["system_render"]["overlays"][0]["constraint_id"] == "reference-circle"
+    assert view["system_render"]["overlays"][0]["overlay_title"] == "reference-circle"
+    fitted = dict(restored)
+    fitted["source"] = "least_squares_fit"
+    with pytest.raises(ValueError, match="Circle overlay refuses fitted or estimated geometry"):
+        detach_overlay(fitted)
+    with pytest.raises(ValueError, match="Circle overlay refuses fitted or estimated geometry"):
+        plane_from_interleaved([1.0, 0.0], ["a.x", "a.y"], ["m", "m"], frame="bench-plane", overlays=[fitted])
+    restored["authority"] = "surveyed_fit"
+    with pytest.raises(ValueError, match="Circle overlay refuses fitted or estimated geometry"):
+        detach_overlay(restored)
+
+
+def test_detach_render_refuses_a_mesh_path_outside_declared_vertices():
+    mesh = {"vertices": [[0, 0, 0], [1, 0, 0], [0, 1, 0]],
+            "triangles": [[0, 1, 2]], "units": "normalized_length",
+            "coordinate_frame": "synthetic-triangle"}
+    render = declared_mesh(mesh, path=[0, 1], source_vertex=0, target_vertex=1)
+    view = {"kind": "mesh-path"}
+    attach_system(view, render)
+    assert view["system_render"]["path"] == [0, 1]
+    render["path"].append(9)
+    assert view["system_render"]["path"] == [0, 1]
+    with pytest.raises(ValueError):
+        attach_system(view, render)
+    render["path"] = [0, 1]
+    render["source_vertex"] = 8
+    with pytest.raises(ValueError):
+        attach_system(view, render)
+    with pytest.raises(ValueError):
+        declared_mesh(mesh, path=[0, 1], source_vertex=8)
+
+
+def test_detach_render_refuses_declared_planar_after_a_lifted_vertex():
+    mesh = {"vertices": [[0, 0, 0], [1, 0, 0], [0, 1, 0]],
+            "triangles": [[0, 1, 2]], "units": "normalized_length",
+            "coordinate_frame": "synthetic-triangle"}
+    render = declared_mesh(mesh)
+    assert render["declared_planar"] is True
+    view = {"kind": "mesh-path"}
+    attach_system(view, render)
+    render["vertices"][0][2] = 1.0
+    render["declared_planar"] = True
+    assert view["system_render"]["declared_planar"] is True
+    assert view["system_render"]["vertices"][0][2] == 0
+    with pytest.raises(ValueError):
+        attach_system(view, render)
+    render["declared_planar"] = False
+    attach_system(view, render)
+    assert view["system_render"]["declared_planar"] is False
+    assert view["system_render"]["vertices"][0][2] == 1.0
+
+
+def test_detach_render_refuses_a_decreasing_or_nonfinite_strip_axis():
+    panel = {"values": [0.1, 0.2, 0.15], "units": ["m", "m", "m"]}
+    attach_strip(panel, [0.0, 0.5, 1.0], parameter_name="arclength", parameter_unit="m",
+                 frame="jacobi-path", canvas_id="separation", canvas_title="Native transverse separation")
+    view = {"kind": "curved-path-transfer"}
+    attach_system(view, panel["render"])
+    assert view["system_render"]["samples"][1]["parameter"] == 0.5
+    panel["render"]["samples"][-1]["parameter"] = 0.1
+    assert view["system_render"]["samples"][-1]["parameter"] == 1.0
+    with pytest.raises(ValueError):
+        attach_system(view, panel["render"])
+    panel["render"]["samples"][-1]["parameter"] = 1.0
+    panel["render"]["samples"][2]["value"] = float("nan")
+    with pytest.raises(ValueError):
+        attach_system(view, panel["render"])
+    with pytest.raises(ValueError):
+        attach_system_canvases(view, [
+            {"id": "separation", "title": "Native transverse separation", "render": panel["render"]},
+        ])
+
+
+def test_detach_render_refuses_nonfinite_plane_points():
+    panel = {"labels": ["a.x", "a.y", "b.x", "b.y"], "values": [1.0, 0.0, 0.0, 1.0], "units": ["m"] * 4}
+    attach_plane(panel, frame="bench-plane", canvas_id="observed_points_m", canvas_title="Observed coordinates")
+    view = {"kind": "geometric-circle"}
+    attach_system(view, panel["render"])
+    assert view["system_render"]["points"][0]["x"] == 1.0
+    panel["render"]["points"][0]["x"] = float("nan")
+    assert view["system_render"]["points"][0]["x"] == 1.0
+    with pytest.raises(ValueError):
+        attach_system(view, panel["render"])
+    panel["render"]["points"][0]["x"] = 1.0
+    panel["render"]["points"][1]["y"] = float("inf")
+    with pytest.raises(ValueError):
+        attach_system_canvases(view, [
+            {"id": "observed_points_m", "title": "Observed coordinates", "render": panel["render"]},
+        ])
+
+
+def test_detach_render_refuses_a_strip_caption_that_outruns_the_axis():
+    panel = {"values": [0.1, 0.2, 0.15], "units": ["m", "m", "m"]}
+    attach_strip(panel, [0.0, 0.5, 1.0], parameter_name="arclength", parameter_unit="m",
+                 frame="jacobi-path", canvas_id="separation", canvas_title="Native transverse separation")
+    view = {"kind": "curved-path-transfer"}
+    attach_system(view, panel["render"])
+    assert view["system_render"]["end_label"] == "arclength=1.0"
+    panel["render"]["end_label"] = "arclength=9.0"
+    assert view["system_render"]["end_label"] == "arclength=1.0"
+    with pytest.raises(ValueError):
+        attach_system(view, panel["render"])
+    panel["render"]["end_label"] = "arclength=1.0"
+    panel["render"]["samples"][-1]["parameter"] = 2.0
+    with pytest.raises(ValueError):
+        attach_system(view, panel["render"])
+    panel["render"]["end_label"] = "arclength=2.0"
+    panel["render"]["end_parameter"] = 2.0
+    attach_system(view, panel["render"])
+    assert view["system_render"]["end_label"] == "arclength=2.0"
+    assert view["system_render"]["end_parameter"] == 2.0
+
+
+def test_detach_render_refuses_a_plane_caption_that_outruns_the_points():
+    panel = {"labels": ["p0.x", "p0.y", "p1.x", "p1.y"], "values": [1.0, 0.0, 0.0, 1.0], "units": ["m"] * 4}
+    attach_plane(panel, frame="area-one-flat-quotient", canvas_id="cover_points",
+                 canvas_title="Lifted cover coordinates")
+    view = {"kind": "flat-torus"}
+    attach_system(view, panel["render"])
+    assert view["system_render"]["start_label"] == "p0"
+    assert view["system_render"]["end_label"] == "p1"
+    panel["render"]["end_label"] = "fitted-last"
+    assert view["system_render"]["end_label"] == "p1"
+    with pytest.raises(ValueError):
+        attach_system(view, panel["render"])
+    panel["render"]["end_label"] = "p1"
+    panel["render"]["points"][-1]["label"] = "q1"
+    with pytest.raises(ValueError):
+        attach_system(view, panel["render"])
+    panel["render"]["end_label"] = "q1"
+    attach_system(view, panel["render"])
+    assert view["system_render"]["end_label"] == "q1"
+
+
+def test_detach_render_refuses_a_mesh_caption_that_outruns_the_vertices():
+    mesh = {"vertices": [[0, 0, 0], [1, 0, 0], [0, 1, 0]],
+            "triangles": [[0, 1, 2]], "units": "normalized_length",
+            "coordinate_frame": "synthetic-triangle"}
+    render = declared_mesh(mesh, source_vertex=0, target_vertex=2)
+    view = {"kind": "mesh-path"}
+    attach_system(view, render)
+    assert view["system_render"]["source_label"] == "source 0"
+    render["source_label"] = "source fitted"
+    assert view["system_render"]["source_label"] == "source 0"
+    with pytest.raises(ValueError):
+        attach_system(view, render)
+    render["source_label"] = "source 0"
+    render["source_vertex"] = 1
+    with pytest.raises(ValueError):
+        attach_system(view, render)
+    render["source_label"] = "source 1"
+    attach_system(view, render)
+    assert view["system_render"]["source_label"] == "source 1"
+    assert view["system_render"]["source_vertex"] == 1
+
+
+def test_detach_render_refuses_a_circle_title_that_outruns_the_constraint():
+    constraint = {"kind": "circle", "center_m": [0.0, 0.0], "radius_m": 1.0, "constraint_id": "reference-circle"}
+    panel = {"labels": ["o0.x", "o0.y"], "values": [1.0, 0.0], "units": ["m", "m"]}
+    attach_plane(panel, frame="bench-plane", overlays=[declared_circle_overlay(constraint)])
+    view = {"kind": "geometric-circle"}
+    attach_system(view, panel["render"])
+    assert view["system_render"]["overlays"][0]["overlay_title"] == "reference-circle"
+    panel["render"]["overlays"][0]["overlay_title"] = "fitted-circle"
+    assert view["system_render"]["overlays"][0]["overlay_title"] == "reference-circle"
+    with pytest.raises(ValueError):
+        attach_system(view, panel["render"])
+    panel["render"]["overlays"][0]["overlay_title"] = "reference-circle"
+    panel["render"]["overlays"][0]["constraint_id"] = "other-circle"
+    with pytest.raises(ValueError):
+        attach_system(view, panel["render"])
+    panel["render"]["overlays"][0]["overlay_title"] = "other-circle"
+    attach_system(view, panel["render"])
+    assert view["system_render"]["overlays"][0]["overlay_title"] == "other-circle"
+    assert view["system_render"]["overlays"][0]["constraint_id"] == "other-circle"
+
+
+
