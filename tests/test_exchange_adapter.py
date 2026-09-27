@@ -4,6 +4,7 @@ from __future__ import annotations
 import base64
 import json
 import os
+import subprocess
 from pathlib import Path
 
 import pytest
@@ -100,10 +101,25 @@ def test_native_exchange_survives_save_reopen_and_replay(monkeypatch, tmp_path):
 
 
 def test_provider_revision_mismatch_is_refused(tmp_path):
-    fake = tmp_path / "provider"
-    fake.mkdir()
-    with pytest.raises(ValueError, match="revision"):
-        adapter._runtime(fake)
+    provider = tmp_path / "provider"
+    subprocess.run(["git", "init", "--quiet", str(provider)], check=True,
+                   capture_output=True, timeout=10)
+    subprocess.run(["git", "-C", str(provider),
+                    "-c", "user.name=CIW test", "-c", "user.email=ciw@example.invalid",
+                    "-c", "commit.gpgSign=false", "commit", "--quiet", "--allow-empty",
+                    "-m", "Unrelated provider fixture"], check=True,
+                   capture_output=True, timeout=10)
+    assert adapter._git(provider, "rev-parse", "HEAD") != adapter.PIN["revision"]
+    with pytest.raises(ValueError, match="SET provider revision differs from the exchange pin"):
+        adapter._runtime(provider)
+
+
+def test_provider_checkout_without_commit_is_refused(tmp_path):
+    provider = tmp_path / "provider"
+    subprocess.run(["git", "init", "--quiet", str(provider)], check=True,
+                   capture_output=True, timeout=10)
+    with pytest.raises(ValueError, match="SET provider must be a readable git checkout"):
+        adapter._runtime(provider)
 
 
 def test_terminal_parser_exposes_the_exact_exchange_binding():
