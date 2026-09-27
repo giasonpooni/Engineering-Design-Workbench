@@ -69,6 +69,7 @@ def detach_render(render):
     if payload.get("kind") == "plane2d":
         payload["overlays"] = detach_overlays(payload.get("overlays"))
         payload["points"] = detach_plane_points(payload.get("points"))
+        payload.update(plane_endpoint_labels(payload["points"]))
     if payload.get("kind") == "mesh":
         payload.update(detach_mesh_geometry(payload))
     if payload.get("kind") == "strip":
@@ -101,6 +102,18 @@ def detach_plane_points(points):
     return copied
 
 
+def plane_endpoint_labels(points):
+    """Name the first and last declared plane points. Not a trajectory."""
+    if not points:
+        return {}
+    start = points[0].get("label") or "first"
+    end = points[-1].get("label") or "last"
+    labels = {"start_label": start, "end_label": end}
+    if len(points) == 1 or start == end:
+        labels["end_label"] = None
+    return labels
+
+
 def plane_from_interleaved(values, labels, units, *, frame, overlays=()):
     """Pair already-projected sample-major x,y values for a 2D inspection canvas."""
     if not isinstance(values, list) or len(values) < 2 or len(values) % 2:
@@ -120,7 +133,7 @@ def plane_from_interleaved(values, labels, units, *, frame, overlays=()):
             label = label[:-2]
         points.append({"label": label, "x": float(values[index]), "y": float(values[index + 1])})
     points = detach_plane_points(points)
-    return deepcopy({
+    payload = {
         "schema": SCHEMA,
         "kind": "plane2d",
         "authority": dict(AUTHORITY),
@@ -130,7 +143,9 @@ def plane_from_interleaved(values, labels, units, *, frame, overlays=()):
         "overlays": detach_overlays(overlays),
         "connect": False,
         "note": "Declared-order points in the retained frame; not a trajectory or interpolation",
-    })
+    }
+    payload.update(plane_endpoint_labels(points))
+    return deepcopy(payload)
 
 
 def declared_circle_overlay(constraint):

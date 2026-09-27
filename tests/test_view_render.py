@@ -27,6 +27,8 @@ def test_plane_pairs_retained_coordinates_without_connecting_them():
     assert render["schema"] == SCHEMA
     assert render["kind"] == "plane2d"
     assert render["connect"] is False
+    assert render["start_label"] == "p0"
+    assert render["end_label"] == "p1"
     assert render["authority"] == AUTHORITY
     assert render["points"] == [{"label": "p0", "x": 1.0, "y": 0.0}, {"label": "p1", "x": 0.0, "y": 1.0}]
     render["points"][0]["x"] = 99

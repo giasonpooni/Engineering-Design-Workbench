@@ -186,8 +186,15 @@ func _draw_plane(render: Dictionary) -> void:
 	for i in samples.size():
 		var point := _map(samples[i], world, plot)
 		draw_circle(point, 4, Color("60dfcd"))
-		if samples.size() <= 8:
-			draw_string(font, point + Vector2(6, -6), str(kept[i].get("label", i + 1)), HORIZONTAL_ALIGNMENT_LEFT, -1, 11)
+		var name := ""
+		if i == 0:
+			name = str(render.get("start_label", kept[i].get("label", "")))
+		elif i == samples.size() - 1:
+			name = str(render.get("end_label", kept[i].get("label", "")))
+		elif samples.size() <= 8:
+			name = str(kept[i].get("label", i + 1))
+		if not name.is_empty():
+			draw_string(font, point + Vector2(6, -6), name, HORIZONTAL_ALIGNMENT_LEFT, -1, 11)
 
 
 func _draw_mesh(render: Dictionary) -> void:
