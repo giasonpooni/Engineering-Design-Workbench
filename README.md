@@ -1,24 +1,26 @@
-# Parametric Design Terminal
+# Notations Design Terminal
 
 **Run scientific calculations, compare changes, and keep a checkable record.**
 
-Parametric Design Terminal (PDT) is a terminal-first scientific computing
-workbench. It runs supported models and analysis operations, saves their inputs
-and results, and lets you inspect or reopen a study without running it again.
+**Notations Design Terminal** is a terminal-first scientific computing and
+cyber-physical design workbench from **Notation Systems**. It runs supported
+models and analysis operations, saves their inputs and results, and lets you
+inspect or reopen a study without running it again. Supported sensing and
+apparatus integrations extend the same investigation into physical experiments.
 For supported workflows, you can vary model parameters, compare the responses,
 and inspect uncertainty, residuals and other checks.
 
 An **investigation** is the question together with the models, observations,
-settings, calculations and checks used to answer it. PDT keeps these connected
+settings, calculations and checks used to answer it. Notations keeps these connected
 rather than saving only a final number or plot. Engineering design is the main
 use: change a permitted input, calculate the response, check the result and
 compare candidates.
 
-PDT extends the existing **Computational Instrumentation Workbench (CIW)**.
+Notations Design Terminal extends the existing **Computational Instrumentation Workbench (CIW)**.
 The Python package and terminal command remain `ciw`; this is not a second
 runtime. The software works without a graphical viewer or an AI assistant.
 
-[Quickstart](#quickstart) · [What works today](#current-scope) ·
+[notations.io](https://notations.io) · [Quickstart](#quickstart) · [What works today](#current-scope) ·
 [How it works](#how-an-investigation-works) · [Development priorities](#next-gates) ·
 [Documentation](docs/README.md)
 
@@ -131,14 +133,14 @@ the operator, not inferred from a successful calculation.
 <a id="existing-runtime-same-substrate"></a>
 ## Architecture
 
-PDT coordinates existing scientific software rather than replacing its equations
+Notations coordinates existing scientific software rather than replacing its equations
 or solvers. A **provider** is a registered implementation of a supported
 calculation. A **profile** describes the particular model, inputs, assumptions
 and checks a workflow supports.
 
 | Component | Responsibility |
 | --- | --- |
-| **PDT / CIW** | Manage the investigation, selected operations, saved history, inspection and explicit replay. The existing Python session remains authoritative for these records. |
+| **Notations / CIW** | Manage the investigation, selected operations, saved history, inspection and explicit replay. The existing Python session remains authoritative for these records. |
 | **Scientific providers** | Supply domain models and calculations through adapters with explicit source/runtime versions. Each repository retains its own scientific contract, tests and licence. |
 | **Native execution / SCR** | Supply supported native execution services and runtime bindings. Python, Julia and C/C++ implementations connect through the applicable registered boundary; no mandatory language chain is imposed. |
 | **Checkers / ICRH, PLSR and selected SP1 paths** | Check the numerical, contract, stability or registered-computation claims they actually support. A computation does not certify itself. |
@@ -344,7 +346,7 @@ A smooth family of designs may use local coordinates and a manifold description;
 other designs may be discrete or mix both. **Parametric design manifolds** name
 that specialized research case, not every investigation. Equivalence-based model
 descriptions, topology and category-theoretic composition are tools to use where
-a workload requires them, not prerequisites for running PDT.
+a workload requires them, not prerequisites for running Notations.
 
 Changing coordinates, reducing a model, losing information in an encoding and
 coupling two physical models are different operations. A change of domain is not
@@ -381,7 +383,7 @@ Preserve explicit `metersPerUnit`, `upAxis`, coordinate/frame mappings and
 support and interpolation policy separate; interpolated display values are not
 new observations. Mixed-unit assets require explicit corrective transforms.
 
-Keep PDT identifiers separate from scene paths. Bind contributing asset/layer
+Keep Notations investigation and result identifiers separate from scene paths. Bind contributing asset/layer
 digests, layer order, selected variants and exporter/runtime identity; hashing
 only the root file does not bind an externally referenced scene. Declare any
 supported schema subset, tessellation, decimation or precision loss.
