@@ -1,0 +1,63 @@
+name: Closed pilot and OpenUSD roundtrip
+on:
+  push:
+    branches: [main, feat/closed-pilot-scene]
+    paths: ['src/ciw/**', 'tests/test_pilot_scope.py', 'tests/test_usd_export.py', 'pyproject.toml', '.github/workflows/pilot-scope.yml']
+  pull_request:
+    paths: ['src/ciw/**', 'tests/test_pilot_scope.py', 'tests/test_usd_export.py', 'pyproject.toml', '.github/workflows/pilot-scope.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: pilot-scope-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+jobs:
+  installed-pilot:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Build isolated installed application and optional SDK
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install 'setuptools>=77' wheel
+          python -m pip wheel --no-deps --no-build-isolation . -w "$RUNNER_TEMP/pilot-wheel"
+          python -m venv "$RUNNER_TEMP/pilot-env"
+          "$RUNNER_TEMP/pilot-env/bin/python" -m pip install "$RUNNER_TEMP"/pilot-wheel/*.whl pytest==9.0.2 usd-core==25.11
+          mkdir -p "$RUNNER_TEMP/pilot-check/tests" results/pilot
+          cp tests/test_pilot_scope.py tests/test_usd_export.py "$RUNNER_TEMP/pilot-check/tests/"
+          "$RUNNER_TEMP/pilot-env/bin/python" -m pip freeze > results/pilot/environment.txt
+          sha256sum "$RUNNER_TEMP"/pilot-wheel/*.whl > results/pilot/wheel.sha256
+      - name: Run complete tests and actual SDK pilot outside checkout
+        shell: bash
+        run: |
+          set -euo pipefail
+          unset PYTHONPATH PYTEST_ADDOPTS
+          output="$GITHUB_WORKSPACE/results/pilot"
+          py="$RUNNER_TEMP/pilot-env/bin/python"
+          cd "$RUNNER_TEMP/pilot-check"
+          "$py" -I -c 'import ciw,sys; from pathlib import Path; from pxr import Usd; assert Path(ciw.__file__).resolve().is_relative_to(Path(sys.prefix).resolve()); print(ciw.__file__, Usd.GetVersion())' > "$output/import.txt"
+          "$py" -I -B -m pytest -q -p no:cacheprovider --junitxml "$output/tests.xml" tests 2>&1 | tee "$output/tests.txt"
+          "$py" - "$output/tests.xml" <<'PY'
+          import sys, xml.etree.ElementTree as ET
+          cases = list(ET.parse(sys.argv[1]).getroot().iter('testcase'))
+          if len(cases) < 28 or any(c.find(tag) is not None for c in cases for tag in ('failure','error','skipped')):
+              raise SystemExit('Pilot acceptance requires all tests, including the real SDK, without skips')
+          assert any(c.get('name') == 'test_native_sdk_roundtrip_and_provider_free_reopen' for c in cases)
+          PY
+          "$py" -I -m ciw.pilot --output-dir "$output/study" --with-usd > "$output/pilot-stdout.json"
+          "$py" -I -m ciw.usd_export verify "$output/study/scene" > "$output/fresh-sdk-reload.json"
+          "$py" -I -m ciw inspect "$output/study/workspace.json" > "$output/inspection.json"
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: closed-pilot-evidence
+          path: results/pilot
+          if-no-files-found: error
+          retention-days: 14
