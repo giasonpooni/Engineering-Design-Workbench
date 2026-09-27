@@ -2,7 +2,7 @@
 
 Part of **Notation Systems' computational instrumentation and evidence infrastructure** for industrial and cyber-physical systems.
 
-[Stack map](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/STACK.md) · [Component role and interfaces](docs/STACK_ROLE.md)
+[Notations Engineering Terminal (CIW)](https://github.com/giasonpooni/Notations-Engineering-Terminal) · [Stack map](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/main/docs/STACK.md) · [Component role and interfaces](docs/STACK_ROLE.md)
 
 **Check whether measurements in a fluid network agree with a declared physical balance.**
 
@@ -48,7 +48,7 @@ Estimator specifications can disable reconciliation or select explicit feedback;
 this drawing does not imply that every run corrects its state. The record keeps
 pre-correction estimates, residuals and correction status. Disagreement is not
 unique fault attribution. The single-snapshot CIW operation is a narrower
-contract, described below and in the [Instrumentation diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md).
+contract, described below and in the [Instrumentation diagram atlas](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/main/docs/DIAGRAMS.md).
 
 ## A practical example
 
@@ -79,11 +79,14 @@ The example uses two tanks and a declared total of 100 kg. It shows two cases:
 
 The example uses synthetic values and makes no network requests. See the [usage guide](docs/USAGE.md).
 
-For a workbench integration, FSRT also exposes a [pinned JSON subprocess operation](docs/CIW_ADAPTER.md)
+For integration with Notations Engineering Terminal, the existing CIW workbench,
+FSRT exposes a [pinned JSON subprocess operation](docs/CIW_ADAPTER.md)
 for one simultaneous two-reservoir snapshot. It retains full channel covariance,
 the original observations, model disagreement, and explicit numerical refusals.
 Its additive v2 operation carries ordered covariance provenance and full innovation,
 posterior and reconciled covariance artifacts while preserving the v1 science.
+The workbench title does not rename the `ciw` namespace or FSRT's operation and
+result contracts.
 
 ## Explore the examples
 
