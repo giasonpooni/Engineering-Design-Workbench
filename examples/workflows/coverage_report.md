@@ -1,10 +1,10 @@
 # Use-case coverage report (executable layer)
 
-Generated: `2026-09-27T21:14:49.346628+00:00`
+Generated: `2026-09-27T22:46:06.247021+00:00`
 
 ## Catalog exhausted ≠ experiments exhausted
 
-Catalog exhausted ≠ experiments exhausted. 9,074 application descriptions collapse to 10 unique computational profiles (operation + model/uncertainty + expected outcome class). Export/teaching emit was exercised for representatives; scientific execution, numerical regimes, independent checking, replay, and ESM-bound observations remain largely not_run, blocked, unavailable, or cite_only.
+Catalog exhausted ≠ experiments exhausted. 9,074 application descriptions collapse to 10 unique computational profiles (operation + model/uncertainty + expected outcome class). Export/teaching emit plus --attempt-execute strongest honest local paths were exercised; HOST synthetic numerics are distinguished from native provider sessions; FSRT stays blocked (no fluid-volume.v1); PROVED_HEAT stays unavailable without SP1 binaries; ESM remains cite_only.
 
 ## Freeze
 
@@ -19,10 +19,10 @@ Catalog exhausted ≠ experiments exhausted. 9,074 application descriptions coll
 | --- | --- |
 | `catalog` | pass=10 |
 | `export` | pass=10 |
-| `executable` | blocked=1, not_run=8, unavailable=1 |
-| `numerical` | blocked=1, not_run=8, unavailable=1 |
+| `executable` | blocked=1, not_run=2, pass=6, unavailable=1 |
+| `numerical` | not_run=2, pass=7, unavailable=1 |
 | `checking` | pass=10 |
-| `replay` | blocked=1, not_run=8, unavailable=1 |
+| `replay` | not_run=2, pass=7, unavailable=1 |
 | `ESM` | cite_only=10 |
 
 ## Verb → instrument family → operation mapping
@@ -76,131 +76,154 @@ See also [`computational_profiles.json`](computational_profiles.json). **10** pr
 | Weight | Reason |
 | ---: | --- |
 | 9074 | ESM_real_artifact_bindings_absent_cite_only |
-| 7926 | scientific_execution_requires_workbench_session_or_ICRH |
+| 6419 | scientific_execution_requires_workbench_session_or_ICRH |
 | 1148 | FSRT_ciw.fluid-volume.v1_not_minted |
-| 1144 | native_session_ciw.curved-path-transfer.v1_not_invoked |
+| 1144 | HOST_numerics_pass_but_native_session_open_CSG |
 | 1138 | native_session_ciw.bim-quantity.v1_not_invoked |
-| 1128 | native_session_ciw.identified-stability.v1_not_invoked |
+| 1128 | HOST_numerics_pass_but_native_session_open_PLSR |
 | 755 | PROVED_HEAT_SP1_binaries_or_fresh_verify_unavailable |
-| 753 | native_session_ciw.residual-monitor.v1_not_invoked |
-| 752 | native_session_ciw.energy-accuracy.v1_not_invoked |
-| 752 | native_session_ciw.geometric-circle.v1_not_invoked |
+| 753 | HOST_numerics_pass_but_native_session_open_RESIDUAL_CUSUM |
 | 752 | native_session_ciw.measurement-chain.v1_not_invoked |
-| 752 | native_session_ciw.variational-free-energy.v1_not_invoked |
+| 752 | HOST_numerics_pass_but_native_session_open_GTE_CIRCLE |
 
 ## Representative run results
 
-Commands below ran locally without private providers. SP1/proved-heat scientific execution marked unavailable/not_run when binaries unbound.
+Commands below include --attempt-execute strongest honest local paths (package CLI / HOST numerics / refuse checks). Native provider sessions remain unbound unless noted; SP1/proved-heat stays unavailable without binaries.
 
 ### CSE · unique_computational_config
 
 - profile_id: `9eccaafa8bc49a47`
 - layers: `catalog=pass`, `export=pass`, `executable=not_run`, `numerical=not_run`, `checking=pass`, `replay=not_run`, `ESM=cite_only`
 - command: `python3 -c usecase_templates.EMIT_FUNCTIONS['CSE'](...)` → **pass** (rc=0)
-  - stdout: wrote /tmp/cov-CSE-vbj22xfw/cse_rep_render.json bytes=8611
+  - stdout: wrote /tmp/cov-CSE-55tf787p/cse_rep_render.json bytes=8611
 - command: `python3 -c structural_checks(emitted_json)` → **pass** (rc=0)
   - stdout: checks_ok=True issues=[]
+- command: `python3 -c cse-bim-quantity.build_payload (template only; no GatSession)` → **not_run** (rc=0)
+  - stdout: {"cases": ["conditioned-accept-recommendation", "held-request-evidence", "refused-violated"], "evidence": "examples/workflows/executable_evidence/cse_template_only.json", "reason": "published teaching posteriors hardcoded; no live conditioning"}
 - command: `ciw operation.execute ciw.bim-quantity.v1` → **not_run** (rc=None)
-  - stdout: local teaching emit only; workbench session / ICRH not started
+  - stdout: CSE provider / GatSession not bound in this box
 
 ### CSG · unique_computational_config
 
 - profile_id: `86c913a772e11a44`
-- layers: `catalog=pass`, `export=pass`, `executable=not_run`, `numerical=not_run`, `checking=pass`, `replay=not_run`, `ESM=cite_only`
+- layers: `catalog=pass`, `export=pass`, `executable=pass`, `numerical=pass`, `checking=pass`, `replay=pass`, `ESM=cite_only`
 - command: `python3 -c usecase_templates.EMIT_FUNCTIONS['CSG'](...)` → **pass** (rc=0)
-  - stdout: wrote /tmp/cov-CSG-o1fjose1/csg_rep_render.json bytes=7532
+  - stdout: wrote /tmp/cov-CSG-ek_ilgm6/csg_rep_render.json bytes=7532
 - command: `python3 -c structural_checks(emitted_json)` → **pass** (rc=0)
   - stdout: checks_ok=True issues=[]
-- command: `ciw operation.execute ciw.curved-path-transfer.v1` → **not_run** (rc=None)
-  - stdout: local teaching emit only; workbench session / ICRH not started
+- command: `python3 -c csg-path-sensitivity._jacobi_norms+_sample_path (HOST)` → **pass** (rc=0)
+  - stdout: {"path_class": "HOST_SYNTHETIC_Jacobi_strip", "points": 17, "path_length": 2.0, "curvature": 0.25, "declared_residual": 0.0004649072120688465, "strip_points": 17, "peak_norm": 0.0035350927879311536, "replay_identical": true, "evidence": "examples/workflows/executable_evidence/csg_host_jacobi.json", 
 
 ### ENERGY_ACCURACY · unique_computational_config
 
 - profile_id: `b0e89a20f6c8870e`
-- layers: `catalog=pass`, `export=pass`, `executable=not_run`, `numerical=not_run`, `checking=pass`, `replay=not_run`, `ESM=cite_only`
+- layers: `catalog=pass`, `export=pass`, `executable=pass`, `numerical=pass`, `checking=pass`, `replay=pass`, `ESM=cite_only`
 - command: `python3 -c usecase_templates.EMIT_FUNCTIONS['ENERGY_ACCURACY'](...)` → **pass** (rc=0)
-  - stdout: wrote /tmp/cov-ENERGY_ACCURACY-x40m30xe/energy_accuracy_rep_render.json bytes=9436
+  - stdout: wrote /tmp/cov-ENERGY_ACCURACY-acbpxytu/energy_accuracy_rep_render.json bytes=9544
 - command: `python3 -c structural_checks(emitted_json)` → **pass** (rc=0)
   - stdout: checks_ok=True issues=[]
-- command: `ciw operation.execute ciw.energy-accuracy.v1` → **not_run** (rc=None)
-  - stdout: local teaching emit only; workbench session / ICRH not started
+- command: `python3 -c EnergyAccuracyWorkflow().create_session(baseline.json)+replay_session` → **pass** (rc=0)
+  - stdout: {"operation": "ciw.energy-accuracy.v1", "qualified_solves": 4, "amortized_j": 0.05, "evidence": "examples/workflows/executable_evidence/energy_accuracy_session.json"}
+- command: `ciw energy replay examples/energy-accuracy/baseline.json` → **pass** (rc=0)
+  - stdout: on_met": true,
+    "gross_energy_j": 0.2,
+    "amortized_domain_energy_j_per_qualified_solve": 0.05
+  },
+  "comparison": {
+    "eligible": false,
+    "classification": "synthetic_only",
+    "reasons": [],
+    "accuracy_basis": "all_retained_fixed_iteration_batch_outputs_meet_same_declared_KL_target"
 
 ### FSRT · unique_computational_config
 
 - profile_id: `255c3a6953b25b6b`
-- layers: `catalog=pass`, `export=pass`, `executable=blocked`, `numerical=blocked`, `checking=pass`, `replay=blocked`, `ESM=cite_only`
+- layers: `catalog=pass`, `export=pass`, `executable=blocked`, `numerical=pass`, `checking=pass`, `replay=pass`, `ESM=cite_only`
 - command: `python3 -c usecase_templates.EMIT_FUNCTIONS['FSRT'](...)` → **pass** (rc=0)
-  - stdout: wrote /tmp/cov-FSRT-o7oai6mn/fsrt_rep_render.json bytes=6908
+  - stdout: wrote /tmp/cov-FSRT-zhoyelu3/fsrt_rep_render.json bytes=6908
 - command: `python3 -c structural_checks(emitted_json)` → **pass** (rc=0)
   - stdout: checks_ok=True issues=[]
-- command: `native_operation.execute ciw.fluid-volume.v1` → **blocked** (rc=None)
+- command: `python3 -c fsrt-two-reservoir._hard_reconcile (HOST P=I; no fluid-volume)` → **blocked** (rc=0)
+  - stdout: {"threshold": 10.8275661707, "held_case": "held", "agree_residual_post": [0.0], "evidence": "examples/workflows/executable_evidence/fsrt_host_reconcile.json"}
   - stderr: HOST replay of published FSRT quickstart; does not mint ciw.fluid-volume.v1; no native set_lcm import
+- command: `native_operation.execute ciw.fluid-volume.v1` → **blocked** (rc=None)
+  - stderr: ciw.fluid-volume.v1 not minted in this repository surface
 
 ### GTE_CIRCLE · unique_computational_config
 
 - profile_id: `f3bf97b187d9d148`
-- layers: `catalog=pass`, `export=pass`, `executable=not_run`, `numerical=not_run`, `checking=pass`, `replay=not_run`, `ESM=cite_only`
+- layers: `catalog=pass`, `export=pass`, `executable=pass`, `numerical=pass`, `checking=pass`, `replay=pass`, `ESM=cite_only`
 - command: `python3 -c usecase_templates.EMIT_FUNCTIONS['GTE_CIRCLE'](...)` → **pass** (rc=0)
-  - stdout: wrote /tmp/cov-GTE_CIRCLE-vnm5_gce/gte_circle_rep_render.json bytes=7607
+  - stdout: wrote /tmp/cov-GTE_CIRCLE-vgs8lpne/gte_circle_rep_render.json bytes=7607
 - command: `python3 -c structural_checks(emitted_json)` → **pass** (rc=0)
   - stdout: checks_ok=True issues=[]
-- command: `ciw operation.execute ciw.geometric-circle.v1` → **not_run** (rc=None)
-  - stdout: local teaching emit only; workbench session / ICRH not started
+- command: `python3 -c gte-circle-eligibility._radial+_project (HOST teaching arithmetic)` → **pass** (rc=0)
+  - stdout: {"residuals": [0.010000000000000009, -0.010000000000000009], "match": true, "evidence": "examples/workflows/executable_evidence/gte_circle_host_radial.json"}
 
 ### MEASUREMENT_CHAIN · unique_computational_config
 
 - profile_id: `1ad6ec86bd1fcef8`
 - layers: `catalog=pass`, `export=pass`, `executable=not_run`, `numerical=not_run`, `checking=pass`, `replay=not_run`, `ESM=cite_only`
 - command: `python3 -c usecase_templates.EMIT_FUNCTIONS['MEASUREMENT_CHAIN'](...)` → **pass** (rc=0)
-  - stdout: wrote /tmp/cov-MEASUREMENT_CHAIN-hstwvl_6/measurement_chain_rep_render.json bytes=5537
+  - stdout: wrote /tmp/cov-MEASUREMENT_CHAIN-ym7mzyev/measurement_chain_rep_render.json bytes=5537
 - command: `python3 -c structural_checks(emitted_json)` → **pass** (rc=0)
   - stdout: checks_ok=True issues=[]
+- command: `python3 -c measurement-chain-teach.build_payload (schematic; no native chain)` → **not_run** (rc=0)
+  - stdout: {"stages": ["raw", "calibrated", "estimate", "reconcile"], "evidence": "examples/workflows/executable_evidence/measurement_chain_schematic_only.json"}
 - command: `ciw operation.execute ciw.measurement-chain.v1` → **not_run** (rc=None)
-  - stdout: local teaching emit only; workbench session / ICRH not started
+  - stdout: RCI/FSRT/JSPT stack not bound in this box
 
 ### PLSR · unique_computational_config
 
 - profile_id: `e53d1d4e38444add`
-- layers: `catalog=pass`, `export=pass`, `executable=not_run`, `numerical=not_run`, `checking=pass`, `replay=not_run`, `ESM=cite_only`
+- layers: `catalog=pass`, `export=pass`, `executable=pass`, `numerical=pass`, `checking=pass`, `replay=pass`, `ESM=cite_only`
 - command: `python3 -c usecase_templates.EMIT_FUNCTIONS['PLSR'](...)` → **pass** (rc=0)
-  - stdout: wrote /tmp/cov-PLSR-x_23c4d6/plsr_rep_render.json bytes=9011
+  - stdout: wrote /tmp/cov-PLSR-67aw8rpu/plsr_rep_render.json bytes=9011
 - command: `python3 -c structural_checks(emitted_json)` → **pass** (rc=0)
   - stdout: checks_ok=True issues=[]
-- command: `ciw operation.execute ciw.identified-stability.v1` → **not_run** (rc=None)
-  - stdout: local teaching emit only; workbench session / ICRH not started
+- command: `python3 -c plsr-stability-verdict identity certificate HOST analog` → **pass** (rc=0)
+  - stdout: {"V": 2.0, "verdicts": ["NUMERICAL_INCONCLUSIVE", "OUTSIDE_LEVEL_SET"], "proof_status": "NOT_CHECKED", "evidence": "examples/workflows/executable_evidence/plsr_host_quadratic.json"}
 
 ### PROVED_HEAT · unique_computational_config
 
 - profile_id: `4e1754ccff604b3d`
 - layers: `catalog=pass`, `export=pass`, `executable=unavailable`, `numerical=unavailable`, `checking=pass`, `replay=unavailable`, `ESM=cite_only`
 - command: `python3 -c usecase_templates.EMIT_FUNCTIONS['PROVED_HEAT'](...)` → **pass** (rc=0)
-  - stdout: wrote /tmp/cov-PROVED_HEAT-_f4iye6w/proved_heat_rep_render.json bytes=10554
+  - stdout: wrote /tmp/cov-PROVED_HEAT-42s4r2k0/proved_heat_rep_render.json bytes=10554
 - command: `python3 -c structural_checks(emitted_json)` → **pass** (rc=0)
   - stdout: checks_ok=True issues=[]
-- command: `scripts/check_proved_heat.py (not invoked — binaries/providers)` → **unavailable** (rc=None)
-  - stdout: {"cargo": true, "rustc": true, "sp1_cli": false, "guest_elf_hits": [], "scientific_execution": "unavailable", "reason": "host_binaries_absent_or_unbound"}
+- command: `scripts/check_proved_heat.py --help` → **pass** (rc=0)
+  - stdout:      workspace
+  --prover PROVER       Trusted sp1-host built from the SCR zk workspace
+  --guest GUEST          Registered heat ELF, rebuilt with the committed recipe
+  --output-dir OUTPUT_DIR
+                        New or empty directory for proof artifacts and gate
+                        report
+
+- command: `scripts/check_proved_heat.py (not invoked — binaries/providers unbound)` → **unavailable** (rc=None)
+  - stdout: {"scientific_execution": "unavailable", "reason": "host_binaries_absent_or_unbound", "evidence": "examples/workflows/executable_evidence/proved_heat_unavailable.json", "verified_present": false}
 
 ### RESIDUAL_CUSUM · unique_computational_config
 
 - profile_id: `23e0f4100e7ba51e`
-- layers: `catalog=pass`, `export=pass`, `executable=not_run`, `numerical=not_run`, `checking=pass`, `replay=not_run`, `ESM=cite_only`
+- layers: `catalog=pass`, `export=pass`, `executable=pass`, `numerical=pass`, `checking=pass`, `replay=pass`, `ESM=cite_only`
 - command: `python3 -c usecase_templates.EMIT_FUNCTIONS['RESIDUAL_CUSUM'](...)` → **pass** (rc=0)
-  - stdout: wrote /tmp/cov-RESIDUAL_CUSUM-8t8esgr9/residual_cusum_rep_render.json bytes=10632
+  - stdout: wrote /tmp/cov-RESIDUAL_CUSUM-u_mmnvaj/residual_cusum_rep_render.json bytes=10632
 - command: `python3 -c structural_checks(emitted_json)` → **pass** (rc=0)
   - stdout: checks_ok=True issues=[]
-- command: `ciw operation.execute ciw.residual-monitor.v1` → **not_run** (rc=None)
-  - stdout: local teaching emit only; workbench session / ICRH not started
+- command: `python3 -c residual-cusum-teach CUSUM accumulation (HOST synthetic)` → **pass** (rc=0)
+  - stdout: {"peak": 7.6, "crossed": true, "oit_held_frozen": true, "evidence": "examples/workflows/executable_evidence/residual_cusum_host_cusum.json"}
 
 ### VFE · unique_computational_config
 
 - profile_id: `3a74d4435cc207f4`
-- layers: `catalog=pass`, `export=pass`, `executable=not_run`, `numerical=not_run`, `checking=pass`, `replay=not_run`, `ESM=cite_only`
+- layers: `catalog=pass`, `export=pass`, `executable=pass`, `numerical=pass`, `checking=pass`, `replay=pass`, `ESM=cite_only`
 - command: `python3 -c usecase_templates.EMIT_FUNCTIONS['VFE'](...)` → **pass** (rc=0)
-  - stdout: wrote /tmp/cov-VFE-j4q17_4x/vfe_rep_render.json bytes=5881
+  - stdout: wrote /tmp/cov-VFE-8xdp6uel/vfe_rep_render.json bytes=5881
 - command: `python3 -c structural_checks(emitted_json)` → **pass** (rc=0)
   - stdout: checks_ok=True issues=[]
-- command: `ciw operation.execute ciw.variational-free-energy.v1` → **not_run** (rc=None)
-  - stdout: local teaching emit only; workbench session / ICRH not started
+- command: `python3 -c ciw.free_energy_math.gaussian_reference+variational_fit(problem)` → **pass** (rc=0)
+  - stdout: {"converged": true, "iterations": 90, "log_evidence": -3.7810242469692907, "evidence": "examples/workflows/executable_evidence/vfe_free_energy_math.json"}
 
 ### PROVED_HEAT · boundary_refuse · binaries-absent UNAVAILABLE
 
@@ -226,14 +249,14 @@ Commands below ran locally without private providers. SP1/proved-heat scientific
 ### PLSR · boundary_refuse · OUTSIDE_LEVEL_SET / NUMERICAL_INCONCLUSIVE
 
 - profile_id: `e53d1d4e38444add`
-- layers: `catalog=pass`, `export=pass`, `executable=not_run`, `numerical=not_run`, `checking=pass`, `replay=not_run`, `ESM=cite_only`
+- layers: `catalog=pass`, `export=pass`, `executable=pass`, `numerical=pass`, `checking=pass`, `replay=pass`, `ESM=cite_only`
 - command: `python3 -c assert case_ids subset of PLSR.build_payload()['cases']` → **pass** (rc=0)
   - stdout: present=['identity-certificate-inconclusive', 'level-zero-outside'] missing=[]
 
 ### FSRT · boundary_refuse · large-disagreement HELD (operation BLOCKED for fluid-volume mint)
 
 - profile_id: `255c3a6953b25b6b`
-- layers: `catalog=pass`, `export=pass`, `executable=blocked`, `numerical=blocked`, `checking=pass`, `replay=not_run`, `ESM=cite_only`
+- layers: `catalog=pass`, `export=pass`, `executable=blocked`, `numerical=pass`, `checking=pass`, `replay=pass`, `ESM=cite_only`
 - command: `python3 -c assert case_ids subset of FSRT.build_payload()['cases']` → **pass** (rc=0)
   - stdout: present=['large-disagreement-held'] missing=[]
 
@@ -241,7 +264,7 @@ Commands below ran locally without private providers. SP1/proved-heat scientific
 
 - profile_id: `4e1754ccff604b3d`
 - layers: `catalog=pass`, `export=pass`, `executable=unavailable`, `numerical=unavailable`, `checking=not_run`, `replay=unavailable`, `ESM=cite_only`
-- command: `/usr/bin/python3 /workspace/Parametric-Design-Terminal/examples/workflows/emit_sp1_teaching_bundle.py` → **pass** (rc=0)
+- command: `/workspace/Parametric-Design-Terminal/.venv/bin/python /workspace/Parametric-Design-Terminal/examples/workflows/emit_sp1_teaching_bundle.py` → **pass** (rc=0)
   - stdout: orrupt-refused: card=REFUSED
   retained-historical-requires-fresh: card=HISTORICAL
 ok examples/proved-heat/emit_proof_render.py
