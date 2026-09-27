@@ -37,21 +37,52 @@ CAPTION = (
 )
 
 
-def _window(*, window_id: str, label: str, status: str, residuals: list[float], cusum_path: list[float], crossed: bool, advances_cusum: bool, note: str) -> dict:
-    return {"id": window_id, "label": label, "status": status, "normalized_residuals": residuals, "cusum": cusum_path, "threshold": CUSUM_THRESHOLD, "crossed": crossed, "advances_cusum": advances_cusum, "notes": [note]}
+def _window(
+    *,
+    window_id: str,
+    label: str,
+    status: str,
+    residuals: list[float],
+    cusum_path: list[float],
+    crossed: bool,
+    advances_cusum: bool,
+    note: str,
+) -> dict:
+    return {
+        "id": window_id,
+        "label": label,
+        "status": status,
+        "normalized_residuals": residuals,
+        "cusum": cusum_path,
+        "threshold": CUSUM_THRESHOLD,
+        "crossed": crossed,
+        "advances_cusum": advances_cusum,
+        "notes": [note],
+    }
 
 
 def _case_quiet() -> dict:
+    # Quiet: residuals stay small; CUSUM never crosses threshold.
     residuals = [0.2, -0.1, 0.3, -0.2, 0.1, 0.0, -0.15, 0.25]
     cusum = []
     s = 0.0
     for r in residuals:
         s = max(0.0, s + abs(r) - 0.15)
         cusum.append(round(s, 4))
-    return _window(window_id="quiet-no-cross", label="Quiet · CUSUM not crossed", status="LIVE", residuals=residuals, cusum_path=cusum, crossed=False, advances_cusum=True, note="Teaching quiet window: CUSUM stays below threshold")
+    return _window(
+        window_id="quiet-no-cross",
+        label="Quiet · CUSUM not crossed",
+        status="LIVE",
+        residuals=residuals,
+        cusum_path=cusum,
+        crossed=False,
+        advances_cusum=True,
+        note="Teaching quiet window: CUSUM stays below threshold",
+    )
 
 
 def _case_crossing() -> dict:
+    # Diagnostic-candidate: CUSUM crosses threshold.
     residuals = [0.4, 0.8, 1.2, 1.5, 1.1, 0.9, 1.3, 1.6]
     cusum = []
     s = 0.0
@@ -61,24 +92,96 @@ def _case_crossing() -> dict:
         cusum.append(round(s, 4))
         if crossed_at is None and s >= CUSUM_THRESHOLD:
             crossed_at = index
-    return {**_window(window_id="diagnostic-candidate-cross", label="Diagnostic candidate · CUSUM crossed", status="REQUEST_EVIDENCE", residuals=residuals, cusum_path=cusum, crossed=True, advances_cusum=True, note="Threshold crossing is a diagnostic candidate only — not an alarm probability"), "crossed_at_index": crossed_at}
+    return {
+        **_window(
+            window_id="diagnostic-candidate-cross",
+            label="Diagnostic candidate · CUSUM crossed",
+            status="REQUEST_EVIDENCE",
+            residuals=residuals,
+            cusum_path=cusum,
+            crossed=True,
+            advances_cusum=True,
+            note="Threshold crossing is a diagnostic candidate only — not an alarm probability",
+        ),
+        "crossed_at_index": crossed_at,
+    }
 
 
 def _case_oit_held() -> dict:
+    # OIT-held: window held; CUSUM does not advance (frozen at prior value).
     prior_cusum = 2.4
     residuals = [0.9, 1.1, 1.4, 1.8, 2.0, 1.7, 1.5, 1.2]
+    # Held path: CUSUM stays flat — does not advance.
     cusum = [prior_cusum for _ in residuals]
-    return _window(window_id="oit-held-no-advance", label="OIT-held · CUSUM does not advance", status="HELD", residuals=residuals, cusum_path=cusum, crossed=False, advances_cusum=False, note="OIT-held windows do not advance the CUSUM state (EXPERIMENT_VIEW.md)")
+    return _window(
+        window_id="oit-held-no-advance",
+        label="OIT-held · CUSUM does not advance",
+        status="HELD",
+        residuals=residuals,
+        cusum_path=cusum,
+        crossed=False,
+        advances_cusum=False,
+        note="OIT-held windows do not advance the CUSUM state (EXPERIMENT_VIEW.md)",
+    )
 
 
 def build_payload() -> dict:
     windows = [_case_quiet(), _case_crossing(), _case_oit_held()]
+    # Flatten series for strip: one series per window with index + residual + cusum + threshold
     series: list[dict] = []
     for w_index, window in enumerate(windows):
-        for i, residual in enumerate(window["normalized_residuals"]):
-            series.append({"window_index": w_index, "window_id": window["id"], "sample_index": i, "x": w_index * 10 + i, "normalized_residual": residual, "cusum": window["cusum"][i], "threshold": CUSUM_THRESHOLD, "status": window["status"], "advances_cusum": window["advances_cusum"]})
-    cards = [{"title": w["label"], "status": w["status"], "crossed": w["crossed"], "advances_cusum": w["advances_cusum"], "cusum_final": w["cusum"][-1] if w["cusum"] else None, "threshold": CUSUM_THRESHOLD} for w in windows]
-    return {"schema": "ciw.host-residual-cusum-teach-render.v1", "kind": "residual-cusum-teach-presentation", "source": "HOST / synthetic ordered windows", "data_source": DATA_SOURCE, "claim_scope": "computational-integrity-only", "may_authorize": False, "operation_language": OPERATION_LANGUAGE, "upstream_status": "HOST_TEACHING_RESIDUAL_MONITOR", "caption": CAPTION, "selected_window_index": 0, "threshold": CUSUM_THRESHOLD, "windows": windows, "series": series, "cards": cards, "presentation_only": True, "forbidden_claims": ["physical drift established", "alarm probability", "joint covariance", "cross-window confidence bars", "ciw.fluid-volume", "new residual CIW kind"]}
+        residuals = window["normalized_residuals"]
+        cusum = window["cusum"]
+        for i, residual in enumerate(residuals):
+            series.append(
+                {
+                    "window_index": w_index,
+                    "window_id": window["id"],
+                    "sample_index": i,
+                    "x": w_index * 10 + i,
+                    "normalized_residual": residual,
+                    "cusum": cusum[i],
+                    "threshold": CUSUM_THRESHOLD,
+                    "status": window["status"],
+                    "advances_cusum": window["advances_cusum"],
+                }
+            )
+    cards = [
+        {
+            "title": w["label"],
+            "status": w["status"],
+            "crossed": w["crossed"],
+            "advances_cusum": w["advances_cusum"],
+            "cusum_final": w["cusum"][-1] if w["cusum"] else None,
+            "threshold": CUSUM_THRESHOLD,
+        }
+        for w in windows
+    ]
+    return {
+        "schema": "ciw.host-residual-cusum-teach-render.v1",
+        "kind": "residual-cusum-teach-presentation",
+        "source": "HOST / synthetic ordered windows",
+        "data_source": DATA_SOURCE,
+        "claim_scope": "computational-integrity-only",
+        "may_authorize": False,
+        "operation_language": OPERATION_LANGUAGE,
+        "upstream_status": "HOST_TEACHING_RESIDUAL_MONITOR",
+        "caption": CAPTION,
+        "selected_window_index": 0,
+        "threshold": CUSUM_THRESHOLD,
+        "windows": windows,
+        "series": series,
+        "cards": cards,
+        "presentation_only": True,
+        "forbidden_claims": [
+            "physical drift established",
+            "alarm probability",
+            "joint covariance",
+            "cross-window confidence bars",
+            "ciw.fluid-volume",
+            "new residual CIW kind",
+        ],
+    }
 
 
 def main() -> int:
@@ -89,7 +192,11 @@ def main() -> int:
     _shared_write_render(args.output, payload)
     print(f"wrote {args.output}")
     for window in payload["windows"]:
-        print(f"  {window['id']}: status={window['status']} crossed={window['crossed']} advances={window['advances_cusum']} cusum_final={window['cusum'][-1]}")
+        print(
+            f"  {window['id']}: status={window['status']} "
+            f"crossed={window['crossed']} advances={window['advances_cusum']} "
+            f"cusum_final={window['cusum'][-1]}"
+        )
     return 0
 
 
