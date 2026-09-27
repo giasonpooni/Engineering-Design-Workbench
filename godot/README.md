@@ -31,9 +31,12 @@ Checks, run from the repository root:
 godot --headless --path godot --editor --import --quit
 godot --headless --path godot --script res://tests/protocol_smoke.gd
 godot --headless --path godot --script res://tests/channel_generality.gd
+godot --headless --path godot --script res://tests/retained_views.gd -- view.json
 ```
 
 The channel generality check needs no service: it supplies snapshots directly and asserts that the channel selector, the numeric cards, the selection round-trip and the phase-portrait axes all come from the record rather than from any compiled-in channel list, across records of two, three and five channels.
+
+`retained_views.gd` needs actual `experiment.inspect` JSON. It draws every panel and fails if a stamped `canvas_id` equals the declared `frame` (`Stamped canvas id equals the declared frame`). Untitled standalone meshes may still use the frame as a default id.
 
 The protocol smoke needs a running service. It connects two clients, loads the recorded run, changes the cursor in one, observes the broadcast in the other, checks numerical inspection against the retained record, verifies the interval did not change, restores the original cursor, and verifies inspection refresh after reconnect at the same revision. It fails after 15 seconds if the service is unavailable. Do not run it during an interactive session where another user is changing the same selection.
 
