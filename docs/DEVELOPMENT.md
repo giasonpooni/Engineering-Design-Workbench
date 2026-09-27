@@ -63,6 +63,47 @@ relevant compatibility and replay checks. The covariance examples in `examples/a
 `two-reservoir-covariance.json` and `tank-covariance-map.json`; the original
 `two-reservoir.json` fixture remains available.
 
+## CI event routing
+
+Ordinary pull requests run Prototype checks and Workflow contracts, including
+documentation-only pull requests. The sixteen native qualification workflows
+omit a run only when every changed file matches this narrow documentation list:
+`README.md`, `docs/**/*.md`, `deploy/**/*.md`, `godot/**/*.md`, or
+`examples/**/README.md`. Files such as scripts or JSON fixtures under `docs/`
+still select qualification. A documentation-only update to an existing code PR
+uses the complete PR diff and therefore still qualifies that code.
+
+Every other change continues to select every native qualification workflow.
+In particular, source, record contracts, provider pins, dependency declarations,
+test fixtures, scripts and workflow changes retain broad coverage. Existing job
+commands, matrices, timeouts, numerical checks and zero-skip requirements are
+unchanged. This is a conservative reduction in redundant work; Prototype checks
+still include optional PLSR, Godot and deployment jobs and are not yet a minimal
+core-only gate.
+
+Automatic push runs are limited to `main` and all tags, avoiding duplicate
+feature-push and PR runs. PR target branches are unrestricted so stacked PRs
+remain covered. Branches without a PR can request `workflow_dispatch`; all
+migrated workflows support manual runs. Tag and manual runs retain full
+qualification regardless of documentation filters. Publish a tag only when
+its complete qualification is intended.
+
+Superseded runs cancel only within the same workflow/event/PR. Main, tag and
+manual runs use a unique run ID and cannot cancel each other's qualification.
+
+`scripts/check_ci_policy.py` checks the eighteen migrated workflow policies,
+with regression cases in `scripts/tests/test_ci_policy.py`. The separate
+Workflow contracts job runs these checks and checksum-pinned actionlint. A
+routing pass only validates CI selection policy; it establishes no numerical,
+provider, proof or physical claim.
+
+Before enabling required status checks, account for path-filtered workflows:
+GitHub can leave a required check pending when its workflow does not run.
+Prototype checks and Workflow contracts have no path filter. At this increment,
+main has no required check contexts or repository rulesets; no protection setting
+is changed. Future profile-specific selection requires an explicit dependency
+map before narrowing this conservative all-code qualification.
+
 ## Validation commands
 
 ```sh

@@ -7,11 +7,13 @@ they can never contain Julia source, package names, or executable paths.
 """
 module CIWJuliaOscillatorWorker
 
-using JSON3
-using LinearAlgebra
-using OrdinaryDiffEqTsit5
-using SciMLBase
-using SHA
+redirect_stdout(stderr) do
+    @eval using JSON3
+    @eval using LinearAlgebra
+    @eval using OrdinaryDiffEqTsit5
+    @eval using SciMLBase
+    @eval using SHA
+end
 
 const OPERATION = "ciw.julia-oscillator.v1"
 const REQUEST_SCHEMA = "ciw.julia-oscillator-request.v1"
@@ -105,45 +107,65 @@ function identity()
 end
 
 function read_frame(io)
-    header = read(io, UInt8, 4)
+    header = read(io, 4)
     isempty(header) && return nothing
     length(header) == 4 || throw(ArgumentError("truncated frame header"))
-    length = (Int(header[1]) << 24) | (Int(header[2]) << 16) | (Int(header[3]) << 8) | Int(header[4])
-    0 <= length <= MAX_FRAME || throw(ArgumentError("oversized frame"))
-    read(io, UInt8, length)
+    count = (Int(header[1]) << 24) | (Int(header[2]) << 16) | (Int(header[3]) << 8) | Int(header[4])
+    1 <= count <= MAX_FRAME || throw(ArgumentError("empty or oversized frame"))
+    bytes = read(io, count)
+    length(bytes) == count || throw(ArgumentError("truncated frame payload"))
+    bytes
 end
 
 function write_frame(io, value)
     bytes = Vector{UInt8}(codeunits(JSON3.write(value)))
-    length(bytes) <= MAX_FRAME || throw(ArgumentError("oversized response"))
-    write(io, UInt8[(length >> 24) & 0xff, (length >> 16) & 0xff, (length >> 8) & 0xff, length & 0xff])
+    count = length(bytes)
+    1 <= count <= MAX_FRAME || throw(ArgumentError("oversized response"))
+    write(io, UInt8[(count >> 24) & 0xff, (count >> 16) & 0xff, (count >> 8) & 0xff, count & 0xff])
     write(io, bytes)
     flush(io)
 end
 
+function parse_request(bytes)
+    isvalid(String, bytes) || throw(ArgumentError("request must be UTF-8"))
+    JSON3.read(String(bytes), Dict{String,Any})
+end
+
+function request_identifier(value)
+    value isa String && 1 <= ncodeunits(value) <= 256 || throw(ArgumentError("invalid request identifier"))
+    value
+end
+
 function main()
     BLAS.set_num_threads(1)
-    first = read_frame(stdin)
-    first === nothing && return
-    handshake = JSON3.read(String(first), Dict{String,Any})
+    initial_frame = read_frame(stdin)
+    initial_frame === nothing && return
+    handshake = parse_request(initial_frame)
     keys_exact(handshake, ["schema", "request_id", "operation_id"])
     handshake["schema"] == "ciw.julia-worker-handshake-request.v1" && handshake["operation_id"] == OPERATION ||
         throw(ArgumentError("invalid handshake"))
+    request_identifier(handshake["request_id"])
     write_frame(stdout, Dict("schema" => "ciw.julia-worker-handshake-response.v1", "status" => "ok",
         "request_id" => handshake["request_id"], "operation_id" => OPERATION, "identity" => identity()))
     while true
         raw = read_frame(stdin)
         raw === nothing && break
-        request = JSON3.read(String(raw), Dict{String,Any})
+        request = parse_request(raw)
+        request_id = request_identifier(get(request, "request_id", nothing))
         response = try
             keys_exact(request, ["schema", "operation_id", "model", "initial_state", "time_s", "solver", "request_id"])
-            data = solve_request(request, String(request["request_id"]))
+            # Transport occurrence is outside the mathematical body allowlist.
+            body = Dict(key => value for (key, value) in request if key != "request_id")
+            data = redirect_stdout(stderr) do
+                solve_request(body, request_id)
+            end
             Dict("schema" => RESPONSE_SCHEMA, "status" => "ok", "request_id" => request["request_id"],
                 "operation_id" => OPERATION, "data" => data)
         catch error
-            println(stderr, "CIW Julia oscillator refusal: ", sprint(showerror, error))
+            message = first(sprint(showerror, error), 2048)
+            println(stderr, "CIW Julia oscillator refusal: ", message)
             Dict("schema" => RESPONSE_SCHEMA, "status" => "refused", "request_id" => get(request, "request_id", "unknown"),
-                "operation_id" => OPERATION, "refusal" => Dict("code" => "INVALID_REQUEST_OR_NUMERICAL_FAILURE", "message" => sprint(showerror, error)))
+                "operation_id" => OPERATION, "refusal" => Dict("code" => "INVALID_REQUEST_OR_NUMERICAL_FAILURE", "message" => message))
         end
         write_frame(stdout, response)
     end
@@ -152,5 +174,10 @@ end
 end # module
 
 if abspath(PROGRAM_FILE) == @__FILE__
-    CIWJuliaOscillatorWorker.main()
+    try
+        CIWJuliaOscillatorWorker.main()
+    catch exception
+        println(stderr, "CIW Julia oscillator transport failure: ", first(sprint(showerror, exception), 2048))
+        exit(2)
+    end
 end

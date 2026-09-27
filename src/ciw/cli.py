@@ -207,6 +207,14 @@ async def watch_remote(url: str) -> None:
 def parser() -> argparse.ArgumentParser:
     root = argparse.ArgumentParser(prog="ciw", description="Computational Instrumentation Workbench")
     commands = root.add_subparsers(dest="command", required=True)
+    from .doctor import PROFILES
+    doctor = commands.add_parser("doctor", help="Inspect explicit local provider identities without running or installing them")
+    doctor.add_argument("--profile", choices=PROFILES, default="core")
+    doctor.add_argument("--stack-root", type=Path, help="Declared-workload role directories sra and scr")
+    doctor.add_argument("--engine", type=Path, help="Explicit declared-workload execution engine")
+    doctor.add_argument("--binding", type=Path, help="Existing native, reaction or interval runtime binding JSON")
+    from .learning import register_commands
+    register_commands(commands)
     demo = commands.add_parser("demo", help="Save deterministic synthetic oscillator evidence")
     demo.add_argument("--output", type=Path, default=Path("recordings/demo.json"))
     analyze = commands.add_parser("analyze", help="Run headless analysis and save a reopenable workspace")
@@ -458,6 +466,14 @@ def parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = parser().parse_args(argv)
     try:
+        if args.command == "doctor":
+            from .doctor import diagnose
+            report = diagnose(args.profile, stack_root=args.stack_root, engine=args.engine, binding=args.binding)
+            print_json(report)
+            return 0 if report["status"] == "preflight_passed" else 2
+        if args.command == "math":
+            from .learning import run_cli
+            return run_cli(args)
         if args.command == "energy":
             if args.energy_command == "probe":
                 from .energy_bench import probe

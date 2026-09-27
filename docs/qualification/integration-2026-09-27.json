@@ -1,0 +1,806 @@
+{
+  "benchmark_wheel": "82f1a8c477852f432337cb756b546bf965013f1d15efcbda22ad2d31b0765593",
+  "benchmarks": {
+    "interval": {
+      "artifact": "interval/report.json",
+      "authority": {
+        "hardware_actuation": "not_performed",
+        "measurement_uncertainty": "not_declared",
+        "physical_validation": "not_established",
+        "sp1_verification": "not_performed",
+        "state_admission": "not_performed"
+      },
+      "fixture_sha256": "sha256:764ff88d3fdde5a55c65017a14c00be451ed0d0a5383e26a5a8a88710e48b2fa",
+      "outcome": "passed",
+      "rows": [
+        {
+          "bundle_id": "sha256:d3c7fc67c7166a3bcfce8b57e94559dbbf12a7d777fa2ed0bf8452091cba2d66",
+          "check": {
+            "max_abs_discrepancy": 0,
+            "method": "independent_python_rational_enclosure",
+            "outcome": "passed"
+          },
+          "envelope_status": "PASS",
+          "execution_id": "execution-87c55e495517453ea4dc75be5aaf3b01",
+          "gate": "dyadic-boundary",
+          "requirement": "holds_throughout"
+        },
+        {
+          "bundle_id": "sha256:ec9d85b0fff335eeaa50d6f53a4b702548ac17a00c2f6bee9dc3134ff371b778",
+          "check": {
+            "max_abs_discrepancy": 0,
+            "method": "independent_python_rational_enclosure",
+            "outcome": "passed"
+          },
+          "envelope_status": "PASS",
+          "execution_id": "execution-01c069423f404b068b0c78116a3766b9",
+          "gate": "positive-box",
+          "requirement": "fails_throughout"
+        },
+        {
+          "bundle_id": "sha256:864d6f25dba240e177bba62e2fe405be30ec620a0c771e43c61f6daf2cf92eae",
+          "check": {
+            "max_abs_discrepancy": 0,
+            "method": "independent_python_rational_enclosure",
+            "outcome": "passed"
+          },
+          "envelope_status": "PASS",
+          "execution_id": "execution-9cebfbedfd0441c5a2316694d7ec21d3",
+          "gate": "mixed-box",
+          "requirement": "inconclusive"
+        },
+        {
+          "bundle_id": "sha256:b0de6cc47d02a6904f5a686090f9510c63c64c07fe347a93cb4796472622fc21",
+          "check": {
+            "max_abs_discrepancy": 0,
+            "method": "independent_python_rational_enclosure",
+            "outcome": "passed"
+          },
+          "envelope_status": "PASS",
+          "execution_id": "execution-8050fc93bd904884a5c5e76dfce5a80f",
+          "gate": "rational-tenth-boundary",
+          "requirement": "inconclusive"
+        },
+        {
+          "bundle_id": "sha256:f9dfc251b642885737e7d462fc3c7738b19b73f7bb5e4c4f7763cba69edb2436",
+          "check": {
+            "max_abs_discrepancy": 0,
+            "method": "independent_python_rational_enclosure",
+            "outcome": "passed"
+          },
+          "envelope_status": "PASS",
+          "execution_id": "execution-8b6e29fff0d946429744600ac79d0b70",
+          "gate": "zero-width-zero-limit",
+          "requirement": "holds_throughout"
+        },
+        {
+          "bundle_id": "sha256:40e6538d6f72ebfbac718f803007d59180a3ebcfb75413288afc34582e017b8f",
+          "check": {
+            "max_abs_discrepancy": 0,
+            "method": "independent_python_rational_enclosure",
+            "outcome": "passed"
+          },
+          "envelope_status": "PASS",
+          "execution_id": "execution-9b220a524d9a4c618feb822625d5cae1",
+          "gate": "negative-box",
+          "requirement": "fails_throughout"
+        },
+        {
+          "bundle_id": "sha256:669fc4b993cddbb38794efbf93a4ef389539c9832fa9a01f6cf7c531a0a607d4",
+          "check": {
+            "max_abs_discrepancy": 0,
+            "method": "independent_python_rational_enclosure",
+            "outcome": "passed"
+          },
+          "envelope_status": "PASS",
+          "execution_id": "execution-3a9a3ae175d348dc897ef3de594024ed",
+          "gate": "fresh-replay",
+          "requirement": "holds_throughout"
+        },
+        {
+          "bundle_count": 7,
+          "envelope_status": "PASS",
+          "gate": "provider-free-reopen"
+        }
+      ],
+      "runtime": {
+        "host_byte_count": 1884160,
+        "host_sha256": "sha256:031f7649517c02c42dfa597fd1da20b1b4af9fcdd59ee9c7df67ba7d9b662beb",
+        "interval": {
+          "environment_attestation": "not_established",
+          "executable_sha256": "sha256:29a5cb5bde6a3f4a151f6e714591ca9344638303d9ed2a893ab31ada3de5d103",
+          "files": {
+            "runtimes/interval-requirement/Manifest.toml": "sha256:f54471373c82d5b1ff993a3f13555c030fc5c90509fdd7cd16620fc84f2014e3",
+            "runtimes/interval-requirement/Project.toml": "sha256:2807b18661ea382d4bb82ba4f7f00431930b45c08ff7bcdfa3bb7877e20a2936",
+            "runtimes/interval-requirement/worker.jl": "sha256:10167228a6db63a2bdf51ae4637745f65561cffc29650592c101d1089f5f70c8"
+          },
+          "provider": "intervals",
+          "worker_identity": {
+            "julia_version": "1.10.12",
+            "manifest_sha256": "sha256:f54471373c82d5b1ff993a3f13555c030fc5c90509fdd7cd16620fc84f2014e3",
+            "packages": {
+              "IntervalArithmetic": "1.0.12",
+              "JSON3": "1.14.3"
+            },
+            "platform": "x86_64-w64-mingw32",
+            "project_sha256": "sha256:2807b18661ea382d4bb82ba4f7f00431930b45c08ff7bcdfa3bb7877e20a2936",
+            "schema": "ciw.interval-julia-identity.v1",
+            "threads": 1,
+            "worker_sha256": "sha256:10167228a6db63a2bdf51ae4637745f65561cffc29650592c101d1089f5f70c8"
+          }
+        },
+        "julia": null,
+        "revision": "2a144e252607546ca6b20e6dd4613d3a4146758a",
+        "schema": "ciw.native-interop-runtime.v1",
+        "source_to_binary_attestation": "not_established",
+        "source_tree": "e7c8751faec29c0e985d89df794c3a8374b704d5"
+      },
+      "schema": "ciw.interval-requirement-report.v1",
+      "scope": "Declared scalar-square interval requirement; no physical validation, confidence interval or actuation.",
+      "sha256": "sha256:15c9875a84f77098f9e0ea3e28c46caeb4234b0004763b266be60c4e58f4cc80"
+    },
+    "native": {
+      "artifact": "native/report.json",
+      "authority": {
+        "hardware_actuation": "not_performed",
+        "measurement_uncertainty": "not_declared",
+        "physical_validation": "not_established",
+        "sp1_verification": "not_performed",
+        "state_admission": "not_performed"
+      },
+      "fixture_sha256": "sha256:f6557790107fd1079f8c7e04e1199f8c32d41dd0c66ff2a4538c7fa5bdd7527b",
+      "full_completion": false,
+      "native_subset_passed": true,
+      "rows": [
+        {
+          "bundle_id": "sha256:91b4c09b0a8f049ba461817764fcedcf52adef90d7029769f0cdd07d8689a19c",
+          "gate": "affine-binary64:cpp",
+          "reference_check": {
+            "max_abs_discrepancy": 0,
+            "method": "independent_python_affine_binary64",
+            "outcome": "passed"
+          },
+          "status": "PASS"
+        },
+        {
+          "bundle_id": "sha256:328f44e2f96191b3a90765e03c8e0f58eb723ee00c4f67fde0d840a060fb6a3c",
+          "gate": "affine-binary64:julia",
+          "reference_check": {
+            "max_abs_discrepancy": 0,
+            "method": "independent_python_affine_binary64",
+            "outcome": "passed"
+          },
+          "status": "PASS"
+        },
+        {
+          "bundle_id": "sha256:09aecea17fee8fefaf84419ece78c925889258151817203410a4ead5087c10d6",
+          "gate": "affine-d256:cpp",
+          "reference_check": {
+            "max_abs_discrepancy": 0,
+            "method": "independent_python_affine_integer",
+            "outcome": "passed"
+          },
+          "status": "PASS"
+        },
+        {
+          "bundle_id": "sha256:01dd108df85f14879c1748cc2bccfeba807e4e696f1a949936f24ec7dfda79ee",
+          "gate": "affine-d256:julia",
+          "reference_check": {
+            "max_abs_discrepancy": 0,
+            "method": "independent_python_affine_integer",
+            "outcome": "passed"
+          },
+          "status": "PASS"
+        },
+        {
+          "bundle_id": "sha256:846c36b028fffdf86a4316221f5884a7824e2e3de0a37924b808a7ae239c0f59",
+          "gate": "oscillator-tsit5:julia",
+          "reference_check": {
+            "max_abs_discrepancy": 7.828071524329516e-12,
+            "method": "independent_python_analytic_oscillator",
+            "outcome": "passed"
+          },
+          "status": "PASS"
+        },
+        {
+          "bundle_id": "sha256:15bf2031fd4f45166c2af8e1af9368789ef9dd6e241a91eeeecafc0a02b3da13",
+          "gate": "control-oscillator:julia",
+          "reference_check": {
+            "max_abs_discrepancy": 8.881784197001252e-16,
+            "method": "independent_python_analytic_oscillator",
+            "outcome": "passed"
+          },
+          "status": "PASS"
+        },
+        {
+          "bundle_id": "sha256:642e99cec5b703cac09dd93503507434875ef78c861d5da0aadd656b2427558c",
+          "gate": "qp-interior:julia",
+          "reference_check": {
+            "max_abs_discrepancy": 5.999999985739635e-08,
+            "method": "independent_python_objective_box_projected_gradient",
+            "outcome": "passed"
+          },
+          "status": "PASS"
+        },
+        {
+          "bundle_id": "sha256:a0a68377da0eabcc23965d4ccae499cf1c9fe817cdba68c408ed1aecccc417de",
+          "gate": "qp-active-bounds:julia",
+          "reference_check": {
+            "max_abs_discrepancy": 0.0,
+            "method": "independent_python_objective_box_projected_gradient",
+            "outcome": "passed"
+          },
+          "status": "PASS"
+        },
+        {
+          "gate": "cross-provider:affine-binary64",
+          "status": "PASS"
+        },
+        {
+          "gate": "cross-provider:affine-d256",
+          "status": "PASS"
+        },
+        {
+          "gate": "JuliaControl-versus-Tsit5",
+          "status": "PASS"
+        },
+        {
+          "bundle_id": "sha256:7e58221d4bc8cbe75306c5a6c704e13638c7fe0543579c3647473518c22b5e43",
+          "gate": "retained-Julia-trajectory-to-Cpp-force",
+          "status": "PASS"
+        },
+        {
+          "gate": "save-reopen-inspect-provider-free",
+          "status": "PASS"
+        },
+        {
+          "bundle_id": "sha256:f692aae85ed801aefb76b0d31a4ddda3bf035557ef30eb6bacd2aaa1a01e797b",
+          "execution_id": "execution-df39f9918b774bd894a694ad6444f8b8",
+          "gate": "fresh-replay:affine-d256:julia",
+          "status": "PASS"
+        },
+        {
+          "bundle_id": "sha256:d6a485b826ba434289aa184e2e93bd0796ea449c36a8a14c5b8c310b58c5d074",
+          "execution_id": "execution-9aab4a2367a040baae9d59221c2ff5e5",
+          "gate": "fresh-replay:retained-trajectory-force:cpp",
+          "status": "PASS"
+        },
+        {
+          "gate": "native-exact-checker",
+          "reason": "Separate SCR exact-checker invocation is required",
+          "status": "NOT_RUN"
+        },
+        {
+          "gate": "SP1-proof-and-fresh-verification",
+          "reason": "This gate creates no proof and invokes no cryptographic verifier",
+          "status": "NOT_RUN"
+        },
+        {
+          "gate": "UBSan",
+          "reason": "No sanitizer build/run is attested by this gate",
+          "status": "NOT_RUN"
+        },
+        {
+          "gate": "legacy-worker-adversarial-protocol",
+          "reason": "Run the separate genuine Julia pytest gate",
+          "status": "NOT_RUN"
+        },
+        {
+          "gate": "physical-validation",
+          "reason": "All inputs are declared simulations or mathematical fixtures",
+          "status": "NOT_RUN"
+        },
+        {
+          "gate": "persistent-host-A-B-A",
+          "status": "PASS"
+        }
+      ],
+      "schema": "ciw.native-interop-gate-report.v1",
+      "sha256": "sha256:58b41abaa637e0a87000319d7f1325019d99c1d5e2d0eea60180f6d27f1326c4"
+    },
+    "reaction": {
+      "artifact": "reaction/report.json",
+      "authority": {
+        "hardware_actuation": "not_performed",
+        "measurement_uncertainty": "not_declared",
+        "physical_validation": "not_established",
+        "sp1_verification": "not_performed",
+        "state_admission": "not_performed"
+      },
+      "fixture_sha256": "sha256:c9edd217d21f65ee2622261ca4898b1ec9ccb5adb57e334d0b5286bf12395c0d",
+      "outcome": "passed",
+      "rows": [
+        {
+          "bundle_id": "sha256:73ddc6c0c49f0371974151f4ad92c757e7cef347edc4d15f606e208ce16c477f",
+          "check": {
+            "max_abs_discrepancy": 2.425037948228237e-11,
+            "method": "independent_python_analytic_reaction_and_rate_law",
+            "outcome": "passed"
+          },
+          "execution_id": "execution-868efde9619a429d9330fa0ab8dfe22f",
+          "gate": "baseline:catalyst",
+          "status": "PASS"
+        },
+        {
+          "bundle_id": "sha256:12453d7252faba56145a078711dbd9b9bf16b3cdf699e4599325868f83296779",
+          "check": {
+            "max_abs_discrepancy": 6.36056274316843e-09,
+            "method": "independent_python_analytic_reaction_and_rate_law",
+            "outcome": "passed"
+          },
+          "execution_id": "execution-906608800eb8469394c0d5264aef74d6",
+          "gate": "baseline:cantera",
+          "status": "PASS"
+        },
+        {
+          "gate": "baseline:cross-engine",
+          "status": "PASS"
+        },
+        {
+          "bundle_id": "sha256:6ed69d876646980eef65cda605aca1932e4ee14079165d8c6af82fe754718966",
+          "check": {
+            "max_abs_discrepancy": 0.0,
+            "method": "independent_python_analytic_reaction_and_rate_law",
+            "outcome": "passed"
+          },
+          "execution_id": "execution-190223e020454d9a83f4cd31b97c6f6b",
+          "gate": "zero-rate:catalyst",
+          "status": "PASS"
+        },
+        {
+          "bundle_id": "sha256:77bd783e09b05997da724d1c0324c0c1667e11e9ef891d1f23a3fe87fae416ca",
+          "check": {
+            "max_abs_discrepancy": 4.440892098500626e-16,
+            "method": "independent_python_analytic_reaction_and_rate_law",
+            "outcome": "passed"
+          },
+          "execution_id": "execution-c68dafa04c0d45aca1951cffbf43fe6b",
+          "gate": "zero-rate:cantera",
+          "status": "PASS"
+        },
+        {
+          "gate": "zero-rate:cross-engine",
+          "status": "PASS"
+        },
+        {
+          "bundle_id": "sha256:cfa9805fae0277a41f34f9f5dfc30ebb0aa04d427fe121a16968325626e87992",
+          "check": {
+            "max_abs_discrepancy": 0.0,
+            "method": "independent_python_analytic_reaction_and_rate_law",
+            "outcome": "passed"
+          },
+          "execution_id": "execution-8bf3a9f351544921b14b321985a144ed",
+          "gate": "zero-reactant:catalyst",
+          "status": "PASS"
+        },
+        {
+          "bundle_id": "sha256:baa97a366175b53438eaea5d30e20db05c4af48a5daee113011cd43cf8a0f306",
+          "check": {
+            "max_abs_discrepancy": 0.0,
+            "method": "independent_python_analytic_reaction_and_rate_law",
+            "outcome": "passed"
+          },
+          "execution_id": "execution-63ae1124f9ae47a5b52badba4d65422e",
+          "gate": "zero-reactant:cantera",
+          "status": "PASS"
+        },
+        {
+          "gate": "zero-reactant:cross-engine",
+          "status": "PASS"
+        },
+        {
+          "bundle_id": "sha256:46bb876547a909f81738407ee9c6c612bb6dcaa3921d103dd26de2b59bb3e834",
+          "check": {
+            "max_abs_discrepancy": 2.425037948228237e-11,
+            "method": "independent_python_analytic_reaction_and_rate_law",
+            "outcome": "passed"
+          },
+          "execution_id": "execution-026f79a9c69641a08b8c58594ca98e69",
+          "gate": "species-permutation:catalyst",
+          "status": "PASS"
+        },
+        {
+          "bundle_id": "sha256:d77b703fb5151fbf76d9caf21cfbf2408668419f8ec73513afc55933cef454c7",
+          "check": {
+            "max_abs_discrepancy": 6.36056274316843e-09,
+            "method": "independent_python_analytic_reaction_and_rate_law",
+            "outcome": "passed"
+          },
+          "execution_id": "execution-df0e6de6ae3549298343c633835f6915",
+          "gate": "species-permutation:cantera",
+          "status": "PASS"
+        },
+        {
+          "gate": "species-permutation:cross-engine",
+          "status": "PASS"
+        },
+        {
+          "bundle_id": "sha256:0f56dc6e96c8f0b7a41a891bd1221024d360d3409cd9b8918f0fe0e7c6ecf3de",
+          "execution_id": "execution-a2d1b12004434dd3bf0f304f1675d55c",
+          "gate": "catalyst:fresh-replay",
+          "status": "PASS"
+        },
+        {
+          "bundle_id": "sha256:8c79e00928a19f2e82aaf8b722b83f5dac10e3ec0fb2fdda390970738c22e599",
+          "execution_id": "execution-d0e5782030564056abc0def30d0ba556",
+          "gate": "cantera:fresh-replay",
+          "status": "PASS"
+        },
+        {
+          "bundle_count": 10,
+          "gate": "provider-free-reopen",
+          "status": "PASS"
+        }
+      ],
+      "runtime_pins": {
+        "cantera": {
+          "host_byte_count": 1835008,
+          "host_sha256": "sha256:22d7f9b83db130b6fc2143902c6f3e5d792c6fca5d3793dfed3e90eac3a6b6df",
+          "julia": null,
+          "reaction": {
+            "environment_attestation": "not_established",
+            "executable_sha256": "sha256:9f91cee2e1b13d9779ab252507aeee120c379e2543ffe85f63cad129b58ba230",
+            "files": {
+              "runtimes/cantera-reaction/requirements.txt": "sha256:9e39e2a0f34215e77fd19f1199315ab9a8676643bff138026164b2f2a6ef38e9",
+              "runtimes/cantera-reaction/worker.py": "sha256:02cb2a77b975e8d07253115685a35b9959a5c20e2eee749edeb8a6ec45013c14"
+            },
+            "provider": "cantera",
+            "worker_identity": {
+              "extension_sha256": "sha256:00f00749cc90b76a7266656fd02e6a7d40be82e7d7e1389472ad285123064e9d",
+              "package_files_sha256": "sha256:23f637f3754623d070a1783b92cf6068164655c692450b3ffea0ceb926cd1113",
+              "packages": {
+                "cantera": "3.2.0",
+                "numpy": "2.5.3",
+                "ruamel.yaml": "0.19.1",
+                "typing-extensions": "4.16.0"
+              },
+              "platform": "win-amd64",
+              "python_version": "3.12.14",
+              "requirements_sha256": "sha256:9e39e2a0f34215e77fd19f1199315ab9a8676643bff138026164b2f2a6ef38e9",
+              "schema": "ciw.reaction-cantera-identity.v1",
+              "worker_sha256": "sha256:02cb2a77b975e8d07253115685a35b9959a5c20e2eee749edeb8a6ec45013c14"
+            }
+          },
+          "revision": "7e41b5a104526929c531a069a9872cf92ab277cc",
+          "schema": "ciw.native-interop-runtime.v1",
+          "source_to_binary_attestation": "not_established",
+          "source_tree": "87d395d65a4e3ac1a7501f6ba17e61f8aefded1b"
+        },
+        "catalyst": {
+          "host_byte_count": 1835008,
+          "host_sha256": "sha256:22d7f9b83db130b6fc2143902c6f3e5d792c6fca5d3793dfed3e90eac3a6b6df",
+          "julia": null,
+          "reaction": {
+            "environment_attestation": "not_established",
+            "executable_sha256": "sha256:29a5cb5bde6a3f4a151f6e714591ca9344638303d9ed2a893ab31ada3de5d103",
+            "files": {
+              "runtimes/reaction-kinetics/Manifest.toml": "sha256:6e9212c6be2e65c92ad5b6985a38f1beeeb50c2b02cd10a4004058877f57281a",
+              "runtimes/reaction-kinetics/Project.toml": "sha256:4022397ae5104a018351acf83297a0f100380ba882a6c8fe1c75d18e5e18c195",
+              "runtimes/reaction-kinetics/worker.jl": "sha256:9f38a2e740f92166d70d2c12b3cdabadb03f86e4d2fff33b963c38d7dd040355"
+            },
+            "provider": "catalyst",
+            "worker_identity": {
+              "julia_version": "1.10.12",
+              "manifest_sha256": "sha256:6e9212c6be2e65c92ad5b6985a38f1beeeb50c2b02cd10a4004058877f57281a",
+              "packages": {
+                "Catalyst": "16.4.3",
+                "JSON3": "1.14.3",
+                "OrdinaryDiffEqTsit5": "2.1.4",
+                "SciMLBase": "3.56.1",
+                "SymbolicIndexingInterface": "0.3.55"
+              },
+              "platform": "x86_64-w64-mingw32",
+              "project_sha256": "sha256:4022397ae5104a018351acf83297a0f100380ba882a6c8fe1c75d18e5e18c195",
+              "schema": "ciw.reaction-catalyst-identity.v1",
+              "threads": 1,
+              "worker_sha256": "sha256:9f38a2e740f92166d70d2c12b3cdabadb03f86e4d2fff33b963c38d7dd040355"
+            }
+          },
+          "revision": "7e41b5a104526929c531a069a9872cf92ab277cc",
+          "schema": "ciw.native-interop-runtime.v1",
+          "source_to_binary_attestation": "not_established",
+          "source_tree": "87d395d65a4e3ac1a7501f6ba17e61f8aefded1b"
+        }
+      },
+      "schema": "ciw.reaction-benchmark-report.v1",
+      "scope": "Sampled mathematical A-to-B benchmark; no empirical chemical validation or actuation.",
+      "sha256": "sha256:1346484d4d66af215d56793cc693206a04d19990c417d0942388a7af9222f8df"
+    }
+  },
+  "changed_files_after_branch_reconciliation": [
+    ".github/workflows/cantera-worker.yml",
+    "README.md",
+    "docs/DOCTOR.md",
+    "docs/INTEGRATION_CANDIDATE.md",
+    "docs/README.md",
+    "docs/qualification/integration-2026-09-27.json",
+    "scripts/provider_checkouts.py",
+    "scripts/tests/test_ci_policy.py",
+    "src/ciw/cli.py",
+    "src/ciw/doctor.py",
+    "src/ciw/provider_checkouts.py",
+    "src/ciw/workflow_attempts.py",
+    "tests/test_doctor.py",
+    "tests/test_integration_failure_dependencies.py",
+    "tests/test_integration_provider_recovery.py",
+    "tests/test_jump_design.py",
+    "tests/test_provider_provisioning.py"
+  ],
+  "combined_changed_files_from_main": [
+    ".github/workflows/acquired-stream.yml",
+    ".github/workflows/calibrated-observable.yml",
+    ".github/workflows/calibrated-window.yml",
+    ".github/workflows/cantera-worker.yml",
+    ".github/workflows/ci.yml",
+    ".github/workflows/declared-workloads.yml",
+    ".github/workflows/energy-accuracy.yml",
+    ".github/workflows/exchange.yml",
+    ".github/workflows/free-energy.yml",
+    ".github/workflows/geodesic-references.yml",
+    ".github/workflows/geometry-research.yml",
+    ".github/workflows/identified-design.yml",
+    ".github/workflows/integrated-modules.yml",
+    ".github/workflows/interval-requirement.yml",
+    ".github/workflows/native-interop.yml",
+    ".github/workflows/proved-heat.yml",
+    ".github/workflows/reaction-benchmark.yml",
+    ".github/workflows/remaining-modules.yml",
+    ".github/workflows/telemetry.yml",
+    ".github/workflows/test.yml",
+    ".github/workflows/workbench-candidates.yml",
+    ".github/workflows/workflow-contracts.yml",
+    "README.md",
+    "docs/ARCHITECTURE.md",
+    "docs/CONSOLIDATION.md",
+    "docs/CURVED_PATH_STUDY.md",
+    "docs/CURVED_PATH_STUDY_VALIDATION.md",
+    "docs/DESIGN_ADJUSTMENT.md",
+    "docs/DEVELOPMENT.md",
+    "docs/DEVELOPMENT_GAPS.md",
+    "docs/DOCTOR.md",
+    "docs/EXACT_RESPONSE.md",
+    "docs/EXECUTION_RESPONSIBILITIES.md",
+    "docs/INSTRUMENTS.md",
+    "docs/INTEGRATION_CANDIDATE.md",
+    "docs/INTEGRATION_COVERAGE.md",
+    "docs/INTERVAL_REQUIREMENT.md",
+    "docs/INTERVAL_REQUIREMENT_VALIDATION.md",
+    "docs/LEARNING.md",
+    "docs/LINEAR_RESPONSE.md",
+    "docs/MODEL_EXPLORATION.md",
+    "docs/NATIVE_INTEROP.md",
+    "docs/NATIVE_INTEROP_VALIDATION.md",
+    "docs/PROTOCOL.md",
+    "docs/PROVED_HEAT.md",
+    "docs/PROVIDER_DEVELOPMENT.md",
+    "docs/REACTION_BENCHMARK.md",
+    "docs/REACTION_BENCHMARK_VALIDATION.md",
+    "docs/README.md",
+    "docs/STACK.md",
+    "docs/SYSTEMS_CATALOG.md",
+    "docs/WORKBENCH_ASSEMBLY.md",
+    "docs/qualification/integration-2026-09-27.json",
+    "examples/curved-path-study/baseline.json",
+    "examples/curved-path-study/spec.json",
+    "examples/design-adjustment/boundary-certificate.json",
+    "examples/design-adjustment/boundary.json",
+    "examples/design-adjustment/fixed-bound-certificate.json",
+    "examples/design-adjustment/fixed-bound.json",
+    "examples/design-adjustment/interior-certificate.json",
+    "examples/design-adjustment/interior.json",
+    "examples/design-adjustment/zero-response-certificate.json",
+    "examples/design-adjustment/zero-response.json",
+    "examples/interval-requirement/fixtures.json",
+    "examples/linear-response/affine.json",
+    "examples/linear-response/chain.json",
+    "examples/linear-response/exact-square-wrong-multiplier.json",
+    "examples/linear-response/exact-square.json",
+    "examples/linear-response/nonlinear-origin.json",
+    "examples/linear-response/nonlinear.json",
+    "examples/linear-response/oscillator-energy.json",
+    "examples/linear-response/oscillator-rate.json",
+    "examples/linear-response/scalar-half.json",
+    "examples/linear-response/scalar.json",
+    "examples/native-interop/reference_fixtures.json",
+    "examples/reaction-benchmark/fixtures.json",
+    "pyproject.toml",
+    "runtimes/cantera-reaction/requirements.txt",
+    "runtimes/cantera-reaction/worker.py",
+    "runtimes/interval-requirement/Manifest.toml",
+    "runtimes/interval-requirement/Project.toml",
+    "runtimes/interval-requirement/worker.jl",
+    "runtimes/julia-oscillator/Manifest.toml",
+    "runtimes/julia-oscillator/oscillator_worker.jl",
+    "runtimes/jump-design/Manifest.toml",
+    "runtimes/jump-design/Project.toml",
+    "runtimes/jump-design/README.md",
+    "runtimes/jump-design/worker.jl",
+    "runtimes/native-interop/Manifest.toml",
+    "runtimes/native-interop/Project.toml",
+    "runtimes/native-interop/worker.jl",
+    "runtimes/reaction-kinetics/Manifest.toml",
+    "runtimes/reaction-kinetics/Project.toml",
+    "runtimes/reaction-kinetics/worker.jl",
+    "scripts/check_ci_policy.py",
+    "scripts/check_curved_path_study.py",
+    "scripts/check_design_adjustment.py",
+    "scripts/check_design_adjustment_native.py",
+    "scripts/check_geodesic_references.py",
+    "scripts/check_installed.py",
+    "scripts/check_interval_requirement.py",
+    "scripts/check_linear_response.py",
+    "scripts/check_native_interop.py",
+    "scripts/check_reaction_benchmark.py",
+    "scripts/provider_checkouts.py",
+    "scripts/provision_cantera_python.ps1",
+    "scripts/tests/test_ci_policy.py",
+    "src/ciw/cli.py",
+    "src/ciw/curved_path_study.py",
+    "src/ciw/design_adjustment.py",
+    "src/ciw/doctor.py",
+    "src/ciw/exact_response.py",
+    "src/ciw/interval_contract.py",
+    "src/ciw/interval_runtime.py",
+    "src/ciw/jump_design.py",
+    "src/ciw/learning.py",
+    "src/ciw/linear_response.py",
+    "src/ciw/native-interop-runtimes.json",
+    "src/ciw/native_interop.py",
+    "src/ciw/native_interop_contract.py",
+    "src/ciw/provider_checkouts.py",
+    "src/ciw/reaction_contract.py",
+    "src/ciw/reaction_runtime.py",
+    "src/ciw/server.py",
+    "src/ciw/workbench.py",
+    "src/ciw/workflow_attempts.py",
+    "src/ciw/workload_view.py",
+    "tests/test_curved_path_study.py",
+    "tests/test_design_adjustment.py",
+    "tests/test_doctor.py",
+    "tests/test_exact_response.py",
+    "tests/test_exchange_adapter.py",
+    "tests/test_integration_failure_dependencies.py",
+    "tests/test_integration_provider_recovery.py",
+    "tests/test_interval_benchmark.py",
+    "tests/test_interval_contract.py",
+    "tests/test_interval_worker.py",
+    "tests/test_interval_workflow.py",
+    "tests/test_julia_oscillator.py",
+    "tests/test_julia_worker_native.py",
+    "tests/test_jump_design.py",
+    "tests/test_learning.py",
+    "tests/test_linear_response.py",
+    "tests/test_native_interop.py",
+    "tests/test_native_interop_contract.py",
+    "tests/test_provider_provisioning.py",
+    "tests/test_reaction_benchmark.py",
+    "tests/test_reaction_cantera_worker.py",
+    "tests/test_reaction_contract.py",
+    "tests/test_reaction_julia_worker.py",
+    "tests/test_reaction_retained_metadata.py",
+    "tests/test_reaction_workflow.py",
+    "tests/test_workflow_attempt_records.py",
+    "tests/test_workflow_failure_history.py",
+    "tests/test_workflow_failure_transport.py"
+  ],
+  "date": "2026-09-27",
+  "diagnostics": {
+    "core": {
+      "artifact": "doctor-final-core.json",
+      "qualification": "not_performed",
+      "sha256": "sha256:ebe64ef199445df56723a49c864711568ed58c35f5314f1bce8a6b4ddad2ee66",
+      "status": "preflight_passed"
+    },
+    "interval-requirement": {
+      "artifact": "doctor-final-interval-requirement.json",
+      "qualification": "not_performed",
+      "sha256": "sha256:24ba128d8e51d2ca2d6c58e2350b324759a3b94d7d9a1c908c9d92e9e3e57a3e",
+      "status": "preflight_passed"
+    },
+    "native-interop": {
+      "artifact": "doctor-final-native-interop.json",
+      "qualification": "not_performed",
+      "sha256": "sha256:7d7f207dbbca45fbf8dcc88831afa3fe77566987708be28bea49696d3bb3b8af",
+      "status": "preflight_passed"
+    },
+    "reaction-cantera": {
+      "artifact": "doctor-final-reaction-cantera.json",
+      "qualification": "not_performed",
+      "sha256": "sha256:748470daefb0f54c754dd153d9a1281bd99a81aa58bd3a8c910a0176c81a1845",
+      "status": "preflight_passed"
+    },
+    "reaction-catalyst": {
+      "artifact": "doctor-final-reaction-catalyst.json",
+      "qualification": "not_performed",
+      "sha256": "sha256:a78cf3259b835d713d4a11000f67b09d949ca8161f248852cbbcdda44265077d",
+      "status": "preflight_passed"
+    }
+  },
+  "environment": {
+    "godot": "4.5.2",
+    "harness_numpy": "2.4.3",
+    "harness_python": "3.12.14"
+  },
+  "final_wheel_retained_inspection": {
+    "interval": {
+      "artifact": "interval-final-reopen.log",
+      "bundle_count": 7,
+      "fresh_execution": false,
+      "sha256": "sha256:c35af1525ab44b6f3719aed9c8e864ea1bf943bbd7811ddeaf95a7d6d1cbffbe"
+    },
+    "reaction": {
+      "artifact": "reaction-final-reopen.log",
+      "bundle_count": 10,
+      "fresh_execution": false,
+      "sha256": "sha256:7206bf408ac9bbc8d898db0a1912386f57e52025b0d2e546ae38215a97c0dc92"
+    }
+  },
+  "godot_log": {
+    "artifact": "godot.log",
+    "sha256": "sha256:230defa3be4315eef1fc789857172c0983398d787835fe8eea3a7a1bef518577"
+  },
+  "kind": "integration_candidate_observation_inventory",
+  "limitations": [
+    "Raw local run artifacts are not bundled in this summary",
+    "Optional-provider skips are not qualification",
+    "Binary hashes do not establish source-to-binary attestation",
+    "No physical validation, state admission, actuation or new cryptographic proof",
+    "Hosted private-provider access and first-operator release acceptance remain open"
+  ],
+  "pin_authorities": {
+    "geodesic_module": {
+      "path": "src/ciw/geodesic_reference.py",
+      "sha256": "sha256:72cad00d68a99f929a905079fc56c6044cfd8c624e6160dcb8d3fb1636b7a379"
+    },
+    "native_runtime_manifest": {
+      "path": "src/ciw/native-interop-runtimes.json",
+      "sha256": "sha256:bab1be76e41a2dcf165b253e8d263822edd4e3ac76eecdac574f6138d782076a"
+    }
+  },
+  "regression_and_doctor_wheel": "82a63816f9b708e8fc2cc90947e05468b00079c3eb395fe79023c596c0662bf6",
+  "release_qualification": "not_completed",
+  "scope": "Locally observed Windows x86_64 combined-candidate checks; not a provider pin authority",
+  "tests": {
+    "cantera-worker-final": {
+      "artifact": "cantera-worker-final.xml",
+      "errors": 0,
+      "failures": 0,
+      "sha256": "sha256:48c2f6f1eb55414110549aa2d9035cbcd26ef3d0d8396157cc5f8fe0f7829f71",
+      "skipped": 0,
+      "tests": 13
+    },
+    "ci-policy-final": {
+      "artifact": "ci-policy-final.xml",
+      "errors": 0,
+      "failures": 0,
+      "sha256": "sha256:b08799cfa77425a2f98d6c65df022eaa166e6aab1676fadaf7a3badc90e16292",
+      "skipped": 0,
+      "tests": 18
+    },
+    "combined-focused-final": {
+      "artifact": "combined-focused-final.xml",
+      "errors": 0,
+      "failures": 0,
+      "sha256": "sha256:50b5cf908640d0d4bf94273f68374c26e969e572b313561366a7768f04646121",
+      "skipped": 0,
+      "tests": 144
+    },
+    "regression-final": {
+      "artifact": "regression-final.xml",
+      "errors": 0,
+      "failures": 0,
+      "sha256": "sha256:127b9340fd59a1a9453e93e4c3f9be90ba999d1defeff46669090a18fee5818c",
+      "skipped": 715,
+      "tests": 2797
+    }
+  },
+  "wheel_comparison": {
+    "changed_members": [
+      "ciw/doctor.py",
+      "ciw/provider_checkouts.py",
+      "computational_instrumentation_workbench-0.1.0.dist-info/RECORD"
+    ],
+    "final_wheel_sha256": "82a63816f9b708e8fc2cc90947e05468b00079c3eb395fe79023c596c0662bf6",
+    "previous_wheel_sha256": "82f1a8c477852f432337cb756b546bf965013f1d15efcbda22ad2d31b0765593"
+  }
+}

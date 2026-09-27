@@ -16,9 +16,20 @@ remaining physical-stream and geometry compositions.
 An additional standalone pipeline does not by itself provide that common
 operating point.
 
+The [native interoperability validation report](NATIVE_INTEROP_VALIDATION.md)
+records the later bounded Rust/C++, JuliaControl and JuMP increment separately,
+including its unresolved SP1 and platform gates.
+The later [reaction benchmark validation](REACTION_BENCHMARK_VALIDATION.md)
+records the bounded Catalyst/Cantera profile on that same native operation;
+it does not add chemical measurement, heat coupling or evidence admission.
+The [interval requirement qualification](INTERVAL_REQUIREMENT_VALIDATION.md)
+records a scalar polynomial enclosure profile on the same native operation,
+with exact rational containment and explicit inconclusive outcomes. It adds no
+probabilistic uncertainty or physical validation claim.
+
 ## Shared operating session
 
-The [Workbench desktop tab](EXPERIMENT_VIEW.md) projects all twenty-six shared workflow
+The [Workbench desktop tab](EXPERIMENT_VIEW.md) projects the registered shared workflow
 kinds through `experiment.inspect`: retained measurements, state/covariance,
 residuals, native dependencies, evidence and verification. It follows committed
 session changes and keeps replay occurrences separate. This read-only display

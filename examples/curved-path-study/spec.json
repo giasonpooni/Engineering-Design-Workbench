@@ -1,0 +1,26 @@
+{
+  "study_id": "curved-heading-comparison",
+  "candidates": [
+    {
+      "candidate_id": "smaller-heading",
+      "initial_heading_radian": 0.001
+    },
+    {
+      "candidate_id": "larger-heading",
+      "initial_heading_radian": 0.004
+    },
+    {
+      "candidate_id": "opposite-heading",
+      "initial_heading_radian": -0.002
+    }
+  ],
+  "sample_index": 16,
+  "limits": {
+    "max_abs_lateral": 0.004,
+    "max_abs_heading": 0.003,
+    "units": {
+      "length": "m",
+      "angle": "radian"
+    }
+  }
+}

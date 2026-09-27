@@ -181,6 +181,54 @@ enum and does not claim state-estimator semantics. Read-only source
 and result validation is built into CIW, so reopening needs no GTE runtime.
 See [GTE.md](GTE.md) for exact inputs, statuses, covariance meaning and limits.
 
+## Failed native workflow attempts
+
+Shared `operation.execute` and `bundle.replay` calls reserve storage before
+entering a native workflow. If that attempt raises an exception, the workbench
+retains a `ciw.workflow-failure.v1` record and preserves the existing error
+behavior. The same path covers every native workflow; it does not change a
+provider's numerical record or invent a partial successful bundle.
+
+The record binds a fresh `workflow-execution:` occurrence to the operation,
+retained source/evidence, exact detached request and its canonical digest. A
+replay request binds the original bundle. It also records aware wall-clock start
+and finish times, `dispatch` or `retention` phase, and a bounded failure reason.
+These are software history timestamps, not measurement clocks. An explicit
+adapter refusal has status `refused`; other caught exceptions have status
+`failed`. `scope` is `workflow_attempt`, `runtime` is null with
+`runtime_status: not_captured`, and both `result_id` and `bundle_id` are null.
+The wrapper cannot infer whether a native process ran or which partial steps
+completed. No replay-success receipt or verification claim is created.
+
+`execution.list` and the snapshot's `failed_executions` array expose bounded
+`ciw.workflow-failure-summary.v1` projections. They retain the request digest,
+full-record digest reference, failure reason and replay target but omit the
+potentially large request body. Exact records are available in the saved
+workspace and Python `workbench.list_failed_executions()` API. A summary's
+`record_sha256` identifies the full record, not the summary. A retained failure
+increments workbench revision and triggers
+`workbench.changed` even when the request returns an error or its handler
+closes. Inspection/reopening never invokes providers or rechecks a proof.
+Retry requires a new explicit execute/replay request and creates a new
+occurrence; an earlier failed attempt remains immutable.
+
+Workspaces containing these records retain outer workspace format 3 and use
+`ciw.retained-workbench.v3` internally, with `candidates` and `failed_executions`
+arrays. Workbenches without failures retain their existing v1/v2 encoding.
+Historical encodings remain readable. Restore checks content digests, source,
+operation and replay-target bindings, strict field sets, identity collisions,
+revision counts and storage limits. The combined completed-bundle/failed-attempt
+limit is 128; total retained bytes remain bounded by 64 MiB. Requests and failure
+overhead are reserved before dispatch, so repeated refusals consume capacity.
+
+Malformed pre-dispatch requests, missing host bindings and capacity rejection
+do not create attempts. This increment covers the shared native workflow path,
+not standalone provider calls or ESM candidate actions. Checkpointing or normal
+server shutdown persists terminal attempts; crash recovery of in-flight work is
+not implemented. Unsigned digests detect inconsistent changes, not coherent
+fabrication or deletion of an entire history. No physical or admission authority
+follows from a failure record.
+
 ## Shared measurement, geometry and stability operations
 
 The additional shared kinds `measurement-chain`, `geometric-circle` and

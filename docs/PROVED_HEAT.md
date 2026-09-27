@@ -87,8 +87,14 @@ Provider work runs outside the socket event loop and shared publication lock,
 so other clients can inspect and change playback while it runs. The submitting
 connection waits for completion. This is not a persistent job queue: service
 restart recovery, cancellation and proof scheduling remain follow-on work.
-This version retains the source on refusal but does not retain a failed-workflow
-execution record. Successful results never silently downgrade to unproved ones.
+The shared Workbench retains a failed outer workflow attempt when execution or
+replay fails after dispatch reservation, including rejection of returned data.
+`execution.list` exposes its exact request/source binding, bounded reason and
+null result. It does not assert that the SCR engine or prover actually started;
+unreturned runtime/proof identities remain unknown. Pre-dispatch malformed input,
+missing host bindings and capacity rejection do not claim an execution.
+Successful results never silently downgrade to unproved ones. See the
+[shared failure lifecycle](PROTOCOL.md#failed-native-workflow-attempts).
 
 ## Retained evidence and fresh verification
 

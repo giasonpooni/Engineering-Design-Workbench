@@ -36,6 +36,7 @@ records exercised paths, independent checks and remaining gaps.
 | Run supported measurement, telemetry, calibration, estimation and design workflows. | Uses the exact provider versions and input assumptions listed in the integration guides; not a generic live sensor-fusion service. |
 | Evaluate supported covariance and geometric-path calculations. | Bounded matrix, mesh, translation-flow, flat-torus and curved-path operations; each has its own numerical limits. |
 | Inspect model equations and make bounded what-if previews. | Equation cards and offline previews associated with the oscillator workflow; the full learning curriculum is not implemented. |
+| Follow a retained RMS lesson through the existing statistics operation. | [One worked investigation](docs/LEARNING.md), with a separate Decimal comparison and explicit replay; no new curriculum engine or proof claim. |
 | Evaluate a recorded machine configuration. | Read-only encoder/gearbox/leadscrew reference workflow, with configuration, inputs and results retained together; no firmware loading or actuation. |
 | Run selected stability and computation checks. | PLSR and registered SCR/SP1 operations have separate requirements and scopes; they do not verify every calculation or physical model. |
 | Capture and compare GPU energy-to-accuracy measurements. | Explicit host capture requires a supported NVIDIA device and its NVML interface. Shared-session analysis uses retained logs. |

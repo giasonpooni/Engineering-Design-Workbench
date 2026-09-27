@@ -1,5 +1,8 @@
 # Mathematical model exploration
 
+For the optional problem-led curriculum and a retained offline exercise, see
+[Learn and use the same instrument](LEARNING.md).
+
 CIW now exposes a small educational layer around the retained Julia oscillator
 without changing what the operation claims. An `experiment.inspect` view
 contains an `educational_model` card with:

@@ -1,4 +1,4 @@
-# Documentation index for Notation-Systems-Workbench
+# Parametric Design Terminal documentation
 
 The root [README](../README.md) is the macro entrypoint. This index points to
 the page that owns each kind of detail so status and contracts do not drift
@@ -14,11 +14,20 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 | --- | --- |
 | Product scope, operating model and scientific workspace | [Workbench overview](WORKBENCH_OVERVIEW.md) |
 | Current provider map and loose-tool collapse rule | [Systems catalog](SYSTEMS_CATALOG.md) |
+| Shared profiles, typed composition and evidence boundaries | [Consolidation roadmap](CONSOLIDATION.md) |
 | Executable implementation architecture | [Architecture](ARCHITECTURE.md) |
+| Python, Julia, native execution and proof responsibilities | [Execution responsibilities](EXECUTION_RESPONSIBILITIES.md) |
+| Bounded Rust/C++, JuliaControl and JuMP execution | [Native interoperability](NATIVE_INTEROP.md) |
+| Fixed-model chemical kinetics and cross-engine references | [Reaction benchmark](REACTION_BENCHMARK.md) |
+| Bounded scalar linearization error with exact reference | [Interval requirement check](INTERVAL_REQUIREMENT.md) |
+| Optional providers and the next acceptance experiments | [Provider development sequence](PROVIDER_DEVELOPMENT.md) |
 | Multi-provider assembly and local deployment | [Workbench assembly](WORKBENCH_ASSEMBLY.md) |
 | Current executable paths and remaining gates | [Integration coverage](INTEGRATION_COVERAGE.md) |
 | User-facing instruments and exact commands | [Instrument catalogue](INSTRUMENTS.md) |
 | Oscillator demo, inspection and reopen commands | [Oscillator operator card](OSCILLATOR_OPERATOR.md) |
+| One worked RMS calculation, retained selection and explicit replay | [Retained RMS lesson](LEARNING.md) |
+| Local dependencies, exact expected identities and unperformed checks | [Read-only profile diagnostics](DOCTOR.md) |
+| Retained native heading candidates and matrix contributions | [Curved-path study](CURVED_PATH_STUDY.md) |
 | Equations, assumptions and bounded what-if previews | [Mathematical model exploration](MODEL_EXPLORATION.md) |
 
 ## Contracts and operations
@@ -41,7 +50,9 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 
 ## Development and availability
 
+- [Combined integration candidate and acceptance gates](INTEGRATION_CANDIDATE.md)
 - [Development guide](DEVELOPMENT.md)
+- [Development-window gap audit](DEVELOPMENT_GAPS.md)
 - [Provider availability and exact checkout provisioning](PROVIDER_AVAILABILITY.md)
 - [Stack map](STACK.md) and [stack role](STACK_ROLE.md)
 - [Diagram atlas](DIAGRAMS.md)
@@ -50,4 +61,3 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 
 Historical audits remain linked from the root for context. They do not override
 the current operation catalogue, integration matrix or provider manifests.
-

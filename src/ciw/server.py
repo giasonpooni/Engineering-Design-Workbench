@@ -12,7 +12,6 @@ from websockets.asyncio.server import serve
 from websockets.exceptions import ConnectionClosed
 
 from .session import Session, _reject_constant, envelope
-from .workbench import WORKBENCH_OPERATION_IDS
 
 LOG = logging.getLogger(__name__)
 
@@ -106,22 +105,20 @@ class WorkbenchServer:
                             await self._broadcast(envelope("selection.changed", response["payload"]))
                 else:
                     # Numerical operations and disk IO do not block socket polling.
-                    response = await asyncio.to_thread(self.session.handle, request)
+                    revision = self.session.workbench.revision
                     try:
-                        await self._send(websocket, response)
-                    except ConnectionClosed:
-                        self.clients.discard(websocket)
-                    changed = False
-                    if response["type"] == "response":
-                        changed = (request["type"] in {"source.add", "bundle.replay"}
-                                   or (request["type"] == "operation.execute"
-                                       and request["payload"]["operation_id"] in WORKBENCH_OPERATION_IDS))
-                    if changed:
-                        # An invalidation, not a second mutable state copy.
-                        # Every client reads the same authoritative session.get.
-                        await self._broadcast(envelope("workbench.changed", {
-                            "session_id": self.session.session_id,
-                        }))
+                        response = await asyncio.to_thread(self.session.handle, request)
+                        try:
+                            await self._send(websocket, response)
+                        except ConnectionClosed:
+                            self.clients.discard(websocket)
+                    finally:
+                        if self.session.workbench.revision != revision:
+                            # A failed workflow can retain history while returning
+                            # an error. Notify observers of that revision as well.
+                            await self._broadcast(envelope("workbench.changed", {
+                                "session_id": self.session.session_id,
+                            }))
         except ConnectionClosed:
             pass
         except Exception:

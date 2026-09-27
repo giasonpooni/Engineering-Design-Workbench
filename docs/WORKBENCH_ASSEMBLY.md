@@ -172,10 +172,13 @@ stack at startup when new execution or replay is required. Workspace formats 1
 and 2 remain readable; format 3 adds workbench state without discarding the
 existing recording, selection and operation history.
 
-Call `workspace.save` to checkpoint accepted sources and completed bundles;
-normal server shutdown also saves them. A workflow that refuses before producing
-a bundle returns an error and leaves its source retained, without publishing a
-partial state. The catalog permits at most 64 sources, 128 completed bundles and
+Call `workspace.save` to checkpoint accepted sources, completed bundles and
+failed workflow attempts; normal server shutdown also saves them. A workflow
+that fails after dispatch reservation returns its existing error while retaining
+a bounded outer attempt and no successful result. Inspect it with
+`execution.list`; [the lifecycle contract](PROTOCOL.md#failed-native-workflow-attempts)
+distinguishes pre-dispatch rejection, failed dispatch and failed retention.
+The catalog permits at most 64 sources, 128 completed bundles/failed attempts and
 64 MiB of retained content. Existing protocol frame limits still apply. It
 supports twenty-six executable source kinds and source-only geography; it is not an arbitrary bundle
 importer or a live acquisition service.

@@ -14,7 +14,45 @@ REPOSITORIES = {"ftr": "Flat-Torus-Geodesic-Reference",
                 "csg": "Curved-Surface-Geodesic-Sensitivity-Runtime"}
 # Exact independent checker validated against the retained native fixture pairs.
 ICRH_REVISION = "dc4d826ecd1f28c1d55b724618380ce44e58bedd"
-TESTS = ("test_geodesic_reference.py", "test_geodesic_reference_session.py")
+TESTS = ("test_geodesic_reference.py", "test_geodesic_reference_session.py", "test_curved_path_study.py")
+
+
+# Reuse ICRH's existing numerical profile for every candidate occurrence. This
+# does not add a study-policy, physical-validation or ESM-admission profile.
+_STUDY_PAIR_CHECK = r"""
+import json, sys
+from pathlib import Path
+from ciw.curved_path_study import load_study
+from ciw.session import Session
+from ciw.telemetry import canonical
+from icrh.geodesic import compare_geodesic_replay
+from icrh.geodesic_profiles import profile_spec
+root = Path(sys.argv[1])
+first = Session.from_workspace(root / 'curved-study/workspace.json')
+second = Session.from_workspace(root / 'curved-study-replay/workspace.json')
+a = load_study(root / 'curved-study/study.json', first.workbench)
+b = load_study(root / 'curved-study-replay/study.json', second.workbench)
+if b['replay_of'] != a['study_digest']:
+    raise AssertionError('Study parent differs from supplied original')
+if {k: v for k, v in a['request'].items() if k != 'baseline_bundle_id'} != {k: v for k, v in b['request'].items() if k != 'baseline_bundle_id'}:
+    raise AssertionError('Study request changed across replay')
+reports = []
+for old, new in zip([a['baseline'], *a['candidates']], [b['baseline'], *b['candidates']]):
+    if old['candidate_id'] != new['candidate_id']:
+        raise AssertionError('Candidate order changed across replay')
+    original = first.workbench.get_bundle(old['references']['bundle_id'])
+    replayed = second.workbench.get_bundle(new['references']['bundle_id'])
+    report = compare_geodesic_replay(profile_spec('curved-path-transfer'),
+        original, canonical(original), replayed, canonical(replayed))
+    if report['replay_receipt']['outcome'] != 'REPLAY_PASSED':
+        raise AssertionError('Native study occurrence failed independent comparison')
+    reports.append({'candidate_id': old['candidate_id'], 'comparison': report})
+(root / 'curved-study-icrh.json').write_bytes(canonical({
+    'study_digest': a['study_digest'], 'replay_study_digest': b['study_digest'],
+    'scope': 'native_constant_curvature_and_covariance_oracles_and_fresh_pair_bindings',
+    'study_policy_verification': 'not_performed', 'comparisons': reports}))
+print('PASS: independent ICRH checks of', len(reports), 'native study occurrence pairs')
+"""
 
 
 def call(command, **kwargs):
@@ -49,7 +87,7 @@ def main():
     if set(revisions) != set(REPOSITORIES):
         raise ValueError("Require both pinned native reference providers")
     destination = args.output_dir.resolve()
-    destination.mkdir(parents=True, exist_ok=True)
+    destination.mkdir(parents=True, exist_ok=False)
     with tempfile.TemporaryDirectory(prefix="ciw-ref-") as directory:
         temporary = Path(directory)
         checked = []
@@ -93,6 +131,9 @@ def main():
         for name in TESTS:
             shutil.copyfile(root / "tests" / name, work / "tests" / name)
         shutil.copytree(root / "examples/geodesic-reference", work / "examples/geodesic-reference")
+        shutil.copytree(root / "examples/curved-path-study", work / "examples/curved-path-study")
+        (work / "scripts").mkdir()
+        shutil.copyfile(root / "scripts/check_curved_path_study.py", work / "scripts/check_curved_path_study.py")
         env = {**os.environ, "CIW_FTR_REPO": str(repositories["ftr"]), "CIW_CSG_REPO": str(repositories["csg"]),
                "CIW_GEODESIC_FIXTURE_DIR": str(destination)}
         env.pop("PYTHONPATH", None)
@@ -109,8 +150,26 @@ def main():
               *["tests/" + name for name in TESTS]], cwd=work, env=env, timeout=900)
         if any(int(s.get("skipped", 0)) for s in ET.parse(report).getroot().iter("testsuite")):
             raise AssertionError("Native reference gate cannot pass skipped tests")
+        study_root = destination / "curved-study"
+        replay_root = destination / "curved-study-replay"
+        study_script = work / "scripts/check_curved_path_study.py"
+        commands = {
+            "run": ["run", "--csg-repo", str(repositories["csg"]),
+                    "--source", str(work / "examples/curved-path-study/baseline.json"),
+                    "--spec", str(work / "examples/curved-path-study/spec.json"), "--output", str(study_root)],
+            "inspect": ["inspect", "--workspace", str(study_root / "workspace.json"),
+                        "--study", str(study_root / "study.json")],
+            "replay": ["replay", "--csg-repo", str(repositories["csg"]),
+                       "--workspace", str(study_root / "workspace.json"),
+                       "--study", str(study_root / "study.json"), "--output", str(replay_root)],
+        }
+        for action, arguments in commands.items():
+            result = call([str(python), "-I", str(study_script), *arguments],
+                          cwd=work, env=env, capture_output=True)
+            (destination / ("curved-study-" + action + ".json")).write_bytes(result.stdout)
         call([str(python), "-I", str(harness / "scripts/check_geodesic_fixtures.py"),
               "--fixtures-dir", str(destination)], cwd=work, env=env)
+        call([str(python), "-I", "-c", _STUDY_PAIR_CHECK, str(destination)], cwd=work, env=env)
         for path, revision, tree in checked:
             if exact_source(path, revision) != tree:
                 raise AssertionError("Pinned source changed during the gate")
