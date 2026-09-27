@@ -135,6 +135,32 @@ The subsequent [development-window audit](DEVELOPMENT_GAPS.md) records hosted
 workflow findings and follow-up repairs. The test counts above remain the original
 qualification record.
 
+## Automatic direct-worker regression gate
+
+The [Cantera worker workflow](../.github/workflows/cantera-worker.yml) runs
+on relevant pushes and pull requests without requiring the private SCR checkout.
+It installs the existing hash-locked worker requirements into a separate Windows
+x64 Python 3.12.14 environment. The CIW/pytest harness retains its own NumPy
+version; it never installs CIW into the worker environment.
+
+The genuine worker tests compare the entire handshake identity and both source
+file hashes with the existing Cantera pins. JUnit retains the observed identity,
+worker executable digest and whether that executable matches the registered pin.
+The executable observation does not qualify an SCR binding.
+
+Malformed requests must produce INVALID_REQUEST. A valid request with a
+one-step solver budget must produce an actual CVODES NUMERICAL_FAILURE without
+data; a following valid request in the same worker must succeed against the
+independent analytic checker. JSON round-trip comparison remains a direct-worker
+test, distinct from retained CIW workspace replay.
+
+The job fails on installation or identity mismatch, test failures, zero tests
+or any skips, and retains its scope/outcome even when it fails. Its workflow
+definition alone is not evidence of a successful run. The required full
+[reaction qualification](../.github/workflows/reaction-benchmark.yml), including
+exact executable/SCR bindings, Catalyst, installed-wheel replay and the two-engine
+benchmark, is unchanged. Passing this component gate cannot close those gates.
+
 ## Scope and remaining gates
 
 - Windows x86-64 is the qualified reaction platform. New Linux/macOS reaction

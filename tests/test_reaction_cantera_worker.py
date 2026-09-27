@@ -45,6 +45,25 @@ def request(request_id: str, value: dict[str, Any] | None = None) -> dict[str, A
     }
 
 
+def source(value: dict[str, Any]) -> dict[str, Any]:
+    """Reference request for the existing independent reaction checker."""
+    return {
+        "schema": "ciw.native-interop-source.v1",
+        "experiment_id": "cantera-test",
+        "provider": "cantera",
+        "profile": PROFILE,
+        "arithmetic": "binary64",
+        "semantics": deepcopy(SEMANTICS),
+        "payload": deepcopy(value),
+        "configuration": {
+            "atol": 2e-8, "rtol": 2e-8, "qp_kkt_atol": 2e-6,
+            "covariance_status": "not_applicable",
+            "calibration": "not_applicable",
+        },
+        "upstream": None,
+    }
+
+
 def frame(value: dict[str, Any]) -> bytes:
     raw = json.dumps(value, sort_keys=True, separators=(",", ":")).encode("utf-8")
     return struct.pack(">I", len(raw)) + raw
@@ -111,9 +130,18 @@ def run_raw(raw: bytes) -> subprocess.CompletedProcess[bytes]:
     )
 
 
-def test_genuine_cantera_trajectory_rates_and_identity():
+def test_genuine_cantera_trajectory_rates_and_identity(record_testsuite_property):
     hello, responses = run_worker([request("run-1")])
     identity = hello["identity"]
+    pins = json.loads((ROOT / "src/ciw/native-interop-runtimes.json").read_text(encoding="utf-8"))["reaction_families"]["cantera"]
+    executable_digest = "sha256:" + hashlib.sha256(qualified_python().read_bytes()).hexdigest()
+    record_testsuite_property("cantera.worker_identity", json.dumps(identity, sort_keys=True))
+    record_testsuite_property("cantera.executable_sha256", executable_digest)
+    record_testsuite_property("cantera.executable_matches_pin", str(executable_digest == pins["executable_sha256"]))
+    record_testsuite_property("cantera.full_runtime_qualification", "not_performed")
+    assert identity == pins["worker_identity"]
+    for relative, expected in pins["files"].items():
+        assert "sha256:" + hashlib.sha256((ROOT / relative).read_bytes()).hexdigest() == expected
     assert hello["schema"] == "ciw.native-interop-handshake-response.v1"
     assert hello["status"] == "ok"
     assert hello["profiles"] == [PROFILE]
@@ -161,32 +189,13 @@ def test_genuine_cantera_trajectory_rates_and_identity():
         "retcode": "Success",
         **payload()["solver"],
     }
-    checked = check_output(
-        {
-            "schema": "ciw.native-interop-source.v1",
-            "experiment_id": "cantera-test",
-            "provider": "cantera",
-            "profile": PROFILE,
-            "arithmetic": "binary64",
-            "semantics": deepcopy(SEMANTICS),
-            "payload": payload(),
-            "configuration": {
-                "atol": 2e-8,
-                "rtol": 2e-8,
-                "qp_kkt_atol": 2e-6,
-                "covariance_status": "not_applicable",
-                "calibration": "not_applicable",
-            },
-            "upstream": None,
-        },
-        data,
-    )
+    checked = check_output(source(payload()), data)
     assert checked["outcome"] == "passed"
     assert checked["metrics"]["trajectory_max_abs_mol_m3"] < 2e-8
     assert checked["metrics"]["rate_law_max_abs_mol_m3_s"] < 2e-8
 
 
-def test_worker_response_persistence_reopen_and_replay_are_byte_stable(tmp_path):
+def test_worker_response_json_roundtrip_matches_fresh_request(tmp_path):
     _hello, responses = run_worker([request("run-a"), request("run-b")])
     first, replay = (response["data"] for response in responses)
     saved = tmp_path / "cantera-result.json"
@@ -259,7 +268,7 @@ def test_oversized_frame_fails_closed_with_bounded_timeout():
 
 @pytest.mark.parametrize(
     "mutation",
-    ("negative_concentration", "wrong_semantics", "unknown_payload_field", "too_few_steps"),
+    ("negative_concentration", "wrong_semantics", "unknown_payload_field"),
 )
 def test_invalid_or_unqualified_requests_are_refused(mutation):
     value = payload()
@@ -272,11 +281,28 @@ def test_invalid_or_unqualified_requests_are_refused(mutation):
     elif mutation == "unknown_payload_field":
         value["mechanism"] = "caller-supplied code is never accepted"
         envelope = request("refuse-mechanism", value)
-    else:
-        value["time_s"] = [0.0, 10.0]
-        value["solver"]["max_steps"] = 1
-        envelope = request("refuse-steps", value)
     _hello, responses = run_worker([envelope])
     response = responses[0]
     assert response["status"] == "refused"
-    assert response["refusal"]["code"] in {"INVALID_REQUEST", "NUMERICAL_FAILURE"}
+    assert response["refusal"]["code"] == "INVALID_REQUEST"
+    assert "data" not in response
+
+
+
+def test_actual_cvodes_step_exhaustion_then_independent_recovery():
+    exhausted = payload()
+    exhausted["time_s"] = [0.0, 10.0]
+    exhausted["solver"]["max_steps"] = 1
+    _hello, responses = run_worker([request("exhausted", exhausted), request("recovered")])
+    failure, recovered = responses
+    assert failure["status"] == "refused"
+    assert failure["refusal"]["code"] == "NUMERICAL_FAILURE"
+    assert any(message in failure["refusal"]["message"] for message in (
+        "Cantera.CVODES advance failed", "Cantera.CVODES aggregate max_steps exceeded"))
+    assert "data" not in failure
+    assert recovered["status"] == "ok" and "refusal" not in recovered
+    assert recovered["request_id"] == "recovered"
+    checked = check_output(source(payload()), recovered["data"])
+    assert checked["outcome"] == "passed"
+    assert checked["metrics"]["trajectory_max_abs_mol_m3"] < 2e-8
+    assert checked["metrics"]["rate_law_max_abs_mol_m3_s"] < 2e-8

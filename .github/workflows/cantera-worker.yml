@@ -1,0 +1,85 @@
+name: Cantera worker contracts
+
+on:
+  push:
+    paths:
+      - '.github/workflows/cantera-worker.yml'
+      - 'runtimes/cantera-reaction/**'
+      - 'tests/test_reaction_cantera_worker.py'
+      - 'src/ciw/reaction_contract.py'
+      - 'src/ciw/native_interop_contract.py'
+      - 'src/ciw/native-interop-runtimes.json'
+      - 'pyproject.toml'
+  pull_request:
+    paths:
+      - '.github/workflows/cantera-worker.yml'
+      - 'runtimes/cantera-reaction/**'
+      - 'tests/test_reaction_cantera_worker.py'
+      - 'src/ciw/reaction_contract.py'
+      - 'src/ciw/native_interop_contract.py'
+      - 'src/ciw/native-interop-runtimes.json'
+      - 'pyproject.toml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-worker:
+    runs-on: windows-2022
+    timeout-minutes: 20
+    env:
+      CIW_REACTION_REQUIRE_CANTERA: '1'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Record direct-worker scope and unchanged qualification pins
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          New-Item -ItemType Directory "$env:RUNNER_TEMP/cantera-worker-audit" | Out-Null
+          @{ scope = 'direct_cantera_worker_contracts'; source_revision = (git rev-parse HEAD); run_id = $env:GITHUB_RUN_ID; full_runtime_qualification = 'not_performed'; scr_dispatch = 'not_performed'; installed_ciw_replay = 'not_performed' } | ConvertTo-Json | Set-Content "$env:RUNNER_TEMP/cantera-worker-audit/scope.json"
+          Copy-Item src/ciw/native-interop-runtimes.json "$env:RUNNER_TEMP/cantera-worker-audit/qualification-pins.json"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+          architecture: x64
+      - name: Provision separate harness and hash-locked worker environments
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          # CIW's NumPy 2.4.3 stays in the harness. Never install CIW in the worker.
+          python -m pip install -e ".[dev]"
+          python -m venv "$env:RUNNER_TEMP/cantera-worker"
+          $workerPython = "$env:RUNNER_TEMP/cantera-worker/Scripts/python.exe"
+          & $workerPython -m pip install --only-binary=:all: --require-hashes -r runtimes/cantera-reaction/requirements.txt
+          "CIW_TEST_REACTION_CANTERA=$workerPython" >> $env:GITHUB_ENV
+      - name: Run genuine worker contracts and reject missing tests
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          python -m pytest -q tests/test_reaction_cantera_worker.py --junitxml="$env:RUNNER_TEMP/cantera-worker-audit/tests.xml"
+          if ($LASTEXITCODE -ne 0) { throw 'Cantera worker contracts failed' }
+          [xml]$tests = Get-Content "$env:RUNNER_TEMP/cantera-worker-audit/tests.xml"
+          $suites = @($tests.testsuites.testsuite)
+          if (($suites | Measure-Object -Property tests -Sum).Sum -le 0) { throw 'No Cantera worker tests ran' }
+          foreach ($field in @('skipped', 'failures', 'errors')) {
+            if (($suites | Measure-Object -Property $field -Sum).Sum -ne 0) { throw "Cantera worker tests reported $field" }
+          }
+      - name: Retain outcome independently from runtime qualification
+        if: always()
+        shell: pwsh
+        env:
+          WORKER_JOB_STATUS: ${{ job.status }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force "$env:RUNNER_TEMP/cantera-worker-audit" | Out-Null
+          @{ status = $env:WORKER_JOB_STATUS; scope = 'direct_cantera_worker_contracts'; full_runtime_qualification = 'not_performed' } | ConvertTo-Json | Set-Content "$env:RUNNER_TEMP/cantera-worker-audit/outcome.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: cantera-worker-contracts
+          if-no-files-found: error
+          path: ${{ runner.temp }}/cantera-worker-audit
