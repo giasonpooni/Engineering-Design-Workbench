@@ -6,12 +6,21 @@ on:
       - 'crates/execution-provider-host/**'
       - 'tests/test_native_provider_host.py'
       - 'tests/native_host_fixture.rs'
+      - 'tests/test_reaction_provider_host.py'
+      - 'tests/reaction_protocol_fixture.py'
+      - 'tests/test_interval_provider_host.py'
+      - 'tests/interval_host_fixture.rs'
       - '.github/workflows/native-provider-host.yml'
   pull_request:
     paths:
       - 'crates/execution-provider-host/**'
       - 'tests/test_native_provider_host.py'
       - 'tests/native_host_fixture.rs'
+      - 'tests/test_reaction_provider_host.py'
+      - 'tests/reaction_protocol_fixture.py'
+      - 'tests/test_interval_provider_host.py'
+      - 'tests/interval_host_fixture.rs'
+      - '.github/workflows/native-provider-host.yml'
 jobs:
   native-linux:
     runs-on: ubuntu-latest
@@ -27,7 +36,27 @@ jobs:
       - run: python -m pip install pytest
       - run: cargo build --locked --manifest-path crates/execution-provider-host/Cargo.toml
       - run: cargo test --locked --manifest-path crates/execution-provider-host/Cargo.toml
-      - run: SCR_PROVIDER_HOST="$CARGO_TARGET_DIR/debug/scr-provider-host" python -m pytest -q tests/test_native_provider_host.py -k 'not genuine_julia and not windows_child'
+      - name: Compiled host contracts for native, reaction and interval families
+        # Scripted children exercise transport/refusal contracts, not the real
+        # Julia or Cantera numerical engines. Those retain separate gates.
+        run: |
+          SCR_PROVIDER_HOST="$CARGO_TARGET_DIR/debug/scr-provider-host" python -m pytest -q \
+            tests/test_native_provider_host.py \
+            tests/test_reaction_provider_host.py \
+            tests/test_interval_provider_host.py \
+            -k 'not genuine_julia and not genuine_reaction_engine and not genuine_interval_worker and not windows_child' \
+            --junitxml=native-provider-host.xml
+          python - <<'PY'
+          import xml.etree.ElementTree as ET
+          suites = list(ET.parse('native-provider-host.xml').getroot().iter('testsuite'))
+          assert sum(int(s.get('tests', '0')) for s in suites) > 0, 'No host contract tests ran'
+          assert sum(int(s.get('skipped', '0')) for s in suites) == 0, 'Host contract tests must not skip'
+          PY
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: native-provider-host-contracts
+          path: native-provider-host.xml
       - name: Address and undefined-behavior sanitizer gate
         env:
           CARGO_TARGET_DIR: ${{ github.workspace }}/../native-sanitized
