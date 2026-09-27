@@ -261,10 +261,20 @@ func _draw_strip(render: Dictionary) -> void:
 	var caption := _canvas_caption(render, "Declared %s axis · points only · not event time" % str(render.get("parameter_name", "parameter")))
 	_draw_axes(world, plot, str(render.get("value_unit", "")), caption)
 	_draw_canvas_id(render, plot)
+	var kept: Array = []
 	for item in samples:
 		if typeof(item) != TYPE_DICTIONARY:
 			continue
 		if not is_finite(float(item.get("parameter", NAN))) or not is_finite(float(item.get("value", NAN))):
 			continue
 		draw_circle(_map(Vector2(float(item.parameter), float(item.value)), world, plot), 4, Color("60dfcd"))
+		kept.append(item)
+	if not kept.is_empty():
+		var first: Dictionary = kept[0]
+		var last: Dictionary = kept[kept.size() - 1]
+		var start_name := str(render.get("start_label", ""))
+		var end_name := str(render.get("end_label", ""))
+		draw_string(font, _map(Vector2(float(first.parameter), float(first.value)), world, plot) + Vector2(6, -6), start_name, HORIZONTAL_ALIGNMENT_LEFT, -1, 11)
+		if kept.size() > 1 and not end_name.is_empty() and end_name != start_name:
+			draw_string(font, _map(Vector2(float(last.parameter), float(last.value)), world, plot) + Vector2(6, -6), end_name, HORIZONTAL_ALIGNMENT_LEFT, -1, 11)
 	draw_string(font, Vector2(plot.end.x - 90, size.y - 15), str(render.get("parameter_unit", "")), HORIZONTAL_ALIGNMENT_RIGHT, 80, 11)

@@ -109,6 +109,10 @@ def test_strip_uses_declared_parameter_and_refuses_a_decreasing_axis():
                                   parameter_unit="m", value_unit="m", frame="path")
     assert render["kind"] == "strip"
     assert render["connect"] is False
+    assert render["start_label"] == "arclength=0.0"
+    assert render["end_label"] == "arclength=1.0"
+    assert render["start_parameter"] == 0.0
+    assert render["end_parameter"] == 1.0
     assert render["samples"][1] == {"parameter": 0.5, "value": 0.2}
     render["samples"][0]["value"] = 9
     assert values[0] == 0.1

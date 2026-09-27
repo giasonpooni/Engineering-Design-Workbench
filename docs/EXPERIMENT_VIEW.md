@@ -115,7 +115,8 @@ is a surveyed view. Detached mesh copies refuse a path or source/target index
 outside the declared vertices. Detached strip copies refuse a nonfinite or
 decreasing parameter before that copy reaches a companion canvas. Detached plane
 copies refuse a nonfinite x,y before the companion canvas draws it. A strip plot uses the retained parameter as its abscissa and
-does not treat that parameter as event time. Jacobi inspections stamp `canvas_id`
+does not treat that parameter as event time. Strip plots label only the first and
+last declared parameter samples. Jacobi inspections stamp `canvas_id`
 and `canvas_title` on each strip and copy those strips onto `system_canvases` so
 a mixed-unit pose panel keeps a named arclength companion. Mesh-path inspections also copy the
 same descriptor onto `system_render` so the 3D canvas remains available while a

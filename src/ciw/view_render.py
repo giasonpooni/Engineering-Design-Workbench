@@ -73,6 +73,7 @@ def detach_render(render):
         payload.update(detach_mesh_geometry(payload))
     if payload.get("kind") == "strip":
         payload["samples"] = detach_strip_samples(payload.get("samples"))
+        payload.update(strip_endpoint_labels(payload["samples"], payload.get("parameter_name")))
     return payload
 
 
@@ -288,6 +289,24 @@ def detach_strip_samples(samples):
     return copied
 
 
+def strip_endpoint_labels(samples, parameter_name):
+    """Name the first and last declared parameter samples. Not interpolation."""
+    if not samples:
+        return {}
+    name = parameter_name or "parameter"
+    first = samples[0]["parameter"]
+    last = samples[-1]["parameter"]
+    labels = {
+        "start_parameter": first,
+        "end_parameter": last,
+        "start_label": "%s=%s" % (name, first),
+        "end_label": "%s=%s" % (name, last),
+    }
+    if first == last:
+        labels["end_label"] = None
+    return labels
+
+
 def strip_from_parameter(parameter, values, *, parameter_name, parameter_unit, value_unit, frame,
                          canvas_id=None, canvas_title=None):
     """Place already-projected samples on a declared parameter axis.
@@ -315,6 +334,7 @@ def strip_from_parameter(parameter, values, *, parameter_name, parameter_unit, v
         "connect": False,
         "note": "Declared parameter axis; points only; not a time trajectory",
     }
+    payload.update(strip_endpoint_labels(samples, parameter_name))
     if canvas_id:
         payload["canvas_id"] = canvas_id
         payload["canvas_title"] = canvas_title or canvas_id
