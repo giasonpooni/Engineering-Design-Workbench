@@ -1,4 +1,7 @@
-# Local checkout of the required pin (0f38358…). Used only for offline cargo check.
-# Published dependency in Cargo.toml remains the git rev; do not patch the engine tree.
-[patch."https://github.com/giasonpooni/bevy.git"]
-bevy = { path = "/workspace/bevy" }
+# Optional local engine checkout for offline cargo check.
+# Copy to config.toml.local (gitignored) if you clone giasonpooni/bevy at the pin.
+# Do not commit a path patch into the published tree.
+#
+# Example:
+# [patch."https://github.com/giasonpooni/bevy.git"]
+# bevy = { path = "../bevy" }
