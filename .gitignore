@@ -39,3 +39,4 @@ docs/adr/
 
 # Local Bevy engine checkout — do not vendor
 /bevy/
+
