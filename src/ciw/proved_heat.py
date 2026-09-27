@@ -306,7 +306,9 @@ class ProvedHeatWorkflow(DeclaredWorkflow):
         return answer
 
     def _step(self, source, evidence_id, bound):
-        data = self._invoke(source, bound)
+        # A provider may cache its response. Retained proof bytes, diagnostics
+        # and native results must not alias provider-owned mutable objects.
+        data = deepcopy(self._invoke(deepcopy(source), bound))
         _data(source, data)
         occurrence = "execution-" + uuid.uuid4().hex
         result = {"schema": RESULT_SCHEMA, "operation_id": self.operation, "execution_ref": occurrence,
@@ -340,11 +342,13 @@ class ProvedHeatWorkflow(DeclaredWorkflow):
 
     def _execute(self, raw, bound):
         source, evidence = self._source(raw), byte_digest(raw)
+        runtime = deepcopy(bound[1])
         step = self._step(source, evidence, bound)
+        _same(bound[1], runtime, "Proof runtime binding changed during execution")
         bundle = {"schema": self.schema, "session_id": "session-" + uuid.uuid4().hex, "created_at": _now(),
             "source": {"experiment_id": source["experiment_id"], "experiment_digest": digest(source),
                 "evidence": [{"artifact_ref": evidence, "sha256": evidence, "bytes_b64": base64.b64encode(raw).decode()}]},
-            "configuration": deepcopy(source["configuration"]), "runtimes": {"scr": bound[1]}, "steps": [step]}
+            "configuration": deepcopy(source["configuration"]), "runtimes": {"scr": runtime}, "steps": [step]}
         bundle["bundle_digest"] = _bundle_digest(bundle)
         bundle["verification"] = _verification(bundle, "verification-" + uuid.uuid4().hex)
         self._validate(bundle)
@@ -386,13 +390,21 @@ class ProvedHeatWorkflow(DeclaredWorkflow):
 
     def verify_session(self, bundle, repositories):
         """Fresh cryptographic verification of retained bytes; no native rerun or proof production."""
+        # Verification may take minutes. Capture and validate one subject so
+        # callers cannot retarget the report while the verifier is running.
+        bundle = deepcopy(bundle)
         source = self._source(self._validate(bundle))
         # Verification needs the approved source, guest and backend, but a
         # compatible verifier need not reproduce the producer's host binaries.
         # Replay retains the stronger original-runtime equivalence requirement.
         bound = self._adapters(repositories)
+        verifier_runtime = deepcopy(bound[1])
         data = bundle["steps"][0]["result"]["data"]
-        answer = self._invoke(source, bound, retained=data)
+        request_source, retained = deepcopy(source), deepcopy(data)
+        answer = deepcopy(self._invoke(request_source, bound, retained=retained))
+        _same(request_source, source, "Verification source statement changed during execution")
+        _same(retained, data, "Verification retained statement changed during execution")
+        _same(bound[1], verifier_runtime, "Verifier runtime binding changed during execution")
         _keys(answer, {"verifier", "seconds", "memory"})
         _verifier(answer["verifier"], data["native"], data["proof"])
         _seconds(answer["seconds"])
@@ -400,7 +412,7 @@ class ProvedHeatWorkflow(DeclaredWorkflow):
         report = _verification(bundle, "verification-" + uuid.uuid4().hex)
         report.pop("verification_id")
         report["seconds"], report["memory"] = answer["seconds"], answer["memory"]
-        report["verifier_runtimes"] = {"scr": deepcopy(bound[1])}
+        report["verifier_runtimes"] = {"scr": verifier_runtime}
         report["verifier_runtime_digest"] = digest(report["verifier_runtimes"])
         return _identify(report)
 
@@ -458,6 +470,9 @@ class ProvedHeatWorkflow(DeclaredWorkflow):
         _same(receipt["verification"], self._receipt_verification(original, fresh), "Replay differs from retained historical context")
 
     def replay_session(self, bundle, repositories):
+        # A replay receipt refers to the captured original occurrence, not a
+        # mutable caller reference that can change during proof production.
+        bundle = deepcopy(bundle)
         raw = self._validate(bundle)
         fresh = self._execute(raw, self._adapters(repositories, bundle["runtimes"]))
         receipt = {"schema": "ciw.proved-heat-replay.v1", "source_bundle_digest": bundle["bundle_digest"],
