@@ -1,10 +1,6 @@
 {
   "path_class": "HOST_teaching_template_no_conditioning",
-  "case_ids": [
-    "conditioned-accept-recommendation",
-    "held-request-evidence",
-    "refused-violated"
-  ],
+  "case_ids": ["conditioned-accept-recommendation", "held-request-evidence", "refused-violated"],
   "std_from_variance_ok": true,
   "live_gat_session": false,
   "ifc_present": true
