@@ -44,6 +44,11 @@ func _run() -> void:
 				push_error("Native panel was not rendered: " + path)
 				quit(1)
 				return
+			var render = value.panels[i].get("render", {})
+			if render.get("kind") in ["plane2d", "mesh"] and view._plot.panel.get("render", {}).get("kind") != render.kind:
+				push_error("Presentation render was not applied: " + path)
+				quit(1)
+				return
 		print("PASS: retained ", value.kind, " occurrence; ", value.panels.size(), " panels")
 	view.queue_free()
 	reader.free()
