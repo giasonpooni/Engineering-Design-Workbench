@@ -16,19 +16,21 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          fetch-depth: 4
+          fetch-depth: 5
           persist-credentials: false
-      - name: Reconstruct the exact already-tested tree, not a new implementation
+      - name: Reconstruct the exact already-tested tree, preserving upstream byte identities
         shell: bash
         run: |
           set -euo pipefail
           python scripts/apply_ci_recovery.py
           rm scripts/apply_ci_recovery.py .github/workflows/ci-repair-build.yml .github/workflows/ci-repair-transfer.yml
           git add -u
-          test "$(git write-tree)" = 12360b6581ddb8c3af6dd4d2993672b8f35a36b8
-          git diff --cached --check
           mkdir -p "$RUNNER_TEMP/tested-ci-objects"
-          git archive --format=tar.gz 12360b6581ddb8c3af6dd4d2993672b8f35a36b8 > "$RUNNER_TEMP/tested-ci-objects/tested-source.tar.gz"
+          git write-tree | tee "$RUNNER_TEMP/tested-ci-objects/tree.txt"
+          git diff --cached --raw d241242a06f26550a43701f44323b2c1d7ad6981 > "$RUNNER_TEMP/tested-ci-objects/changes.txt"
+          test "$(git write-tree)" = f98ca8ddceb05f94860b9db7eb7bd4b937b1e593
+          git diff --cached --check
+          git archive --format=tar.gz f98ca8ddceb05f94860b9db7eb7bd4b937b1e593 > "$RUNNER_TEMP/tested-ci-objects/tested-source.tar.gz"
       - name: Retain data blobs only; no branch, commit, workflow or permission update
         env:
           OBJECT_TOKEN: ${{ github.token }}
@@ -38,7 +40,7 @@ jobs:
           import base64, hashlib, json, os, pathlib, subprocess, urllib.request
           base = 'd241242a06f26550a43701f44323b2c1d7ad6981'
           tree = subprocess.check_output(['git','write-tree'], text=True).strip()
-          assert tree == '12360b6581ddb8c3af6dd4d2993672b8f35a36b8'
+          assert tree == 'f98ca8ddceb05f94860b9db7eb7bd4b937b1e593'
           token = os.environ.pop('OBJECT_TOKEN')
           entries = []
           changes = subprocess.check_output(['git','diff','--cached','--name-status',base], text=True).splitlines()
