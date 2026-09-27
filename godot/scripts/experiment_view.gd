@@ -299,7 +299,14 @@ func _endpoint_phrase(render: Dictionary) -> String:
 	return start + " → " + end
 
 
-func _declared_frame(render: Dictionary) -> String:
+func _mesh_extent_phrase(render: Dictionary) -> String:
+	if str(render.get("kind", "")) != "mesh":
+		return ""
+	if render.get("declared_planar") == true:
+		return "declared_planar"
+	if render.get("declared_planar") == false:
+		return "first two declared axes"
+	return ""
 	var frame: Variant = render.get("frame", "")
 	if typeof(frame) == TYPE_DICTIONARY:
 		return str(frame.get("id", frame.get("frame_id", "")))
@@ -349,6 +356,9 @@ func _fill_system_canvases() -> void:
 		var ends := _endpoint_phrase(item.get("render", {}))
 		if not ends.is_empty():
 			title += " · " + ends
+		var extent := _mesh_extent_phrase(item.get("render", {}))
+		if not extent.is_empty() and title.find(extent) < 0:
+			title += " · " + extent
 		var overlays := _overlay_phrase(item.get("render", {}))
 		if not overlays.is_empty():
 			title += " · " + overlays
@@ -402,7 +412,11 @@ func _select_panel(index: int) -> void:
 		if not panel_ends.is_empty():
 			var panel_row := "Panel vertices" if str(panel.render.get("kind", "")) == "mesh" else "Panel endpoints"
 			var panel_frame := _frame_phrase(panel.render)
-			rows.append(panel_row + ": " + panel_ends + (" · " + panel_frame if not panel_frame.is_empty() else "") + " · display only")
+			var panel_extent := _mesh_extent_phrase(panel.render)
+			var panel_extra := panel_frame
+			if not panel_extent.is_empty():
+				panel_extra = panel_frame + " · " + panel_extent if not panel_frame.is_empty() else panel_extent
+			rows.append(panel_row + ": " + panel_ends + (" · " + panel_extra if not panel_extra.is_empty() else "") + " · display only")
 		var panel_overlays := _overlay_phrase(panel.render)
 		if not panel_overlays.is_empty():
 			rows.append("Panel constraint: " + panel_overlays + " · declared_constraint · display only")
@@ -417,7 +431,11 @@ func _select_panel(index: int) -> void:
 		if not companion_ends.is_empty():
 			var row_name := "Companion vertices" if system_kind == "mesh" else "Companion endpoints"
 			var companion_frame := _frame_phrase(system_render)
-			rows.append(row_name + ": " + companion_ends + (" · " + companion_frame if not companion_frame.is_empty() else "") + " · display only")
+			var companion_extent := _mesh_extent_phrase(system_render)
+			var companion_extra := companion_frame
+			if not companion_extent.is_empty():
+				companion_extra = companion_frame + " · " + companion_extent if not companion_frame.is_empty() else companion_extent
+			rows.append(row_name + ": " + companion_ends + (" · " + companion_extra if not companion_extra.is_empty() else "") + " · display only")
 		var companion_overlays := _overlay_phrase(system_render)
 		if not companion_overlays.is_empty():
 			rows.append("Companion constraint: " + companion_overlays + " · declared_constraint · display only")

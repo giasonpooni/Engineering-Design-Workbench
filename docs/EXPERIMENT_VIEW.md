@@ -132,7 +132,8 @@ caption uses the retained unit and coordinate frame, matching the 3D caption. Th
 declared vertex has z = 0, the third axis is unlabeled so a planar mesh is not
 shown as a surveyed 3D frame. The 2D caption says “first two declared axes”
 only when a third coordinate is actually present. The numeric table repeats
-those source and target identities while a sibling scalar panel is selected. The
+`declared_planar` plus source and target identities while a sibling scalar panel
+is selected. The
 same row names the declared mesh `canvas_id` / coordinate frame. Circle-geometry and flat-torus inspections copy
 the declared plane onto `system_render` so a companion canvas keeps the constraint
 or quotient visible while a residual or scalar panel is selected. When more than
