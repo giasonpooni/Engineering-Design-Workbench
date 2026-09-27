@@ -2,7 +2,7 @@
 
 Part of **Notation Systems' computational instrumentation and evidence infrastructure** for industrial and cyber-physical systems.
 
-[Diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md) · [Stack map](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/STACK.md) · [Component role and interfaces](docs/STACK_ROLE.md)
+[Notations Engineering Terminal (CIW)](https://github.com/giasonpooni/Notations-Engineering-Terminal) · [Diagram atlas](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/main/docs/DIAGRAMS.md) · [Stack map](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/main/docs/STACK.md) · [Component role and interfaces](docs/STACK_ROLE.md)
 
 An experimental runtime for admission and settlement of inference-token budgets.
 It evaluates caller-declared proposals, reuse opportunities and yield observations
@@ -15,9 +15,10 @@ remain with their domain engines. It does not run a language model, measure
 semantic quality independently or control machinery.
 
 The [observation-design admission adapter](docs/OBSERVATION_DESIGN_ADMISSION.md)
-binds deterministic token advice to a retained EDSPT selection for CIW.
-Observation costs stay with EDSPT; the adapter evaluates explicit inference-token
-declarations and cannot reserve or spend a live budget.
+binds deterministic token advice to a retained EDSPT selection for Notations
+Engineering Terminal's existing CIW runtime. Observation costs stay with EDSPT;
+the adapter evaluates explicit inference-token declarations and cannot reserve
+or spend a live budget.
 
 **In development.** Checked-in results are scoped development samples. See
 [development status](docs/DEVELOPMENT.md).
