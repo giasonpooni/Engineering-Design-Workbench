@@ -307,10 +307,34 @@ func _mesh_extent_phrase(render: Dictionary) -> String:
 	if render.get("declared_planar") == false:
 		return "first two declared axes"
 	return ""
+
+
+func _declared_frame(render: Dictionary) -> String:
 	var frame: Variant = render.get("frame", "")
 	if typeof(frame) == TYPE_DICTIONARY:
 		return str(frame.get("id", frame.get("frame_id", "")))
 	return str(frame)
+
+
+func _canvas_id_phrase(render: Dictionary) -> String:
+	var identity := str(render.get("canvas_id", ""))
+	if identity.is_empty() or identity == _declared_frame(render):
+		return ""
+	return identity
+
+
+func _identity_extra(render: Dictionary) -> String:
+	var bits: Array[String] = []
+	var identity := _canvas_id_phrase(render)
+	var frame := _frame_phrase(render)
+	var extent := _mesh_extent_phrase(render)
+	if not identity.is_empty():
+		bits.append(identity)
+	if not frame.is_empty() and bits.find(frame) < 0:
+		bits.append(frame)
+	if not extent.is_empty() and bits.find(extent) < 0:
+		bits.append(extent)
+	return " · ".join(bits)
 
 
 func _frame_phrase(render: Dictionary) -> String:
@@ -335,6 +359,8 @@ func _frame_phrase(render: Dictionary) -> String:
 		return " · ".join(bits)
 	var identity := str(render.get("canvas_id", ""))
 	var frame := _declared_frame(render)
+	if kind == "mesh":
+		return frame
 	if not identity.is_empty():
 		return identity
 	return frame
@@ -367,15 +393,12 @@ func _fill_system_canvases() -> void:
 		if not _canvas_matches(item):
 			continue
 		var title := str(item.get("title", item.get("id", "canvas")))
-		var frame := _frame_phrase(item.get("render", {}))
-		if not frame.is_empty() and title.find(frame) < 0:
-			title += " · " + frame
+		var extra := _identity_extra(item.get("render", {}))
+		if not extra.is_empty() and title.find(extra) < 0:
+			title += " · " + extra
 		var ends := _endpoint_phrase(item.get("render", {}))
 		if not ends.is_empty():
 			title += " · " + ends
-		var extent := _mesh_extent_phrase(item.get("render", {}))
-		if not extent.is_empty() and title.find(extent) < 0:
-			title += " · " + extent
 		var overlays := _overlay_phrase(item.get("render", {}))
 		if not overlays.is_empty():
 			title += " · " + overlays
@@ -455,11 +478,7 @@ func _select_panel(index: int) -> void:
 		var panel_ends := _endpoint_phrase(panel.render)
 		if not panel_ends.is_empty():
 			var panel_row := "Panel vertices" if str(panel.render.get("kind", "")) == "mesh" else "Panel endpoints"
-			var panel_frame := _frame_phrase(panel.render)
-			var panel_extent := _mesh_extent_phrase(panel.render)
-			var panel_extra := panel_frame
-			if not panel_extent.is_empty():
-				panel_extra = panel_frame + " · " + panel_extent if not panel_frame.is_empty() else panel_extent
+			var panel_extra := _identity_extra(panel.render)
 			rows.append(panel_row + ": " + panel_ends + (" · " + panel_extra if not panel_extra.is_empty() else "") + " · display only")
 		var panel_overlays := _overlay_phrase(panel.render)
 		if not panel_overlays.is_empty():
@@ -474,11 +493,7 @@ func _select_panel(index: int) -> void:
 		var companion_ends := _endpoint_phrase(system_render)
 		if not companion_ends.is_empty():
 			var row_name := "Companion vertices" if system_kind == "mesh" else "Companion endpoints"
-			var companion_frame := _frame_phrase(system_render)
-			var companion_extent := _mesh_extent_phrase(system_render)
-			var companion_extra := companion_frame
-			if not companion_extent.is_empty():
-				companion_extra = companion_frame + " · " + companion_extent if not companion_frame.is_empty() else companion_extent
+			var companion_extra := _identity_extra(system_render)
 			rows.append(row_name + ": " + companion_ends + (" · " + companion_extra if not companion_extra.is_empty() else "") + " · display only")
 		var companion_overlays := _overlay_phrase(system_render)
 		if not companion_overlays.is_empty():

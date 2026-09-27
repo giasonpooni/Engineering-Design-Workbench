@@ -146,7 +146,8 @@ shown as a surveyed 3D frame. The 2D caption says “first two declared axes”
 only when a third coordinate is actually present. The numeric table repeats
 `declared_planar` plus source and target identities while a sibling scalar panel
 is selected. The
-same row names the declared mesh `canvas_id` / coordinate frame. Circle-geometry and flat-torus inspections copy
+same row names the declared mesh `canvas_id` and coordinate frame as separate
+tokens. Circle-geometry and flat-torus inspections copy
 the declared plane onto `system_render` so a companion canvas keeps the constraint
 or quotient visible while a residual or scalar panel is selected. When more than
 one declared plane exists, `system_canvases` lists those copies and the desktop

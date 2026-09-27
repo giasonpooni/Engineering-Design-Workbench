@@ -66,9 +66,16 @@ func _run() -> void:
 					push_error("Mesh source vertex was not listed: " + path)
 					quit(1)
 					return
-				var frame := str(value.get("system_render", {}).get("canvas_id", value.get("system_render", {}).get("frame", "")))
+				var frame := str(value.get("system_render", {}).get("frame", ""))
+				if typeof(value.get("system_render", {}).get("frame", "")) == TYPE_DICTIONARY:
+					frame = str(value.system_render.frame.get("id", ""))
 				if not frame.is_empty() and not view._numbers.text.contains(frame):
 					push_error("Mesh frame was not listed: " + path)
+					quit(1)
+					return
+				var canvas_id := str(value.get("system_render", {}).get("canvas_id", ""))
+				if not canvas_id.is_empty() and canvas_id != frame and not view._numbers.text.contains(canvas_id):
+					push_error("Mesh canvas id was not listed: " + path)
 					quit(1)
 					return
 				if value.get("system_render", {}).get("declared_planar") == true and not view._numbers.text.contains("declared_planar"):
