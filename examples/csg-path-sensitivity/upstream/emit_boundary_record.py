@@ -18,9 +18,9 @@ by the *caller*, not by the solver, and each one says on what basis:
   rather than as an unqualified claim;
 * the upstream artefact the path came from, because a sensitivity record is
   only as good as the path it was computed along;
-* the calibration identifiers, left unbound -- this record was computed from
-  an analytic torus, no instrument took part, and writing a placeholder
-  identifier into it would be exactly the failure the field exists to prevent.
+* the calibration identifiers, left unbound -- this record was computed from an
+  analytic torus, no instrument took part, and writing a placeholder identifier
+  into it would be exactly the failure the field exists to prevent.
 
 What the *runtime* fills in, because only it can: the path itself. Positions,
 the Darboux frame as vectors rather than as a name, both normal curvatures, how
