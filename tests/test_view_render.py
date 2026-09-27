@@ -199,6 +199,31 @@ def test_mesh_path_system_canvas_keeps_entry_id_off_the_frame():
         }], default_id="vertex-distances")
 
 
+def test_gte_system_canvas_keeps_entry_ids_off_the_frame():
+    overlay = declared_circle_overlay(
+        {"kind": "circle", "center_m": [0.0, 0.0], "radius_m": 1.0, "constraint_id": "reference-circle"})
+    observed = {"labels": ["o0.x", "o0.y"], "values": [1.0, 0.0], "units": ["m", "m"]}
+    projected = {"labels": ["o0.x", "o0.y"], "values": [0.8, 0.2], "units": ["m", "m"]}
+    attach_plane(observed, frame="bench-plane", overlays=[overlay],
+                 canvas_id="observed_points_m", canvas_title="Retained observed coordinates")
+    attach_plane(projected, frame="bench-plane", overlays=[overlay],
+                 canvas_id="projected_points_m", canvas_title="Projected candidate coordinates")
+    view = {"kind": "geometric-circle"}
+    attach_system_canvases(view, [
+        {"id": "observed_points_m", "title": "Retained observed coordinates", "render": observed["render"]},
+        {"id": "projected_points_m", "title": "Projected candidate coordinates", "render": projected["render"]},
+    ], default_id="observed_points_m")
+    assert view["system_canvas_id"] == "observed_points_m"
+    assert view["system_render"]["canvas_id"] == "observed_points_m"
+    assert view["system_render"]["frame"] == "bench-plane"
+    assert view["system_canvases"][1]["render"]["canvas_id"] == "projected_points_m"
+    assert view["system_canvases"][1]["render"]["frame"] == "bench-plane"
+    assert view["system_render"]["overlays"][0]["constraint_id"] == "reference-circle"
+    observed["render"]["canvas_id"] = "bench-plane"
+    with pytest.raises(ValueError):
+        detach_render(observed["render"])
+
+
 def test_attach_system_keeps_a_declared_plane_and_circle_overlay():
     panel = {"labels": ["o0.x", "o0.y"], "values": [1.0, 0.0], "units": ["m", "m"]}
     overlay = declared_circle_overlay(
