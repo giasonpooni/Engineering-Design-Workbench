@@ -1,0 +1,34 @@
+{
+  "schema": "ciw.f2-checker-input.v1",
+  "profile": "bounded-simplicial-v1",
+  "coefficient_field": "F2",
+  "homology": "ordinary",
+  "vertex_count": 3,
+  "simplices": [
+    [
+      0
+    ],
+    [
+      1
+    ],
+    [
+      2
+    ],
+    [
+      0,
+      1
+    ],
+    [
+      0,
+      2
+    ],
+    [
+      1,
+      2
+    ]
+  ],
+  "candidate_betti": [
+    1,
+    1
+  ]
+}
