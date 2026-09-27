@@ -1,6 +1,6 @@
 # Experiment Design and Sensor Placement Testbed
 
-[Stack placement and ownership](docs/STACK.md) · [License](LICENSE)
+[Notations Engineering Terminal (CIW)](https://github.com/giasonpooni/Notations-Engineering-Terminal) · [Stack placement and ownership](docs/STACK.md) · [License](LICENSE)
 
 A bounded mathematical instrument for ranking a finite set of supplied measurement candidates by their local information about explicitly declared parameters. Package: `edspt`. Status: executable synthetic reference operation, not a validated physical sensor-placement system.
 
@@ -33,7 +33,7 @@ Solid arrows show current local information calculation and ranking for each
 supplied alternative. Singular candidates remain in the result but cannot be
 selected. The labelled dotted arrow is a conceptual downstream relationship;
 an advisory selected ID does not start acquisition. See the
-[system diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md).
+[system diagram atlas](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/main/docs/DIAGRAMS.md).
 
 ## Run
 
@@ -61,7 +61,7 @@ assert result.selected_candidate_id == "two-axis"
 
 ## System role
 
-Observability and Identifiability Testbed (OIT) and Jacobian and Sensitivity Propagation Testbed (JSPT) can provide model diagnostics and Jacobians. This instrument evaluates explicitly supplied alternatives. The result is a proposed measurement for operator review. An authorized acquisition path can subsequently use Provenance-Preserving Data Acquisition (PPDA); this package neither commands equipment nor starts acquisition.
+Observability and Identifiability Testbed (OIT) and Jacobian Sensitivity Propagation Testbed (JSPT) can provide model diagnostics and Jacobians. This instrument evaluates explicitly supplied alternatives. The result is a proposed measurement for operator review. An authorized acquisition path can subsequently use Provenance-Preserving Data Acquisition (PPDA); this package neither commands equipment nor starts acquisition.
 
 | Responsibility | Boundary |
 | --- | --- |
@@ -99,8 +99,8 @@ assert result.selected_candidate_id == "x"
 # x reduces covariance trace by 3.2; y would reduce it by 8.1 but costs 3.
 ```
 
-This operation is designed for CIW's identified-model experiment path: a model
-result and conditional GSIE state uncertainty bind the proposed measurements.
+This operation is designed for Notations Engineering Terminal's existing CIW
+identified-model experiment path: a model result and conditional GSIE state uncertainty bind the proposed measurements.
 State covariance conditional on fitted dynamics does not become uncertainty in
 the fitted model parameters. The complete result includes the prior baseline,
 all candidate scores, and reasons for excluding unaffordable or numerically
