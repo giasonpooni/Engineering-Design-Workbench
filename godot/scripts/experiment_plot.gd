@@ -25,15 +25,16 @@ func _draw() -> void:
 		draw_string(ThemeDB.fallback_font, Vector2(20, 40), "Companion canvas identity does not match the detached descriptor", HORIZONTAL_ALIGNMENT_LEFT, -1, 14)
 		return
 	var kind := str(render.get("kind", ""))
+	if kind in ["plane2d", "strip"] and render.get("connect") == true:
+		draw_string(ThemeDB.fallback_font, Vector2(20, 40), "Plane and strip copies stay unconnected", HORIZONTAL_ALIGNMENT_LEFT, -1, 14)
+		return
 	if kind == "plane2d":
-		# Retained sample identities. Never honor render.connect.
 		_draw_plane(render)
 		return
 	if kind == "mesh":
 		_draw_mesh(render)
 		return
 	if kind == "strip":
-		# Declared parameter samples. Never honor render.connect.
 		_draw_strip(render)
 		return
 	_draw_categorical()
