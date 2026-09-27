@@ -24,8 +24,8 @@ godot --path godot
 ```
 
 The process and window stacks have different GSIE/SET pins; use their respective
-manifests. Existing `--telemetry-stack-root` and `--identified-stack-root`
-bindings also work. Loading an existing workspace is sufficient for inspection:
+manifests. Existing `--telemetry-stack-root` and `--identified-stack-root` bindings
+also work. Loading an existing workspace is sufficient for inspection:
 
 ```sh
 python -m ciw serve --workspace results/shared-workbench/workspace.json \
@@ -89,9 +89,9 @@ lines and perform no interpolation. Error bars show marginal one-standard-deviat
 ranges from the retained covariance diagonal, **not** joint confidence regions.
 The full matrix stays visible, including off-diagonal and time/value terms.
 Mixed units use the numeric table instead of a common plot scale. The posterior
-residual has no supplied covariance in these profiles; the view does not reuse
- the prior innovation covariance for it. Held/refused CBSR records do not create
-a panel labeled as an accepted reconciled state.
+residual has no supplied covariance in these profiles; the view does not reuse the
+prior innovation covariance for it. Held/refused CBSR records do not create a panel
+labeled as an accepted reconciled state.
 
 The display may format floating-point values; exact source bytes and sealed native
 artifacts remain in CIW. JSON displayed by Godot is an inspection representation,
@@ -190,4 +190,3 @@ Additional Godot tabs project host-emitted teaching JSON (see also
 These are presentation-only HOST samples attached to existing GTE / residual-monitor /
 identified-stability language. They do not mint new CIW kinds or require stack-root
 providers to emit.
-
