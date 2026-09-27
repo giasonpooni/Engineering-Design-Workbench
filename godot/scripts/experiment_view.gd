@@ -287,6 +287,9 @@ func _overlay_phrase(render: Dictionary) -> String:
 		if not name.is_empty() and names.find(name) < 0:
 			names.append(name)
 	return " · ".join(names)
+
+
+func _endpoint_phrase(render: Dictionary) -> String:
 	var start := str(render.get("start_label", render.get("source_label", "")))
 	var end := str(render.get("end_label", render.get("target_label", "")))
 	if start.is_empty() and end.is_empty():
@@ -294,6 +297,14 @@ func _overlay_phrase(render: Dictionary) -> String:
 	if end.is_empty() or end == start:
 		return start
 	return start + " → " + end
+
+
+func _frame_phrase(render: Dictionary) -> String:
+	var identity := str(render.get("canvas_id", ""))
+	var frame := str(render.get("frame", ""))
+	if not identity.is_empty():
+		return identity
+	return frame
 
 
 func _fill_system_canvases() -> void:
@@ -306,6 +317,9 @@ func _fill_system_canvases() -> void:
 	for i in items.size():
 		var item: Dictionary = items[i]
 		var title := str(item.get("title", item.get("id", "canvas")))
+		var frame := _frame_phrase(item.get("render", {}))
+		if not frame.is_empty() and title.find(frame) < 0:
+			title += " · " + frame
 		var ends := _endpoint_phrase(item.get("render", {}))
 		if not ends.is_empty():
 			title += " · " + ends
@@ -361,7 +375,8 @@ func _select_panel(index: int) -> void:
 		var panel_ends := _endpoint_phrase(panel.render)
 		if not panel_ends.is_empty():
 			var panel_row := "Panel vertices" if str(panel.render.get("kind", "")) == "mesh" else "Panel endpoints"
-			rows.append(panel_row + ": " + panel_ends + " · display only")
+			var panel_frame := _frame_phrase(panel.render)
+			rows.append(panel_row + ": " + panel_ends + (" · " + panel_frame if not panel_frame.is_empty() else "") + " · display only")
 		var panel_overlays := _overlay_phrase(panel.render)
 		if not panel_overlays.is_empty():
 			rows.append("Panel constraint: " + panel_overlays + " · declared_constraint · display only")
@@ -375,7 +390,8 @@ func _select_panel(index: int) -> void:
 		var companion_ends := _endpoint_phrase(system_render)
 		if not companion_ends.is_empty():
 			var row_name := "Companion vertices" if system_kind == "mesh" else "Companion endpoints"
-			rows.append(row_name + ": " + companion_ends + " · display only")
+			var companion_frame := _frame_phrase(system_render)
+			rows.append(row_name + ": " + companion_ends + (" · " + companion_frame if not companion_frame.is_empty() else "") + " · display only")
 		var companion_overlays := _overlay_phrase(system_render)
 		if not companion_overlays.is_empty():
 			rows.append("Companion constraint: " + companion_overlays + " · declared_constraint · display only")

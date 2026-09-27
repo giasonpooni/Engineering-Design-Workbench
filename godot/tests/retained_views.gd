@@ -66,6 +66,11 @@ func _run() -> void:
 					push_error("Mesh source vertex was not listed: " + path)
 					quit(1)
 					return
+				var frame := str(value.get("system_render", {}).get("canvas_id", value.get("system_render", {}).get("frame", "")))
+				if not frame.is_empty() and not view._numbers.text.contains(frame):
+					push_error("Mesh frame was not listed: " + path)
+					quit(1)
+					return
 			if value.get("system_render", {}).get("kind") in ["plane2d", "strip"] and render.get("kind") != value.system_render.kind:
 				if not view._system_plot.visible or view._system_plot.panel.get("render", {}).get("kind") != value.system_render.kind:
 					push_error("Companion canvas was not applied: " + path)

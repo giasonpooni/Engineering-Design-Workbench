@@ -125,7 +125,8 @@ sibling scalar panel is selected. The mesh descriptor carries `canvas_id` and
 `canvas_title` from the declared coordinate frame so the 3D viewport can name
 that frame and the retained source/target vertices. The 2D wireframe and 3D
 viewport label those vertices from the declared indices. The numeric table repeats
-those source and target identities while a sibling scalar panel is selected. Circle-geometry and flat-torus inspections copy
+those source and target identities while a sibling scalar panel is selected. The
+same row names the declared mesh `canvas_id` / coordinate frame. Circle-geometry and flat-torus inspections copy
 the declared plane onto `system_render` so a companion canvas keeps the constraint
 or quotient visible while a residual or scalar panel is selected. When more than
 one declared plane exists, `system_canvases` lists those copies and the desktop
