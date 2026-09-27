@@ -193,7 +193,12 @@ def replay_workspace(path, result_id, output_dir):
         prior = _result(original, result_id)
         output_dir.mkdir(parents=True, exist_ok=False)
         session = Session(original.run, output_dir)
-        reply = _execute(session, deepcopy(prior["parameters"]))
+        parameters = deepcopy(prior["parameters"])
+        # Reopen accepts effective selection stored outside optional parameters.
+        # Carry it into the fresh request instead of inheriting session defaults.
+        parameters.setdefault("channel", prior["channel"])
+        parameters.setdefault("interval_s", deepcopy(prior["interval_s"]))
+        reply = _execute(session, parameters)
         saved = session.save_workspace(output_dir / "workspace.json")
         report = {"topic": TOPIC, "workspace_file": str(saved),
                   "source_result_id": prior["result_id"],

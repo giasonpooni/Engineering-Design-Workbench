@@ -242,3 +242,41 @@ def test_human_lesson_has_grammar_and_no_execution(capsys):
     output = capsys.readouterr().out
     for heading in ("STATE", "STRUCTURE", "TRANSFORMATION", "COMPUTATION", "VERIFICATION"):
         assert heading in output
+
+
+@pytest.mark.parametrize("omitted", [("interval_s",), ("channel",), ("channel", "interval_s")])
+def test_replay_preserves_effective_selection_when_parameters_omit_it(retained, tmp_path, omitted):
+    path, _ = retained
+    session = Session.from_workspace(path, tmp_path / "staged")
+    reply = session.handle({
+        "protocol_version": 1, "request_id": "selected-window", "type": "operation.execute",
+        "payload": {"operation_id": "statistics.v1",
+                    "parameters": {"channel": "q", "interval_s": [2.0, 8.0]}},
+    })
+    prior = reply["payload"]["result"]
+    assert prior["data"]["sample_count"] == 384
+    # Existing workspace validation accepts separately captured selection fields.
+    # Represent that accepted input without changing its scientific request.
+    for record in (session.results[prior["result_id"]],
+                   session.executions[prior["execution_id"]]):
+        for key in omitted:
+            del record["parameters"][key]
+        seal(record)
+    session.save_workspace(path)
+    before = directory_bytes(path.parent)
+    with patch("ciw.session.execute_operation", side_effect=AssertionError("reopen only")):
+        reopened = Session.from_workspace(path, tmp_path / "accepted")
+    assert reopened.results[prior["result_id"]]["interval_s"] == [2.0, 8.0]
+    replay = replay_workspace(path, prior["result_id"], tmp_path / "selected-replay")
+    assert replay["status"] == "matched"
+    fresh = replay["result"]
+    for record in (fresh, replay["execution"]):
+        assert record["channel"] == "q"
+        assert record["interval_s"] == [2.0, 8.0]
+        assert record["parameters"] == {"channel": "q", "interval_s": [2.0, 8.0]}
+    assert fresh["data"] == prior["data"]
+    assert fresh["data"]["sample_count"] == 384
+    assert fresh["evidence_id"] == prior["evidence_id"]
+    assert fresh["result_id"] != prior["result_id"]
+    assert fresh["execution_id"] != prior["execution_id"]
+    assert directory_bytes(path.parent) == before

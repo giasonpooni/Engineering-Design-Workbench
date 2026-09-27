@@ -78,8 +78,10 @@ validation.
   The criterion is absolute error <= 1e-12 * max(1 m, abs(reference RMS)).
   That is a declared comparison tolerance, not a rigorous rounding bound.
   This diagnostic is printed; it is not a registered verification record.
-- `replay` uses the retained source and parameters through the same operation,
-  with new execution/result IDs. It compares the full statistics payload and
+- `replay` uses the retained source, parameters and effective selection through
+  the same operation. If parameters omit channel or interval, the separately
+  retained selection supplies them; fresh session defaults cannot replace them.
+  Replay creates new execution/result IDs. It compares the full statistics payload and
   the runtime declarations by exact equality. A match of the built-in runtime's
   provider/version declaration is not proof of an identical dependency closure.
   The original workspace remains unchanged.
