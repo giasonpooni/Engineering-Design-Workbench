@@ -193,49 +193,6 @@ func _draw_canvas_id(render: Dictionary, plot: Rect2) -> void:
 	if identity == str(render.get("parameter_name", "")):
 		return
 	draw_string(ThemeDB.fallback_font, Vector2(plot.end.x - 200, 18), "canvas " + identity, HORIZONTAL_ALIGNMENT_RIGHT, 190, 11)
-	var unit := str(render.get("unit", render.get("value_unit", "")))
-	var frame := _declared_frame(render)
-	if str(render.get("kind", "")) == "strip":
-		var bits: Array[String] = []
-		var parameter := str(render.get("parameter_name", ""))
-		var parameter_unit := str(render.get("parameter_unit", ""))
-		if not parameter.is_empty():
-			bits.append(parameter)
-		if not parameter_unit.is_empty() and bits.find(parameter_unit) < 0:
-			bits.append(parameter_unit)
-		if not frame.is_empty() and bits.find(frame) < 0:
-			bits.append(frame)
-		if not unit.is_empty() and bits.find(unit) < 0:
-			bits.append(unit)
-		return " · ".join(bits)
-	if not unit.is_empty() and not frame.is_empty():
-		return unit + " · " + frame
-	return unit if not unit.is_empty() else frame
-
-
-func _canvas_caption(render: Dictionary, fallback: String) -> String:
-	var title := str(render.get("canvas_title", panel.get("title", "")))
-	var frame := _declared_frame(render)
-	if title.is_empty():
-		return fallback if frame.is_empty() else fallback + " · " + frame
-	if not frame.is_empty() and title.find(frame) < 0:
-		return title + " · " + frame + " · points only · display only"
-	return title + " · points only · display only"
-
-
-func _declared_circle(overlay: Variant) -> bool:
-	return overlay is Dictionary and overlay.get("kind") == "declared_circle" and overlay.get("source") == "declared_constraint"
-
-
-func _draw_canvas_id(render: Dictionary, plot: Rect2) -> void:
-	var identity := str(render.get("canvas_id", ""))
-	if identity.is_empty():
-		return
-	if identity == _declared_frame(render):
-		return
-	if identity == str(render.get("parameter_name", "")):
-		return
-	draw_string(ThemeDB.fallback_font, Vector2(plot.end.x - 170, 18), identity, HORIZONTAL_ALIGNMENT_RIGHT, 160, 11)
 
 
 func _draw_plane(render: Dictionary) -> void:
