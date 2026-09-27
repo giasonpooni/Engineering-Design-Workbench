@@ -32,7 +32,7 @@ def detach_overlay(overlay):
     if overlay.get("source") != DECLARED_CONSTRAINT:
         raise ValueError("Circle overlay refuses fitted or estimated geometry")
     if overlay.get("authority") not in (None, "declared_not_surveyed"):
-        raise ValueError("Circle overlay refuses a surveyed or fitted authority")
+        raise ValueError("Circle overlay refuses fitted or estimated geometry")
     radius = overlay.get("radius")
     if type(radius) not in (int, float) or radius != radius or abs(radius) == float("inf"):
         raise ValueError("Circle overlay requires a finite declared radius")

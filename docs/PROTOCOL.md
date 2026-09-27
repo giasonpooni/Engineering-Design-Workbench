@@ -11,7 +11,8 @@ presentation `render` object (`ciw.panel-render.v1`: `plane2d`, `mesh`, or `stri
 that copies already-projected points, a declared mesh, or a retained parameter axis
 for inspection clients. `plane2d` and `strip` copies keep `connect: false`;
 clients must not draw a polyline between those samples. Circle overlays remain
-declared-constraint copies; fitted radii are refused on detach. The canvas names
+declared-constraint copies; detach refuses a fitted source or authority with
+`Circle overlay refuses fitted or estimated geometry`. The canvas names
 a declared circle from its retained constraint_id. Detached mesh
 copies refuse path indices outside the declared vertices. Detached strip copies
 refuse a nonfinite or decreasing parameter. Detached plane copies refuse

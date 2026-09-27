@@ -365,7 +365,7 @@ def test_detach_render_keeps_declared_circles_and_refuses_fitted_overlays():
     panel["render"]["overlays"][0]["radius"] = 4
     panel["render"]["overlays"][0]["source"] = "fitted_residual"
     view = {"kind": "geometric-circle"}
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Circle overlay refuses fitted or estimated geometry"):
         attach_system(view, panel["render"])
     restored = declared_circle_overlay(constraint)
     attach_plane(panel, frame="bench-plane", overlays=[restored])
@@ -377,10 +377,13 @@ def test_detach_render_keeps_declared_circles_and_refuses_fitted_overlays():
     assert view["system_render"]["overlays"][0]["overlay_title"] == "reference-circle"
     fitted = dict(restored)
     fitted["source"] = "least_squares_fit"
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Circle overlay refuses fitted or estimated geometry"):
         detach_overlay(fitted)
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Circle overlay refuses fitted or estimated geometry"):
         plane_from_interleaved([1.0, 0.0], ["a.x", "a.y"], ["m", "m"], frame="bench-plane", overlays=[fitted])
+    restored["authority"] = "surveyed_fit"
+    with pytest.raises(ValueError, match="Circle overlay refuses fitted or estimated geometry"):
+        detach_overlay(restored)
 
 
 def test_detach_render_refuses_a_mesh_path_outside_declared_vertices():
