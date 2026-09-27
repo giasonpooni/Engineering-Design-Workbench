@@ -135,8 +135,8 @@ The existing workflows remain in place:
 
 A failed or refused operation remains part of the investigation. Original
 observations remain distinct from predictions, estimates and corrected values.
-The question, assumptions, objectives and standard of evidence are chosen by the
-operator, not inferred from a successful calculation.
+The question, assumptions, objectives and standard of evidence are chosen by
+the operator, not inferred from a successful calculation.
 
 <a id="one-environment-separate-responsibilities"></a>
 <a id="existing-runtime-same-substrate"></a>
