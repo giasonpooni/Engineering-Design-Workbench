@@ -23,7 +23,11 @@ frame identity for the viewport caption. Circle and torus views copy a
 declared plane onto the same field so a companion 2D canvas can keep the
 constraint or quotient visible beside residual or scalar panels. When a view
 declares more than one retained plane, `system_canvases` lists those copies and
-`system_canvas_id` names the default. Clients may switch copies; they must not
+`system_canvas_id` names the default. `canvas_id` is the canvas entry
+(`cover_points`, `parallelogram_points`, `observed_points_m`, `separation`,
+`vertex-distances`). `frame` is the declared coordinate or path frame
+(`area-one-flat-quotient`, a GTE coordinate frame, a Jacobi path frame).
+Those two names stay distinct once an entry id is stamped. Clients may switch copies; they must not
 resample the path. It does not execute a provider or change selection/retention.
 See [the complete view contract](EXPERIMENT_VIEW.md). Existing `workbench.changed`
 notifications invalidate the catalog; clients fetch authoritative state and keep
