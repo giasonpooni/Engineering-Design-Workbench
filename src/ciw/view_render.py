@@ -74,6 +74,10 @@ def detach_render(render):
         frame = frame.get("id") or frame.get("frame_id")
     if payload.get("kind") in ("plane2d", "strip") and identity and frame and identity == frame:
         raise ValueError("Canvas id must be distinct from the declared frame")
+    title = payload.get("canvas_title")
+    if payload.get("kind") == "mesh" and identity and frame and identity == frame:
+        if title and title not in (identity, frame):
+            raise ValueError("Mesh canvas id must be distinct from the declared frame")
     if payload.get("kind") == "plane2d":
         payload["overlays"] = detach_overlays(payload.get("overlays"))
         payload["points"] = detach_plane_points(payload.get("points"))

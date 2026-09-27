@@ -104,6 +104,13 @@ def test_declared_mesh_copies_faces_and_retained_path_indices():
     assert named["canvas_id"] == "vertex-distances"
     assert named["canvas_title"] == "Shortest distances along mesh edges"
     assert named["frame"] == "synthetic-planar-square"
+    named["canvas_id"] = named["frame"]
+    with pytest.raises(ValueError):
+        detach_render(named)
+    named["canvas_id"] = "vertex-distances"
+    copied = detach_render(named)
+    assert copied["canvas_id"] == "vertex-distances"
+    assert copied["frame"] == "synthetic-planar-square"
 
 
 def test_interleaved_native_points_keep_declared_circle_as_overlay_only():

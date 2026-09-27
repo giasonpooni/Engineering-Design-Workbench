@@ -153,7 +153,9 @@ one declared plane exists, `system_canvases` lists those copies and the desktop
 may switch among them. Switching does not resample, unwrap, or project the path.
 A canvas entry id must match the detached descriptor's canvas_id; a cover copy
 cannot be labeled as the quotient by editing the presentation object. Plane and
-strip canvas ids must also stay distinct from the declared frame. The entry
+strip canvas ids must also stay distinct from the declared frame. A mesh entry
+id such as vertex-distances cannot collapse onto the coordinate frame once a
+canvas title is present. The entry
 title must match the detached canvas_title the same way. The Workbench selector
 ignores an entry whose render.canvas_id does not match that id. The companion
 plot draws nothing when payload panel_id and render.canvas_id disagree. Companion plane rows name the declared frame (`area-one-flat-quotient` or the
