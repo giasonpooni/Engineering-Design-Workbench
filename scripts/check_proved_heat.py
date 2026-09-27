@@ -24,11 +24,13 @@ SCR_TREE = "4068a711534932e8d89bb0d87d373376dafdf6cd"
 SP1_REVISION = "b38b61209e45e969289e70d5cf79dc763460bc41"
 SP1_TREE = "7deca3aced8d8eb84dfcede98285a192c862ea4c"
 GUEST_SHA256 = "a14e3750da7e221d31842bd6cf983fcc8c0f530b2811537e2a9a9fe803dacf82"
-TESTS = ("test_proved_heat.py", "test_proved_heat_session.py")
+TESTS = ("test_proved_heat.py", "test_proved_heat_session.py", "test_proved_heat_isolation.py")
 REQUIRED_NATIVE_TESTS = {
     "test_native_proved_heat_shared_session",
     "test_native_tampered_proof_fails_fresh_verification",
     "test_native_retained_proof_can_be_reverified_without_reexecution",
+    "test_native_proof_rejects_rebound_input",
+    "test_native_proof_rejects_rebound_output",
 }
 
 

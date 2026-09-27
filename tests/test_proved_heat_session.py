@@ -275,3 +275,79 @@ def test_native_retained_proof_can_be_reverified_without_reexecution(native_reta
     destination = os.environ.get("CIW_PROVED_HEAT_FIXTURE_DIR")
     if destination:
         (Path(destination) / "reverification.json").write_bytes(canonical(report))
+
+
+def rebound_statement(original, target):
+    """Bind unchanged proof bytes to a different, internally consistent claim.
+
+    This is an adversarial fixture, not a result of native computation. All
+    surrounding commitments are recomputed so only a real verifier can reject
+    the unchanged proof for the wrong input/output statement.
+    """
+    import struct
+    from ciw.declared_workload import HEAT_DESCRIPTOR, _commit
+    from test_proved_heat import reseal
+
+    bundle = deepcopy(original)
+    step = bundle["steps"][0]
+    native = step["result"]["data"]["native"]
+    if target == "input":
+        raw = base64.b64decode(bundle["source"]["evidence"][0]["bytes_b64"])
+        source = json.loads(raw)
+        source["steps"] += 1
+        raw = canonical(source)
+        evidence = byte_digest(raw)
+        inputs = struct.pack("<II", source["steps"], len(source["initial_values"]))
+        inputs += b"".join(struct.pack("<q", value) for value in source["initial_values"])
+        native["specification"]["input_payload"] = inputs.hex()
+        native["input_identity"] = _commit("input", [inputs])
+        native["specification_identity"] = _commit("specification", [HEAT_DESCRIPTOR, b"", inputs])
+        bundle["source"] = {"experiment_id": source["experiment_id"], "experiment_digest": digest(source),
+            "evidence": [{"artifact_ref": evidence, "sha256": evidence,
+                          "bytes_b64": base64.b64encode(raw).decode()}]}
+        step["request"] = source
+        step["input_refs"] = [evidence]
+        step["result"]["input_refs"] = [evidence]
+    elif target == "output":
+        native["values"][1] += 1
+        output = b"".join(struct.pack("<q", value) for value in native["values"])
+        native["output"] = output.hex()
+        native["output_identity"] = _commit("output", [output])
+    else:
+        raise ValueError("Unknown adversarial statement target")
+    native["computation_identity"] = _commit("computation", [
+        bytes.fromhex(native[key]) for key in ("program_identity", "input_identity", "output_identity")
+    ] + [struct.pack("<I", native["exit_code"])])
+    return reseal(bundle)
+
+
+def _assert_native_rebound_statement_is_rejected(native_retained, monkeypatch, target):
+    _, original, _, bindings = native_retained
+    tampered = rebound_statement(original, target)
+    workflow = ProvedHeatWorkflow()
+    workflow._validate(tampered)
+    assert tampered["steps"][0]["result"]["data"]["proof"] == original["steps"][0]["result"]["data"]["proof"]
+    assert tampered["bundle_digest"] != original["bundle_digest"]
+    invoked = []
+    real_invoke = workflow._invoke
+
+    def observe_invoke(*args, **kwargs):
+        invoked.append(True)
+        return real_invoke(*args, **kwargs)
+
+    monkeypatch.setattr(workflow, "_invoke", observe_invoke)
+    with pytest.raises(AdapterRefusal, match="verification failed"):
+        workflow.verify_session(tampered, bindings)
+    assert invoked == [True], "The negative gate must reach the actual verifier"
+    # A rejection must not poison verification of the untouched original.
+    report = workflow.verify_session(original, bindings)
+    assert report["subject_ref"] == original["bundle_digest"]
+    assert invoked == [True, True]
+
+
+def test_native_proof_rejects_rebound_input(native_retained, monkeypatch):
+    _assert_native_rebound_statement_is_rejected(native_retained, monkeypatch, "input")
+
+
+def test_native_proof_rejects_rebound_output(native_retained, monkeypatch):
+    _assert_native_rebound_statement_is_rejected(native_retained, monkeypatch, "output")
