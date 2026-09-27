@@ -369,3 +369,24 @@ def test_detach_render_refuses_a_strip_caption_that_outruns_the_axis():
     assert view["system_render"]["end_parameter"] == 2.0
 
 
+def test_detach_render_refuses_a_plane_caption_that_outruns_the_points():
+    panel = {"labels": ["p0.x", "p0.y", "p1.x", "p1.y"], "values": [1.0, 0.0, 0.0, 1.0], "units": ["m"] * 4}
+    attach_plane(panel, frame="area-one-flat-quotient", canvas_id="cover_points",
+                 canvas_title="Lifted cover coordinates")
+    view = {"kind": "flat-torus"}
+    attach_system(view, panel["render"])
+    assert view["system_render"]["start_label"] == "p0"
+    assert view["system_render"]["end_label"] == "p1"
+    panel["render"]["end_label"] = "fitted-last"
+    assert view["system_render"]["end_label"] == "p1"
+    with pytest.raises(ValueError):
+        attach_system(view, panel["render"])
+    panel["render"]["end_label"] = "p1"
+    panel["render"]["points"][-1]["label"] = "q1"
+    with pytest.raises(ValueError):
+        attach_system(view, panel["render"])
+    panel["render"]["end_label"] = "q1"
+    attach_system(view, panel["render"])
+    assert view["system_render"]["end_label"] == "q1"
+
+

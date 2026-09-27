@@ -69,7 +69,7 @@ def detach_render(render):
     if payload.get("kind") == "plane2d":
         payload["overlays"] = detach_overlays(payload.get("overlays"))
         payload["points"] = detach_plane_points(payload.get("points"))
-        payload.update(plane_endpoint_labels(payload["points"]))
+        payload.update(plane_endpoint_labels(payload["points"], payload))
     if payload.get("kind") == "mesh":
         payload.update(detach_mesh_geometry(payload))
     if payload.get("kind") == "strip":
@@ -103,7 +103,7 @@ def detach_plane_points(points):
     return copied
 
 
-def plane_endpoint_labels(points):
+def plane_endpoint_labels(points, claimed=None):
     """Name the first and last declared plane points. Not a trajectory."""
     if not points:
         return {}
@@ -112,6 +112,10 @@ def plane_endpoint_labels(points):
     labels = {"start_label": start, "end_label": end}
     if len(points) == 1 or start == end:
         labels["end_label"] = None
+    if isinstance(claimed, dict):
+        for key, value in labels.items():
+            if claimed.get(key, value) != value:
+                raise ValueError("Plane endpoint label must match the declared points")
     return labels
 
 
