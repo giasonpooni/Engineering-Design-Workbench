@@ -14,12 +14,14 @@ func _draw() -> void:
 	var render: Dictionary = panel.get("render", {}) if not panel.is_empty() else {}
 	var kind := str(render.get("kind", ""))
 	if kind == "plane2d":
+		# Retained sample identities. Never honor render.connect.
 		_draw_plane(render)
 		return
 	if kind == "mesh":
 		_draw_mesh(render)
 		return
 	if kind == "strip":
+		# Declared parameter samples. Never honor render.connect.
 		_draw_strip(render)
 		return
 	_draw_categorical()

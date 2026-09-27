@@ -18,6 +18,18 @@ AUTHORITY = {
     "surveyed_frame": "not_established",
 }
 
+UNCONNECTED_KINDS = ("plane2d", "strip")
+
+
+def detach_render(render):
+    """Copy a presentation descriptor. Plane and strip samples stay unconnected."""
+    if not isinstance(render, dict) or render.get("schema") != SCHEMA:
+        raise ValueError("System render requires a detached panel-render descriptor")
+    payload = deepcopy(render)
+    if payload.get("kind") in UNCONNECTED_KINDS:
+        payload["connect"] = False
+    return payload
+
 
 def _finite_pair(value, name):
     if (not isinstance(value, (list, tuple)) or len(value) < 2 or
@@ -196,7 +208,7 @@ def attach_system(view, render):
         raise ValueError("System render requires the inspection view")
     if not isinstance(render, dict) or render.get("schema") != SCHEMA:
         raise ValueError("System render requires a detached panel-render descriptor")
-    view["system_render"] = deepcopy(render)
+    view["system_render"] = detach_render(render)
     return view
 
 
@@ -218,7 +230,7 @@ def attach_system_canvases(view, canvases, *, default_id=None):
         if not isinstance(render, dict) or render.get("schema") != SCHEMA:
             raise ValueError("System canvas requires a detached panel-render descriptor")
         seen.add(identity)
-        payload = deepcopy(render)
+        payload = detach_render(render)
         payload["canvas_id"] = identity
         payload["canvas_title"] = item.get("title") or identity
         copied.append({
@@ -232,5 +244,5 @@ def attach_system_canvases(view, canvases, *, default_id=None):
         raise ValueError("System canvas default is not one of the declared canvases")
     view["system_canvases"] = copied
     view["system_canvas_id"] = match["id"]
-    view["system_render"] = deepcopy(match["render"])
+    view["system_render"] = detach_render(match["render"])
     return view
