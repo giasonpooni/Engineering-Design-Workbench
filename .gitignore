@@ -40,3 +40,13 @@ docs/adr/
 # Local Bevy engine checkout — do not vendor
 /bevy/
 
+
+# Timestamped CLI replay outputs under executable evidence (regenerable)
+examples/workflows/executable_evidence/energy_accuracy_cli_replay_*.json
+examples/workflows/executable_evidence/energy_accuracy_original.json
+examples/workflows/executable_evidence/energy_accuracy_replay.json
+
+
+# Regenerable catalog index/catalog (large; rebuild via generate_usecase_corpus.py)
+examples/usecase-index.json
+examples/usecase-catalog.md
