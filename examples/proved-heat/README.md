@@ -56,4 +56,15 @@ godot --path godot
 # or pass an explicit proved_heat_render.json path after --
 ```
 
-Workflow: [examples/workflows/05_sp1_verifiable_experiment.md](../workflows/05_sp1_verifiable_experiment.md).
+## Evidence seam
+
+End-to-end operator workflow (register guest → pin ELF → proof → separate
+verifier → render → Godot/Bevy → ESM candidate retention as **UNADMITTED**):
+
+- [`examples/workflows/05_sp1_verifiable_experiment.md`](../workflows/05_sp1_verifiable_experiment.md)
+- Acceptance: [`examples/workflows/checklist_sp1.md`](../workflows/checklist_sp1.md)
+- Orchestrate teaching emits only:
+  `python3 examples/workflows/emit_sp1_teaching_bundle.py`
+
+Does not mint proofs or `ciw.proved-heat.v2`. Pins remain those listed above
+from `docs/PROVED_HEAT.md`.
