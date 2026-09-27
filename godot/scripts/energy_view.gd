@@ -149,6 +149,8 @@ func _axis_labels(render: Dictionary, planar_z: bool = false) -> Array:
 	var unit := str(render.get("unit", ""))
 	var frame := _declared_frame(render)
 	var head := unit
+	if not frame.is_empty():
+		frame = "frame " + frame
 	if not unit.is_empty() and not frame.is_empty():
 		head = unit + " · " + frame
 	elif not frame.is_empty():
@@ -252,10 +254,10 @@ func set_system(render: Dictionary, expected_id: String = "") -> void:
 		var frame := _declared_frame(render)
 		if not title.is_empty():
 			bits.append(title)
-		if not identity.is_empty() and identity != title:
-			bits.append(identity)
-		if not frame.is_empty() and bits.find(frame) < 0:
-			bits.append(frame)
+		if not identity.is_empty() and identity != title and identity != frame:
+			bits.append("canvas " + identity)
+		if not frame.is_empty() and bits.find(frame) < 0 and bits.find("frame " + frame) < 0:
+			bits.append("frame " + frame)
 		if render.get("source_vertex") != null:
 			bits.append("source " + str(render.source_vertex))
 		if render.get("target_vertex") != null:
