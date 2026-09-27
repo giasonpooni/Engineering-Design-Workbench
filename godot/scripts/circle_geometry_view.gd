@@ -281,7 +281,7 @@ func _draw_circle_canvas() -> void:
 	var origin := area.get_center()
 	# Axes
 	_canvas.draw_line(Vector2(area.position.x, origin.y), Vector2(area.position.x + area.size.x, origin.y), Kit.AXIS, 1.0)
-	_canvas.draw_line(Vector2(origin.x, area.position.y), Vector2(origin.x, origin.y + area.size.y), Kit.AXIS, 1.0)
+	_canvas.draw_line(Vector2(origin.x, area.position.y), Vector2(origin.x, area.position.y + area.size.y), Kit.AXIS, 1.0)
 	# Circle
 	var circle_color := Kit.STEEL if _draw_stale else Kit.WASH
 	_canvas.draw_arc(origin, _draw_radius * scale, 0.0, TAU, 64, circle_color, 2.0, true)
