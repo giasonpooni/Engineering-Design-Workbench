@@ -7,6 +7,25 @@ class Reader extends "res://scripts/ciw_client.gd":
 		return ""
 
 
+func _frame_id(render: Dictionary) -> String:
+	var frame: Variant = render.get("frame", "")
+	if typeof(frame) == TYPE_DICTIONARY:
+		return str(frame.get("id", frame.get("frame_id", "")))
+	return str(frame)
+
+
+func _canvas_collapsed(render: Dictionary) -> bool:
+	var identity := str(render.get("canvas_id", ""))
+	var frame := _frame_id(render)
+	if identity.is_empty() or frame.is_empty() or identity != frame:
+		return false
+	var kind := str(render.get("kind", ""))
+	if kind in ["plane2d", "strip"]:
+		return true
+	var title := str(render.get("canvas_title", ""))
+	return kind == "mesh" and not title.is_empty() and title != identity and title != frame
+
+
 func _initialize() -> void:
 	_run.call_deferred()
 
@@ -34,6 +53,16 @@ func _run() -> void:
 			"revision": revision, "sources": [], "operations": [],
 			"bundles": [{"bundle_id": value.bundle_id, "kind": value.kind}]}})
 		view.apply_view(value)
+		var system_render: Dictionary = value.get("system_render", {})
+		if _canvas_collapsed(system_render):
+			push_error("Stamped canvas id equals the declared frame: " + path)
+			quit(1)
+			return
+		for item in value.get("system_canvases", []):
+			if typeof(item) == TYPE_DICTIONARY and _canvas_collapsed(item.get("render", {})):
+				push_error("Stamped canvas id equals the declared frame: " + path)
+				quit(1)
+				return
 		if view.view.get("bundle_id") != value.bundle_id or view._summary.text.is_empty():
 			push_error("Selected projection was not rendered: " + path)
 			quit(1)
