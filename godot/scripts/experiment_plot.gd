@@ -219,12 +219,18 @@ func _draw_mesh(render: Dictionary) -> void:
 			continue
 		draw_line(_map(samples[a], world, plot), _map(samples[b], world, plot), Color("60dfcd"), 2.4)
 	for i in samples.size():
+		var mapped := _map(samples[i], world, plot)
 		var color := Color("dce6f1")
+		var name := ""
 		if render.get("source_vertex") != null and int(render.source_vertex) == i:
 			color = Color("ffcc80")
+			name = str(render.get("source_label", "source %s" % i))
 		elif render.get("target_vertex") != null and int(render.target_vertex) == i:
 			color = Color("60dfcd")
-		draw_circle(_map(samples[i], world, plot), 4, color)
+			name = str(render.get("target_label", "target %s" % i))
+		draw_circle(mapped, 4, color)
+		if not name.is_empty():
+			draw_string(font, mapped + Vector2(6, -6), name, HORIZONTAL_ALIGNMENT_LEFT, -1, 11)
 
 
 func _draw_strip(render: Dictionary) -> void:

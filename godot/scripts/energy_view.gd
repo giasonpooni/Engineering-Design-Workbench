@@ -214,6 +214,10 @@ func set_system(render: Dictionary) -> void:
 			_target.visible = true
 			_target.position = vertices[int(render.target_vertex)]
 		_build_axes(low, high, [str(render.get("unit", "")), "", ""])
+		if render.get("source_vertex") != null and int(render.source_vertex) < vertices.size():
+			_mark_vertex(str(render.get("source_label", "source %s" % int(render.source_vertex))), vertices[int(render.source_vertex)])
+		if render.get("target_vertex") != null and int(render.target_vertex) < vertices.size():
+			_mark_vertex(str(render.get("target_label", "target %s" % int(render.target_vertex))), vertices[int(render.target_vertex)])
 		_update_camera()
 	if _caption != null:
 		var bits: Array[String] = []
@@ -260,6 +264,20 @@ func _build_axes(low: Vector3, high: Vector3, labels: Array) -> void:
 		axis_mesh.surface_add_vertex(Vector3(high.x, low.y, z))
 	axis_mesh.surface_end()
 	_axes.mesh = axis_mesh
+
+
+func _mark_vertex(text: String, position: Vector3) -> void:
+	if text.is_empty():
+		return
+	var label := Label3D.new()
+	label.text = text
+	label.font_size = 28
+	label.pixel_size = _base_radius * 0.0013
+	label.modulate = Color("dce6f1")
+	label.billboard = BaseMaterial3D.BILLBOARD_ENABLED
+	label.position = position + Vector3(0, _base_radius * 0.08, 0)
+	_world.add_child(label)
+	_labels.append(label)
 
 
 func set_sample(index: int) -> void:

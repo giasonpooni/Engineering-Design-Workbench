@@ -204,12 +204,16 @@ def detach_mesh_geometry(render):
     """Copy declared mesh faces and path indices. Out-of-range paths are refused."""
     vertices = _declared_vertices(render.get("vertices"))
     count = len(vertices)
+    source = _declared_index(render.get("source_vertex"), count, "Mesh source vertex")
+    target = _declared_index(render.get("target_vertex"), count, "Mesh target vertex")
     return {
         "vertices": vertices,
         "triangles": _declared_faces(render.get("triangles"), count),
         "path": _declared_indices(render.get("path"), count, "Mesh path index"),
-        "source_vertex": _declared_index(render.get("source_vertex"), count, "Mesh source vertex"),
-        "target_vertex": _declared_index(render.get("target_vertex"), count, "Mesh target vertex"),
+        "source_vertex": source,
+        "target_vertex": target,
+        "source_label": None if source is None else "source %s" % source,
+        "target_label": None if target is None else "target %s" % target,
     }
 
 
@@ -238,6 +242,8 @@ def declared_mesh(mesh, *, path=(), source_vertex=None, target_vertex=None,
         "path": geometry["path"],
         "source_vertex": geometry["source_vertex"],
         "target_vertex": geometry["target_vertex"],
+        "source_label": None if geometry["source_vertex"] is None else "source %s" % geometry["source_vertex"],
+        "target_label": None if geometry["target_vertex"] is None else "target %s" % geometry["target_vertex"],
         "projection": "first_two_declared_axes",
         "note": "Wireframe of declared vertices; 2D clients use the first two axes only",
     }

@@ -80,6 +80,8 @@ def test_declared_mesh_copies_faces_and_retained_path_indices():
     render = declared_mesh(mesh, path=[1, 0, 3], source_vertex=1, target_vertex=3)
     assert render["kind"] == "mesh"
     assert render["path"] == [1, 0, 3]
+    assert render["source_label"] == "source 1"
+    assert render["target_label"] == "target 3"
     assert render["canvas_id"] == "synthetic-planar-square"
     assert render["canvas_title"] == "synthetic-planar-square"
     assert render["projection"] == "first_two_declared_axes"
