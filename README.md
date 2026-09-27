@@ -1,194 +1,122 @@
 # Geospatial State Visualization
 
-Part of **Notation Systems' computational instrumentation and evidence infrastructure** for industrial and cyber-physical systems.
+**Notation Systems — read-only geographic visualization for physical systems.**
 
-[Diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md) · [Stack map](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/STACK.md) · [Component role and interfaces](docs/STACK_ROLE.md)
+![Geospatial State Visualization — synthetic global network view](docs/media/global.png)
 
-**Read-only visualization of geographic entities, routes, flows, and temporal state.**
+*Existing synthetic client, retaining earlier display branding. This is not a
+screenshot of the new ESM-record embed or a production deployment.*
 
-Geospatial State Visualization is the geographic inspection client in Notation
-Systems' computational instrumentation stack. It projects provider-supplied
-state onto a Three.js globe, keeping entity identity, source provenance, time,
-and geometry basis visible alongside the result. It does not retain or govern
-canonical evidence, execute scientific workloads, or implement a general-purpose
-rendering engine.
+GSV presents geographic entities, routes, flows and temporal state while keeping
+source identity, evidence, time and geometry basis inspectable. It remains a
+visualization client: no canonical evidence store, solver or admission authority
+is introduced here.
 
-**Status: implemented browser client with a deterministic synthetic provider and a read-only CIW geographic-context provider.**
-Facilities, four transport modes (road, rail, maritime, air), commodity-flow
-particles, a timeline, entity inspectors, search, and view commands are present.
-The workbench provider reads an explicitly selected retained source from the
-shared CIW session, checks its exact-byte and descriptor identities, and uses
-the existing native snapshot/state validators and globe. The first connection
-supports declared CRS84 facility points with fully declared constant state over
-an explicit validity range. It does not convert local process or GTE coordinates
-to latitude/longitude. Historical, current, and forecast labels describe cursor
-positions within the selected dataset's time range.
+## Three explicit inspection paths
+
+| Entry | Input and behavior | Boundary |
+| --- | --- | --- |
+| **Standalone synthetic demo — `/`** | Facilities, road/rail/maritime/air routes, flows, timeline, inspectors, search and view commands. | Deterministic demonstration. Historical/current/forecast labels refer to the dataset's range, not a live service. |
+| **Retained CIW context — `/?ciw=…&source=…`** | The existing `WorkbenchProvider` loads one explicitly selected retained geographic source into native validators and `WorldStore`. | Declared CRS84 facility points with complete constant state over an explicit interval. No local-frame conversion or invented state. |
+| **Released-record embed — `/embed.html`** | Receives one pinned ESM `payload.projection.v1` through the companion Terminal's read-only bridge, rechecks source/time/digest bindings and synchronizes record selection. | Public fixtures only; literal WGS84 points. Polygon/extent declarations remain in the host inspector. No synthetic operational state is assigned to generic evidence records. |
+
+The paths coexist. An ESM record is not relabelled as a CIW facility just to fit
+a renderer. The embed reuses the existing engine and geographic convention,
+while preserving the different record semantics at its input boundary.
+
+## Inspect without changing what is being inspected
 
 ```mermaid
 flowchart TD
-  P["Synthetic provider snapshot"] --> V{"Validate identity and records"}
-  V -->|"invalid or superseded"| R["Keep previous active snapshot"]
-  V -->|"eligible replacement"| S["Immutable WorldStore"]
-  S --> T["Checked state and comparisons"]
-  C["Explicit simulation cursor"] --> T
-  T --> G["Globe, timeline and inspector"]
-  U["View commands"] --> G
+  CIW["Retained CIW source"] --> SP["Native spatial provider / WorldStore"]
+  DEMO["Explicit synthetic demo"] --> SP
+  SP --> FULL["Globe, timeline and entity inspector"]
+  ESM["Terminal: pinned ESM public projection"] --> CHECK["Read-only consumer checks"]
+  CHECK --> EMBED["GSV point inspection embed"]
+  EMBED <-->|"Digest-bound selection"| TABLE["Terminal table and evidence inspector"]
 ```
 
-The arrows describe local read and projection paths. Provenance, geometry basis
-and declared times stay attached to displayed records. View controls change the
-presentation; there is no canonical-state write or evidence-admission path.
+Record identity, source, knowledge time, validity and geometry basis stay attached.
+View commands do not create evidence, execution, verification or admission
+identities. A matching hash establishes consistency with a selected pin, not
+physical accuracy, source authenticity or permission to publish.
 
-![Geospatial State Visualization — global network view](docs/media/global.png)
+The shared engine now supports container-relative sizing, removable frame
+callbacks, `stop()`, `resize()` and idempotent `dispose()`. Existing standalone
+window sizing remains compatible. The released-record embed disposes its own
+geometry, materials, controls, listeners and canvas.
 
-| Night-side economy | Route inspector |
-| --- | --- |
-| ![Asia at night](docs/media/asia-night.png) | ![Route inspector](docs/media/route-inspector.png) |
+## Run and verify
 
-The screenshots retain the earlier display branding; they illustrate the same
-synthetic client.
-
-## Responsibility in the stack
-
-| Component | Responsibility |
-| --- | --- |
-| [Provenance-Preserving Data Acquisition](https://github.com/giasonpooni/Provenance-Preserving-Data-Acquisition) | Acquire source material and retain observation lineage. |
-| [Evidence and State Management](https://github.com/giasonpooni/Evidence-and-State-Management) | Retain and govern evidence, versioned state, admission, and release. |
-| [Scientific Computation Runtime](https://github.com/giasonpooni/Scientific-Computation-Runtime) | Specify, dispatch, and record declared scientific computations. |
-| [Computational Instrumentation Workbench](https://github.com/giasonpooni/Computational-Instrumentation-Workbench) | Operate and inspect instruments through sessions and adapters. |
-| **Geospatial State Visualization** | Project geographic state through a provider interface for read-only inspection. |
-
-The CIW geographic provider implements the read-only workbench connection.
-View commands change camera, selection, layers, or playback; they do not admit
-evidence or commit canonical state.
-
-## Synthetic data and provenance
-
-Every domain record in the supplied snapshot carries
-`provenance.source: 'synthetic:demo'`. The demo makes no claims about actual
-shipments, facility utilization, or route conditions. The provenance check
-executes the dataset and checks source-field presence; it does not validate
-source authenticity or physical accuracy. Background map topology is described
-separately in the architecture document.
-
-The inspector presents record provenance, assertions, observations, and derived
-deviations. Geometry basis remains distinct from route identity. Source-known
-time (`knownAt`) and validity time (`validFrom` / `validTo`) remain distinct
-fields. The persistent status chip labels this build as synthetic.
-
-## Quickstart
-
-Use Node.js 24 or newer so the existing provenance script can execute erasable
-TypeScript directly. Clone the current repository location:
+Use Node.js 24 or newer for the existing native TypeScript test scripts.
 
 ```sh
 git clone https://github.com/giasonpooni/Geospatial-State-Visualization.git
 cd Geospatial-State-Visualization
 npm ci
-npm run dev      # Vite dev server
-npm run build    # runs check, then production build
-npm run check    # seam + provenance + types
-npm test         # Node 24 provider, comparison and view-tool regressions
+npm run dev -- --host 127.0.0.1
+npm run check    # seam, provenance, native tests and strict types
+npm run build    # the checks above, then both Vite entries
 ```
 
-`npm run check` runs the following checks and fails the build on any violation:
+The seam check keeps `src/data/**` renderer-blind. Provenance checks require
+source fields but do not certify their authenticity. Native tests check immutable
+snapshot replacement, explicit time/unit boundaries and refusals. Released-record
+tests additionally check exact pins, malformed geometry, private/authority
+escalation, stale replacements and missingness. The new CI job runs the actual
+built embed in Chromium; see its results rather than inferring browser success
+from a passing contract test.
 
-| Check | Script | What it enforces |
-|---|---|---|
-| Seam | `scripts/check-seam.mjs` | `src/data/**` is renderer-blind: no bare-module imports, no relative imports escaping the data layer (only the pure kernels `src/core/events.ts` and `src/core/time.ts` are allowed). |
-| Provenance | `scripts/validate-provenance.mjs` | Executes the real synthetic dataset and fails on any record missing `provenance.source`. |
-| Runtime boundary | `node --test tests/*.test.mjs` | Validated, immutable snapshot replacement; identity/reference/time/unit eligibility; explicit comparison refusals; strict view-tool inputs. |
-| Types | `tsc --noEmit` | TypeScript strict mode across the whole tree. |
+### Retained workbench source
 
-The provider boundary now validates and detaches snapshots before atomic
-replacement. Comparisons require an explicit knowledge cutoff and half-open
-event-time window; missing or different units are not converted implicitly,
-and a zero assertion has an undefined (`null`) ratio. See
-[`docs/PROVIDER_BOUNDARY.md`](docs/PROVIDER_BOUNDARY.md) for API changes and limits.
-
-## Open a retained workbench geographic context
-
-Start CIW with an explicit browser origin (example for the Vite development
-server): `ciw serve --spatial-view-origin http://127.0.0.1:5173`. Retain
-`examples/workbench/geographic-context.json` through CIW's ordinary `source.add`
-operation with `kind: geographic-context`, a label, and exact `bytes_b64`.
-The example contains invented plants and states, visibly marked synthetic.
-
-Start this viewer with `npm run dev -- --host 127.0.0.1`, then open:
+Start CIW with an explicit origin, for example
+`ciw serve --spatial-view-origin http://127.0.0.1:5173`. Retain its
+`examples/workbench/geographic-context.json` using ordinary `source.add`, then open:
 
 ```text
 http://127.0.0.1:5173/?ciw=ws://127.0.0.1:8765/spatial&source=source:sha256:YOUR_RETAINED_SOURCE_DIGEST
 ```
 
-The server's `/spatial` connection permits only geographic listing and inspection.
-Its browser Origin must match the configured origin exactly. The viewer keeps
-the explicit source selection; a catalog change does not switch evidence.
-Connection loss leaves the retained snapshot available and marks it offline.
-The evidence panel retains the source/evidence identities, coordinate authority,
-time range, and view authority. Facility inspectors show complete known/valid
-times and evidence references. Full constant states are required; missing
-utilization, congestion, validity or frame authority refuse loading.
+The read-only `/spatial` connection requires the configured origin. Catalog
+changes do not switch the selected evidence. Disconnection leaves the retained
+view available with offline status. See [CIW geographic view](docs/CIW_GEOGRAPHIC_VIEW.md)
+for the exact source/descriptor checks and installed-workbench end-to-end test.
 
-This is a projection of declared evidence. It creates no execution, result,
-verification or admission identity. No covariance is supplied or invented.
-Local GTE geometry remains in its declared frame until an explicit compatible
-geographic transform exists. See [the contract and tests](docs/CIW_GEOGRAPHIC_VIEW.md).
+### Companion Terminal explorer
 
-## Controls & interaction
+Build and serve this repository separately. Configure Terminal with this
+build's exact `/embed.html` URL and an explicitly reviewed ESM projection pin.
+No ESM credentials or private corpus data belong in this repository or the
+browser bridge. Directly opening `/embed.html` without a host leaves it inactive.
+See [released-record integration](docs/RELEASED_PROJECTION.md).
 
-- **Drag** — rotate the globe
-- **Wheel** — zoom (altitude drives level of detail and progressive disclosure)
-- **Click** — select a facility, route, or flow; click a country to open its summary
-- **`/`** — focus the command bar / search
-- **Space** — play / pause simulation time
-- Command examples: `find toronto` · `show maritime` · `show bottlenecks` · `follow the load`
+## Existing controls
 
-## Layer reference
+Drag rotates the globe; wheel zooms; click selects. `/` focuses search and Space
+toggles simulation playback. The standalone command bar supports `find`, `goto`,
+`show`/`hide` layers, `show <commodity> flows`, `flows on/off`, `play`, `pause`,
+`now`, `speed 1h/6h/24h`, `compare <a> vs <b>`, view presets and `help`.
+`follow the load` runs the explicit synthetic scenario; `stop`/`exit` ends it.
+These are view operations. The fixed-time ESM embed does not inherit simulation
+playback or infer trajectories from a single released position.
 
-Layers are grouped as declared in `src/app/api.ts` (`LayerDef` / `LayerId`):
+## System responsibilities
 
-| Group | Layer ids |
-|---|---|
-| WORLD | `world.countries` · `world.cities` · `world.terrain` · `world.nightlights` |
-| TRANSPORT | `transport.road` · `transport.rail` · `transport.maritime` · `transport.air` |
-| INFRASTRUCTURE | `infra.ports` · `infra.airports` · `infra.rail_terminals` · `infra.warehouses` · `infra.industrial` |
-| ECONOMY | `economy.production` · `economy.demand` · `economy.inventory` · `economy.flows` |
-| INTELLIGENCE | `intel.bottlenecks` · `intel.constraints` · `intel.anomalies` · `intel.dependencies` · `intel.risk` |
+| Component | Responsibility |
+| --- | --- |
+| GSV | Read-only geographic presentation and validated provider/record interfaces. |
+| [Evidence and State Management](https://github.com/giasonpooni/Evidence-and-State-Management) | Evidence, versioned state, admission and release governance. |
+| [Computational Instrumentation Workbench](https://github.com/giasonpooni/Computational-Instrumentation-Workbench) | Instrument sessions, adapters, execution and replay. |
+| [Payload Terminal](https://github.com/giasonpooni/Payload-Terminal-V0) | Browser navigation, recorded-value comparison, synchronized table and evidence inspection. |
 
-## Command reference
+[Architecture](docs/ARCHITECTURE.md) · [Provider boundary](docs/PROVIDER_BOUNDARY.md) ·
+[Stack role](docs/STACK_ROLE.md) · [CIW provider](docs/CIW_GEOGRAPHIC_VIEW.md) ·
+[Released-record embed](docs/RELEASED_PROJECTION.md)
 
-The command bar accepts a small, forgiving grammar (`src/app/commands.ts`).
-Main verbs:
+## Compatibility and license
 
-| Command | Effect |
-|---|---|
-| `find <name>` / `goto <name>` | Search entities and cinematically focus the best match. Bare text falls through to search. |
-| `show <layer>` / `hide <layer>` | Toggle a layer by alias (`maritime`, `ports`, `bottlenecks`, ...). `show everything`, `show corridors` toggle groups. |
-| `show <commodity> flows` | Match flows by commodity (e.g. `show copper flows`), enable flow mode, focus the first match. |
-| `flows on` / `flows off` | Toggle flow-particle mode. |
-| `play` / `pause` / `now` | Simulation clock control; `now` jumps to the dataset's regime boundary. |
-| `speed 1h` / `speed 6h` / `speed 24h` | Sim-hours per wall-second. |
-| `compare <a> vs <b>` | Compare two routes: distance, promised duration, live utilization. |
-| `world` / `freight` / `trade` / `commodities` / `network` / `exceptions` | View presets. |
-| `follow the load` | Cinematic multimodal demo scenario; `stop` / `exit` ends it. |
-| `help` | Print the verb summary. |
+The earlier repository name was `PayloadOS-Render-Engine`. Existing `payload-earth`
+package naming, `window.payloadEarth`, CSS namespaces and retained record/runtime
+identities remain compatible. A presentation change does not rewrite evidence.
 
-## Architecture
-
-The engineering record — the data/render seam, provenance discipline, the
-Assertion/Observation/Deviation model, the provider interface, the rendering
-pipeline, and the temporal model — lives in
-[`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md).
-
-## Naming and compatibility
-
-The repository was previously named `PayloadOS-Render-Engine`. The technical
-name identifies its visualization responsibility. The local package name
-`payload-earth`, browser API `window.payloadEarth`, CSS namespaces, record and
-operation IDs, and source values such as `payload:spatial` remain compatible.
-A repository rename does not rewrite schema identity, evidence, execution
-records, or retained runtime pins.
-
-## License
-
-GNU General Public License v3.0 — see [`LICENSE`](LICENSE).
+GNU General Public License v3.0 — see [LICENSE](LICENSE).
