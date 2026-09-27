@@ -1,6 +1,6 @@
 # Time-Base Reconciliation Runtime
 
-[Stack placement and ownership](docs/STACK.md) · [Diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md) · [License](LICENSE)
+[Notations Engineering Terminal (CIW)](https://github.com/giasonpooni/Notations-Engineering-Terminal) · [Stack placement and ownership](docs/STACK.md) · [Diagram atlas](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/main/docs/DIAGRAMS.md) · [License](LICENSE)
 
 **TBRT** is a bounded numerical instrument for translating a device event timestamp into an explicitly identified reference clock. It retains the original observation, supplied model, and uncertainty inputs. This repository implements one operation: affine clock reconciliation with first-order joint-covariance propagation.
 
@@ -78,7 +78,7 @@ assert result.reference_origin == 1000.0
 
 PPDA preserves acquisition evidence and raw timestamps. TBRT produces a derived event-time coordinate for STFE, GSIE, GTE, or calibration workloads that require aligned time. It does not acquire samples, change clocks, infer missing timestamps, admit evidence, authorize state, or actuate hardware. Receipt time and knowledge time remain separate metadata.
 
-This package is independently executable, with optional SET contract export. The stack relationships describe numerical boundaries; no live PPDA, STFE, GSIE, GTE, CIW, SCR, or ESM adapter is included.
+This package is independently executable, with optional SET contract export. The stack relationships describe numerical boundaries; no live PPDA, STFE, GSIE, GTE, CIW, SCR, or ESM adapter is included. **Notations Engineering Terminal** is the current workbench title; `ciw` remains its runtime and contract namespace.
 
 ## Limits
 
