@@ -30,8 +30,8 @@ sample without minting a new CIW kind.
    Prefer source label **`HOST_FROM_OWNED_CONFIG`**.
 3. **Emit** — `emit_render.py` reuses owned math (import prior
    `build_payload` or shared helpers). Call
-   `examples/_render_json.write_render`. Force non-claims in
-   `caption` and `forbidden_claims`. **No new CIW kind.**
+   `examples/_render_json.write_render`. Force non-claims in `caption` and
+   `forbidden_claims`. **No new CIW kind.**
 4. **Tab** — `godot/scripts/usecase_catalog_view.gd` discovers every
    `examples/usecase-*/results/*_render.json` and uses PresentationKit cards/status.
    The five baseline scenarios also keep their specialty tabs. Missing JSON →
