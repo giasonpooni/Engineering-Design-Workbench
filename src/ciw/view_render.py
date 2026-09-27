@@ -19,6 +19,39 @@ AUTHORITY = {
 }
 
 UNCONNECTED_KINDS = ("plane2d", "strip")
+DECLARED_CIRCLE = "declared_circle"
+DECLARED_CONSTRAINT = "declared_constraint"
+
+
+def detach_overlay(overlay):
+    """Copy a declared overlay. Fitted or estimated geometry is refused."""
+    if not isinstance(overlay, dict):
+        raise ValueError("Overlay must be a declared object")
+    if overlay.get("kind") != DECLARED_CIRCLE:
+        raise ValueError("Plane overlay must be a declared circle")
+    if overlay.get("source") != DECLARED_CONSTRAINT:
+        raise ValueError("Circle overlay refuses fitted or estimated geometry")
+    if overlay.get("authority") not in (None, "declared_not_surveyed"):
+        raise ValueError("Circle overlay refuses a surveyed or fitted authority")
+    radius = overlay.get("radius")
+    if type(radius) not in (int, float) or radius != radius or abs(radius) == float("inf"):
+        raise ValueError("Circle overlay requires a finite declared radius")
+    return deepcopy({
+        "kind": DECLARED_CIRCLE,
+        "center": _finite_pair(overlay.get("center"), "circle center"),
+        "radius": float(radius),
+        "source": DECLARED_CONSTRAINT,
+        "authority": "declared_not_surveyed",
+        "constraint_id": overlay.get("constraint_id"),
+    })
+
+
+def detach_overlays(overlays):
+    if overlays in (None, ()):
+        return []
+    if not isinstance(overlays, (list, tuple)):
+        raise ValueError("Plane overlays must be a declared list")
+    return [detach_overlay(overlay) for overlay in overlays]
 
 
 def detach_render(render):
@@ -28,6 +61,8 @@ def detach_render(render):
     payload = deepcopy(render)
     if payload.get("kind") in UNCONNECTED_KINDS:
         payload["connect"] = False
+    if payload.get("kind") == "plane2d":
+        payload["overlays"] = detach_overlays(payload.get("overlays"))
     return payload
 
 
@@ -64,7 +99,7 @@ def plane_from_interleaved(values, labels, units, *, frame, overlays=()):
         "frame": frame,
         "unit": units[0],
         "points": points,
-        "overlays": deepcopy(list(overlays)),
+        "overlays": detach_overlays(overlays),
         "connect": False,
         "note": "Declared-order points in the retained frame; not a trajectory or interpolation",
     })

@@ -107,7 +107,8 @@ artifacts remain in CIW. JSON displayed by Godot is an inspection representation
 not an artifact export to hash or replay. A `render` descriptor is the same class
 of representation: copied declared coordinates and overlays, never a solver output
 and never a calculation input. A drawn circle is the retained constraint, not a
-fitted curve. A drawn mesh uses the first two declared vertex axes for the 2D
+fitted curve. Overlay copies keep `source: declared_constraint`; a fitted radius
+cannot be attached by editing the presentation object. A drawn mesh uses the first two declared vertex axes for the 2D
 client and the declared coordinates for the optional 3D canvas; neither projection
 is a surveyed view. A strip plot uses the retained parameter as its abscissa and
 does not treat that parameter as event time. Jacobi inspections stamp `canvas_id`

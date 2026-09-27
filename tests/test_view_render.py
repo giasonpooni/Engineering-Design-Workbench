@@ -12,6 +12,7 @@ from ciw.view_render import (
     attach_system_canvases,
     declared_circle_overlay,
     declared_mesh,
+    detach_overlay,
     detach_render,
     plane_from_interleaved,
     strip_from_parameter,
@@ -222,5 +223,29 @@ def test_detach_render_clears_connect_on_plane_and_strip():
     assert view["system_canvases"][0]["render"]["connect"] is False
     with pytest.raises(ValueError):
         detach_render({"kind": "strip", "connect": True})
+
+
+def test_detach_render_keeps_declared_circles_and_refuses_fitted_overlays():
+    constraint = {"kind": "circle", "center_m": [0.0, 0.0], "radius_m": 1.0, "constraint_id": "reference-circle"}
+    overlay = declared_circle_overlay(constraint)
+    panel = {"labels": ["o0.x", "o0.y"], "values": [1.0, 0.0], "units": ["m", "m"]}
+    attach_plane(panel, frame="bench-plane", overlays=[overlay])
+    panel["render"]["overlays"][0]["radius"] = 4
+    panel["render"]["overlays"][0]["source"] = "fitted_residual"
+    view = {"kind": "geometric-circle"}
+    with pytest.raises(ValueError):
+        attach_system(view, panel["render"])
+    restored = declared_circle_overlay(constraint)
+    attach_plane(panel, frame="bench-plane", overlays=[restored])
+    attach_system(view, panel["render"])
+    panel["render"]["overlays"][0]["radius"] = 9
+    assert view["system_render"]["overlays"][0]["radius"] == 1.0
+    assert view["system_render"]["overlays"][0]["source"] == "declared_constraint"
+    fitted = dict(restored)
+    fitted["source"] = "least_squares_fit"
+    with pytest.raises(ValueError):
+        detach_overlay(fitted)
+    with pytest.raises(ValueError):
+        plane_from_interleaved([1.0, 0.0], ["a.x", "a.y"], ["m", "m"], frame="bench-plane", overlays=[fitted])
 
 

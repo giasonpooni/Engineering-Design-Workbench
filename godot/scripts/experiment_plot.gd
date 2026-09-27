@@ -130,6 +130,10 @@ func _canvas_caption(render: Dictionary, fallback: String) -> String:
 	return title + " · points only · display only"
 
 
+func _declared_circle(overlay: Variant) -> bool:
+	return overlay is Dictionary and overlay.get("kind") == "declared_circle" and overlay.get("source") == "declared_constraint"
+
+
 func _draw_canvas_id(render: Dictionary, plot: Rect2) -> void:
 	var identity := str(render.get("canvas_id", panel.get("panel_id", "")))
 	if identity.is_empty():
@@ -148,20 +152,21 @@ func _draw_plane(render: Dictionary) -> void:
 		samples.append(Vector2(float(item.x), float(item.y)))
 	var extras: Array[Vector2] = []
 	for overlay in render.get("overlays", []):
-		if overlay.get("kind") == "declared_circle":
-			var center := Vector2(float(overlay.center[0]), float(overlay.center[1]))
-			var radius := float(overlay.radius)
-			extras.append(center)
-			extras.append(center + Vector2(radius, 0))
-			extras.append(center - Vector2(radius, 0))
-			extras.append(center + Vector2(0, radius))
-			extras.append(center - Vector2(0, radius))
+		if not _declared_circle(overlay):
+			continue
+		var center := Vector2(float(overlay.center[0]), float(overlay.center[1]))
+		var radius := float(overlay.radius)
+		extras.append(center)
+		extras.append(center + Vector2(radius, 0))
+		extras.append(center - Vector2(radius, 0))
+		extras.append(center + Vector2(0, radius))
+		extras.append(center - Vector2(0, radius))
 	var world := _bounds(samples + extras)
 	var plot := _plot_rect()
 	_draw_axes(world, plot, str(render.get("unit", "")), _canvas_caption(render, "Declared plane · points only · no interpolation"))
 	_draw_canvas_id(render, plot)
 	for overlay in render.get("overlays", []):
-		if overlay.get("kind") != "declared_circle":
+		if not _declared_circle(overlay):
 			continue
 		var center := _map(Vector2(float(overlay.center[0]), float(overlay.center[1])), world, plot)
 		var radius := float(overlay.radius) / world.size.x * plot.size.x
