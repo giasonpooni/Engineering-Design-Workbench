@@ -61,12 +61,16 @@ def test_declared_circle_overlay_copies_constraint_and_does_not_fit():
     assert overlay["center"] == [0.0, 0.0]
     assert overlay["radius"] == 1.0
     assert overlay["source"] == "declared_constraint"
+    assert overlay["constraint_id"] == "reference-circle"
+    assert overlay["overlay_title"] == "reference-circle"
     overlay["radius"] = 4
     assert constraint["radius_m"] == 1.0
     with pytest.raises(ValueError):
         declared_circle_overlay({"kind": "ellipse", "center_m": [0, 0], "radius_m": 1})
     with pytest.raises(ValueError):
         declared_circle_overlay({"kind": "circle", "center_m": [0, 0], "radius_m": float("nan")})
+    with pytest.raises(ValueError):
+        declared_circle_overlay({"kind": "circle", "center_m": [0, 0], "radius_m": 1.0, "constraint_id": ""})
 
 
 def test_declared_mesh_copies_faces_and_retained_path_indices():
@@ -241,6 +245,8 @@ def test_detach_render_keeps_declared_circles_and_refuses_fitted_overlays():
     panel["render"]["overlays"][0]["radius"] = 9
     assert view["system_render"]["overlays"][0]["radius"] == 1.0
     assert view["system_render"]["overlays"][0]["source"] == "declared_constraint"
+    assert view["system_render"]["overlays"][0]["constraint_id"] == "reference-circle"
+    assert view["system_render"]["overlays"][0]["overlay_title"] == "reference-circle"
     fitted = dict(restored)
     fitted["source"] = "least_squares_fit"
     with pytest.raises(ValueError):

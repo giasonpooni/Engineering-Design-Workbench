@@ -180,6 +180,9 @@ func _draw_plane(render: Dictionary) -> void:
 		var center := _map(Vector2(float(overlay.center[0]), float(overlay.center[1])), world, plot)
 		var radius := float(overlay.radius) / world.size.x * plot.size.x
 		draw_arc(center, radius, 0.0, TAU, 64, Color(0.38, 0.48, 0.62, 0.9), 1.5)
+		var name := str(overlay.get("overlay_title", overlay.get("constraint_id", "")))
+		if not name.is_empty():
+			draw_string(font, center + Vector2(radius + 6, -6), name, HORIZONTAL_ALIGNMENT_LEFT, -1, 11)
 	for i in samples.size():
 		var point := _map(samples[i], world, plot)
 		draw_circle(point, 4, Color("60dfcd"))

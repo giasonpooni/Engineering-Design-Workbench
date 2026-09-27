@@ -36,13 +36,18 @@ def detach_overlay(overlay):
     radius = overlay.get("radius")
     if type(radius) not in (int, float) or radius != radius or abs(radius) == float("inf"):
         raise ValueError("Circle overlay requires a finite declared radius")
+    identity = overlay.get("constraint_id")
+    if identity is not None and (not isinstance(identity, str) or not identity):
+        raise ValueError("Circle overlay constraint_id must be a retained identity")
+    title = overlay.get("overlay_title") or identity
     return deepcopy({
         "kind": DECLARED_CIRCLE,
         "center": _finite_pair(overlay.get("center"), "circle center"),
         "radius": float(radius),
         "source": DECLARED_CONSTRAINT,
         "authority": "declared_not_surveyed",
-        "constraint_id": overlay.get("constraint_id"),
+        "constraint_id": identity,
+        "overlay_title": title,
     })
 
 
@@ -134,13 +139,17 @@ def declared_circle_overlay(constraint):
     radius = constraint["radius_m"]
     if type(radius) not in (int, float) or radius != radius or abs(radius) == float("inf"):
         raise ValueError("Circle overlay requires a finite declared radius")
+    identity = constraint.get("constraint_id")
+    if identity is not None and (not isinstance(identity, str) or not identity):
+        raise ValueError("Circle overlay constraint_id must be a retained identity")
     return deepcopy({
         "kind": "declared_circle",
         "center": _finite_pair(constraint["center_m"], "circle center"),
         "radius": float(radius),
         "source": "declared_constraint",
         "authority": "declared_not_surveyed",
-        "constraint_id": constraint.get("constraint_id"),
+        "constraint_id": identity,
+        "overlay_title": identity,
     })
 
 
