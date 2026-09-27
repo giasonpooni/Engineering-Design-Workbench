@@ -136,7 +136,8 @@ def attach_plane(panel, *, frame, overlays=(), canvas_id=None, canvas_title=None
     return panel
 
 
-def strip_from_parameter(parameter, values, *, parameter_name, parameter_unit, value_unit, frame):
+def strip_from_parameter(parameter, values, *, parameter_name, parameter_unit, value_unit, frame,
+                         canvas_id=None, canvas_title=None):
     """Place already-projected samples on a declared parameter axis.
 
     The parameter is copied from the retained record (arclength, sample index
@@ -157,7 +158,7 @@ def strip_from_parameter(parameter, values, *, parameter_name, parameter_unit, v
             raise ValueError("Strip render requires a nondecreasing parameter")
         previous = abscissa
         samples.append({"parameter": float(abscissa), "value": float(ordinate)})
-    return deepcopy({
+    payload = {
         "schema": SCHEMA,
         "kind": "strip",
         "authority": dict(AUTHORITY),
@@ -168,10 +169,15 @@ def strip_from_parameter(parameter, values, *, parameter_name, parameter_unit, v
         "samples": samples,
         "connect": False,
         "note": "Declared parameter axis; points only; not a time trajectory",
-    })
+    }
+    if canvas_id:
+        payload["canvas_id"] = canvas_id
+        payload["canvas_title"] = canvas_title or canvas_id
+    return deepcopy(payload)
 
 
-def attach_strip(panel, parameter, *, parameter_name, parameter_unit, frame):
+def attach_strip(panel, parameter, *, parameter_name, parameter_unit, frame,
+                 canvas_id=None, canvas_title=None):
     units = panel.get("units")
     if not isinstance(units, list) or not units:
         raise ValueError("Strip render requires a retained value unit")
@@ -179,7 +185,8 @@ def attach_strip(panel, parameter, *, parameter_name, parameter_unit, frame):
         raise ValueError("Strip render refuses mixed units")
     panel["render"] = strip_from_parameter(
         parameter, panel["values"], parameter_name=parameter_name,
-        parameter_unit=parameter_unit, value_unit=units[0], frame=frame)
+        parameter_unit=parameter_unit, value_unit=units[0], frame=frame,
+        canvas_id=canvas_id, canvas_title=canvas_title)
     return panel
 
 

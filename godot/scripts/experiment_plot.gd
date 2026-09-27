@@ -222,8 +222,9 @@ func _draw_strip(render: Dictionary) -> void:
 	# Independent axes: parameter and value may have different units.
 	var world := Rect2(low - span * 0.1, span * 1.2)
 	var plot := _plot_rect()
-	var caption := "Declared %s axis · points only · not event time" % str(render.get("parameter_name", "parameter"))
+	var caption := _canvas_caption(render, "Declared %s axis · points only · not event time" % str(render.get("parameter_name", "parameter")))
 	_draw_axes(world, plot, str(render.get("value_unit", "")), caption)
+	_draw_canvas_id(render, plot)
 	for item in samples:
 		draw_circle(_map(Vector2(float(item.parameter), float(item.value)), world, plot), 4, Color("60dfcd"))
 	draw_string(font, Vector2(plot.end.x - 90, size.y - 15), str(render.get("parameter_unit", "")), HORIZONTAL_ALIGNMENT_RIGHT, 80, 11)

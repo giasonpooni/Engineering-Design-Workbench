@@ -107,7 +107,9 @@ and never a calculation input. A drawn circle is the retained constraint, not a
 fitted curve. A drawn mesh uses the first two declared vertex axes for the 2D
 client and the declared coordinates for the optional 3D canvas; neither projection
 is a surveyed view. A strip plot uses the retained parameter as its abscissa and
-does not treat that parameter as event time. Mesh-path inspections also copy the
+does not treat that parameter as event time. Jacobi inspections stamp `canvas_id`
+and `canvas_title` on each strip and copy those strips onto `system_canvases` so
+a mixed-unit pose panel keeps a named arclength companion. Mesh-path inspections also copy the
 same descriptor onto `system_render` so the 3D canvas remains available while a
 sibling scalar panel is selected. The mesh descriptor carries `canvas_id` and
 `canvas_title` from the declared coordinate frame so the 3D viewport can name

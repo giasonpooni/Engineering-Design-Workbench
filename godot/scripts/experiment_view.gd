@@ -312,11 +312,11 @@ func _select_panel(index: int) -> void:
 		_system.set_system(panel_render)
 	else:
 		_system.set_system(system_render if system_kind == "mesh" else {})
-	var show_plane := system_kind == "plane2d" and panel_kind != "plane2d"
-	_system_plot.visible = show_plane
+	var show_companion := system_kind in ["plane2d", "strip"] and panel_kind != system_kind
+	_system_plot.visible = show_companion
 	if _canvases != null:
-		_canvases.visible = show_plane and _canvases.item_count > 1
-	if show_plane:
+		_canvases.visible = show_companion and _canvases.item_count > 1
+	if show_companion:
 		var payload := {"render": system_render}
 		var items: Array = view.get("system_canvases", [])
 		if _canvases != null and _canvases.selected >= 0 and _canvases.selected < items.size():

@@ -107,6 +107,10 @@ def test_strip_uses_declared_parameter_and_refuses_a_decreasing_axis():
     panel = {"values": [0.1, 0.2, 0.15], "units": ["m", "m", "m"]}
     attach_strip(panel, parameter, parameter_name="arclength", parameter_unit="m", frame="path")
     assert panel["render"]["parameter_name"] == "arclength"
+    attach_strip(panel, parameter, parameter_name="arclength", parameter_unit="m",
+                 frame="path", canvas_id="separation", canvas_title="Native transverse separation")
+    assert panel["render"]["canvas_id"] == "separation"
+    assert panel["render"]["canvas_title"] == "Native transverse separation"
     with pytest.raises(ValueError):
         strip_from_parameter([1.0, 0.0], [1.0, 2.0], parameter_name="s",
                              parameter_unit="m", value_unit="m", frame="path")
@@ -176,5 +180,25 @@ def test_attach_system_canvases_copies_declared_planes_without_resampling():
             {"id": "cover_points", "title": "Lifted", "render": cover["render"]},
             {"id": "cover_points", "title": "Duplicate", "render": wrapped["render"]},
         ])
+
+
+def test_attach_system_canvases_keeps_declared_strips_on_a_named_arclength_axis():
+    first = {"values": [0.1, 0.2], "units": ["m", "m"]}
+    second = {"values": [0.01, 0.02], "units": ["radian", "radian"]}
+    attach_strip(first, [0.0, 1.0], parameter_name="arclength", parameter_unit="m",
+                 frame="jacobi-path", canvas_id="separation", canvas_title="Native transverse separation")
+    attach_strip(second, [0.0, 1.0], parameter_name="arclength", parameter_unit="m",
+                 frame="jacobi-path", canvas_id="heading-change", canvas_title="Native heading change")
+    view = {"kind": "curved-path-transfer"}
+    attach_system_canvases(view, [
+        {"id": "separation", "title": "Native transverse separation", "render": first["render"]},
+        {"id": "heading-change", "title": "Native heading change", "render": second["render"]},
+    ], default_id="separation")
+    assert view["system_canvas_id"] == "separation"
+    assert view["system_render"]["kind"] == "strip"
+    assert view["system_render"]["parameter_name"] == "arclength"
+    assert view["system_render"]["canvas_title"] == "Native transverse separation"
+    first["render"]["samples"][0]["value"] = 9
+    assert view["system_render"]["samples"][0]["value"] == 0.1
 
 

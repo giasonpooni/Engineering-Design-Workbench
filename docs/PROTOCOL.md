@@ -9,7 +9,9 @@ units, time/frame context, source/evidence/result/execution identities and origi
 verification. Coordinate, mesh and declared-parameter panels may include an optional
 presentation `render` object (`ciw.panel-render.v1`: `plane2d`, `mesh`, or `strip`)
 that copies already-projected points, a declared mesh, or a retained parameter axis
-for inspection clients. Mesh-path views may also copy that mesh onto `system_render`
+for inspection clients. Jacobi views may copy declared arclength strips onto
+`system_canvases` so a named companion axis remains beside mixed-unit pose
+panels. Mesh-path views may also copy that mesh onto `system_render`
 so a 3D canvas can outlive the selected panel. That mesh copy carries the declared
 frame identity for the viewport caption. Circle and torus views copy a
 declared plane onto the same field so a companion 2D canvas can keep the

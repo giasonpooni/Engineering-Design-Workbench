@@ -59,7 +59,8 @@ def project(record, source, declaration, revision):
                 frame_id=transfer["frame"], arclength=grid, axis_quantity="arclength",
                 covariance_status="joint_cross_arclength_covariance_not_supplied"))
             attach_strip(panels[-1], grid, parameter_name="arclength",
-                         parameter_unit=length_unit, frame=transfer["frame"])
+                         parameter_unit=length_unit, frame=transfer["frame"],
+                         canvas_id=name, canvas_title=title)
     view = deepcopy({"schema": SCHEMA, "catalog_revision": revision, "bundle_id": record["bundle_id"],
         "kind": record["kind"], "label": source["label"], "source_id": source["source_id"], "evidence_id": source["evidence_id"],
         "upstream_bundle_id": None, "replay_source_bundle_ids": [r["source_bundle_digest"] for r in bundle.get("replay_receipts", [])],
@@ -69,9 +70,9 @@ def project(record, source, declaration, revision):
             ("operation_id", "execution_id", "result_id", "numerical_result_id", "input_refs")}}]},
         "raw_observations": [], "raw_declaration": declaration, "verification": bundle["verification"], "runtimes": bundle["runtimes"],
         "authority": {"read_only": True, "numerical_replay": "not_performed_by_inspection", "state_admission": "not_performed"}})
-    preferred = next((panel for panel in panels if panel.get("panel_id") == "parallelogram_points"), None)
+    preferred = next((panel for panel in panels if panel.get("panel_id") in ("parallelogram_points", "separation")), None)
     canvases = [{"id": panel["panel_id"], "title": panel["title"], "render": panel["render"]}
-                for panel in panels if panel.get("render", {}).get("kind") == "plane2d"]
+                for panel in panels if panel.get("render", {}).get("kind") in ("plane2d", "strip")]
     if canvases:
         attach_system_canvases(view, canvases, default_id=(preferred["panel_id"] if preferred else canvases[0]["id"]))
     return view
