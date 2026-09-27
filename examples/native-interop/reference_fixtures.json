@@ -1,0 +1,292 @@
+{
+  "schema": "ciw.native-interop-reference-fixtures.v1",
+  "cases": [
+    {
+      "name": "affine-binary64",
+      "profile": "affine-binary64.v1",
+      "providers": [
+        "cpp",
+        "julia"
+      ],
+      "payload": {
+        "rows": 2,
+        "columns": 3,
+        "a_row_major": [
+          2,
+          1,
+          -1,
+          -1,
+          3,
+          2
+        ],
+        "b": [
+          5,
+          -2
+        ],
+        "x0": [
+          3,
+          4,
+          2
+        ],
+        "delta_x": [
+          0.25,
+          -0.5,
+          0.125
+        ]
+      },
+      "expected": {
+        "rows": 2,
+        "columns": 3,
+        "baseline_output": [
+          13,
+          11
+        ],
+        "contributions": [
+          0.5,
+          -0.5,
+          -0.125,
+          -0.25,
+          -1.5,
+          0.25
+        ],
+        "predicted_delta": [
+          -0.125,
+          -1.5
+        ],
+        "predicted_output": [
+          12.875,
+          9.5
+        ],
+        "model_output": [
+          12.875,
+          9.5
+        ],
+        "residual": [
+          0,
+          0
+        ],
+        "denominator": 1
+      }
+    },
+    {
+      "name": "affine-d256",
+      "profile": "affine-d256.v1",
+      "providers": [
+        "cpp",
+        "julia"
+      ],
+      "payload": {
+        "rows": 2,
+        "columns": 3,
+        "a_row_major": [
+          512,
+          256,
+          -256,
+          -256,
+          768,
+          512
+        ],
+        "b": [
+          1280,
+          -512
+        ],
+        "x0": [
+          768,
+          1024,
+          512
+        ],
+        "delta_x": [
+          64,
+          -128,
+          32
+        ]
+      },
+      "expected": {
+        "rows": 2,
+        "columns": 3,
+        "baseline_output": [
+          851968,
+          720896
+        ],
+        "contributions": [
+          32768,
+          -32768,
+          -8192,
+          -16384,
+          -98304,
+          16384
+        ],
+        "predicted_delta": [
+          -8192,
+          -98304
+        ],
+        "predicted_output": [
+          843776,
+          622592
+        ],
+        "model_output": [
+          843776,
+          622592
+        ],
+        "residual": [
+          0,
+          0
+        ],
+        "denominator": 65536
+      }
+    },
+    {
+      "name": "oscillator-tsit5",
+      "profile": "oscillator-tsit5.v1",
+      "providers": [
+        "julia"
+      ],
+      "payload": {
+        "model": {
+          "omega_0_rad_s": 2.0,
+          "gamma_s_inv": 0.1,
+          "mass_kg": 2.0
+        },
+        "initial_state": {
+          "q0_m": 1.0,
+          "v0_m_s": -0.25
+        },
+        "time_s": [
+          0.0,
+          0.1,
+          0.2,
+          0.3
+        ],
+        "solver": {
+          "abstol": 1e-10,
+          "reltol": 1e-10,
+          "maxiters": 100000
+        }
+      }
+    },
+    {
+      "name": "control-oscillator",
+      "profile": "control-oscillator.v1",
+      "providers": [
+        "julia"
+      ],
+      "payload": {
+        "model": {
+          "omega_0_rad_s": 2.0,
+          "gamma_s_inv": 0.1,
+          "mass_kg": 2.0
+        },
+        "initial_state": {
+          "q0_m": 1.0,
+          "v0_m_s": -0.25
+        },
+        "time_s": [
+          0.0,
+          0.1,
+          0.2,
+          0.3
+        ]
+      }
+    },
+    {
+      "name": "qp-interior",
+      "profile": "design-qp.v1",
+      "providers": [
+        "julia"
+      ],
+      "payload": {
+        "rows": 2,
+        "columns": 2,
+        "j_row_major": [
+          2,
+          1,
+          -1,
+          3
+        ],
+        "y0": [
+          1,
+          -2
+        ],
+        "target": [
+          0,
+          0
+        ],
+        "regularization": 1.0,
+        "lower": [
+          -1,
+          -1
+        ],
+        "upper": [
+          1,
+          1
+        ],
+        "max_iterations": 1000
+      },
+      "expected": {
+        "delta": [
+          -0.6,
+          0.4
+        ],
+        "objective_value": 0.3
+      }
+    },
+    {
+      "name": "qp-active-bounds",
+      "profile": "design-qp.v1",
+      "providers": [
+        "julia"
+      ],
+      "payload": {
+        "rows": 2,
+        "columns": 2,
+        "j_row_major": [
+          1,
+          0,
+          0,
+          1
+        ],
+        "y0": [
+          2,
+          -2
+        ],
+        "target": [
+          0,
+          0
+        ],
+        "regularization": 1.0,
+        "lower": [
+          -0.5,
+          -0.5
+        ],
+        "upper": [
+          0.5,
+          0.5
+        ],
+        "max_iterations": 1000
+      },
+      "expected": {
+        "delta": [
+          -0.5,
+          0.5
+        ],
+        "objective_value": 2.5
+      }
+    }
+  ],
+  "force_expected_initial": {
+    "stiffness_n_m": 8.0,
+    "damping_n_s_m": 0.4,
+    "restoring_force_n": -8.0,
+    "damping_force_n": 0.1,
+    "net_force_n": -7.9,
+    "acceleration_m_s2": -3.95,
+    "potential_energy_j": 4.0,
+    "kinetic_energy_j": 0.0625,
+    "energy_j": 4.0625
+  },
+  "remaining_gates": {
+    "physical_validation": "NOT_RUN",
+    "sp1_proof_and_fresh_verification": "NOT_RUN",
+    "ubsan": "NOT_RUN"
+  }
+}

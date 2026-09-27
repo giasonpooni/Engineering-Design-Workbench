@@ -1,0 +1,148 @@
+name: Interval requirement qualification
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  windows-interval:
+    runs-on: windows-2022
+    timeout-minutes: 90
+    env:
+      JULIA_NUM_THREADS: '1'
+      JULIA_LOAD_PATH: '@;@stdlib'
+    steps:
+      - uses: actions/checkout@v4
+      - name: Initialize short runner-local paths and qualification audit
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          "CARGO_TARGET_DIR=$env:RUNNER_TEMP/itgt" >> $env:GITHUB_ENV
+          "JULIA_DEPOT_PATH=$env:RUNNER_TEMP/idepot" >> $env:GITHUB_ENV
+          New-Item -ItemType Directory "$env:RUNNER_TEMP/iaudit" | Out-Null
+          @{ schema = 'ciw.interval-ci-audit.v1'; source_revision = (git rev-parse HEAD); run_id = $env:GITHUB_RUN_ID; run_attempt = $env:GITHUB_RUN_ATTEMPT; status = 'started' } | ConvertTo-Json | Set-Content "$env:RUNNER_TEMP/iaudit/start.json"
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+      - name: Read the qualified interval SCR revision
+        id: pin
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $pin = Get-Content src/ciw/native-interop-runtimes.json -Raw | ConvertFrom-Json
+          $revision = $pin.interval_family.scr_revisions[-1]
+          if ($revision -notmatch '^[a-f0-9]{40}$' -or !$pin.interval_family.scr_trees.$revision) { throw 'Interval qualification requires a reviewed SCR revision and tree' }
+          "revision=$revision" >> $env:GITHUB_OUTPUT
+          Copy-Item src/ciw/native-interop-runtimes.json "$env:RUNNER_TEMP/iaudit/qualification-pins.json"
+      - name: Require access to the pinned SCR repository
+        shell: pwsh
+        env:
+          SCR_READ_TOKEN: ${{ secrets.SCR_READ_TOKEN }}
+        run: |
+          if (!$env:SCR_READ_TOKEN) { throw 'SCR_READ_TOKEN is required for the private pinned SCR checkout; this gate cannot qualify without it' }
+      - uses: actions/checkout@v4
+        with:
+          repository: giasonpooni/Scientific-Computation-Runtime
+          ref: ${{ steps.pin.outputs.revision }}
+          path: .ciw-interval-scr
+          token: ${{ secrets.SCR_READ_TOKEN }}
+          persist-credentials: false
+      - uses: julia-actions/setup-julia@v2
+        with:
+          version: '1.10.12'
+      - name: Provision the locked interval runtime and installed CIW wheel
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          julia --startup-file=no --history-file=no --project=runtimes/interval-requirement -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
+          "JULIA_PKG_OFFLINE=true" >> $env:GITHUB_ENV
+          rustup toolchain install 1.96.0 --profile minimal
+          cargo +1.96.0 build --locked --manifest-path .ciw-interval-scr/crates/execution-provider-host/Cargo.toml
+          python -m pip install build
+          python -m build --wheel --outdir "$env:RUNNER_TEMP/iwheel"
+          python -m venv "$env:RUNNER_TEMP/ienv"
+          $wheels = @(Get-ChildItem "$env:RUNNER_TEMP/iwheel/*.whl")
+          if ($wheels.Count -ne 1) { throw 'Require exactly one freshly built CIW wheel' }
+          & "$env:RUNNER_TEMP/ienv/Scripts/python.exe" -I -m pip install $wheels[0].FullName pytest==9.0.2
+      - name: Bind the qualified interval provider without changing pins
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          $env:CIW_INTERVAL_ROOT = (Get-Location).Path
+          Set-Location $env:RUNNER_TEMP
+          @'
+          import hashlib,json,os,pathlib,shutil
+          import ciw
+          from ciw.native_interop import NativeInteropWorkflow, _pins
+          root=pathlib.Path(os.environ['CIW_INTERVAL_ROOT']).resolve()
+          temp=pathlib.Path(os.environ['RUNNER_TEMP'])
+          installed=pathlib.Path(ciw.__file__).resolve()
+          pin=json.loads((root/'src/ciw/native-interop-runtimes.json').read_text())['interval_family']
+          host=pathlib.Path(os.environ['CARGO_TARGET_DIR'])/'debug/scr-provider-host.exe'
+          exe=shutil.which('julia')
+          audit={'schema':'ciw.interval-binding-audit.v1','status':'failed','expected':pin,'observed':{},'installed_ciw':str(installed)}
+          try:
+              if root in installed.parents:
+                  raise ValueError('Qualification must import the installed CIW wheel outside the checkout')
+              if _pins()['interval_family'] != pin:
+                  raise ValueError('Installed interval pins differ from the reviewed checkout')
+              row={'scr':str(root/'.ciw-interval-scr'),'host':str(host),'host_sha256':'sha256:'+hashlib.sha256(host.read_bytes()).hexdigest(),
+                   'provider':'intervals','executable':exe,'runtime':str(root),'depot':os.environ['JULIA_DEPOT_PATH']}
+              path=temp/'interval-binding.json'
+              path.write_text(json.dumps(row))
+              audit['observed']['executable_sha256']='sha256:'+hashlib.sha256(pathlib.Path(exe).read_bytes()).hexdigest()
+              audit['observed']['files']={name:'sha256:'+hashlib.sha256((root/name).read_bytes()).hexdigest() for name in pin['files']}
+              _,runtime=NativeInteropWorkflow()._adapters({'runtime':path})
+              audit.update(status='binding_validated',runtime=runtime)
+          except Exception as exc:
+              audit['reason']=str(exc)[:4000]
+              raise
+          finally:
+              (temp/'iaudit/interval-qualification.json').write_text(json.dumps(audit))
+          '@ | & "$env:RUNNER_TEMP/ienv/Scripts/python.exe" -I -
+      - name: Require all installed-wheel interval and native interop tests
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          $root = (Get-Location).Path
+          $env:CIW_INTERVAL_BINDING = "$env:RUNNER_TEMP/interval-binding.json"
+          $env:CIW_TEST_INTERVAL_JULIA = (Get-Command julia).Source
+          $env:CIW_TEST_INTERVAL_DEPOT = $env:JULIA_DEPOT_PATH
+          $env:CIW_INTERVAL_REQUIRE_JULIA = '1'
+          Set-Location $env:RUNNER_TEMP
+          & "$env:RUNNER_TEMP/ienv/Scripts/python.exe" -I -m pytest "$root/tests/test_interval_contract.py" "$root/tests/test_interval_workflow.py" "$root/tests/test_interval_worker.py" "$root/tests/test_interval_benchmark.py" "$root/tests/test_native_interop.py" --override-ini=pythonpath= -q -p no:cacheprovider --basetemp="$env:RUNNER_TEMP/itests" --junitxml="$env:RUNNER_TEMP/interval-tests.xml"
+          [xml]$tests = Get-Content "$env:RUNNER_TEMP/interval-tests.xml"
+          if (($tests.testsuites.testsuite | Measure-Object -Property skipped -Sum).Sum -ne 0) { throw 'Required interval qualification tests must not skip' }
+      - name: Run the six-fixture gate and provider-free inspection
+        shell: pwsh
+        run: |
+          $ErrorActionPreference = 'Stop'
+          $PSNativeCommandUseErrorActionPreference = $true
+          $root = (Get-Location).Path
+          Set-Location $env:RUNNER_TEMP
+          & "$env:RUNNER_TEMP/ienv/Scripts/python.exe" -I "$root/scripts/check_interval_requirement.py" run --binding "$env:RUNNER_TEMP/interval-binding.json" --fixtures "$root/examples/interval-requirement/fixtures.json" --output "$env:RUNNER_TEMP/ievidence"
+          & "$env:RUNNER_TEMP/ienv/Scripts/python.exe" -I "$root/scripts/check_interval_requirement.py" inspect --workspace "$env:RUNNER_TEMP/ievidence/workspace.json" --artifacts "$env:RUNNER_TEMP/ireopen" | Set-Content "$env:RUNNER_TEMP/iaudit/provider-free-inspection.json"
+      - name: Retain job outcome separately from numerical evidence
+        if: always()
+        shell: pwsh
+        env:
+          QUALIFICATION_JOB_STATUS: ${{ job.status }}
+        run: |
+          $ErrorActionPreference = 'Stop'
+          New-Item -ItemType Directory -Force "$env:RUNNER_TEMP/iaudit" | Out-Null
+          @{ schema = 'ciw.interval-ci-audit.v1'; status = $env:QUALIFICATION_JOB_STATUS; run_id = $env:GITHUB_RUN_ID; run_attempt = $env:GITHUB_RUN_ATTEMPT; numerical_qualification = 'consult-required-tests-and-interval-report' } | ConvertTo-Json | Set-Content "$env:RUNNER_TEMP/iaudit/job-status.json"
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: interval-requirement-evidence
+          if-no-files-found: error
+          path: |
+            ${{ runner.temp }}/iaudit
+            ${{ runner.temp }}/interval-tests.xml
+            ${{ runner.temp }}/ievidence

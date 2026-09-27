@@ -1,8 +1,11 @@
 """Offline gates reuse exact operator-owned checkouts without rewriting them."""
 import importlib
 import json
+import os
 from pathlib import Path
+import shlex
 import subprocess
+import sys
 
 import pytest
 
@@ -171,3 +174,162 @@ def test_uninitialized_pinned_gitlink_needs_no_symlink_or_download(tmp_path, hel
     (path / "vendor" / "scout").mkdir(parents=True)
     revision = git(path, "rev-parse", "HEAD")
     assert helpers.validate_checkout(path, revision) == path.resolve()
+
+
+@pytest.mark.parametrize("failure,classification,code", [
+    ("missing", "dependency_unavailable", "CHECKOUT_UNAVAILABLE"),
+    ("invalid_revision", "setup_failure", "INVALID_REVISION"),
+    ("wrong_pin", "identity_mismatch", "WRONG_PIN"),
+    ("dirty", "identity_mismatch", "TRACKED_BYTES_MISMATCH"),
+    ("untracked", "identity_mismatch", "UNTRACKED_FILES"),
+])
+def test_checkout_refusals_have_stable_categories(failure, classification, code, tmp_path, helpers):
+    path = tmp_path / "provider"
+    revision = "a" * 40 if failure == "missing" else repository(path)
+    if failure == "invalid_revision":
+        revision = "not-a-commit"
+    elif failure == "wrong_pin":
+        revision = "0" * 40
+    elif failure == "dirty":
+        (path / "source.txt").write_bytes(b"uncommitted change\n")
+    elif failure == "untracked":
+        (path / "extra.py").write_bytes(b"# unapproved source\n")
+    with pytest.raises(helpers.ProviderCheckoutError) as caught:
+        helpers.validate_checkout(path, revision)
+    assert isinstance(caught.value, ValueError)
+    assert (caught.value.classification, caught.value.code) == (classification, code)
+
+
+@pytest.mark.parametrize("error,classification,code", [
+    (FileNotFoundError("git unavailable"), "dependency_unavailable", "GIT_UNAVAILABLE"),
+    (subprocess.TimeoutExpired("git", 60), "setup_failure", "GIT_TIMEOUT"),
+    (subprocess.CalledProcessError(1, "git"), "setup_failure", "GIT_FAILED"),
+])
+def test_git_failures_have_stable_categories(error, classification, code, tmp_path, helpers, monkeypatch):
+    def fail(arguments, **kwargs):
+        assert kwargs["env"]["GIT_OPTIONAL_LOCKS"] == "0"
+        raise error
+
+    monkeypatch.setattr(subprocess, "run", fail)
+    with pytest.raises(helpers.ProviderCheckoutError) as caught:
+        helpers._git(tmp_path, "rev-parse", "HEAD")
+    assert (caught.value.classification, caught.value.code) == (classification, code)
+    assert str(caught.value) == f"Cannot verify provider checkout: {tmp_path}"
+
+
+def test_script_wrapper_loads_source_package_without_installation(tmp_path):
+    code = """
+import importlib.util
+from pathlib import Path
+import sys
+spec = importlib.util.spec_from_file_location('provider_script_fixture', sys.argv[1])
+module = importlib.util.module_from_spec(spec)
+spec.loader.exec_module(module)
+from ciw import provider_checkouts
+assert module.validate_checkout is provider_checkouts.validate_checkout
+assert module._git is provider_checkouts._git
+assert module.ProviderCheckoutError is provider_checkouts.ProviderCheckoutError
+assert Path(provider_checkouts.__file__).resolve() == Path(sys.argv[2]).resolve()
+"""
+    subprocess.run([sys.executable, "-I", "-S", "-B", "-c", code,
+                    str(ROOT / "scripts" / "provider_checkouts.py"),
+                    str(ROOT / "src" / "ciw" / "provider_checkouts.py")],
+                   cwd=tmp_path, check=True, capture_output=True, timeout=30)
+
+
+@pytest.mark.parametrize("dirty", [False, True])
+def test_configured_clean_filter_never_runs_during_validation(tmp_path, helpers, monkeypatch, dirty):
+    path = tmp_path / "provider"
+    revision = repository(path)
+    marker = tmp_path / "clean-filter-ran"
+    command = "printf '%s' called > " + shlex.quote(marker.as_posix()) + "; cat"
+    git(path, "config", "filter.doctor-probe.clean", command)
+    (path / ".git" / "info" / "attributes").write_text("*.txt filter=doctor-probe\n", encoding="utf-8")
+    # Activate the filter only after the fixture commit. Changed stat metadata
+    # makes even a byte-clean file require content inspection by `git status`.
+    source = path / "source.txt"
+    if dirty:
+        source.write_bytes(b"uncommitted provider change\n")
+    stat = source.stat()
+    os.utime(source, ns=(stat.st_atime_ns, stat.st_mtime_ns + 2_000_000_000))
+    before = {name: (path / name).read_bytes()
+              for name in ("source.txt", ".git/HEAD", ".git/index", ".git/config", ".git/info/attributes")}
+    original_run = subprocess.run
+    invocations = []
+
+    def observe(arguments, **kwargs):
+        invocations.append(arguments)
+        return original_run(arguments, **kwargs)
+
+    monkeypatch.setattr(subprocess, "run", observe)
+    assert not marker.exists()
+    if dirty:
+        with pytest.raises(helpers.ProviderCheckoutError) as caught:
+            helpers.validate_checkout(path, revision)
+        assert caught.value.classification == "identity_mismatch"
+        assert caught.value.code == "TRACKED_BYTES_MISMATCH"
+    else:
+        assert helpers.validate_checkout(path, revision) == path.resolve()
+    assert not marker.exists(), "Read-only validation invoked the configured clean filter"
+    assert all(arguments[0] == "git" and "status" not in arguments for arguments in invocations)
+    assert all((path / name).read_bytes() == data for name, data in before.items())
+
+
+@pytest.mark.parametrize("change", ["staged_content", "staged_mode"])
+def test_index_only_drift_is_refused_with_unchanged_working_bytes(tmp_path, helpers, change):
+    path = tmp_path / "provider"
+    revision = repository(path)
+    source = path / "source.txt"
+    original = source.read_bytes()
+    if change == "staged_content":
+        source.write_bytes(b"index-only unapproved provider\n")
+        git(path, "add", "source.txt")
+        source.write_bytes(original)
+    else:
+        blob = git(path, "rev-parse", "HEAD:source.txt")
+        git(path, "update-index", "--cacheinfo", f"100755,{blob},source.txt")
+    index = (path / ".git" / "index").read_bytes()
+    with pytest.raises(helpers.ProviderCheckoutError) as caught:
+        helpers.validate_checkout(path, revision)
+    assert caught.value.classification == "identity_mismatch"
+    assert caught.value.code == "DIRTY_CHECKOUT"
+    assert source.read_bytes() == original
+    assert (path / ".git" / "index").read_bytes() == index
+
+
+@pytest.mark.parametrize("change", ["clean", "revision", "tracked_bytes", "index_only"])
+def test_initialized_submodule_is_checked_without_git_status(tmp_path, helpers, monkeypatch, change):
+    path = tmp_path / "provider"
+    repository(path)
+    upstream = tmp_path / "local-scout"
+    repository(upstream)
+    git(path, "-c", "core.autocrlf=false", "-c", "protocol.file.allow=always",
+        "submodule", "add", "--quiet", str(upstream), "vendor/scout")
+    git(path, "commit", "-qm", "retain initialized submodule")
+    revision = git(path, "rev-parse", "HEAD")
+    child = path / "vendor" / "scout"
+    source = child / "source.txt"
+    if change == "revision":
+        git(child, "-c", "user.name=Provider test", "-c", "user.email=provider@example.invalid",
+            "commit", "--allow-empty", "-qm", "unapproved submodule revision")
+    elif change == "tracked_bytes":
+        source.write_bytes(b"uncommitted submodule source\n")
+    elif change == "index_only":
+        blob = git(child, "rev-parse", "HEAD:source.txt")
+        git(child, "update-index", "--cacheinfo", f"100755,{blob},source.txt")
+    original_run = subprocess.run
+    invocations = []
+
+    def observe(arguments, **kwargs):
+        invocations.append(arguments)
+        assert arguments[0] == "git" and "status" not in arguments
+        return original_run(arguments, **kwargs)
+
+    monkeypatch.setattr(subprocess, "run", observe)
+    if change == "clean":
+        assert helpers.validate_checkout(path, revision) == path.resolve()
+    else:
+        with pytest.raises(helpers.ProviderCheckoutError) as caught:
+            helpers.validate_checkout(path, revision)
+        assert caught.value.classification == "identity_mismatch"
+    assert invocations

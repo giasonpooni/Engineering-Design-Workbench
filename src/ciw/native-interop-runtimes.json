@@ -1,0 +1,110 @@
+{
+  "schema": "ciw.native-interop-pins.v1",
+  "scr_revisions": [
+    "75efd22340f7a9c8048a0f9b4f3e970b681a7cd8",
+    "fd61efb3e0e5868d0f95ba27706b64a9afca595f",
+    "7e41b5a104526929c531a069a9872cf92ab277cc",
+    "2a144e252607546ca6b20e6dd4613d3a4146758a"
+  ],
+  "julia_files": {
+    "runtimes/native-interop/Project.toml": "sha256:3259c13ab8a6d8285eaf2f92d6a1562378be4be55ed8ea328b3cf78740ace9c5",
+    "runtimes/native-interop/Manifest.toml": "sha256:f8ba6ebc3fdd3cda9ea7ba6a77f7d58dadbf31499702f1cd69bc17377753d7dd",
+    "runtimes/native-interop/worker.jl": "sha256:076935fb2828cf460afb72e20d17e434a465fe1a95700df397a636bc5a18c2fd",
+    "runtimes/julia-oscillator/oscillator_worker.jl": "sha256:7ef67c565c6f803faa75611aae2e48bcf41b6e843b7b144a34dfc26bb3ac03d9"
+  },
+  "historical_julia_files": [
+    {
+      "runtimes/native-interop/Project.toml": "sha256:3259c13ab8a6d8285eaf2f92d6a1562378be4be55ed8ea328b3cf78740ace9c5",
+      "runtimes/native-interop/Manifest.toml": "sha256:f8ba6ebc3fdd3cda9ea7ba6a77f7d58dadbf31499702f1cd69bc17377753d7dd",
+      "runtimes/native-interop/worker.jl": "sha256:e598eafae6dba8e9afddc74e16ee498123b7982d2d5b2858bc8f6b9f4fb61d16",
+      "runtimes/julia-oscillator/oscillator_worker.jl": "sha256:7ef67c565c6f803faa75611aae2e48bcf41b6e843b7b144a34dfc26bb3ac03d9"
+    }
+  ],
+  "reaction_families": {
+    "cantera": {
+      "files": {
+        "runtimes/cantera-reaction/requirements.txt": "sha256:9e39e2a0f34215e77fd19f1199315ab9a8676643bff138026164b2f2a6ef38e9",
+        "runtimes/cantera-reaction/worker.py": "sha256:02cb2a77b975e8d07253115685a35b9959a5c20e2eee749edeb8a6ec45013c14"
+      },
+      "executable_sha256": "sha256:9f91cee2e1b13d9779ab252507aeee120c379e2543ffe85f63cad129b58ba230",
+      "worker_identity": {
+        "extension_sha256": "sha256:00f00749cc90b76a7266656fd02e6a7d40be82e7d7e1389472ad285123064e9d",
+        "package_files_sha256": "sha256:23f637f3754623d070a1783b92cf6068164655c692450b3ffea0ceb926cd1113",
+        "packages": {
+          "cantera": "3.2.0",
+          "numpy": "2.5.3",
+          "ruamel.yaml": "0.19.1",
+          "typing-extensions": "4.16.0"
+        },
+        "platform": "win-amd64",
+        "python_version": "3.12.14",
+        "requirements_sha256": "sha256:9e39e2a0f34215e77fd19f1199315ab9a8676643bff138026164b2f2a6ef38e9",
+        "schema": "ciw.reaction-cantera-identity.v1",
+        "worker_sha256": "sha256:02cb2a77b975e8d07253115685a35b9959a5c20e2eee749edeb8a6ec45013c14"
+      },
+      "scr_revisions": [
+        "7e41b5a104526929c531a069a9872cf92ab277cc"
+      ],
+      "scr_trees": {
+        "7e41b5a104526929c531a069a9872cf92ab277cc": "87d395d65a4e3ac1a7501f6ba17e61f8aefded1b"
+      }
+    },
+    "catalyst": {
+      "files": {
+        "runtimes/reaction-kinetics/Project.toml": "sha256:4022397ae5104a018351acf83297a0f100380ba882a6c8fe1c75d18e5e18c195",
+        "runtimes/reaction-kinetics/Manifest.toml": "sha256:6e9212c6be2e65c92ad5b6985a38f1beeeb50c2b02cd10a4004058877f57281a",
+        "runtimes/reaction-kinetics/worker.jl": "sha256:9f38a2e740f92166d70d2c12b3cdabadb03f86e4d2fff33b963c38d7dd040355"
+      },
+      "executable_sha256": "sha256:29a5cb5bde6a3f4a151f6e714591ca9344638303d9ed2a893ab31ada3de5d103",
+      "worker_identity": {
+        "schema": "ciw.reaction-catalyst-identity.v1",
+        "julia_version": "1.10.12",
+        "platform": "x86_64-w64-mingw32",
+        "threads": 1,
+        "packages": {
+          "Catalyst": "16.4.3",
+          "OrdinaryDiffEqTsit5": "2.1.4",
+          "SciMLBase": "3.56.1",
+          "JSON3": "1.14.3",
+          "SymbolicIndexingInterface": "0.3.55"
+        },
+        "worker_sha256": "sha256:9f38a2e740f92166d70d2c12b3cdabadb03f86e4d2fff33b963c38d7dd040355",
+        "project_sha256": "sha256:4022397ae5104a018351acf83297a0f100380ba882a6c8fe1c75d18e5e18c195",
+        "manifest_sha256": "sha256:6e9212c6be2e65c92ad5b6985a38f1beeeb50c2b02cd10a4004058877f57281a"
+      },
+      "scr_revisions": [
+        "7e41b5a104526929c531a069a9872cf92ab277cc"
+      ],
+      "scr_trees": {
+        "7e41b5a104526929c531a069a9872cf92ab277cc": "87d395d65a4e3ac1a7501f6ba17e61f8aefded1b"
+      }
+    }
+  },
+  "interval_family": {
+    "files": {
+      "runtimes/interval-requirement/Project.toml": "sha256:2807b18661ea382d4bb82ba4f7f00431930b45c08ff7bcdfa3bb7877e20a2936",
+      "runtimes/interval-requirement/Manifest.toml": "sha256:f54471373c82d5b1ff993a3f13555c030fc5c90509fdd7cd16620fc84f2014e3",
+      "runtimes/interval-requirement/worker.jl": "sha256:10167228a6db63a2bdf51ae4637745f65561cffc29650592c101d1089f5f70c8"
+    },
+    "executable_sha256": "sha256:29a5cb5bde6a3f4a151f6e714591ca9344638303d9ed2a893ab31ada3de5d103",
+    "worker_identity": {
+      "worker_sha256": "sha256:10167228a6db63a2bdf51ae4637745f65561cffc29650592c101d1089f5f70c8",
+      "project_sha256": "sha256:2807b18661ea382d4bb82ba4f7f00431930b45c08ff7bcdfa3bb7877e20a2936",
+      "julia_version": "1.10.12",
+      "packages": {
+        "IntervalArithmetic": "1.0.12",
+        "JSON3": "1.14.3"
+      },
+      "threads": 1,
+      "platform": "x86_64-w64-mingw32",
+      "schema": "ciw.interval-julia-identity.v1",
+      "manifest_sha256": "sha256:f54471373c82d5b1ff993a3f13555c030fc5c90509fdd7cd16620fc84f2014e3"
+    },
+    "scr_revisions": [
+      "2a144e252607546ca6b20e6dd4613d3a4146758a"
+    ],
+    "scr_trees": {
+      "2a144e252607546ca6b20e6dd4613d3a4146758a": "e7c8751faec29c0e985d89df794c3a8374b704d5"
+    }
+  }
+}

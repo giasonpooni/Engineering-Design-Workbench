@@ -12,7 +12,7 @@ def project(record, source, declaration, revision):
     object_kinds = {"schematic-assessment": "declared_schematic", "schematic-companions": "local_model_analysis",
                     "numerical-heat": "integer_numerical_field", "proved-heat": "proved_integer_numerical_field", "bim-quantity": "construction_quantity",
                     "acquired-dataset": "acquired_evidence", "thermal-observer": "thermal_observer_reference",
-                    "machine-manifest": "machine_manifest_reference", "julia-oscillator": "julia_tsit5_trajectory"}
+                    "machine-manifest": "machine_manifest_reference", "julia-oscillator": "julia_tsit5_trajectory", "native-interop": "native_computation"}
     context = {"object_kind": object_kinds[kind],
                "owner": step["runtime_ref"], "configuration": native["configuration"],
                "covariance_status": "not_applicable", "sensor_fusion": "not_performed",
@@ -20,7 +20,13 @@ def project(record, source, declaration, revision):
     panels = []
     provenance = {"source_id": source["source_id"], "evidence_id": source["evidence_id"],
                   "result_id": step["result_id"], "execution_id": step["execution_id"]}
-    if kind == "schematic-assessment":
+    if kind == "native-interop":
+        context.update(summary="Retained SCR native computation", profile=declaration["profile"],
+                       provider=declaration["provider"], arithmetic=declaration["arithmetic"],
+                       semantics=deepcopy(declaration["semantics"]), output=deepcopy(data["output"]),
+                       reference_check=deepcopy(data["reference_check"]),
+                       sp1_verification="not_performed", physical_validation="not_established")
+    elif kind == "schematic-assessment":
         context.update(decisions=data["decisions"], neighborhoods=data["neighborhoods"], next_step=data["next_step"])
     elif kind == "schematic-companions":
         context.update(summary="Selected native Jacobian, local structure, covariance and linear Lyapunov sample",
