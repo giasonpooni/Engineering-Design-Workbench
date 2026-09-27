@@ -2,7 +2,7 @@
 
 Part of **Notation Systems' computational instrumentation and evidence infrastructure** for industrial and cyber-physical systems.
 
-[Stack map](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/STACK.md) · [Component role and interfaces](docs/STACK_ROLE.md)
+[Stack map](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/main/docs/STACK.md) · [Component role and interfaces](docs/STACK_ROLE.md)
 
 **Versioned scientific state, declared computational workloads, and provenance-bearing execution.**
 
@@ -46,7 +46,7 @@ occurred: this dispatcher marks its extraction as `simulation:`. Execution
 history is retained in record bookkeeping rather than mixed into semantic
 observation identity. Proof verification is a separate operation, not an
 automatic effect of dispatch. See [the boundary diagrams](docs/STACK_ROLE.md#execution-records-and-state-projections)
-and [Diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md).
+and [Diagram atlas](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/main/docs/DIAGRAMS.md).
 
 ## Responsibility in the stack
 
@@ -55,7 +55,8 @@ and [Diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation
 | [Scientific Computation Runtime](https://github.com/giasonpooni/Scientific-Computation-Runtime) | Specify, dispatch and record scientific computations; retain separate execution and verification identities. |
 | [Provenance-Preserving Data Acquisition](https://github.com/giasonpooni/Provenance-Preserving-Data-Acquisition) | Acquire source material and produce observations with source identity, extraction lineage and explicit missingness. |
 | [Evidence and State Management](https://github.com/giasonpooni/Evidence-and-State-Management) | Retain and govern evidence and versioned state through admission, review and release. |
-| [Computational Instrumentation Workbench](https://github.com/giasonpooni/Computational-Instrumentation-Workbench) | Operate and inspect instruments through sessions, adapters and replay. |
+| [Notations Engineering Terminal (CIW)](https://github.com/giasonpooni/Notations-Engineering-Terminal) | Operate and inspect instruments through the existing sessions, adapters and replay. |
+| [Geospatial Systems Compiler (GSC)](https://github.com/giasonpooni/Geospatial-Systems-Compiler) | Separately maintained browser presentation and visualization project, formerly Payload Terminal V0; not a second scientific runtime or evidence authority. |
 | [Geospatial State Visualization](https://github.com/giasonpooni/Geospatial-State-Visualization) | Present geographic entities, routes, flows and temporal state through a read-only globe interface. |
 | [State Estimation Evaluation Testbed](https://github.com/giasonpooni/State-Estimation-Evaluation-Testbed) | Specify evaluation of reconstruction under noise, missing observations and latency; implementation status is tracked in that repository. |
 | [Constraint-Based State Reconciliation](https://github.com/giasonpooni/Constraint-Based-State-Reconciliation) | Specify reconciliation against declared constraints and correction diagnostics; implementation status is tracked in that repository. |
@@ -63,9 +64,10 @@ and [Diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation
 These responsibilities describe component boundaries, not a claim that every
 cross-repository adapter is implemented. Existing local evidence, retrieval and
 compiler packages remain available. The local `workbench/` CLI is retained as a
-repository interface; it is distinct from the separate Computational
-Instrumentation Workbench. Numerical engines attach through the execution seam,
-so their algorithms and arithmetic remain explicit.
+repository interface; it is distinct from Notations Engineering Terminal, the
+separate existing Computational Instrumentation Workbench (CIW). Numerical
+engines attach through the execution seam, so their algorithms and arithmetic
+remain explicit. Project titles do not rename runtime or contract identities.
 
 ## Implemented execution surface
 
