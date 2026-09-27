@@ -16,6 +16,30 @@ reproducible examples and measured limitations. The [architecture](ARCHITECTURE.
 identifies current components; [PROTOCOL.md](PROTOCOL.md) specifies exact record
 and transport semantics.
 
+## Architecture freeze and investigation closure
+
+The investigation is the central object. Develop the existing provider,
+execution, evidence, client and apparatus boundaries before introducing another
+major subsystem. A proposed subsystem must identify a named investigation that
+cannot be completed with the existing components, the concrete missing
+capability, and a bounded acceptance test for the smallest necessary extension.
+
+Prioritize unfinished native/provider qualification, then close supported
+measurement, spatial and operator paths end to end. Add a Bevy case only where
+it demonstrates value for a declared workload. MCP and reasoning clients use
+the same investigation API and gain no separate execution or admission authority.
+
+Each increment must identify the input question and intended use, retained
+sources and assumptions, exact provider/runtime bindings, independent checks,
+save/reopen/replay behavior and unresolved gates. Distinguish software
+simulation, interface conformance and physical validation in its report.
+Skipped or unavailable required checks leave a gate open.
+
+Progress is measured by completed investigations, qualified interfaces,
+independent checks and physical validations. Preserve the current architecture,
+scientific identity boundaries and [platform license boundaries](LICENSING.md);
+a documentation change alone closes none of those executable gates.
+
 ## Contribution requirements
 
 - Preserve numerical engines and their independent reference checks. Python

@@ -11,7 +11,7 @@ This component owns **operation, inspection and replay**. The [stack map](https:
 | Property | Scope |
 | --- | --- |
 | Implementation | Executable prototype |
-| License | GNU Affero General Public License v3.0 only (`AGPL-3.0-only`); see [LICENSE](../LICENSE) |
+| License | First-party PDT code: GNU Affero General Public License v3.0 or later (`AGPL-3.0-or-later`); see [LICENSE](../LICENSE) and [component boundaries](LICENSING.md) |
 | Workbench connection | Host; oscillator, five external tool workflows and read-only exchange inspection |
 | Inputs | Retained scientific records, explicit selections, operation parameters and bound runtime manifests. |
 | Outputs | Saved investigations, execution and result records, terminal analysis and an optional oscillator viewport. |
