@@ -13,98 +13,67 @@ concurrency:
 jobs:
   collect:
     runs-on: ubuntu-24.04
-    timeout-minutes: 10
+    timeout-minutes: 8
     steps:
-      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
-        with:
-          ref: d241242a06f26550a43701f44323b2c1d7ad6981
-          persist-credentials: false
-      - name: Retain exact public source for reproduction
-        shell: bash
-        run: |
-          set -euo pipefail
-          mkdir -p "$RUNNER_TEMP/ci-recovery"
-          git archive --format=tar.gz HEAD > "$RUNNER_TEMP/ci-recovery/baseline-source.tar.gz"
-          git rev-parse HEAD HEAD^{tree} > "$RUNNER_TEMP/ci-recovery/source-identity.txt"
-      - name: Inspect failed workflows without rerunning or changing them
+      - name: Inspect exact merged commit and its workflow outcomes
         env:
           READ_TOKEN: ${{ github.token }}
           AUDIT_OUTPUT: ${{ runner.temp }}/ci-recovery
         shell: bash
         run: |
           python - <<'PY'
-          import concurrent.futures, hashlib, json, os, pathlib, re, urllib.request, urllib.error
-          repo = 'giasonpooni/Notations-Design-Terminal'
-          commit = 'd241242a06f26550a43701f44323b2c1d7ad6981'
-          base = 'https://api.github.com/repos/' + repo
-          output = pathlib.Path(os.environ['AUDIT_OUTPUT'])
-          token = os.environ.pop('READ_TOKEN')
+          import datetime, hashlib, json, os, pathlib, re, urllib.request, urllib.error
+          commit='55d28b3b70cb3a038f05f05095bf4b2fb3a9148f'
+          base='https://api.github.com/repos/giasonpooni/Notations-Design-Terminal'
+          output=pathlib.Path(os.environ['AUDIT_OUTPUT']); output.mkdir()
+          token=os.environ.pop('READ_TOKEN')
           class NoRedirect(urllib.request.HTTPRedirectHandler):
-              def redirect_request(self, req, fp, code, msg, headers, newurl):
-                  return None
+              def redirect_request(self, req, fp, code, msg, headers, newurl): return None
           def get(path, raw=False):
-              request = urllib.request.Request(base + path, headers={
-                  'Authorization': 'Bearer ' + token, 'Accept': 'application/vnd.github+json',
-                  'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'notations-read-only-ci-audit'})
-              try:
-                  response = urllib.request.build_opener(NoRedirect).open(request, timeout=30)
+              request=urllib.request.Request(base+path,headers={'Authorization':'Bearer '+token,'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'})
+              try: response=urllib.request.build_opener(NoRedirect).open(request,timeout=30)
               except urllib.error.HTTPError as exc:
-                  if exc.code != 302 or not raw:
-                      raise
-                  url = exc.headers['Location']
-                  if not url.startswith('https://'):
-                      raise ValueError('Non-HTTPS log redirect')
-                  response = urllib.request.urlopen(url, timeout=30)
-              with response:
-                  data = response.read(8*1024*1024 + 1)
-              if len(data) > 8*1024*1024:
-                  raise ValueError('Audit response exceeded eight MiB')
+                  if exc.code!=302 or not raw: raise
+                  url=exc.headers['Location']
+                  if not url.startswith('https://'): raise ValueError('Non-HTTPS log redirect')
+                  response=urllib.request.urlopen(url,timeout=30)
+              with response: data=response.read(8*1024*1024+1)
+              if len(data)>8*1024*1024: raise ValueError('Oversized response')
               return data if raw else json.loads(data)
-          runs = get('/actions/runs?head_sha=' + commit + '&per_page=100')
-          summary = {'scope': 'read_only_diagnostic_not_qualification', 'repository': repo,
-                     'commit': commit, 'total_runs': runs['total_count'], 'runs': [], 'errors': []}
-          if len(runs['workflow_runs']) != runs['total_count']:
-              summary['errors'].append('Run listing incomplete; pagination required')
-          tasks = []
-          for run in runs['workflow_runs']:
-              row = {key: run[key] for key in ('id','name','path','event','head_branch','head_sha','status','conclusion','html_url')}
-              row['jobs'] = []
-              jobs = get('/actions/runs/' + str(run['id']) + '/jobs?per_page=100')
-              if jobs['total_count'] > len(jobs['jobs']):
-                  summary['errors'].append('Incomplete jobs for run ' + str(run['id']))
+          record=get('/git/commits/'+commit)
+          assert record['tree']['sha']=='f98ca8ddceb05f94860b9db7eb7bd4b937b1e593'
+          found=get('/actions/runs?head_sha='+commit+'&per_page=100')
+          assert len(found['workflow_runs'])==found['total_count'], 'Incomplete run listing'
+          result={'scope':'read_only_post_merge_snapshot_not_new_qualification','commit':commit,'tree':record['tree']['sha'],'observed_at':datetime.datetime.now(datetime.timezone.utc).isoformat(),'runs':[]}
+          for run in found['workflow_runs']:
+              row={k:run[k] for k in ('id','name','event','status','conclusion','html_url')}
+              jobs=get('/actions/runs/'+str(run['id'])+'/jobs?per_page=100')
+              assert len(jobs['jobs'])==jobs['total_count'], 'Incomplete job listing'
+              row['jobs']=[]
               for job in jobs['jobs']:
-                  item = {key: job[key] for key in ('id','name','status','conclusion','html_url')}
-                  item['failed_steps'] = [step['name'] for step in job.get('steps',[]) if step['conclusion'] == 'failure']
-                  row['jobs'].append(item)
-                  if job['conclusion'] == 'failure' or item['failed_steps']:
-                      tasks.append(item)
-              summary['runs'].append(row)
-          pattern = re.compile(r'error|failed|fatal:|exception|traceback|not found|could not|cannot|assert|no such|permission|refused', re.I)
-          def inspect(item):
-              try:
-                  text = get('/actions/jobs/' + str(item['id']) + '/logs', raw=True).decode('utf-8', 'replace')
-                  text = re.sub(r'\x1b\[[0-9;]*m','',text)
-                  text = re.sub(r'(?:gh[pousr]_[A-Za-z0-9_]+|github_pat_[A-Za-z0-9_]+)', '[REDACTED]', text)
-                  lines = [re.sub(r'^\S+Z\s+', '', line) for line in text.splitlines()]
-                  matches = list(dict.fromkeys(line for line in lines if pattern.search(line)))
-                  item['failure_excerpts'] = matches[-80:]
-                  item['log_sha256'] = hashlib.sha256(text.encode()).hexdigest()
-                  item['log_line_count'] = len(lines)
-              except Exception as exc:
-                  item['inspection_error'] = type(exc).__name__ + ': ' + str(exc)
-          with concurrent.futures.ThreadPoolExecutor(max_workers=3) as pool:
-              list(pool.map(inspect, tasks))
-          (output/'triage.json').write_text(json.dumps(summary, indent=2)+'\n')
-          for path in sorted(output.iterdir()):
-              if path.is_file() and path.name != 'SHA256SUMS':
-                  with (output/'SHA256SUMS').open('a') as sums:
-                      sums.write(hashlib.sha256(path.read_bytes()).hexdigest()+'  '+path.name+'\n')
-          print('Inspected', len(summary['runs']), 'runs;', len(tasks), 'failed/cancelled-with-failure jobs. This is not a test pass.')
+                  value={k:job[k] for k in ('id','name','status','conclusion')}
+                  value['failed_steps']=[s['name'] for s in job.get('steps',[]) if s['conclusion']=='failure']
+                  if job['conclusion']=='failure':
+                      try:
+                          text=get('/actions/jobs/'+str(job['id'])+'/logs',raw=True).decode('utf-8','replace')
+                          text=re.sub(r'\x1b\[[0-9;]*m','',text)
+                          text=re.sub(r'(?:gh[pousr]_[A-Za-z0-9_]+|github_pat_[A-Za-z0-9_]+)','[REDACTED]',text)
+                          lines=[re.sub(r'^\S+Z\s+','',s) for s in text.splitlines()]
+                          value['failure_excerpts']=list(dict.fromkeys(s for s in lines if re.search(r'CIW_PROVIDER_READ_TOKEN|fatal:|FAILED |ERROR |Exception|Error:|##\[error\]',s)))[-12:]
+                          value['log_sha256']=hashlib.sha256(text.encode()).hexdigest()
+                      except Exception as exc: value['log_error']=type(exc).__name__+': '+str(exc)
+                  row['jobs'].append(value)
+              result['runs'].append(row)
+          (output/'post-merge.json').write_text(json.dumps(result,indent=2)+'\n')
+          for row in result['runs']:
+              print(row['id'],row['name'],row['status'],row['conclusion'])
+              for job in row['jobs']: print(' ',job['id'],job['name'],job['status'],job['conclusion'],job['failed_steps'])
+          print('Snapshot only; pending jobs and unavailable providers are not passed.')
           PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
         if: always()
         with:
-          name: ci-recovery-diagnostic
+          name: ci-recovery-post-merge
           path: ${{ runner.temp }}/ci-recovery
           if-no-files-found: error
           retention-days: 7
