@@ -4,6 +4,18 @@ const Client = preload("res://scripts/ciw_client.gd")
 const PhasePlot = preload("res://scripts/phase_plot.gd")
 const EnergyView = preload("res://scripts/energy_view.gd")
 const ExperimentView = preload("res://scripts/experiment_view.gd")
+const AnalogView = preload("res://scripts/analog_view.gd")
+const FluidBalanceView = preload("res://scripts/fluid_balance_view.gd")
+const GeodesicPathView = preload("res://scripts/geodesic_path_view.gd")
+const BimQuantityView = preload("res://scripts/bim_quantity_view.gd")
+const ProofView = preload("res://scripts/proof_view.gd")
+const CircleGeometryView = preload("res://scripts/circle_geometry_view.gd")
+const ResidualStripView = preload("res://scripts/residual_strip_view.gd")
+const StabilityVerdictView = preload("res://scripts/stability_verdict_view.gd")
+const EnergyAccuracyView = preload("res://scripts/energy_accuracy_view.gd")
+const FreeEnergyView = preload("res://scripts/free_energy_view.gd")
+const MeasurementChainView = preload("res://scripts/measurement_chain_view.gd")
+const UsecaseCatalogView = preload("res://scripts/usecase_catalog_view.gd")
 const TEXT := Color("dce6f1")
 const MUTED := Color("899cb2")
 const TEAL := Color("60dfcd")
@@ -13,6 +25,23 @@ var _client = Client.new()
 var _phase = PhasePlot.new()
 var _energy = EnergyView.new()
 var _experiments = ExperimentView.new()
+var _analog = AnalogView.new()
+var _fluid_balance = FluidBalanceView.new()
+var _geodesic_path = GeodesicPathView.new()
+var _bim_quantity = BimQuantityView.new()
+var _proof = ProofView.new()
+var _circle_geometry = CircleGeometryView.new()
+var _residual_strip = ResidualStripView.new()
+var _stability_verdict = StabilityVerdictView.new()
+var _energy_accuracy = EnergyAccuracyView.new()
+var _free_energy = FreeEnergyView.new()
+var _measurement_chain = MeasurementChainView.new()
+var _usecase_catalog = UsecaseCatalogView.new()
+var _tank_farm = FluidBalanceView.new()
+var _bridge_span = GeodesicPathView.new()
+var _takeoff_gate = BimQuantityView.new()
+var _thermal_proof = ProofView.new()
+var _drift_watch = ResidualStripView.new()
 var _tabs: TabContainer
 var _status: Label
 var _detail: Label
@@ -156,6 +185,80 @@ func _build_ui() -> void:
 	column.add_child(_tabs)
 	_experiments.name = "Workbench"
 	_tabs.add_child(_experiments)
+	_analog.name = "Analog"
+	_tabs.add_child(_analog)
+	_fluid_balance.name = "Fluid balance"
+	_tabs.add_child(_fluid_balance)
+	_geodesic_path.name = "Geodesic path"
+	_tabs.add_child(_geodesic_path)
+	_bim_quantity.name = "BIM quantity"
+	_tabs.add_child(_bim_quantity)
+	_proof.name = "Proof"
+	_tabs.add_child(_proof)
+	_circle_geometry.name = "Circle geometry"
+	_tabs.add_child(_circle_geometry)
+	_residual_strip.name = "Residual strip"
+	_tabs.add_child(_residual_strip)
+	_stability_verdict.name = "Stability verdict"
+	_tabs.add_child(_stability_verdict)
+	_energy_accuracy.name = "Energy accuracy"
+	_tabs.add_child(_energy_accuracy)
+	_free_energy.name = "Free energy"
+	_tabs.add_child(_free_energy)
+	_measurement_chain.name = "Measurement chain"
+	_tabs.add_child(_measurement_chain)
+	_tank_farm.configure_presentation({
+		"relative": "../examples/usecase-tank-farm-balance/results/tank_farm_render.json",
+		"match": "tank_farm_render.json",
+		"missing_hint": "tank_farm_render.json missing — generate with examples/usecase-tank-farm-balance/emit_render.py",
+		"kicker": "TANK FARM  /  SHIFT CHECK",
+		"title": "Two-reservoir plant balance (operations/inventory)",
+		"subtitle": "HOST_FROM_OWNED_CONFIG · not custody transfer · not regulatory meter",
+	})
+	_tank_farm.name = "Tank farm"
+	_tabs.add_child(_tank_farm)
+	_bridge_span.configure_presentation({
+		"relative": "../examples/usecase-bridge-span-path/results/bridge_span_render.json",
+		"match": "bridge_span_render.json",
+		"missing_hint": "bridge_span_render.json missing — generate with examples/usecase-bridge-span-path/emit_render.py",
+		"kicker": "BRIDGE SPAN  /  CURVED PATH",
+		"title": "Surveyor bridge-deck geodesic sensitivity",
+		"subtitle": "HOST_FROM_OWNED_CONFIG · not surveyed as-built · not structural capacity",
+	})
+	_bridge_span.name = "Bridge span"
+	_tabs.add_child(_bridge_span)
+	_takeoff_gate.configure_presentation({
+		"relative": "../examples/usecase-ifc-takeoff-gate/results/takeoff_gate_render.json",
+		"match": "takeoff_gate_render.json",
+		"missing_hint": "takeoff_gate_render.json missing — generate with examples/usecase-ifc-takeoff-gate/emit_render.py",
+		"kicker": "TAKEOFF GATE  /  BIM QUANTITY",
+		"title": "Quantity takeoff gate before pour",
+		"subtitle": "HOST_FROM_OWNED_CONFIG · ACCEPT ≠ construction approval · demo IFC ≠ field evidence",
+	})
+	_takeoff_gate.name = "Takeoff gate"
+	_tabs.add_child(_takeoff_gate)
+	_thermal_proof.configure_presentation({
+		"relative": "../examples/usecase-thermal-proof-gate/results/thermal_proof_render.json",
+		"match": "thermal_proof_render.json",
+		"missing_hint": "thermal_proof_render.json missing — generate with examples/usecase-thermal-proof-gate/emit_render.py",
+		"kicker": "THERMAL PROOF  /  GUEST GATE",
+		"title": "Integer heat proof gate before releasing a retained result",
+		"subtitle": "HOST_FROM_OWNED_CONFIG · inspect does not reverify · no proof bytes",
+	})
+	_thermal_proof.name = "Thermal proof"
+	_tabs.add_child(_thermal_proof)
+	_drift_watch.configure_presentation({
+		"relative": "../examples/usecase-drift-watch/results/drift_watch_render.json",
+		"match": "drift_watch_render.json",
+		"missing_hint": "drift_watch_render.json missing — generate with examples/usecase-drift-watch/emit_render.py",
+		"kicker": "DRIFT WATCH  /  RESIDUAL CUSUM",
+		"title": "Plant drift watch (residual-monitor teaching)",
+		"subtitle": "HOST_FROM_OWNED_CONFIG · physical drift unestablished",
+	})
+	_drift_watch.name = "Drift watch"
+	_tabs.add_child(_drift_watch)
+	_usecase_catalog.name = "Use-case catalog"
+	_tabs.add_child(_usecase_catalog)
 	var oscillator := VBoxContainer.new()
 	oscillator.name = "Oscillator"
 	_tabs.add_child(oscillator)
