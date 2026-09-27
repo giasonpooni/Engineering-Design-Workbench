@@ -42,7 +42,11 @@ records exercised paths, independent checks and remaining gaps.
 | Evaluate a recorded machine configuration. | Read-only encoder/gearbox/leadscrew reference workflow, with configuration, inputs and results retained together; no firmware loading or actuation. |
 | Run selected stability and computation checks. | PLSR and registered SCR/SP1 operations have separate requirements and scopes; they do not verify every calculation or physical model. |
 | Inspect results in optional graphical clients. | Godot Experiments and read-only geographic views use retained `ciw.experiment-view.v1` records. Coordinate, strip and mesh panels that carry `ciw.panel-render.v1` are drawn as detached copies (`connect: false`, canvas id distinct from frame). Neither client changes the scientific result. |
-| Export a retained inspect canvas to ASCII USDA. | `ciw export usda` writes unconnected points or declared faces. It does not load OpenUSD or treat the scene as an observation. |
+| Export a retained inspect canvas to ASCII USDA. | `ciw export usda` writes unconnected points or declared faces and can `--compare` them to the source. It does not load OpenUSD or treat the scene as an observation. |
+| Inspect registered language bindings. | `ciw bindings` lists Python, Julia-oscillator and native-interop inspect paths. A missing runtime is refused; no language chain is required. |
+| Report GPU energy availability. | `ciw energy status` returns available or unavailable. That is not a laboratory gateway and does not admit plant state. |
+| Apply a declared design chart. | `ciw chart identity|scale` maps finite coordinates between named frames. A chart is not a manifold runtime or state admission. |
+| Read a second oscillator lesson. | `ciw math learn oscillator-energy` is a second lesson on the same recording. It is not a curriculum engine. |
 
 Current support does **not** establish general-purpose hardware acquisition,
 equipment control or platform-wide industrial qualification.

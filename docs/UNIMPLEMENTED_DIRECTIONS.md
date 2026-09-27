@@ -12,11 +12,11 @@ The root README no longer treats these as product features:
 | Direction | Status on the product page |
 | --- | --- |
 | Oscillator demo | Implemented built-in example; not a curriculum |
-| OpenUSD scene interchange | ASCII `.usda` write exists (`ciw export usda`). OpenUSD reload/compare is not implemented |
-| Julia / C++ / Rust as a required chain | Not required; adapters are optional |
-| GPU energy measurement | Optional host bench only |
-| Category-theoretic design manifolds | Not an implemented runtime |
-| Full mathematics curriculum | Not implemented; one RMS lesson exists |
+| OpenUSD scene interchange | ASCII write and source compare exist. OpenUSD runtime reload is not implemented |
+| Julia / C++ / Rust as a required chain | Inspect bindings exist; execute still needs pinned runtimes |
+| GPU energy measurement | `ciw energy status` is a host gate, not a laboratory gateway |
+| Category-theoretic design manifolds | Identity and scale charts exist; not a category runtime |
+| Full mathematics curriculum | Two lessons on the oscillator recording; no tutor engine |
 
 Related research context: [RESEARCH_CONTEXT.md](RESEARCH_CONTEXT.md),
 [JULIA_SP1.md](JULIA_SP1.md), [NATIVE_INTEROP.md](NATIVE_INTEROP.md),

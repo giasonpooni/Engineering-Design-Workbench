@@ -70,13 +70,55 @@ LESSON = {
 }
 
 
+ENERGY_TOPIC = "oscillator-energy"
+ENERGY_LESSON = {
+    "topic": ENERGY_TOPIC,
+    "title": "From oscillator energy samples to a retained scalar",
+    "prerequisites": ["oscillator-rms", "declared energy definition"],
+    "phenomenon": "Mechanical energy samples decay. A scalar summary is not a conserved quantity and not plant state.",
+    "state": "E = (E_1, ..., E_N), energy samples in joules from the same synthetic oscillator.",
+    "structure": "Finite, uniformly sampled data on the declared energy definition in the recording metadata.",
+    "question": "What does a statistics.v1 summary of energy samples claim, and what does it not admit?",
+    "transformation": "Use the existing statistics.v1 operation on channel energy.",
+    "invariants": "The energy definition stays the recorded formula. Statistics do not rewrite that definition.",
+    "information_loss": "A mean or RMS energy cannot recover the trajectory or prove conservation.",
+    "computation": "statistics.v1 on the retained energy channel.",
+    "verification": "Inspection only; no new physical validation.",
+    "generalization": "A second lesson does not create a curriculum engine.",
+    "uncertainty": "Synthetic source; no sensor uncertainty.",
+    "exercise": "Compare energy statistics with displacement RMS. Which quantities can each distinguish?",
+    "derive": [
+        "Keep the recorded energy definition.",
+        "Select the energy channel samples on the same interval as the RMS lesson.",
+        "Run statistics.v1 without inventing a conservation claim.",
+    ],
+    "bridge": [
+        "Displacement RMS and energy statistics are different maps on the same recording.",
+        "Neither map admits canonical mechanical state.",
+    ],
+    "history": {
+        "problem": "How can an energy time series be summarized without calling the summary a conserved integral?",
+        "context": "The built-in oscillator already stores energy samples next to displacement.",
+        "new_capability": "A second lesson over the same recording.",
+        "scope": "One extra lesson, not a mathematics curriculum.",
+        "reading": "docs/LEARNING.md",
+    },
+}
+ENERGY_EXPLANATIONS = {
+    "concrete": "Energy samples shrink as the synthetic oscillator damps. A single number hides that path.",
+    "structural": "The energy vector maps through the same statistics operation as displacement, with unit J.",
+    "formal": "No conservation identity is declared for the discrete sample map.",
+    "computational": "statistics.v1 on channel energy reuses the existing operation path.",
+}
+
+
 def catalog():
     return {
         "surface": "learning",
         "grammar": ["state", "structure", "change", "compute", "verify"],
         "books": [{"book": number, "title": title, "purpose": purpose,
                    "status": "curriculum_outline"} for number, title, purpose in BOOKS],
-        "available_lessons": [TOPIC],
+        "available_lessons": [TOPIC, ENERGY_TOPIC],
         "available_commands": ["history", "learn", "explore", "work", "inspect", "verify", "replay"],
         "pending": ["broader lessons and sourced historical narratives",
                     "learner-selected prerequisite records", "symbolic and proof-provider bindings"],
@@ -85,9 +127,13 @@ def catalog():
 
 
 def lesson(topic=TOPIC, level="structural"):
-    if topic != TOPIC or level not in LEVELS:
+    if level not in LEVELS:
         raise ValueError("Unsupported lesson or abstraction level")
-    return {**deepcopy(LESSON), "level": level, "explanation": EXPLANATIONS[level]}
+    if topic == TOPIC:
+        return {**deepcopy(LESSON), "level": level, "explanation": EXPLANATIONS[level]}
+    if topic == ENERGY_TOPIC:
+        return {**deepcopy(ENERGY_LESSON), "level": level, "explanation": ENERGY_EXPLANATIONS[level]}
+    raise ValueError("Unsupported lesson or abstraction level")
 
 
 def _execute(session, parameters):
@@ -221,7 +267,7 @@ def register_commands(commands):
     actions = math.add_subparsers(dest="math_command")
     for name in ("history", "learn", "explore"):
         action = actions.add_parser(name, help="Read the bounded lesson without running an operation")
-        action.add_argument("topic", choices=[TOPIC])
+        action.add_argument("topic", choices=[TOPIC, ENERGY_TOPIC])
         action.add_argument("--level", choices=LEVELS, default="structural")
         action.add_argument("--json", action="store_true", help="Print structured lesson content")
         if name == "explore":

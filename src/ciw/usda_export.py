@@ -177,3 +177,58 @@ def export_payload(payload):
 def write_usda(path, text):
     path.write_text(text, encoding="utf-8")
     return path
+
+
+def parse_points(text):
+    """Read point3f[] values from a CIW USDA copy. Not a general OpenUSD loader."""
+    if not isinstance(text, str) or not text.startswith("#usda 1.0"):
+        raise ValueError("USDA compare requires a CIW ASCII USDA copy")
+    if SCHEMA not in text:
+        raise ValueError("USDA compare requires schema " + SCHEMA)
+    start = text.find("point3f[] points = [")
+    if start < 0:
+        raise ValueError("USDA compare requires declared points")
+    block = text[start + len("point3f[] points = ["):]
+    end = block.find("]")
+    if end < 0:
+        raise ValueError("USDA compare requires a closed point array")
+    points = []
+    for raw in block[:end].split(")"):
+        raw = raw.replace("(", " ").replace(",", " ")
+        parts = raw.split()
+        if len(parts) < 3:
+            continue
+        points.append([_finite(float(parts[0]), "USDA point"),
+                       _finite(float(parts[1]), "USDA point"),
+                       _finite(float(parts[2]), "USDA point")])
+    if not points:
+        raise ValueError("USDA compare found no declared points")
+    return points
+
+
+def compare_export(payload, text):
+    """Compare a USDA copy to its retained source. Display interpolation is refused."""
+    if "BasisCurves" in text:
+        raise ValueError("USDA compare refuses interpolated curves")
+    exported = parse_points(text)
+    expected = []
+    if isinstance(payload, dict) and "time_s" in payload:
+        for item in payload["render"]["trajectory"]:
+            coords = list(item) + [0.0, 0.0, 0.0]
+            expected.append([float(coords[0]), float(coords[1]), float(coords[2])])
+    else:
+        render = payload.get("system_render", payload)
+        if render.get("kind") == "plane2d":
+            expected = [[float(item["x"]), float(item["y"]), 0.0] for item in render["points"]]
+        elif render.get("kind") == "strip":
+            expected = [[float(item["parameter"]), float(item["value"]), 0.0] for item in render["samples"]]
+        elif render.get("kind") == "mesh":
+            expected = [list(item) + [0.0] * (3 - len(item)) for item in render["vertices"]]
+            expected = [[float(row[0]), float(row[1]), float(row[2])] for row in expected]
+        else:
+            raise ValueError("USDA compare requires a retained recording or inspect canvas")
+    if exported != expected:
+        raise ValueError("USDA copy does not match the retained source points")
+    return {"status": "matched", "schema": SCHEMA, "point_count": len(exported),
+            "authority": AUTHORITY, "openusd_runtime": "not_loaded"}
+

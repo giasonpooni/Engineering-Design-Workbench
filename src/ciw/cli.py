@@ -234,6 +234,17 @@ def parser() -> argparse.ArgumentParser:
     usda = export_actions.add_parser("usda", help="Write ASCII USDA from a retained recording or inspect view")
     usda.add_argument("path", type=Path)
     usda.add_argument("--output", type=Path, required=True)
+    usda.add_argument("--compare", action="store_true",
+                      help="Reload the written USDA points and match them to the source")
+    bindings = commands.add_parser("bindings", help="Inspect registered language bindings without a language chain")
+    bindings.add_argument("binding_id", nargs="?", help="python-session, julia-oscillator, or native-interop-scr")
+    bindings.add_argument("--path", type=Path, help="Retained session to inspect without launching a runtime")
+    chart = commands.add_parser("chart", help="Apply a declared design chart to finite coordinates")
+    chart.add_argument("chart_id", choices=["identity", "scale"])
+    chart.add_argument("--point", required=True, help="Comma-separated finite coordinates")
+    chart.add_argument("--source-frame", required=True)
+    chart.add_argument("--target-frame", required=True)
+    chart.add_argument("--scales", help="Comma-separated factors for the scale chart")
     analyze = commands.add_parser("analyze", help="Run headless analysis and save a reopenable workspace")
     analyze.add_argument("operation", choices=["stats", "spectrum"])
     analyze.add_argument("--recording", type=Path)
@@ -435,6 +446,8 @@ def parser() -> argparse.ArgumentParser:
     energy_actions = energy.add_subparsers(dest="energy_command", required=True)
     energy_probe = energy_actions.add_parser("probe", help="Read an actual NVML counter without running a workload")
     energy_probe.add_argument("--gpu-index", type=int, default=0)
+    energy_status = energy_actions.add_parser("status", help="Report GPU energy availability without treating it as a lab gateway")
+    energy_status.add_argument("--gpu-index", type=int, default=0)
     energy_record = energy_actions.add_parser("record", help="Run a bounded Gaussian GPU experiment into a new directory")
     energy_record.add_argument("--problem", type=Path, required=True)
     energy_record.add_argument("--output-dir", type=Path, required=True)
@@ -502,6 +515,9 @@ def main(argv: list[str] | None = None) -> int:
             if args.energy_command == "probe":
                 from .energy_bench import probe
                 print_json(probe(args.gpu_index))
+            elif args.energy_command == "status":
+                from .energy_gateway import status
+                print_json(status(args.gpu_index))
             elif args.energy_command == "record":
                 from .energy_bench import capture
                 log, report = capture(read_json(args.problem), args.output_dir,
@@ -573,8 +589,21 @@ def main(argv: list[str] | None = None) -> int:
             from .usda_export import SCHEMA, export_payload, write_usda
             text = export_payload(read_json(args.path))
             write_usda(args.output, text)
-            print_json({"usda_file": str(args.output), "schema": SCHEMA,
-                        "authority": "inspection_copy_not_observation"})
+            result = {"usda_file": str(args.output), "schema": SCHEMA,
+                      "authority": "inspection_copy_not_observation"}
+            if args.compare:
+                from .usda_export import compare_export
+                result["compare"] = compare_export(read_json(args.path), text)
+            print_json(result)
+        elif args.command == "bindings":
+            from .language_bindings import catalog, inspect_binding
+            print_json(catalog() if args.binding_id is None else inspect_binding(args.binding_id, args.path))
+        elif args.command == "chart":
+            from .design_manifold import apply_chart
+            point = [float(item) for item in args.point.split(",")]
+            scales = None if args.scales is None else [float(item) for item in args.scales.split(",")]
+            print_json(apply_chart(args.chart_id, point, source_frame=args.source_frame,
+                                   target_frame=args.target_frame, scales=scales))
         elif args.command == "analyze":
             run = load_run(args.recording)
             session = Session(run, args.output_dir)
