@@ -299,16 +299,35 @@ func _endpoint_phrase(render: Dictionary) -> String:
 	return start + " → " + end
 
 
+func _declared_frame(render: Dictionary) -> String:
+	var frame: Variant = render.get("frame", "")
+	if typeof(frame) == TYPE_DICTIONARY:
+		return str(frame.get("id", frame.get("frame_id", "")))
+	return str(frame)
+
+
 func _frame_phrase(render: Dictionary) -> String:
-	if str(render.get("kind", "")) == "strip":
+	var kind := str(render.get("kind", ""))
+	if kind == "strip":
 		var bits: Array[String] = []
 		for key in ["parameter_name", "frame", "parameter_unit"]:
 			var value := str(render.get(key, ""))
+			if key == "frame":
+				value = _declared_frame(render)
 			if not value.is_empty() and bits.find(value) < 0:
 				bits.append(value)
 		return " · ".join(bits)
+	if kind == "plane2d":
+		var bits: Array[String] = []
+		var frame := _declared_frame(render)
+		var unit := str(render.get("unit", ""))
+		if not frame.is_empty():
+			bits.append(frame)
+		if not unit.is_empty() and bits.find(unit) < 0:
+			bits.append(unit)
+		return " · ".join(bits)
 	var identity := str(render.get("canvas_id", ""))
-	var frame := str(render.get("frame", ""))
+	var frame := _declared_frame(render)
 	if not identity.is_empty():
 		return identity
 	return frame
