@@ -290,3 +290,21 @@ def test_detach_render_refuses_a_decreasing_or_nonfinite_strip_axis():
         ])
 
 
+def test_detach_render_refuses_nonfinite_plane_points():
+    panel = {"labels": ["a.x", "a.y", "b.x", "b.y"], "values": [1.0, 0.0, 0.0, 1.0], "units": ["m"] * 4}
+    attach_plane(panel, frame="bench-plane", canvas_id="observed_points_m", canvas_title="Observed coordinates")
+    view = {"kind": "geometric-circle"}
+    attach_system(view, panel["render"])
+    assert view["system_render"]["points"][0]["x"] == 1.0
+    panel["render"]["points"][0]["x"] = float("nan")
+    assert view["system_render"]["points"][0]["x"] == 1.0
+    with pytest.raises(ValueError):
+        attach_system(view, panel["render"])
+    panel["render"]["points"][0]["x"] = 1.0
+    panel["render"]["points"][1]["y"] = float("inf")
+    with pytest.raises(ValueError):
+        attach_system_canvases(view, [
+            {"id": "observed_points_m", "title": "Observed coordinates", "render": panel["render"]},
+        ])
+
+

@@ -148,8 +148,17 @@ func _draw_plane(render: Dictionary) -> void:
 		draw_string(font, Vector2(20, 40), "Plane render has no retained points", HORIZONTAL_ALIGNMENT_LEFT, -1, 14)
 		return
 	var samples: Array[Vector2] = []
+	var kept: Array = []
 	for item in points:
+		if typeof(item) != TYPE_DICTIONARY:
+			continue
+		if not is_finite(float(item.get("x", NAN))) or not is_finite(float(item.get("y", NAN))):
+			continue
 		samples.append(Vector2(float(item.x), float(item.y)))
+		kept.append(item)
+	if samples.is_empty():
+		draw_string(font, Vector2(20, 40), "Plane render has no finite declared points", HORIZONTAL_ALIGNMENT_LEFT, -1, 14)
+		return
 	var extras: Array[Vector2] = []
 	for overlay in render.get("overlays", []):
 		if not _declared_circle(overlay):
@@ -175,7 +184,7 @@ func _draw_plane(render: Dictionary) -> void:
 		var point := _map(samples[i], world, plot)
 		draw_circle(point, 4, Color("60dfcd"))
 		if samples.size() <= 8:
-			draw_string(font, point + Vector2(6, -6), str(points[i].get("label", i + 1)), HORIZONTAL_ALIGNMENT_LEFT, -1, 11)
+			draw_string(font, point + Vector2(6, -6), str(kept[i].get("label", i + 1)), HORIZONTAL_ALIGNMENT_LEFT, -1, 11)
 
 
 func _draw_mesh(render: Dictionary) -> void:

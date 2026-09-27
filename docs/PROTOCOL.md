@@ -13,7 +13,8 @@ for inspection clients. `plane2d` and `strip` copies keep `connect: false`;
 clients must not draw a polyline between those samples. Circle overlays remain
 declared-constraint copies; fitted radii are refused on detach. Detached mesh
 copies refuse path indices outside the declared vertices. Detached strip copies
-refuse a nonfinite or decreasing parameter. Jacobi views may copy declared arclength strips onto
+refuse a nonfinite or decreasing parameter. Detached plane copies refuse
+nonfinite coordinates. Jacobi views may copy declared arclength strips onto
 `system_canvases` so a named companion axis remains beside mixed-unit pose
 panels. Mesh-path views may also copy that mesh onto `system_render`
 so a 3D canvas can outlive the selected panel. That mesh copy carries the declared

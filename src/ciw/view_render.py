@@ -63,6 +63,7 @@ def detach_render(render):
         payload["connect"] = False
     if payload.get("kind") == "plane2d":
         payload["overlays"] = detach_overlays(payload.get("overlays"))
+        payload["points"] = detach_plane_points(payload.get("points"))
     if payload.get("kind") == "mesh":
         payload.update(detach_mesh_geometry(payload))
     if payload.get("kind") == "strip":
@@ -76,6 +77,22 @@ def _finite_pair(value, name):
                 for item in value[:2])):
         raise ValueError(name + " is not a finite coordinate pair")
     return [float(value[0]), float(value[1])]
+
+
+def detach_plane_points(points):
+    """Copy declared plane points. Nonfinite coordinates are refused."""
+    if not isinstance(points, list) or not points:
+        raise ValueError("Plane render requires an even nonempty interleaved x,y sequence")
+    copied = []
+    for item in points:
+        if not isinstance(item, dict):
+            raise ValueError("Plane render requires finite coordinates")
+        copied.append({
+            "label": item.get("label"),
+            "x": _finite_number(item.get("x"), "Plane render requires finite coordinates"),
+            "y": _finite_number(item.get("y"), "Plane render requires finite coordinates"),
+        })
+    return copied
 
 
 def plane_from_interleaved(values, labels, units, *, frame, overlays=()):
@@ -96,6 +113,7 @@ def plane_from_interleaved(values, labels, units, *, frame, overlays=()):
         if isinstance(label, str) and label.endswith(".x"):
             label = label[:-2]
         points.append({"label": label, "x": float(values[index]), "y": float(values[index + 1])})
+    points = detach_plane_points(points)
     return deepcopy({
         "schema": SCHEMA,
         "kind": "plane2d",
