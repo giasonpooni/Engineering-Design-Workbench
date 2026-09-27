@@ -66,7 +66,7 @@ func _ready() -> void:
 	_panels = OptionButton.new()
 	_panels.item_selected.connect(_select_panel)
 	scientific.add_child(_panels)
-	_plot.custom_minimum_size.y = 180
+	_plot.custom_minimum_size.y = 220
 	_plot.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scientific.add_child(_plot)
 	_numbers = _text_box()
@@ -253,6 +253,8 @@ func _select_panel(index: int) -> void:
 	for i in panel.values.size():
 		rows.append("%s = %s %s" % [panel.labels[i], JSON.stringify(panel.values[i]), panel.units[i]])
 	rows.append("Full covariance: " + JSON.stringify(panel.covariance))
+	if panel.has("render"):
+		rows.append("Presentation render: " + str(panel.render.get("kind", "")) + " · " + str(panel.render.get("note", panel.render.get("projection", "display only"))))
 	rows.append("Basis: " + JSON.stringify(panel.context))
 	rows.append("Source: " + JSON.stringify(panel.provenance))
 	_numbers.text = "\n".join(rows)
