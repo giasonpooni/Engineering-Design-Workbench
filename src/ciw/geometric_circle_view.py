@@ -3,6 +3,7 @@ from copy import deepcopy
 
 from .experiment_view import SCHEMA, _panel
 from .geometric_circle import request
+from .view_render import attach_plane, declared_circle_overlay
 
 
 def project(record, source, declaration, revision):
@@ -35,6 +36,8 @@ def project(record, source, declaration, revision):
                                  ["m"] * len(labels), covariance, provenance,
                                  coordinate_frame=data["coordinate_frame"], ordering="sample-major:x,y",
                                  interpretation="declared_geometric_policy_only"))
+            attach_plane(panels[-1], frame=data["coordinate_frame"],
+                         overlays=[declared_circle_overlay(data["constraint"])])
     for key, label in (("radial_residual_before_m", "Original radial residual"),
                        ("correction_norm_m", "Candidate correction magnitude")):
         panels.append(_panel(key, label, ids, data["diagnostics"][key], ["m"] * len(ids), None, provenance,
@@ -50,4 +53,8 @@ def project(record, source, declaration, revision):
         "raw_observations": [{"observation_id": identifier, "time_s": observations["time_s"][index],
                               "point_m": observations["points_m"][index]} for index, identifier in enumerate(ids)],
         "raw_declaration": declaration, "verification": native["verification"], "runtimes": native["runtimes"],
+        "system_render": {"schema": "ciw.panel-render.v1", "kind": "declared_overlay",
+                          "overlays": [declared_circle_overlay(data["constraint"])],
+                          "authority": {"read_only": True, "computation": "not_performed",
+                                        "physical_geometry": "not_established"}},
         "authority": {"read_only": True, "numerical_replay": "not_performed_by_inspection", "state_admission": "not_performed"}})
