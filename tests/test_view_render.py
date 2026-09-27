@@ -199,6 +199,15 @@ def test_attach_system_canvases_copies_declared_planes_without_resampling():
             {"id": "cover_points", "title": "Lifted", "render": cover["render"]},
             {"id": "cover_points", "title": "Duplicate", "render": wrapped["render"]},
         ])
+    cover["render"]["canvas_id"] = "cover_points"
+    with pytest.raises(ValueError):
+        attach_system_canvases(view, [
+            {"id": "parallelogram_points", "title": "Wrapped quotient coordinates", "render": cover["render"]},
+        ])
+    attach_system_canvases(view, [
+        {"id": "cover_points", "title": "Lifted path coordinates", "render": cover["render"]},
+    ])
+    assert view["system_render"]["canvas_id"] == "cover_points"
 
 
 def test_attach_system_canvases_keeps_declared_strips_on_a_named_arclength_axis():

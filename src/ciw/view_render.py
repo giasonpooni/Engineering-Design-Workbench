@@ -422,6 +422,9 @@ def attach_system_canvases(view, canvases, *, default_id=None):
             raise ValueError("System canvas ids must be unique retained identities")
         if not isinstance(render, dict) or render.get("schema") != SCHEMA:
             raise ValueError("System canvas requires a detached panel-render descriptor")
+        offered = render.get("canvas_id")
+        if offered not in (None, "", identity):
+            raise ValueError("System canvas id must match the detached descriptor")
         seen.add(identity)
         payload = detach_render(render)
         payload["canvas_id"] = identity

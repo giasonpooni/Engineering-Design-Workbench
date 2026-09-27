@@ -146,7 +146,8 @@ the declared plane onto `system_render` so a companion canvas keeps the constrai
 or quotient visible while a residual or scalar panel is selected. When more than
 one declared plane exists, `system_canvases` lists those copies and the desktop
 may switch among them. Switching does not resample, unwrap, or project the path.
-Companion plane rows name the declared frame (`area-one-flat-quotient` or the
+A canvas entry id must match the detached descriptor's canvas_id; a cover copy
+cannot be labeled as the quotient by editing the presentation object. Companion plane rows name the declared frame (`area-one-flat-quotient` or the
 GTE coordinate frame). The plane plot axis caption uses that same frame. Copy ids stay on the canvas selector. Each copy carries `canvas_id` and `canvas_title` so the plot can name the active
 declared plane. The companion selector and numeric table also show the active
 copy's first and last declared samples. When the active copy carries a declared
