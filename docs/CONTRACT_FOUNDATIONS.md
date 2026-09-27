@@ -1,9 +1,9 @@
 # Contract foundations for typed engineering projects
 
 This increment checks three provider-free foundations that were previously
-present only as local drafts. The machine manifest and thermal profile are now
-registered as shared workbench operations backed by independent Python references;
-the project graph remains a reusable contract until its operation adapter is defined.
+present only as local drafts. The machine manifest, thermal profile and project
+graph are now registered as shared workbench operations backed by independent
+Python references.
 
 ## Machine manifest
 
@@ -53,6 +53,18 @@ Inspection reports `execution`, `physical_validation` and `state_admission` as
 `not_performed`; the project model does not execute an operation or authorize
 an action.
 
+## Project graph operation
+
+`src/ciw/project_workflow.py` wraps the project-model contract in the shared CIW
+operation lifecycle as `ciw.project-graph.v1`. A retained source must carry the
+versioned project artifact and the read-only authority policy. The adapter emits
+separate operation, execution, result and numerical-result identities, then
+supports save/reopen without provider execution and fresh replay with a new
+occurrence. Its authority remains read-only: execution of declared graph
+computations, physical validation and state admission are `not_performed`.
+`tests/test_project_workflow.py` covers the lifecycle, tamper refusal and
+runtime-identity mismatch.
+
 ## Thermal observer reference
 
 `src/ciw/thermal_contract.py` and `src/ciw/thermal_reference.py` define a
@@ -69,12 +81,16 @@ runtime identity and genuine provider/refusal/replay gates remain required.
 
 ## Current boundary and next gate
 
-The thermal profile is now registered as the provider-free
+The thermal profile is registered as the provider-free
 `ciw.thermal-observer.v1` operation. It uses the independent Python reference
 for its first executable occurrence and preserves operation, execution, result,
 source and replay identities through the shared save/reopen path. The machine
-manifest is now registered through `ciw.encoder-position.v1`; the project graph
-remains a contract module until its own operation adapter is defined. The next thermal gate is a separately verified Julia
-worker with an instantiated environment and a cross-language replay check.
+manifest is registered through `ciw.encoder-position.v1`, and the project graph
+is registered through `ciw.project-graph.v1` as a provider-free inspection
+adapter over the existing project-model contract. The next thermal gate is a
+separately verified Julia worker with an instantiated environment and a
+cross-language replay check. The next project-graph gate is wiring declared
+computation nodes to retained shared-operation results without inventing a
+universal profile registry or granting execution/state-admission authority.
 Provider bindings must remain host configuration; saved artifacts may not
 choose an executable or extend the allowlist.
