@@ -1,6 +1,6 @@
 # Observability and Identifiability Testbed
 
-[Stack placement and ownership](docs/STACK.md) · [Diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md) · [License](LICENSE)
+[Notations Engineering Terminal (CIW)](https://github.com/giasonpooni/Notations-Engineering-Terminal) · [Stack placement and ownership](docs/STACK.md) · [Diagram atlas](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/main/docs/DIAGRAMS.md) · [License](LICENSE)
 
 A bounded scientific instrument for **finite-horizon linear observability** and
 **local parameter sensitivity diagnostics**. Given a declared model or Jacobian,
@@ -89,6 +89,10 @@ exports explicitly mapped diagnostics through SET's existing
 Observation evidence, requested operation, individual execution, numerical result
 and independent verification retain separate identities. A rank result does not
 constitute verification or evidence admission. See [CONTRACT.md](CONTRACT.md).
+
+**Notations Engineering Terminal** is the current title of the existing CIW
+workbench. Its package, commands, session schemas and retained runtime pins are
+unchanged by this documentation naming update.
 
 ## Limits
 
