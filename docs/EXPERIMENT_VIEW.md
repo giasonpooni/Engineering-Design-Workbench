@@ -218,7 +218,9 @@ graphics driver for visual inspection.
 `godot --headless --path godot --script res://tests/retained_views.gd -- view.json`
 checks every panel of actual `experiment.inspect` projections, including the
 required typed context used by the desktop. A stamped canvas_id that equals
-the declared frame fails that check. Multiple projection paths are accepted.
+the declared frame fails that check (`Stamped canvas id equals the declared
+frame`). Untitled standalone meshes may still use the frame as a default id.
+Multiple projection paths are accepted.
 
 This is event-driven visualization of **committed bounded experiments**, not
 continuous physical acquisition. No cross-bundle averaging, uncertainty reduction,
