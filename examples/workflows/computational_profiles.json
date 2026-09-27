@@ -201,7 +201,7 @@
       "operation_note": "HOST replay of published FSRT quickstart; does not mint ciw.fluid-volume.v1; no native set_lcm import",
       "model_regime": "two-reservoir linear ConstraintSet; P=I HOST hard reconcile",
       "input_source": "HOST replay",
-      "scenario": "reconcile-vs-hold on consistency_stat vs χ² threshold",
+      "scenario": "reconcile-vs-hold on consistency_stat vs \u03c7\u00b2 threshold",
       "verbs": [
         "inventory-balance",
         "reservoir-reconcile",
@@ -360,9 +360,9 @@
     {
       "profile_id": "1ad6ec86bd1fcef8",
       "family": "MEASUREMENT_CHAIN",
-      "instrument_family": "MEASUREMENT_CHAIN (RCI→FSRT→JSPT testbed)",
+      "instrument_family": "MEASUREMENT_CHAIN (RCI\u2192FSRT\u2192JSPT testbed)",
       "operation_id": "ciw.measurement-chain.v1",
-      "operation_note": "operation_language RCI calibrate.v2 → FSRT snapshot → JSPT",
+      "operation_note": "operation_language RCI calibrate.v2 \u2192 FSRT snapshot \u2192 JSPT",
       "model_regime": "HOST_SYNTHETIC stages; native results keep not_verified",
       "input_source": "synthetic",
       "scenario": "instrument-chain stage walk / chain audit",
@@ -527,7 +527,7 @@
       "instrument_family": "PROVED_HEAT (SCR/SP1 integer heat)",
       "operation_id": "ciw.proved-heat.v1",
       "operation_note": "proof-before-result; no ciw.proved-heat.v2",
-      "model_regime": "bounded registered guest [0,100,200,100,0]→[0,65,92,65,0]",
+      "model_regime": "bounded registered guest [0,100,200,100,0]\u2192[0,65,92,65,0]",
       "input_source": "synthetic",
       "scenario": "UNAVAILABLE when binaries absent; REFUSED on missing/corrupt proof",
       "verbs": [
