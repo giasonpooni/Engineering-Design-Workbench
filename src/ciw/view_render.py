@@ -68,6 +68,12 @@ def detach_render(render):
     payload = deepcopy(render)
     if payload.get("kind") in UNCONNECTED_KINDS:
         payload["connect"] = False
+    identity = payload.get("canvas_id")
+    frame = payload.get("frame")
+    if isinstance(frame, dict):
+        frame = frame.get("id") or frame.get("frame_id")
+    if payload.get("kind") in ("plane2d", "strip") and identity and frame and identity == frame:
+        raise ValueError("Canvas id must be distinct from the declared frame")
     if payload.get("kind") == "plane2d":
         payload["overlays"] = detach_overlays(payload.get("overlays"))
         payload["points"] = detach_plane_points(payload.get("points"))

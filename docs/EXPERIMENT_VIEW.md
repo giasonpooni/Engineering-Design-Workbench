@@ -152,7 +152,8 @@ or quotient visible while a residual or scalar panel is selected. When more than
 one declared plane exists, `system_canvases` lists those copies and the desktop
 may switch among them. Switching does not resample, unwrap, or project the path.
 A canvas entry id must match the detached descriptor's canvas_id; a cover copy
-cannot be labeled as the quotient by editing the presentation object. The entry
+cannot be labeled as the quotient by editing the presentation object. Plane and
+strip canvas ids must also stay distinct from the declared frame. The entry
 title must match the detached canvas_title the same way. The Workbench selector
 ignores an entry whose render.canvas_id does not match that id. The companion
 plot draws nothing when payload panel_id and render.canvas_id disagree. Companion plane rows name the declared frame (`area-one-flat-quotient` or the

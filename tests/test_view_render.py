@@ -225,6 +225,9 @@ def test_attach_system_canvases_copies_declared_planes_without_resampling():
         {"id": "cover_points", "title": "Lifted path coordinates", "render": cover["render"]},
     ])
     assert view["system_render"]["canvas_title"] == "Lifted path coordinates"
+    cover["render"]["canvas_id"] = "area-one-flat-quotient"
+    with pytest.raises(ValueError):
+        detach_render(cover["render"])
 
 
 
