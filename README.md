@@ -192,6 +192,197 @@ conceptual framework for every instrument. Units, geometry, clocks, uncertainty,
 constraints and numerical methods stay explicit wherever the problem needs
 them. Specialist repositories retain authority over their equations and solvers.
 
+
+### Unified mathematical reasoning and learning layer
+
+The same design language is intended to support a later **learning and applied
+reasoning layer** without creating a second conceptual system. This is a
+development direction after the currently assigned base-pilot work is completed
+and verified; it is not a claim that the full curriculum, theorem-proving
+surface or universal mathematical intermediate representation is implemented
+today.
+
+The compressed reasoning loop is:
+
+```text
+State -> Structure -> Transformation -> Computation -> Verification
+```
+
+or, at its most primitive:
+
+```text
+What exists?
+    |
+What can happen to it?
+    |
+What remains true, and how do we know?
+```
+
+Here **state** identifies the object under study; **structure** captures its
+space, relations, constraints, representations and admissible operations;
+**transformation** captures maps, composition, variation and dynamics;
+**computation** binds a mathematical operation to an explicit algorithm and
+execution; and **verification** records the invariant, residual, bound, evidence
+or proof that supports the resulting claim.
+
+The architecture must continue to preserve these separations:
+
+```text
+mathematical object       != representation
+mathematical transformation != algorithm
+algorithm                 != implementation
+execution result          != verified result
+evidence                  != proof
+physical state            != belief about physical state
+model                     != observation
+approximation             != exact object
+```
+
+These distinctions extend the existing PDT/CIW separation between evidence,
+operation, execution, result and verification identities rather than replacing
+it.
+
+#### One substrate, two complementary uses
+
+The terminal is intended to support both **learning** and **work** over the same
+canonical mathematical objects.
+
+```text
+                     shared mathematical substrate
+                              |
+          +-------------------+-------------------+
+          |                                       |
+          v                                       v
+       LEARN / EXPLORE                         WORK / VERIFY
+  history -> phenomenon                 formalize -> execute
+  mechanism -> structure                compute -> inspect
+  notation -> derivation                residual -> bound/proof
+          |                                       |
+          +-------------------+-------------------+
+                              |
+                              v
+                    reusable mathematical state
+```
+
+A learner should not graduate out of one educational representation and enter a
+different professional one. The same concept should remain identifiable as its
+resolution increases:
+
+```text
+concrete -> geometric -> symbolic -> structural -> formal -> computational -> research
+```
+
+For example, a derivative may first appear as instantaneous change, then as a
+tangent slope, then as (f'(x)), then as the local linear map (Df_x), and
+eventually as a Fréchet, weak or manifold derivative. The ontology remains
+stable while the attached structure becomes richer.
+
+#### Proposed terminal surfaces
+
+The long-term interface is organized around five surfaces:
+
+| Surface | Purpose |
+| --- | --- |
+| **history** | Explain which problem or limitation caused a mathematical capability to emerge, what structure it introduced and what later work it enabled. |
+| **learn** | Build a concept from phenomenon -> state -> structure -> transformation -> notation -> computation -> verification -> generalization. |
+| **explore** | Inspect, derive, bridge, generalize and navigate conceptual or field genealogy. |
+| **work** | Perform supported symbolic, numerical, inferential, optimization and simulation operations through registered providers. |
+| **verify** | Check identities, residuals, error bounds, convergence, invariants, calibration or formal certificates within their declared scope. |
+
+These surfaces must share semantic objects. A future `learn kernel`,
+`inspect A`, `work kernel A`, `verify`, `why kernel` and
+`bridge kernel observability` path should refer to the same canonical concept,
+not duplicate six incompatible definitions.
+
+#### Historical prologue and capability map
+
+The learning surface should begin with a substantial historical prologue that
+explains mathematics as the accumulation of capabilities rather than a list of
+isolated subjects:
+
+```text
+Arithmetic         -> quantity
+Geometry           -> space and shape
+Algebra            -> symbolic relation
+Analytic geometry  -> coordinate representation
+Calculus           -> local variation and accumulation
+Differential eqs.  -> state evolution
+Probability        -> uncertainty
+Linear algebra     -> multidimensional transformation
+Analysis           -> rigorous convergence and approximation
+Abstract algebra   -> structure and structure-preserving maps
+Topology           -> invariance under continuous transformation
+Numerical analysis -> finite approximation and computation
+Logic              -> inference and proof
+Category theory    -> composition grammar
+```
+
+The purpose is not historical ornament. The prologue explains *why* each
+mathematical capability became necessary before the system reconstructs the
+subjects through the shared reasoning loop.
+
+#### Applied reasoning and natural-philosophy boundary
+
+PDT should support the computational middle of a broader scientific loop
+without collapsing observation, hypothesis, model, prediction and evidence into
+one record:
+
+```text
+Observation
+   -> Question
+   -> Theory / hypothesis
+   -> Formalization
+   -> Computation
+   -> Prediction
+   -> Experiment
+   -> Verification / refutation
+   -> Revised theory
+```
+
+Human inquiry remains responsible for choosing meaningful questions, theories,
+experimental interpretations and standards of evidence. The workbench supplies
+formal representation, computation, comparison and scoped verification. This is
+a complement to proof- and experiment-centred scientific education, not a
+replacement for scientific judgement or empirical validation.
+
+#### Computational identity
+
+For every supported mathematical operation the terminal should be able to expose
+four linked but distinct views:
+
+```text
+MEANING        what mathematical problem is being solved?
+REPRESENTATION how is the object encoded?
+EXECUTION      which algorithm/provider actually ran?
+VERIFICATION   what supports the returned claim?
+```
+
+For example, (Ax=b) is the mathematical problem; LU, QR or an iterative method
+is an algorithm; a Python/Julia/Rust/C++ provider is an implementation; and a
+residual, condition estimate, reference comparison or proof is verification.
+The problem identity must not be collapsed into whichever backend happened to
+execute it.
+
+#### Extension rule
+
+This learning/reasoning layer follows the same superset rule as the rest of PDT:
+
+```text
+finish current assigned work
+    -> run
+    -> observe
+    -> fix
+    -> verify
+    -> audit
+    -> extend the verified substrate
+```
+
+Do not pause base-pilot closure to build speculative curriculum infrastructure.
+Do not fork a second session model, evidence store, execution runtime or
+mathematical ontology. Add the smallest executable vertical slice only after the
+current work is complete, and require learning, computation and verification to
+reuse the same canonical objects and operation contracts.
+
 The design-study pattern is:
 
 ```text
