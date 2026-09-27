@@ -23,7 +23,7 @@ Solid arrows show the implemented local calculation. The dotted connection names
 an external responsibility; this package does not execute a CBSR handoff.
 Innovation compares the observation with the predicted state; the residual uses
 the posterior. Neither the posterior covariance nor NIS is a physical-validity
-certificate. See the [Instrumentation diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md).
+certificate. See the [Instrumentation diagram atlas](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/main/docs/DIAGRAMS.md).
 
 ## Implemented scope
 
@@ -61,8 +61,8 @@ The examples use synthetic observations. See [the numerical contract](docs/NUMER
 | [Constraint-Based State Reconciliation](https://github.com/giasonpooni/Constraint-Based-State-Reconciliation) | Reconciles candidates against declared constraints; executable handoff is not implemented here |
 | [State Estimation Evaluation Testbed](https://github.com/giasonpooni/State-Estimation-Evaluation-Testbed) | Owns evaluation; its pinned exchange checker validates this instrument's interchange records |
 | [Evidence and State Management](https://github.com/giasonpooni/Evidence-and-State-Management) | Owns evidence/state admission and history; this instrument does not commit canonical state |
-| [Scientific Computation Runtime](https://github.com/giasonpooni/Scientific-Computation-Runtime) / [Computational Instrumentation Workbench](https://github.com/giasonpooni/Computational-Instrumentation-Workbench) | Own execution orchestration and inspection; current connection is read-only exchange inspection |
-| [Geometric Telemetry Engine](https://github.com/giasonpooni/Geometric-Telemetry-Engine) / [Curved-Surface Geodesic Sensitivity Runtime](https://github.com/giasonpooni/Curved-Surface-Geodesic-Sensitivity-Runtime) | Supply specialized geometry and coordinate operations through future explicit adapters |
+| [Scientific Computation Runtime](https://github.com/giasonpooni/Scientific-Computation-Runtime) / [Notations Engineering Terminal (CIW)](https://github.com/giasonpooni/Notations-Engineering-Terminal) | Own execution orchestration and inspection; current connection is read-only exchange inspection |
+| [Geometric Telemetry Engine](https://github.com/giasonpooni/Geometric-Telemetry-Engine) / [Curved Surface Runtime](https://github.com/giasonpooni/Curved-Surface-Runtime) | Supply specialized geometry and coordinate operations through future explicit adapters |
 | [Geospatial State Visualization](https://github.com/giasonpooni/Geospatial-State-Visualization) | Read-only projection; no direct renderer adapter is implemented here |
 
 The estimator does not preserve raw sensor evidence, authorize calibration, issue stability certificates or execution warrants, operate actuators, or replace the workbench. Evidence references, declared operation identity, caller-supplied execution identity, result content identity and independent verification remain separate.
