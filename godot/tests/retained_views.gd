@@ -63,6 +63,10 @@ func _run() -> void:
 					push_error("Declared system canvases were not offered: " + path)
 					quit(1)
 					return
+				if view._system_plot.panel.get("panel_id", "") == "" and value.get("system_canvas_id", "") != "":
+					push_error("Companion canvas identity was not labeled: " + path)
+					quit(1)
+					return
 		print("PASS: retained ", value.kind, " occurrence; ", value.panels.size(), " panels")
 	view.queue_free()
 	reader.free()

@@ -118,9 +118,13 @@ def declared_mesh(mesh, *, path=(), source_vertex=None, target_vertex=None):
     })
 
 
-def attach_plane(panel, *, frame, overlays=()):
-    panel["render"] = plane_from_interleaved(
+def attach_plane(panel, *, frame, overlays=(), canvas_id=None, canvas_title=None):
+    render = plane_from_interleaved(
         panel["values"], panel["labels"], panel["units"], frame=frame, overlays=overlays)
+    if canvas_id:
+        render["canvas_id"] = canvas_id
+        render["canvas_title"] = canvas_title or canvas_id
+    panel["render"] = render
     return panel
 
 
@@ -199,10 +203,13 @@ def attach_system_canvases(view, canvases, *, default_id=None):
         if not isinstance(render, dict) or render.get("schema") != SCHEMA:
             raise ValueError("System canvas requires a detached panel-render descriptor")
         seen.add(identity)
+        payload = deepcopy(render)
+        payload["canvas_id"] = identity
+        payload["canvas_title"] = item.get("title") or identity
         copied.append({
             "id": identity,
-            "title": item.get("title") or identity,
-            "render": deepcopy(render),
+            "title": payload["canvas_title"],
+            "render": payload,
         })
     chosen = default_id or copied[-1]["id"]
     match = next((item for item in copied if item["id"] == chosen), None)

@@ -157,7 +157,10 @@ def test_attach_system_canvases_copies_declared_planes_without_resampling():
         {"id": "parallelogram_points", "title": "Wrapped quotient coordinates", "render": wrapped["render"]},
     ], default_id="parallelogram_points")
     assert view["system_canvas_id"] == "parallelogram_points"
+    assert view["system_render"]["canvas_id"] == "parallelogram_points"
+    assert view["system_render"]["canvas_title"] == "Wrapped quotient coordinates"
     assert [item["id"] for item in view["system_canvases"]] == ["cover_points", "parallelogram_points"]
+    assert view["system_canvases"][0]["render"]["canvas_id"] == "cover_points"
     assert view["system_render"]["points"][0]["x"] == 0.3
     cover["render"]["points"][0]["x"] = 9
     assert view["system_canvases"][0]["render"]["points"][0]["x"] == 0.1

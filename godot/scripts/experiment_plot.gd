@@ -121,6 +121,20 @@ func _draw_axes(world: Rect2, plot: Rect2, unit: String, caption: String) -> voi
 	draw_string(font, Vector2(72, size.y - 15), caption, HORIZONTAL_ALIGNMENT_LEFT, -1, 12)
 
 
+func _canvas_caption(render: Dictionary, fallback: String) -> String:
+	var title := str(render.get("canvas_title", panel.get("title", "")))
+	if title.is_empty():
+		return fallback
+	return title + " · points only · display only"
+
+
+func _draw_canvas_id(render: Dictionary, plot: Rect2) -> void:
+	var identity := str(render.get("canvas_id", panel.get("panel_id", "")))
+	if identity.is_empty():
+		return
+	draw_string(ThemeDB.fallback_font, Vector2(plot.end.x - 170, 18), identity, HORIZONTAL_ALIGNMENT_RIGHT, 160, 11)
+
+
 func _draw_plane(render: Dictionary) -> void:
 	var font := ThemeDB.fallback_font
 	var points: Array = render.get("points", [])
@@ -142,7 +156,8 @@ func _draw_plane(render: Dictionary) -> void:
 			extras.append(center - Vector2(0, radius))
 	var world := _bounds(samples + extras)
 	var plot := _plot_rect()
-	_draw_axes(world, plot, str(render.get("unit", "")), "Declared plane · points only · no interpolation")
+	_draw_axes(world, plot, str(render.get("unit", "")), _canvas_caption(render, "Declared plane · points only · no interpolation"))
+	_draw_canvas_id(render, plot)
 	for overlay in render.get("overlays", []):
 		if overlay.get("kind") != "declared_circle":
 			continue

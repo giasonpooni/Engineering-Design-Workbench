@@ -37,7 +37,8 @@ def project(record, source, declaration, revision):
                                  coordinate_frame=data["coordinate_frame"], ordering="sample-major:x,y",
                                  interpretation="declared_geometric_policy_only"))
             attach_plane(panels[-1], frame=data["coordinate_frame"],
-                         overlays=[declared_circle_overlay(data["constraint"])])
+                         overlays=[declared_circle_overlay(data["constraint"])],
+                         canvas_id=key, canvas_title=label)
     for key, label in (("radial_residual_before_m", "Original radial residual"),
                        ("correction_norm_m", "Candidate correction magnitude")):
         panels.append(_panel(key, label, ids, data["diagnostics"][key], ["m"] * len(ids), None, provenance,

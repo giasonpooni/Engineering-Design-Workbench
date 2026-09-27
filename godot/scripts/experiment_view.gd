@@ -317,7 +317,12 @@ func _select_panel(index: int) -> void:
 	if _canvases != null:
 		_canvases.visible = show_plane and _canvases.item_count > 1
 	if show_plane:
-		_system_plot.set_panel({"render": system_render})
+		var payload := {"render": system_render}
+		var items: Array = view.get("system_canvases", [])
+		if _canvases != null and _canvases.selected >= 0 and _canvases.selected < items.size():
+			payload["title"] = str(items[_canvases.selected].get("title", ""))
+			payload["panel_id"] = str(items[_canvases.selected].get("id", ""))
+		_system_plot.set_panel(payload)
 	else:
 		_system_plot.set_panel({})
 	var rows: Array[String] = []

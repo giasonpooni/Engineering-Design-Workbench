@@ -114,7 +114,8 @@ the declared plane onto `system_render` so a companion canvas keeps the constrai
 or quotient visible while a residual or scalar panel is selected. When more than
 one declared plane exists, `system_canvases` lists those copies and the desktop
 may switch among them. Switching does not resample, unwrap, or project the path.
-That view-level copy is still presentation.
+Each copy carries `canvas_id` and `canvas_title` so the plot can name the active
+declared plane. That view-level copy is still presentation.
 
 ## Read-only projection protocol
 
