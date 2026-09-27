@@ -283,8 +283,12 @@ func _draw_strip(render: Dictionary) -> void:
 	# Independent axes: parameter and value may have different units.
 	var world := Rect2(low - span * 0.1, span * 1.2)
 	var plot := _plot_rect()
-	var caption := _canvas_caption(render, "Declared %s axis · points only · not event time" % str(render.get("parameter_name", "parameter")))
-	_draw_axes(world, plot, str(render.get("value_unit", "")), caption)
+	var parameter := str(render.get("parameter_name", "parameter"))
+	var frame := _declared_frame(render)
+	var fallback := "Declared %s axis · points only · not event time" % parameter
+	if not frame.is_empty():
+		fallback = "Declared %s axis · %s · points only · not event time" % [parameter, frame]
+	_draw_axes(world, plot, str(render.get("value_unit", "")), _canvas_caption(render, fallback))
 	_draw_canvas_id(render, plot)
 	var kept: Array = []
 	for item in samples:
@@ -302,4 +306,11 @@ func _draw_strip(render: Dictionary) -> void:
 		draw_string(font, _map(Vector2(float(first.parameter), float(first.value)), world, plot) + Vector2(6, -6), start_name, HORIZONTAL_ALIGNMENT_LEFT, -1, 11)
 		if kept.size() > 1 and not end_name.is_empty() and end_name != start_name:
 			draw_string(font, _map(Vector2(float(last.parameter), float(last.value)), world, plot) + Vector2(6, -6), end_name, HORIZONTAL_ALIGNMENT_LEFT, -1, 11)
-	draw_string(font, Vector2(plot.end.x - 90, size.y - 15), str(render.get("parameter_unit", "")), HORIZONTAL_ALIGNMENT_RIGHT, 80, 11)
+	var abscissa := str(render.get("parameter_name", ""))
+	var parameter_unit := str(render.get("parameter_unit", ""))
+	var right := parameter_unit
+	if not abscissa.is_empty() and not parameter_unit.is_empty():
+		right = abscissa + " / " + parameter_unit
+	elif not abscissa.is_empty():
+		right = abscissa
+	draw_string(font, Vector2(plot.end.x - 140, size.y - 15), right, HORIZONTAL_ALIGNMENT_RIGHT, 130, 11)
