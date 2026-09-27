@@ -1,1 +1,1 @@
-$file:/tmp/mcp_content_only.md
+@/tmp/mcp_content_only.md
