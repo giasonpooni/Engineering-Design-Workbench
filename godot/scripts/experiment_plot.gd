@@ -224,10 +224,18 @@ func _draw_mesh(render: Dictionary) -> void:
 		return
 	var samples: Array[Vector2] = []
 	for vertex in vertices:
+		if typeof(vertex) != TYPE_ARRAY and typeof(vertex) != TYPE_PACKED_FLOAT32_ARRAY:
+			if typeof(vertex) != TYPE_PACKED_FLOAT64_ARRAY:
+				continue
+		if vertex.size() < 2 or not is_finite(float(vertex[0])) or not is_finite(float(vertex[1])):
+			continue
 		samples.append(Vector2(float(vertex[0]), float(vertex[1])))
+	if samples.is_empty():
+		draw_string(font, Vector2(20, 40), "Mesh render has no finite declared vertices", HORIZONTAL_ALIGNMENT_LEFT, -1, 14)
+		return
 	var world := _bounds(samples)
 	var plot := _plot_rect()
-	_draw_axes(world, plot, str(render.get("unit", "")), _canvas_caption(render, "Declared mesh · first two axes · not a surveyed surface"))
+	_draw_axes(world, plot, _axis_unit(render), _canvas_caption(render, "Declared mesh · first two axes · not a surveyed surface"))
 	_draw_canvas_id(render, plot)
 	for face in triangles:
 		var a := _map(samples[int(face[0])], world, plot)
