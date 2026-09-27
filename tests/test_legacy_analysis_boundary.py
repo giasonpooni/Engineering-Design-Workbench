@@ -9,6 +9,7 @@ import pytest
 from ciw.adapters.protocol import AdapterRefusal
 from ciw.instruments import make_demo_run
 from ciw.operations.registry import Operation, OperationRegistry, default_registry
+from ciw.operations.runner import check_seal
 from ciw.session import Session, read_json, write_json
 
 CASES = [("analysis.stats", "statistics.v1"),
@@ -99,7 +100,7 @@ def test_provider_parameter_mutation_cannot_retarget_result(tmp_path, kind, oper
 
 @pytest.mark.parametrize("kind,operation_id", CASES)
 @pytest.mark.parametrize("corruption", ["count", "unit", "negative", "missing", "extra", "not_object"])
-def test_invalid_provider_output_is_rejected_before_write(tmp_path, kind, operation_id, corruption):
+def test_invalid_provider_output_retains_only_a_refusal(tmp_path, kind, operation_id, corruption):
     data = reference(operation_id)
     if corruption == "count":
         data["sample_count"] -= 1
@@ -117,14 +118,18 @@ def test_invalid_provider_output_is_rejected_before_write(tmp_path, kind, operat
     else:
         data = [data]
     session = session_with(tmp_path, operation_id, lambda run, parameters: data)
-    with patch("ciw.session.write_json") as writer:
-        response = request(session, kind)
-        assert response["type"] == "error"
-        assert response["payload"]["code"] == "invalid_payload"
-        writer.assert_not_called()
-    assert not session.results and not session.executions
+    response = request(session, kind)
+    assert response["type"] == "error"
+    assert response["payload"]["code"] == "invalid_operation"
+    assert not session.results and len(session.executions) == 1
+    assert not list(tmp_path.glob("result-*.json"))
+    execution = next(iter(session.executions.values()))
+    assert execution["status"] == "refused" and execution["result_id"] is None
+    check_seal(execution)
+    assert read_json(tmp_path / (execution["execution_id"] + ".json")) == execution
     saved = session.save_workspace(tmp_path / "workspace.json")
-    assert not Session.from_workspace(saved, tmp_path / "restored").results
+    restored = Session.from_workspace(saved, tmp_path / "restored")
+    assert not restored.results and restored.executions == session.executions
 
 
 @pytest.mark.parametrize("kind,operation_id", CASES)
@@ -137,8 +142,10 @@ def test_wrong_role_is_rejected_before_provider_invocation(tmp_path, kind, opera
 
     session = session_with(tmp_path, operation_id, calculate, role="verification")
     response = request(session, kind)
-    assert response["type"] == "error" and response["payload"]["code"] == "invalid_payload"
+    assert response["type"] == "error" and response["payload"]["code"] == "invalid_operation"
     assert not called and not session.results
+    assert len(session.executions) == 1
+    Session.from_workspace(session.save_workspace(tmp_path / "workspace.json"), tmp_path / "restored")
 
 
 @pytest.mark.parametrize("kind,operation_id", CASES)
@@ -197,7 +204,9 @@ def test_declared_refusal_has_no_legacy_success(tmp_path, kind, operation_id):
     session = session_with(tmp_path, operation_id, refuse)
     response = request(session, kind)
     assert response["type"] == "error" and response["payload"]["code"] == "test_refusal"
-    assert not session.results and not session.executions
+    assert not session.results and len(session.executions) == 1
+    execution = next(iter(session.executions.values()))
+    assert execution["refusal"]["code"] == "test_refusal"
     assert not list(tmp_path.glob("result-*.json"))
 
 
@@ -257,7 +266,7 @@ def test_live_socket_rejects_bad_legacy_output_then_recovers(tmp_path, kind, ope
                            "type": kind, "payload": {}}
                 await socket.send(json.dumps(message))
                 response = await receive()
-                assert response["type"] == "error" and response["payload"]["code"] == "invalid_payload"
+                assert response["type"] == "error" and response["payload"]["code"] == "invalid_operation"
                 assert not session.results
                 state["invalid"] = False
                 await socket.send(json.dumps(message))
@@ -266,3 +275,30 @@ def test_live_socket_rejects_bad_legacy_output_then_recovers(tmp_path, kind, ope
                 assert response["payload"]["operation_id"] == operation_id
 
     asyncio.run(exercise())
+
+
+@pytest.mark.parametrize("kind,operation_id", CASES)
+def test_mutating_failed_provider_cannot_corrupt_refusal_evidence(tmp_path, kind, operation_id):
+    def calculate(run, parameters):
+        run["run_id"] = "changed-run"
+        run["evidence_id"] = "changed-evidence"
+        run["channels"]["q"]["values"][0] = -999.0
+        parameters["interval_s"][0] = 0.5
+        raise RuntimeError("provider failed after mutation")
+
+    session = session_with(tmp_path, operation_id, calculate)
+    original = deepcopy(session.run)
+    response = request(session, kind, {"channel": "q", "interval_s": [1.0, 2.0]})
+    assert response["type"] == "error" and response["payload"]["code"] == "operation_failed"
+    assert session.run == original
+    assert read_json(tmp_path / session.recording_file) == original
+    assert not session.results and len(session.executions) == 1
+    execution = next(iter(session.executions.values()))
+    assert execution["run_id"] == original["run_id"]
+    assert execution["evidence_id"] == original["evidence_id"]
+    assert execution["interval_s"] == [1.0, 2.0]
+    check_seal(execution)
+    saved = session.save_workspace(tmp_path / "workspace.json")
+    with patch("ciw.operations.registry.OperationRegistry.get", side_effect=AssertionError("no execution")):
+        restored = Session.from_workspace(saved, tmp_path / "restored")
+    assert restored.executions == session.executions and restored.run == original

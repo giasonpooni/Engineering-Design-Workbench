@@ -16,7 +16,7 @@ from pathlib import Path
 from typing import Any
 
 from .operations.registry import default_registry as default_operations, valid_operation_id
-from .operations.runner import execute as execute_operation, check_seal, validate_execution
+from .operations.runner import execute as execute_operation, check_seal, seal, validate_execution
 from .adapters.protocol import AdapterRefusal
 from .core.identities import validate_evidence_identity
 from .calibration_status import calibration_status
@@ -25,13 +25,32 @@ from .instruments import (
     compute_spectrum, compute_statistics, inspect_sample, run_metadata, validate_run,
 )
 
-LOG = logging.getLogger(__name__)
-
 PROTOCOL_VERSION = 1
+LOG = logging.getLogger(__name__)
 _RESULT_SUMMARY_FIELDS = (
     "result_id", "operation_id", "execution_id", "channel", "interval_s",
     "created_at", "verification_status", "selection_revision",
 )
+
+
+def _analysis_refusal(exc: Exception) -> dict:
+    """Map a provider failure to a reopenable refusal. Unexpected text stays in the log."""
+    if isinstance(exc, AdapterRefusal):
+        refusal = exc.to_dict()
+        if not refusal["message"].strip():
+            refusal["message"] = type(exc).__name__ + " (no diagnostic message)"
+        return refusal
+    if isinstance(exc, (ValueError, TypeError, KeyError, OverflowError)):
+        message = str(exc)
+        return {
+            "code": "invalid_operation",
+            "message": message if message.strip() else type(exc).__name__ + " (no diagnostic message)",
+        }
+    LOG.exception("Legacy analysis calculation failed")
+    return {
+        "code": "operation_failed",
+        "message": "Unexpected operation failure (" + type(exc).__name__ + ")",
+    }
 
 
 class ProtocolError(ValueError):
@@ -63,11 +82,20 @@ def unique_object_pairs(items):
     return result
 
 
+def _finite_json_float(text: str) -> float:
+    """Reject valid JSON number spellings that overflow the float representation."""
+    value = float(text)
+    if not math.isfinite(value):
+        raise ValueError("Nonfinite JSON number: floating-point overflow")
+    return value
+
+
 def loads_json(text: str) -> Any:
     """Parse JSON with the workspace reader's duplicate-key and nonfinite rules."""
     if not isinstance(text, str):
         raise ValueError("JSON text must be a string")
-    return json.loads(text, parse_constant=_reject_constant, object_pairs_hook=unique_object_pairs)
+    return json.loads(text, parse_constant=_reject_constant, parse_float=_finite_json_float,
+                      object_pairs_hook=unique_object_pairs)
 
 
 def read_json(path: Path) -> Any:
@@ -383,26 +411,51 @@ class Session:
             channel = _channel_for_run(captured_run, payload.get("channel", selected["channel"]))
             interval = _interval_for_run(captured_run, payload.get("interval_s", selected["interval_s"]))
             operation_id = "statistics.v1" if kind == "analysis.stats" else "spectrum.periodogram.v1"
-            operation = self.operations.get(operation_id)
-            from .operations.schemas import validate_role
-            validate_role(operation_id, operation.role)
-            # Legacy commands keep their flat result format, but must not give
-            # a provider mutable session evidence or retain provider-owned data.
-            parameters = {"channel": channel, "interval_s": interval}
-            data = copy.deepcopy(operation.execute(copy.deepcopy(captured_run), copy.deepcopy(parameters)))
-            result_id = "result-" + uuid.uuid4().hex
-            result = {
-                "result_id": result_id, "evidence_id": captured_run["evidence_id"],
-                "operation_id": operation_id,
-                "execution_id": "execution-" + uuid.uuid4().hex,
-                "verification_id": None, "verification_status": "not_verified",
-                "run_id": captured_run["run_id"], "selection_revision": selected["revision"],
-                "channel": channel, "interval_s": interval, "created_at": utc_now(),
-                "recording_file": recording_file, "data": data,
-            }
-            # Apply the same structural checks used on reopen before publishing
-            # a result. This validates the record; it does not rerun its numerics.
-            _validate_saved_result(result, captured_run, selected["revision"], recording_file)
+            try:
+                operation = self.operations.get(operation_id)
+                from .operations.schemas import validate_role
+                validate_role(operation_id, operation.role)
+                # Legacy commands keep their flat result format, but must not
+                # expose session evidence or retain provider-owned mutable data.
+                parameters = {"channel": channel, "interval_s": interval}
+                data = copy.deepcopy(operation.execute(
+                    copy.deepcopy(captured_run), copy.deepcopy(parameters)))
+                result_id = "result-" + uuid.uuid4().hex
+                result = {
+                    "result_id": result_id, "evidence_id": captured_run["evidence_id"],
+                    "operation_id": operation_id,
+                    "execution_id": "execution-" + uuid.uuid4().hex,
+                    "verification_id": None, "verification_status": "not_verified",
+                    "run_id": captured_run["run_id"], "selection_revision": selected["revision"],
+                    "channel": channel, "interval_s": interval, "created_at": utc_now(),
+                    "recording_file": recording_file, "data": data,
+                }
+                # Reuse the offline structural check without recomputing the
+                # numerics. Bad results retain a failed attempt, never a RESULT.
+                _validate_saved_result(result, captured_run, selected["revision"], recording_file)
+            except Exception as exc:
+                # The request was accepted. Keep the attempt, but do not publish a RESULT
+                # or relabel a provider OSError as a storage failure. Process-control
+                # exceptions are BaseException and still propagate.
+                refusal = _analysis_refusal(exc)
+                execution = {
+                    "schema": "ciw.execution.v1", "execution_id": "execution-" + uuid.uuid4().hex,
+                    "operation_id": operation_id, "evidence_id": captured_run["evidence_id"],
+                    "run_id": captured_run["run_id"], "selection_revision": selected["revision"],
+                    "channel": channel, "interval_s": copy.deepcopy(interval),
+                    "parameters": {"channel": channel, "interval_s": copy.deepcopy(interval)},
+                    "created_at": utc_now(), "runtime": None, "status": "refused",
+                    "result_id": None, "refusal": refusal,
+                }
+                execution = seal(execution)
+                with self._lock:
+                    if len(self.executions) + self._pending_operations >= 1024:
+                        raise ProtocolError(
+                            "capacity_exceeded", "Save and start a new session after 1024 operations")
+                    write_json(self.output_dir / (execution["execution_id"] + ".json"), execution)
+                    self.executions[execution["execution_id"]] = execution
+                raise AdapterRefusal(
+                    refusal["code"], refusal["message"], reason_code=refusal.get("reason_code")) from None
             with self._lock:
                 if len(self.results) >= 1024:
                     raise ProtocolError("capacity_exceeded", "Save the workspace and start a new session after 1024 results")
