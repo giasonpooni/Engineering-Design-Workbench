@@ -98,7 +98,12 @@ def test_every_truncation_trailing_bytes_and_policy_byte():
         with pytest.raises(ValueError): decode(bytes(altered))
 
 
-@pytest.mark.parametrize("raw",[b'{}',b'null',b'[]',b'{"x":1,"x":1}',b' ' * 32769])
+# Keep the oversized payload, not its bytes, in pytest's test identifier.
+# Windows cannot store the raw 32 KiB ID in PYTEST_CURRENT_TEST.
+@pytest.mark.parametrize(
+    "raw", [b'{}', b'null', b'[]', b'{"x":1,"x":1}', b' ' * 32769],
+    ids=["empty-object", "null", "array", "duplicate-key", "oversize"],
+)
 def test_bad_json_refuses(raw):
     with pytest.raises(ValueError): prepare(raw)
 
