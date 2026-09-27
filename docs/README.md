@@ -40,6 +40,7 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 - [Workbench research context](RESEARCH_CONTEXT.md)
 - [Unimplemented directions](UNIMPLEMENTED_DIRECTIONS.md)
 - [Generic adapters](ADAPTERS.md)
+- [Device and Instrument Gateway proposal](DEVICE_GATEWAY.md) and [acceptance plan](DEVICE_GATEWAY_ACCEPTANCE.md)
 - [Covariance provenance and replay](COVARIANCE.md)
 - [Retained telemetry](TELEMETRY.md) and [shared telemetry](SHARED_TELEMETRY.md)
 - [Calibrated observable process](CALIBRATED_OBSERVABLE.md)
