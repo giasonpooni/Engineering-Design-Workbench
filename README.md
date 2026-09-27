@@ -1,6 +1,6 @@
 # Fault Detection and Isolation Runtime
 
-[Stack placement and ownership](docs/STACK.md) · [License](LICENSE)
+[Notations Engineering Terminal (CIW)](https://github.com/giasonpooni/Notations-Engineering-Terminal) · [Stack placement and ownership](docs/STACK.md) · [License](LICENSE)
 
 FDIR is a bounded statistical diagnostics instrument. It evaluates estimator innovations and scalar residual streams, preserving the inputs, their declared identities, the chosen thresholds, and each sequential transition. The current foundation implements anomaly detection; **physical fault confirmation and cause isolation are not implemented**.
 
@@ -31,7 +31,7 @@ Solid arrows show the two current local APIs. The package does not automatically
 feed NIS or a selected residual component into CUSUM: the caller defines the
 scalar stream and supplies its prior state. Both outputs are statistical
 diagnostics; neither path establishes physical fault isolation or authorizes
-an equipment action. See the [system diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md).
+an equipment action. See the [system diagram atlas](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/main/docs/DIAGRAMS.md).
 
 ## Install and run
 
@@ -64,7 +64,7 @@ Thresholds are caller-supplied. The instrument makes no automatic chi-square cal
 
 ## System role
 
-GSIE can provide innovations and their innovation covariance. FDIR computes diagnostics over those inputs. SET retains offline evaluation and benchmarking; CIW can display and inspect diagnostic records. FDIR does not change estimator state, remove observations, shut down sensors, admit evidence, or issue controls. See [STACK_ROLE.md](STACK_ROLE.md).
+GSIE can provide innovations and their innovation covariance. FDIR computes diagnostics over those inputs. SET retains offline evaluation and benchmarking; Notations Engineering Terminal (CIW) can display and inspect diagnostic records. FDIR does not change estimator state, remove observations, shut down sensors, admit evidence, or issue controls. See [STACK_ROLE.md](STACK_ROLE.md).
 
 This repository provides standalone functions and a synthetic replay. The GSIE, SET, and CIW positions describe ownership boundaries; this release does not contain live adapters to those repositories.
 
