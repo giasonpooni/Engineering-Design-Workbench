@@ -145,7 +145,7 @@ func _declared_frame(render: Dictionary) -> String:
 	return str(frame)
 
 
-func _axis_labels(render: Dictionary) -> Array:
+func _axis_labels(render: Dictionary, planar_z: bool = false) -> Array:
 	var unit := str(render.get("unit", ""))
 	var frame := _declared_frame(render)
 	var head := unit
@@ -153,7 +153,10 @@ func _axis_labels(render: Dictionary) -> Array:
 		head = unit + " · " + frame
 	elif not frame.is_empty():
 		head = frame
-	return [head, "1", "2"]
+	return [head, "1", "" if planar_z else "2"]
+
+
+func set_system(render: Dictionary) -> void:
 	## Declared mesh/path geometry. Hidden unless this panel or the view carries a mesh.
 	if _surface == null:
 		return
@@ -174,6 +177,7 @@ func _axis_labels(render: Dictionary) -> Array:
 	var vertices := PackedVector3Array()
 	var low := Vector3(INF, INF, INF)
 	var high := Vector3(-INF, -INF, -INF)
+	var planar_z := true
 	for value in render.get("vertices", []):
 		var coords: Array = value
 		var y := 0.0
@@ -182,6 +186,8 @@ func _axis_labels(render: Dictionary) -> Array:
 			y = float(coords[1])
 		if coords.size() > 2:
 			z = float(coords[2])
+			if not is_zero_approx(z):
+				planar_z = false
 		var point := Vector3(float(coords[0]), y, z)
 		vertices.append(point)
 		low = low.min(point)
@@ -228,7 +234,7 @@ func _axis_labels(render: Dictionary) -> Array:
 		if render.get("target_vertex") != null and int(render.target_vertex) < vertices.size():
 			_target.visible = true
 			_target.position = vertices[int(render.target_vertex)]
-		_build_axes(low, high, _axis_labels(render))
+		_build_axes(low, high, _axis_labels(render, planar_z))
 		if render.get("source_vertex") != null and int(render.source_vertex) < vertices.size():
 			_mark_vertex(str(render.get("source_label", "source %s" % int(render.source_vertex))), vertices[int(render.source_vertex)])
 		if render.get("target_vertex") != null and int(render.target_vertex) < vertices.size():
@@ -249,7 +255,10 @@ func _axis_labels(render: Dictionary) -> Array:
 			bits.append("source " + str(render.source_vertex))
 		if render.get("target_vertex") != null:
 			bits.append("target " + str(render.target_vertex))
-		bits.append("declared vertices · display only")
+		if planar_z:
+			bits.append("declared planar vertices · display only")
+		else:
+			bits.append("declared vertices · display only")
 		_caption.text = " · ".join(bits)
 
 
@@ -261,6 +270,8 @@ func _build_axes(low: Vector3, high: Vector3, labels: Array) -> void:
 	axis_mesh.surface_begin(Mesh.PRIMITIVE_LINES)
 	var corners := [Vector3(high.x, low.y, low.z), Vector3(low.x, high.y, low.z), Vector3(low.x, low.y, high.z)]
 	for index in range(3):
+		if index >= labels.size() or str(labels[index]).is_empty():
+			continue
 		axis_mesh.surface_add_vertex(low)
 		axis_mesh.surface_add_vertex(corners[index])
 		var label := Label3D.new()
@@ -272,14 +283,22 @@ func _build_axes(low: Vector3, high: Vector3, labels: Array) -> void:
 		label.position = corners[index]
 		_world.add_child(label)
 		_labels.append(label)
+	var draw_z := labels.size() > 2 and not str(labels[2]).is_empty()
 	for step in range(1, 6):
 		var fraction := float(step) / 6.0
 		var x := lerpf(low.x, high.x, fraction)
-		var z := lerpf(low.z, high.z, fraction)
-		axis_mesh.surface_add_vertex(Vector3(x, low.y, low.z))
-		axis_mesh.surface_add_vertex(Vector3(x, low.y, high.z))
-		axis_mesh.surface_add_vertex(Vector3(low.x, low.y, z))
-		axis_mesh.surface_add_vertex(Vector3(high.x, low.y, z))
+		if draw_z:
+			var z := lerpf(low.z, high.z, fraction)
+			axis_mesh.surface_add_vertex(Vector3(x, low.y, low.z))
+			axis_mesh.surface_add_vertex(Vector3(x, low.y, high.z))
+			axis_mesh.surface_add_vertex(Vector3(low.x, low.y, z))
+			axis_mesh.surface_add_vertex(Vector3(high.x, low.y, z))
+		else:
+			var y := lerpf(low.y, high.y, fraction)
+			axis_mesh.surface_add_vertex(Vector3(x, low.y, low.z))
+			axis_mesh.surface_add_vertex(Vector3(x, high.y, low.z))
+			axis_mesh.surface_add_vertex(Vector3(low.x, y, low.z))
+			axis_mesh.surface_add_vertex(Vector3(high.x, y, low.z))
 	axis_mesh.surface_end()
 	_axes.mesh = axis_mesh
 
