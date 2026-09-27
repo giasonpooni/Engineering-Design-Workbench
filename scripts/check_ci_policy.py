@@ -36,7 +36,7 @@ DOCS_ONLY = (
     "godot/**/*.md",
     "examples/**/README.md"
 )
-GROUP = "${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}"
+GROUP = "${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || (github.event_name == 'push' && github.ref) || github.run_id }}"
 
 
 def check_workflow(name: str, value: dict, *, qualification: bool) -> list[str]:
@@ -56,7 +56,7 @@ def check_workflow(name: str, value: dict, *, qualification: bool) -> list[str]:
     if events["workflow_dispatch"] not in (None, "", {}):
         errors.append(f"{name}: manual dispatch must not require inputs")
     if value.get("concurrency") != {"group": GROUP, "cancel-in-progress": "true"}:
-        errors.append(f"{name}: isolate workflow/events and cancel only superseded PR runs")
+        errors.append(f"{name}: isolate workflow/events and cancel superseded branch/PR runs while isolating manual dispatches")
     return errors
 
 
