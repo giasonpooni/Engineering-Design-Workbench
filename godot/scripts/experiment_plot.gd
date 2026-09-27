@@ -123,10 +123,28 @@ func _draw_axes(world: Rect2, plot: Rect2, unit: String, caption: String) -> voi
 	draw_string(font, Vector2(72, size.y - 15), caption, HORIZONTAL_ALIGNMENT_LEFT, -1, 12)
 
 
+func _declared_frame(render: Dictionary) -> String:
+	var frame: Variant = render.get("frame", "")
+	if typeof(frame) == TYPE_DICTIONARY:
+		return str(frame.get("id", frame.get("frame_id", "")))
+	return str(frame)
+
+
+func _axis_unit(render: Dictionary) -> String:
+	var unit := str(render.get("unit", render.get("value_unit", "")))
+	var frame := _declared_frame(render)
+	if not unit.is_empty() and not frame.is_empty():
+		return unit + " · " + frame
+	return unit if not unit.is_empty() else frame
+
+
 func _canvas_caption(render: Dictionary, fallback: String) -> String:
 	var title := str(render.get("canvas_title", panel.get("title", "")))
+	var frame := _declared_frame(render)
 	if title.is_empty():
-		return fallback
+		return fallback if frame.is_empty() else fallback + " · " + frame
+	if not frame.is_empty() and title.find(frame) < 0:
+		return title + " · " + frame + " · points only · display only"
 	return title + " · points only · display only"
 
 
@@ -172,7 +190,7 @@ func _draw_plane(render: Dictionary) -> void:
 		extras.append(center - Vector2(0, radius))
 	var world := _bounds(samples + extras)
 	var plot := _plot_rect()
-	_draw_axes(world, plot, str(render.get("unit", "")), _canvas_caption(render, "Declared plane · points only · no interpolation"))
+	_draw_axes(world, plot, _axis_unit(render), _canvas_caption(render, "Declared plane · points only · no interpolation"))
 	_draw_canvas_id(render, plot)
 	for overlay in render.get("overlays", []):
 		if not _declared_circle(overlay):
