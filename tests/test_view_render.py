@@ -224,6 +224,31 @@ def test_gte_system_canvas_keeps_entry_ids_off_the_frame():
         detach_render(observed["render"])
 
 
+def test_jacobi_system_canvas_keeps_entry_ids_off_the_path_frame():
+    separation = {"values": [0.1, 0.2], "units": ["m", "m"]}
+    heading = {"values": [0.01, 0.02], "units": ["radian", "radian"]}
+    attach_strip(separation, [0.0, 1.0], parameter_name="arclength", parameter_unit="m",
+                 frame="geodesic-reference", canvas_id="separation",
+                 canvas_title="Native transverse separation")
+    attach_strip(heading, [0.0, 1.0], parameter_name="arclength", parameter_unit="m",
+                 frame="geodesic-reference", canvas_id="heading-change",
+                 canvas_title="Native heading change")
+    view = {"kind": "curved-path-transfer"}
+    attach_system_canvases(view, [
+        {"id": "separation", "title": "Native transverse separation", "render": separation["render"]},
+        {"id": "heading-change", "title": "Native heading change", "render": heading["render"]},
+    ], default_id="separation")
+    assert view["system_canvas_id"] == "separation"
+    assert view["system_render"]["canvas_id"] == "separation"
+    assert view["system_render"]["frame"] == "geodesic-reference"
+    assert view["system_render"]["parameter_name"] == "arclength"
+    assert view["system_canvases"][1]["render"]["canvas_id"] == "heading-change"
+    assert view["system_canvases"][1]["render"]["frame"] == "geodesic-reference"
+    separation["render"]["canvas_id"] = "geodesic-reference"
+    with pytest.raises(ValueError):
+        detach_render(separation["render"])
+
+
 def test_attach_system_keeps_a_declared_plane_and_circle_overlay():
     panel = {"labels": ["o0.x", "o0.y"], "values": [1.0, 0.0], "units": ["m", "m"]}
     overlay = declared_circle_overlay(

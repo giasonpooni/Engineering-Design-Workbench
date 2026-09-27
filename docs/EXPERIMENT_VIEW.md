@@ -137,7 +137,8 @@ canvas_id disagrees with system_canvas_id. The 3D caption uses
 `canvas vertex-distances · frame <coordinate-frame>`. Provider-free cases
 assert that system_render.canvas_id stays vertex-distances and frame stays
 the coordinate frame. GTE planes keep observed_points_m / projected_points_m
-as canvas ids and the declared coordinate frame on frame. The mesh descriptor carries `canvas_id` and
+as canvas ids and the declared coordinate frame on frame. Jacobi strips keep
+separation / heading-change as canvas ids and the path frame on frame. The mesh descriptor carries `canvas_id` and
 `canvas_title` from the declared coordinate frame so the 3D viewport can name
 that frame and the retained source/target vertices. Detach recomputes those
 labels from the declared indices and refuses a caption that no longer matches.
