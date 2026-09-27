@@ -412,3 +412,25 @@ def test_detach_render_refuses_a_mesh_caption_that_outruns_the_vertices():
     assert view["system_render"]["source_vertex"] == 1
 
 
+def test_detach_render_refuses_a_circle_title_that_outruns_the_constraint():
+    constraint = {"kind": "circle", "center_m": [0.0, 0.0], "radius_m": 1.0, "constraint_id": "reference-circle"}
+    panel = {"labels": ["o0.x", "o0.y"], "values": [1.0, 0.0], "units": ["m", "m"]}
+    attach_plane(panel, frame="bench-plane", overlays=[declared_circle_overlay(constraint)])
+    view = {"kind": "geometric-circle"}
+    attach_system(view, panel["render"])
+    assert view["system_render"]["overlays"][0]["overlay_title"] == "reference-circle"
+    panel["render"]["overlays"][0]["overlay_title"] = "fitted-circle"
+    assert view["system_render"]["overlays"][0]["overlay_title"] == "reference-circle"
+    with pytest.raises(ValueError):
+        attach_system(view, panel["render"])
+    panel["render"]["overlays"][0]["overlay_title"] = "reference-circle"
+    panel["render"]["overlays"][0]["constraint_id"] = "other-circle"
+    with pytest.raises(ValueError):
+        attach_system(view, panel["render"])
+    panel["render"]["overlays"][0]["overlay_title"] = "other-circle"
+    attach_system(view, panel["render"])
+    assert view["system_render"]["overlays"][0]["overlay_title"] == "other-circle"
+    assert view["system_render"]["overlays"][0]["constraint_id"] == "other-circle"
+
+
+

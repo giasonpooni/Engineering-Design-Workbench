@@ -39,7 +39,9 @@ def detach_overlay(overlay):
     identity = overlay.get("constraint_id")
     if identity is not None and (not isinstance(identity, str) or not identity):
         raise ValueError("Circle overlay constraint_id must be a retained identity")
-    title = overlay.get("overlay_title") or identity
+    title = identity
+    if overlay.get("overlay_title") not in (None, title):
+        raise ValueError("Circle overlay title must match the retained constraint_id")
     return deepcopy({
         "kind": DECLARED_CIRCLE,
         "center": _finite_pair(overlay.get("center"), "circle center"),

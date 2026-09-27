@@ -109,7 +109,8 @@ of representation: copied declared coordinates and overlays, never a solver outp
 and never a calculation input. A drawn circle is the retained constraint, not a
 fitted curve. Overlay copies keep `source: declared_constraint`; a fitted radius
 cannot be attached by editing the presentation object. The canvas labels a
-declared circle with its retained `constraint_id`. A drawn mesh uses the first two declared vertex axes for the 2D
+declared circle with its retained `constraint_id`. Detach refuses an overlay
+title that no longer matches that identity. A drawn mesh uses the first two declared vertex axes for the 2D
 client and the declared coordinates for the optional 3D canvas; neither projection
 is a surveyed view. Detached mesh copies refuse a path or source/target index
 outside the declared vertices. Detach recomputes `declared_planar` from the
