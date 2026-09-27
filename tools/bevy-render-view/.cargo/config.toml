@@ -1,0 +1,4 @@
+# Local checkout of the required pin (0f38358…). Used only for offline cargo check.
+# Published dependency in Cargo.toml remains the git rev; do not patch the engine tree.
+[patch."https://github.com/giasonpooni/bevy.git"]
+bevy = { path = "/workspace/bevy" }
