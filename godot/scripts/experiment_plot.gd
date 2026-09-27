@@ -1,5 +1,6 @@
 extends Control
-## Display native points and marginal standard deviations. No fit or interpolation.
+## Display native points, declared plane geometry, or a declared mesh wireframe.
+## No fit, interpolation, or measurement is performed here.
 var panel: Dictionary = {}
 
 
@@ -9,6 +10,18 @@ func set_panel(value: Dictionary) -> void:
 
 
 func _draw() -> void:
+	var render: Dictionary = panel.get("render", {}) if not panel.is_empty() else {}
+	var kind := str(render.get("kind", ""))
+	if kind == "plane2d":
+		_draw_plane(render)
+		return
+	if kind == "mesh":
+		_draw_mesh(render)
+		return
+	_draw_categorical()
+
+
+func _draw_categorical() -> void:
 	var font := ThemeDB.fallback_font
 	var color := Color("60dfcd")
 	if panel.is_empty():
@@ -63,3 +76,109 @@ func _draw() -> void:
 		draw_string(font, Vector2(x - 65, plot.end.y + 22), label, HORIZONTAL_ALIGNMENT_CENTER, 130, 11)
 	draw_string(font, Vector2(8, 18), str(units[0]), HORIZONTAL_ALIGNMENT_LEFT, -1, 12)
 	draw_string(font, Vector2(72, size.y - 15), "Declared order · points only · " + ("marginal ±1σ" if deviations is Array else "covariance not supplied"), HORIZONTAL_ALIGNMENT_LEFT, -1, 12)
+
+
+func _plot_rect() -> Rect2:
+	return Rect2(72, 28, maxf(size.x - 92, 20), maxf(size.y - 95, 40))
+
+
+func _bounds(points: Array) -> Rect2:
+	var low := Vector2(INF, INF)
+	var high := Vector2(-INF, -INF)
+	for point in points:
+		low = low.min(point)
+		high = high.max(point)
+	var span := high - low
+	span.x = maxf(span.x, 0.05)
+	span.y = maxf(span.y, 0.05)
+	# Keep the declared plane isotropic so a circle stays a circle.
+	var extent := maxf(span.x, span.y)
+	var center := (low + high) * 0.5
+	return Rect2(center - Vector2(extent, extent) * 0.6, Vector2(extent, extent) * 1.2)
+
+
+func _map(point: Vector2, world: Rect2, plot: Rect2) -> Vector2:
+	var fraction := (point - world.position) / world.size
+	return Vector2(plot.position.x + fraction.x * plot.size.x, plot.end.y - fraction.y * plot.size.y)
+
+
+func _draw_axes(world: Rect2, plot: Rect2, unit: String, caption: String) -> void:
+	var font := ThemeDB.fallback_font
+	draw_rect(plot, Color("0c1521"))
+	for step in 5:
+		var fraction := float(step) / 4.0
+		var x := plot.position.x + fraction * plot.size.x
+		var y := plot.end.y - fraction * plot.size.y
+		draw_line(Vector2(x, plot.position.y), Vector2(x, plot.end.y), Color("273549"))
+		draw_line(Vector2(plot.position.x, y), Vector2(plot.end.x, y), Color("273549"))
+		draw_string(font, Vector2(x - 24, plot.end.y + 18), String.num_scientific(world.position.x + world.size.x * fraction), HORIZONTAL_ALIGNMENT_CENTER, 48, 11)
+		draw_string(font, Vector2(2, y + 4), String.num_scientific(world.position.y + world.size.y * fraction), HORIZONTAL_ALIGNMENT_RIGHT, 62, 11)
+	draw_string(font, Vector2(8, 18), unit, HORIZONTAL_ALIGNMENT_LEFT, -1, 12)
+	draw_string(font, Vector2(72, size.y - 15), caption, HORIZONTAL_ALIGNMENT_LEFT, -1, 12)
+
+
+func _draw_plane(render: Dictionary) -> void:
+	var font := ThemeDB.fallback_font
+	var points: Array = render.get("points", [])
+	if points.is_empty():
+		draw_string(font, Vector2(20, 40), "Plane render has no retained points", HORIZONTAL_ALIGNMENT_LEFT, -1, 14)
+		return
+	var samples: Array[Vector2] = []
+	for item in points:
+		samples.append(Vector2(float(item.x), float(item.y)))
+	var extras: Array[Vector2] = []
+	for overlay in render.get("overlays", []):
+		if overlay.get("kind") == "declared_circle":
+			var center := Vector2(float(overlay.center[0]), float(overlay.center[1]))
+			var radius := float(overlay.radius)
+			extras.append(center)
+			extras.append(center + Vector2(radius, 0))
+			extras.append(center - Vector2(radius, 0))
+			extras.append(center + Vector2(0, radius))
+			extras.append(center - Vector2(0, radius))
+	var world := _bounds(samples + extras)
+	var plot := _plot_rect()
+	_draw_axes(world, plot, str(render.get("unit", "")), "Declared plane · points only · no interpolation")
+	for overlay in render.get("overlays", []):
+		if overlay.get("kind") != "declared_circle":
+			continue
+		var center := _map(Vector2(float(overlay.center[0]), float(overlay.center[1])), world, plot)
+		var radius := float(overlay.radius) / world.size.x * plot.size.x
+		draw_arc(center, radius, 0.0, TAU, 64, Color(0.38, 0.48, 0.62, 0.9), 1.5)
+	for i in samples.size():
+		var point := _map(samples[i], world, plot)
+		draw_circle(point, 4, Color("60dfcd"))
+		if samples.size() <= 8:
+			draw_string(font, point + Vector2(6, -6), str(points[i].get("label", i + 1)), HORIZONTAL_ALIGNMENT_LEFT, -1, 11)
+
+
+func _draw_mesh(render: Dictionary) -> void:
+	var font := ThemeDB.fallback_font
+	var vertices: Array = render.get("vertices", [])
+	var triangles: Array = render.get("triangles", [])
+	if vertices.is_empty() or triangles.is_empty():
+		draw_string(font, Vector2(20, 40), "Mesh render has no declared faces", HORIZONTAL_ALIGNMENT_LEFT, -1, 14)
+		return
+	var samples: Array[Vector2] = []
+	for vertex in vertices:
+		samples.append(Vector2(float(vertex[0]), float(vertex[1])))
+	var world := _bounds(samples)
+	var plot := _plot_rect()
+	_draw_axes(world, plot, str(render.get("unit", "")), "Declared mesh · first two axes · not a surveyed surface")
+	for face in triangles:
+		var a := _map(samples[int(face[0])], world, plot)
+		var b := _map(samples[int(face[1])], world, plot)
+		var c := _map(samples[int(face[2])], world, plot)
+		draw_line(a, b, Color("4e647e"), 1.2)
+		draw_line(b, c, Color("4e647e"), 1.2)
+		draw_line(c, a, Color("4e647e"), 1.2)
+	var path: Array = render.get("path", [])
+	for i in range(path.size() - 1):
+		draw_line(_map(samples[int(path[i])], world, plot), _map(samples[int(path[i + 1])], world, plot), Color("60dfcd"), 2.4)
+	for i in samples.size():
+		var color := Color("dce6f1")
+		if render.get("source_vertex") != null and int(render.source_vertex) == i:
+			color = Color("ffcc80")
+		elif render.get("target_vertex") != null and int(render.target_vertex) == i:
+			color = Color("60dfcd")
+		draw_circle(_map(samples[i], world, plot), 4, color)
