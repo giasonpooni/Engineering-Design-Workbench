@@ -347,3 +347,25 @@ def test_detach_render_refuses_nonfinite_plane_points():
         ])
 
 
+def test_detach_render_refuses_a_strip_caption_that_outruns_the_axis():
+    panel = {"values": [0.1, 0.2, 0.15], "units": ["m", "m", "m"]}
+    attach_strip(panel, [0.0, 0.5, 1.0], parameter_name="arclength", parameter_unit="m",
+                 frame="jacobi-path", canvas_id="separation", canvas_title="Native transverse separation")
+    view = {"kind": "curved-path-transfer"}
+    attach_system(view, panel["render"])
+    assert view["system_render"]["end_label"] == "arclength=1.0"
+    panel["render"]["end_label"] = "arclength=9.0"
+    assert view["system_render"]["end_label"] == "arclength=1.0"
+    with pytest.raises(ValueError):
+        attach_system(view, panel["render"])
+    panel["render"]["end_label"] = "arclength=1.0"
+    panel["render"]["samples"][-1]["parameter"] = 2.0
+    with pytest.raises(ValueError):
+        attach_system(view, panel["render"])
+    panel["render"]["end_label"] = "arclength=2.0"
+    panel["render"]["end_parameter"] = 2.0
+    attach_system(view, panel["render"])
+    assert view["system_render"]["end_label"] == "arclength=2.0"
+    assert view["system_render"]["end_parameter"] == 2.0
+
+

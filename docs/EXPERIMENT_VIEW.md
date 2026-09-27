@@ -114,7 +114,9 @@ client and the declared coordinates for the optional 3D canvas; neither projecti
 is a surveyed view. Detached mesh copies refuse a path or source/target index
 outside the declared vertices. Detach recomputes `declared_planar` from the
 copied vertices and refuses a copy that claims planar after a lifted z. Detached strip copies refuse a nonfinite or
-decreasing parameter before that copy reaches a companion canvas. Detached plane
+decreasing parameter before that copy reaches a companion canvas. Detach
+recomputes strip endpoint labels from the copied samples and refuses a caption
+that no longer matches the axis. Detached plane
 copies refuse a nonfinite x,y before the companion canvas draws it. A strip plot uses the retained parameter as its abscissa and
 does not treat that parameter as event time. Strip plots label only the first and
 last declared parameter samples. The strip axis caption names the retained path

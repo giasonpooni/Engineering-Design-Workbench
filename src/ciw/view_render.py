@@ -74,7 +74,8 @@ def detach_render(render):
         payload.update(detach_mesh_geometry(payload))
     if payload.get("kind") == "strip":
         payload["samples"] = detach_strip_samples(payload.get("samples"))
-        payload.update(strip_endpoint_labels(payload["samples"], payload.get("parameter_name")))
+        payload.update(strip_endpoint_labels(
+            payload["samples"], payload.get("parameter_name"), payload))
     return payload
 
 
@@ -311,7 +312,7 @@ def detach_strip_samples(samples):
     return copied
 
 
-def strip_endpoint_labels(samples, parameter_name):
+def strip_endpoint_labels(samples, parameter_name, claimed=None):
     """Name the first and last declared parameter samples. Not interpolation."""
     if not samples:
         return {}
@@ -326,6 +327,11 @@ def strip_endpoint_labels(samples, parameter_name):
     }
     if first == last:
         labels["end_label"] = None
+    if isinstance(claimed, dict):
+        for key, value in labels.items():
+            offered = claimed.get(key, value)
+            if offered != value:
+                raise ValueError("Strip endpoint label must match the declared samples")
     return labels
 
 
