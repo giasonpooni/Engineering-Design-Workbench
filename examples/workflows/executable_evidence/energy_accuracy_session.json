@@ -1,6 +1,6 @@
 {
   "operation_id": "ciw.energy-accuracy.v1",
-  "bundle_digest": "sha256:8c1aa2628b728805181e5e17453dfe263900bb3e1792ff07e47a2163c07b9719",
+  "bundle_digest": "sha256:dcf8b6de8b6e0189c21ea23cea4e3c2f7fbcf54b6e63f063ea0926ec32d4c5ee",
   "numerical_result_id": "sha256:a928a6f8a5b5c1318e61b0a716ce4887c4d2d0fe5e86ec451a148efd023a8199",
   "measurement": {
     "batch_count": 1,
@@ -17,6 +17,6 @@
   },
   "origin": "synthetic_fixture",
   "physical_measurement": "not_performed",
-  "replay_bundle_digest": "sha256:246fcea1db678a6f17e06e81d65f8beb4422806869fc29a0eb678a2b5cadc0b4",
+  "replay_bundle_digest": "sha256:1088f866e17d6f06c59bd89f11e103555363a9819e8b78a2b219fb0d58900710",
   "numerical_stable_across_replay": true
 }
