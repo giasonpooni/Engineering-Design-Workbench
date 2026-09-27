@@ -214,7 +214,7 @@ admitted ESM schema — treat capture as:
 1. Fresh inspect (`esm.inspect-candidate.v1`) — no evidence-store write.
 2. Explicit capture (`esm.capture-candidate.v1`) only when the binding and
    policy name this bundle — retained status **`UNADMITTED`**.
-3. Binding / policy refuse → **REFUSED** or **UNAVAILABLE**; never paint
+3. Binding / policy refuse → **`REFUSED`** or **`UNAVAILABLE`**; never paint
    green; never claim qualified admission from a proof alone.
 
 Workbench candidate retention never establishes canonical-state admission
@@ -261,6 +261,53 @@ Acceptance checklist: [`checklist_sp1.md`](checklist_sp1.md).
 | Fresh verify not run | Do not set `fresh_verifier_occurrence: true` |
 | ESM binding rejects schema | **REFUSED** / **UNAVAILABLE**; still **UNADMITTED** if retained |
 | Godot missing JSON | **STALE** |
+
+## Coverage layers (do not collapse)
+
+Track these **separately**. Teaching emit / catalog presence is not scientific
+execution.
+
+| Layer | SP1 / proved-heat meaning | How to record |
+| --- | --- | --- |
+| Catalog / docs | Workflow 05 + checklist exist; pins cited from `PROVED_HEAT.md` | Present / missing |
+| Export | `emit_proof_render` / thermal-proof emit / orchestrator write render JSON | Pass / fail emit |
+| Scientific execution | Real `ciw.proved-heat.v1` with pinned guest + SP1 proof | Run / `not_run` / `blocked` / `unavailable` |
+| Numerical / teaching check | Bounded lattice statement `[0,100,200,100,0]` → `[0,65,92,65,0]` (unit 1) when execution ran | Pass / fail / `not_run` |
+| Fresh verification | Separate `ciw proof verify` occurrence | Pass / refuse / `not_run` |
+| Replay | Retained bundle reverify without re-proof; gate fresh replay | Pass / fail / `not_run` |
+| Tamper rejection | Resealed-corrupt proof fails fresh verify | Pass / fail / `not_run` |
+| Presentation | Godot/Bevy load JSON; never reverify; no proof bytes | Pass / `STALE` |
+| ESM retention | Optional candidate capture → **UNADMITTED** only | Retained / binding refuse / **cite-only** (no capture) |
+
+`unavailable` ≠ passed. Synthetic teaching emits do **not** claim a live
+cryptographic proof. Installed-wheel gate
+(`scripts/check_proved_heat.py`) is the acceptance path for execution +
+verification + tamper layers when binaries are present.
+
+### Computational profile (one distinct experiment)
+
+For proved-heat, the distinct executable profile is approximately:
+
+`operation=ciw.proved-heat.v1` × `guest recipe+ELF pins` × `SCR/SP1 pins` ×
+`source schema ciw.proved-heat-source.v1` × `expected lattice outcome` ×
+`proof-before-result` × `fresh verifier required for VERIFIED`.
+
+Renaming the same profile for different industries does **not** create new
+experiments. Application labels (thermal-proof-gate use-case wording) are
+discovery metadata on top of that profile.
+
+### ESM: citation vs data binding
+
+Two directions — do not conflate:
+
+1. **Instrument result → ESM** — optional UNADMITTED candidate retention after
+   host verification (destination seam).
+2. **ESM → instrument inputs** — requires exact artifact digest, selected
+   records/fields, and transform. A repo URL or tip SHA is **reference only**,
+   not a data integration.
+
+Proved-heat teaching fixtures are **synthetic / computational-integrity-only**.
+Label them as such; they are not Caravan or field observations.
 
 ## Related paths
 
