@@ -1,7 +1,8 @@
 """Check the conservative event policy for the migrated CI workflows.
 
-Requires PyYAML only in the workflow-contract job. This does not emulate GitHub's
-changed-file matching or establish that a selected scientific gate passed.
+PyYAML is pinned in the dev extra as PyYAML==6.0.3. The workflow-contract job
+installs that extra and does not carry a second pin. This does not emulate
+GitHub's changed-file matching or establish that a selected scientific gate passed.
 """
 from __future__ import annotations
 

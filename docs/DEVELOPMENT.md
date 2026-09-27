@@ -92,10 +92,11 @@ Superseded runs cancel only within the same workflow/event/PR. Main, tag and
 manual runs use a unique run ID and cannot cancel each other's qualification.
 
 `scripts/check_ci_policy.py` checks the eighteen migrated workflow policies,
-with regression cases in `scripts/tests/test_ci_policy.py`. The separate
-Workflow contracts job runs these checks and checksum-pinned actionlint. A
-routing pass only validates CI selection policy; it establishes no numerical,
-provider, proof or physical claim.
+with regression cases in `scripts/tests/test_ci_policy.py`. The dev extra pins
+`PyYAML==6.0.3`, and the Workflow contracts job installs that extra rather than
+a second PyYAML pin. The job also runs checksum-pinned actionlint. A routing
+pass only validates CI selection policy; it establishes no numerical, provider,
+proof or physical claim.
 
 Before enabling required status checks, account for path-filtered workflows:
 GitHub can leave a required check pending when its workflow does not run.
