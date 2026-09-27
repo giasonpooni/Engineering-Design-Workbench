@@ -105,7 +105,7 @@ def test_declared_mesh_copies_faces_and_retained_path_indices():
     assert named["canvas_title"] == "Shortest distances along mesh edges"
     assert named["frame"] == "synthetic-planar-square"
     named["canvas_id"] = named["frame"]
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Stamped canvas id equals the declared frame"):
         detach_render(named)
     named["canvas_id"] = "vertex-distances"
     copied = detach_render(named)
@@ -220,7 +220,7 @@ def test_gte_system_canvas_keeps_entry_ids_off_the_frame():
     assert view["system_canvases"][1]["render"]["frame"] == "bench-plane"
     assert view["system_render"]["overlays"][0]["constraint_id"] == "reference-circle"
     observed["render"]["canvas_id"] = "bench-plane"
-    with pytest.raises(ValueError):
+    with pytest.raises(ValueError, match="Stamped canvas id equals the declared frame"):
         detach_render(observed["render"])
 
 

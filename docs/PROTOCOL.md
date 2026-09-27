@@ -27,7 +27,9 @@ declares more than one retained plane, `system_canvases` lists those copies and
 (`cover_points`, `parallelogram_points`, `observed_points_m`, `separation`,
 `vertex-distances`). `frame` is the declared coordinate or path frame
 (`area-one-flat-quotient`, a GTE coordinate frame, a Jacobi path frame).
-Those two names stay distinct once an entry id is stamped. Clients may switch copies; they must not
+Those two names stay distinct once an entry id is stamped. Detach and
+headless inspect refuse a collapse with `Stamped canvas id equals the
+declared frame`. Clients may switch copies; they must not
 resample the path. It does not execute a provider or change selection/retention.
 See [the complete view contract](EXPERIMENT_VIEW.md). Existing `workbench.changed`
 notifications invalidate the catalog; clients fetch authoritative state and keep
