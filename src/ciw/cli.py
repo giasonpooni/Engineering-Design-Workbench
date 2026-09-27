@@ -229,6 +229,11 @@ def parser() -> argparse.ArgumentParser:
     register_commands(commands)
     demo = commands.add_parser("demo", help="Save deterministic synthetic oscillator evidence")
     demo.add_argument("--output", type=Path, default=Path("recordings/demo.json"))
+    export = commands.add_parser("export", help="Write a read-only inspect copy")
+    export_actions = export.add_subparsers(dest="export_command", required=True)
+    usda = export_actions.add_parser("usda", help="Write ASCII USDA from a retained recording or inspect view")
+    usda.add_argument("path", type=Path)
+    usda.add_argument("--output", type=Path, required=True)
     analyze = commands.add_parser("analyze", help="Run headless analysis and save a reopenable workspace")
     analyze.add_argument("operation", choices=["stats", "spectrum"])
     analyze.add_argument("--recording", type=Path)
@@ -564,6 +569,12 @@ def main(argv: list[str] | None = None) -> int:
             write_json(args.output, run)
             print_json({"recording_file": str(args.output), "run_id": run["run_id"],
                         "evidence_id": run["evidence_id"], "sample_count": len(run["time_s"])})
+        elif args.command == "export":
+            from .usda_export import SCHEMA, export_payload, write_usda
+            text = export_payload(read_json(args.path))
+            write_usda(args.output, text)
+            print_json({"usda_file": str(args.output), "schema": SCHEMA,
+                        "authority": "inspection_copy_not_observation"})
         elif args.command == "analyze":
             run = load_run(args.recording)
             session = Session(run, args.output_dir)

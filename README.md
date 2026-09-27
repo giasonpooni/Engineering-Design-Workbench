@@ -42,6 +42,7 @@ records exercised paths, independent checks and remaining gaps.
 | Evaluate a recorded machine configuration. | Read-only encoder/gearbox/leadscrew reference workflow, with configuration, inputs and results retained together; no firmware loading or actuation. |
 | Run selected stability and computation checks. | PLSR and registered SCR/SP1 operations have separate requirements and scopes; they do not verify every calculation or physical model. |
 | Inspect results in optional graphical clients. | Godot Experiments and read-only geographic views use retained `ciw.experiment-view.v1` records. Coordinate, strip and mesh panels that carry `ciw.panel-render.v1` are drawn as detached copies (`connect: false`, canvas id distinct from frame). Neither client changes the scientific result. |
+| Export a retained inspect canvas to ASCII USDA. | `ciw export usda` writes unconnected points or declared faces. It does not load OpenUSD or treat the scene as an observation. |
 
 Current support does **not** establish general-purpose hardware acquisition,
 equipment control or platform-wide industrial qualification.

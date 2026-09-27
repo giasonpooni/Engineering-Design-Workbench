@@ -12,7 +12,7 @@ The root README no longer treats these as product features:
 | Direction | Status on the product page |
 | --- | --- |
 | Oscillator demo | Implemented built-in example; not a curriculum |
-| OpenUSD scene interchange | Not implemented |
+| OpenUSD scene interchange | ASCII `.usda` write exists (`ciw export usda`). OpenUSD reload/compare is not implemented |
 | Julia / C++ / Rust as a required chain | Not required; adapters are optional |
 | GPU energy measurement | Optional host bench only |
 | Category-theoretic design manifolds | Not an implemented runtime |
@@ -186,17 +186,11 @@ The existing [research context](docs/RESEARCH_CONTEXT.md) and
 
 ## OpenUSD scene interchange
 
-**Selected direction; implementation pending.** OpenUSD is intended to export
-supported geometry and trajectories for inspection alongside the existing
-scientific records. It does not replace the investigation, model or evidence
-formats. Godot, geographic inspection and terminal-only use remain independent
-of an OpenUSD installation.
-
-Start with a read-only `.usda` export of one retained oscillator trajectory.
-Reopen it with a pinned OpenUSD runtime and compare geometry, units, time mapping
-and links to the original result. Challenge missing or altered dependencies
-before claiming that export supported. Binary `.usdc`, packaged `.usdz` and
-scene import are later, separately tested extensions.
+**First slice implemented: ASCII write only.** `ciw export usda <recording-or-view.json> --output out.usda`
+copies retained oscillator samples or a detached inspect canvas. The file is
+an inspection copy. Reloading it with a pinned OpenUSD runtime and comparing
+geometry is still pending. Binary `.usdc`, packaged `.usdz` and scene import
+are not implemented.
 
 <details>
 <summary>Scene-export requirements</summary>
