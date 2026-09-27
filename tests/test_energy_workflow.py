@@ -52,7 +52,7 @@ def reseal_bundle(bundle):
 
 def test_builtin_is_available_without_hardware_or_repository_bindings():
     workbench = Workbench()
-    assert {row["operation_id"] for row in workbench.describe_operations() if row["available"]} == {OPERATION, "ciw.encoder-position.v1", "ciw.thermal-observer.v1"}
+    assert {row["operation_id"] for row in workbench.describe_operations() if row["available"]} == {OPERATION, "ciw.encoder-position.v1", "ciw.project-graph.v1", "ciw.thermal-observer.v1"}
     operation = next(row for row in workbench.describe_operations() if row["operation_id"] == OPERATION)
     assert operation["role"] == "offline_energy_accuracy_analysis"
     workbench.bind_workflow(KIND, {})
@@ -230,7 +230,7 @@ def test_shared_session_live_transport_save_restore_and_reanalysis(retained, tmp
                             return answer["payload"]
                 source = await call("source.add", source_payload(retained[0]))
                 result = await call("operation.execute", {"operation_id": OPERATION, "parameters": {"source_id": source["source_id"]}})
-                replay = await call("bundle.replay", {"bundle_id": result["bundle_id"]})
+                replay = await call("bundle.replay", {"bundle_id": result["bundle_id"]}})
                 view = await call("experiment.inspect", {"bundle_id": replay["bundle"]["bundle_id"]})
                 assert view["object_context"]["replay_scope"] == energy_workflow.METHOD
                 return result
@@ -238,7 +238,7 @@ def test_shared_session_live_transport_save_restore_and_reanalysis(retained, tmp
     saved = session.save_workspace(tmp_path / "workspace.json")
     restored = Session.from_workspace(saved, tmp_path / "restored")
     assert restored.workbench.serialize() == session.workbench.serialize()
-    assert {o["operation_id"] for o in restored.workbench.describe_operations() if o["available"]} == {OPERATION, "ciw.encoder-position.v1", "ciw.thermal-observer.v1"}
+    assert {o["operation_id"] for o in restored.workbench.describe_operations() if o["available"]} == {OPERATION, "ciw.encoder-position.v1", "ciw.project-graph.v1", "ciw.thermal-observer.v1"}
     restored.workbench.replay({"bundle_id": result["bundle_id"]})
     assert len(restored.workbench.serialize()["bundles"]) == 3
     assert restored.workbench.pending_operations == 0
