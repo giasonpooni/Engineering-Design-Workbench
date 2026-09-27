@@ -172,6 +172,33 @@ def test_attach_system_copies_the_mesh_and_survives_panel_mutation():
         attach_system(view, {"kind": "mesh"})
 
 
+def test_mesh_path_system_canvas_keeps_entry_id_off_the_frame():
+    mesh = {"vertices": [[0, 0, 0], [1, 0, 0], [0, 1, 0]],
+            "triangles": [[0, 1, 2]], "units": "normalized_length",
+            "coordinate_frame": "synthetic-planar-square"}
+    render = declared_mesh(mesh, path=[0, 2], source_vertex=0, target_vertex=2,
+                          canvas_id="vertex-distances",
+                          canvas_title="Shortest distances along mesh edges")
+    view = {"kind": "mesh-path"}
+    attach_system_canvases(view, [{
+        "id": "vertex-distances",
+        "title": "Shortest distances along mesh edges",
+        "render": render,
+    }], default_id="vertex-distances")
+    assert view["system_canvas_id"] == "vertex-distances"
+    assert view["system_render"]["canvas_id"] == "vertex-distances"
+    assert view["system_render"]["canvas_title"] == "Shortest distances along mesh edges"
+    assert view["system_render"]["frame"] == "synthetic-planar-square"
+    assert view["system_render"]["declared_planar"] is True
+    render["canvas_id"] = "synthetic-planar-square"
+    with pytest.raises(ValueError):
+        attach_system_canvases(view, [{
+            "id": "vertex-distances",
+            "title": "Shortest distances along mesh edges",
+            "render": render,
+        }], default_id="vertex-distances")
+
+
 def test_attach_system_keeps_a_declared_plane_and_circle_overlay():
     panel = {"labels": ["o0.x", "o0.y"], "values": [1.0, 0.0], "units": ["m", "m"]}
     overlay = declared_circle_overlay(
