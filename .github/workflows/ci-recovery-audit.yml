@@ -17,7 +17,7 @@ jobs:
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
-          ref: 033703ad7ee5164fe2d1164f5d2956ee7b8c4dea
+          ref: d241242a06f26550a43701f44323b2c1d7ad6981
           persist-credentials: false
       - name: Retain exact public source for reproduction
         shell: bash
@@ -35,7 +35,7 @@ jobs:
           python - <<'PY'
           import concurrent.futures, hashlib, json, os, pathlib, re, urllib.request, urllib.error
           repo = 'giasonpooni/Notations-Design-Terminal'
-          commit = '033703ad7ee5164fe2d1164f5d2956ee7b8c4dea'
+          commit = 'd241242a06f26550a43701f44323b2c1d7ad6981'
           base = 'https://api.github.com/repos/' + repo
           output = pathlib.Path(os.environ['AUDIT_OUTPUT'])
           token = os.environ.pop('READ_TOKEN')
@@ -54,7 +54,6 @@ jobs:
                   url = exc.headers['Location']
                   if not url.startswith('https://'):
                       raise ValueError('Non-HTTPS log redirect')
-                  # Do not forward the GitHub token to the signed log host.
                   response = urllib.request.urlopen(url, timeout=30)
               with response:
                   data = response.read(8*1024*1024 + 1)
