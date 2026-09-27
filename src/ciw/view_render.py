@@ -62,10 +62,13 @@ def declared_circle_overlay(constraint):
     """Copy a fixed declared circle. No fit or residual geometry is computed."""
     if not isinstance(constraint, dict) or constraint.get("kind") != "circle":
         raise ValueError("Circle overlay requires a declared circle constraint")
+    radius = constraint["radius_m"]
+    if type(radius) not in (int, float) or radius != radius or abs(radius) == float("inf"):
+        raise ValueError("Circle overlay requires a finite declared radius")
     return deepcopy({
         "kind": "declared_circle",
         "center": _finite_pair(constraint["center_m"], "circle center"),
-        "radius": float(constraint["radius_m"]),
+        "radius": float(radius),
         "source": "declared_constraint",
         "authority": "declared_not_surveyed",
         "constraint_id": constraint.get("constraint_id"),
@@ -119,3 +122,60 @@ def attach_plane(panel, *, frame, overlays=()):
     panel["render"] = plane_from_interleaved(
         panel["values"], panel["labels"], panel["units"], frame=frame, overlays=overlays)
     return panel
+
+
+def strip_from_parameter(parameter, values, *, parameter_name, parameter_unit, value_unit, frame):
+    """Place already-projected samples on a declared parameter axis.
+
+    The parameter is copied from the retained record (arclength, sample index
+    identity, etc.). This is not event time and not interpolation.
+    """
+    if not isinstance(parameter, list) or not isinstance(values, list):
+        raise ValueError("Strip render requires declared parameter and value lists")
+    if len(parameter) != len(values) or not values:
+        raise ValueError("Strip render requires matching nonempty parameter and value lists")
+    samples = []
+    previous = None
+    for abscissa, ordinate in zip(parameter, values):
+        if type(abscissa) not in (int, float) or type(ordinate) not in (int, float):
+            raise ValueError("Strip render requires finite numeric samples")
+        if abscissa != abscissa or ordinate != ordinate or abs(abscissa) == float("inf") or abs(ordinate) == float("inf"):
+            raise ValueError("Strip render requires finite numeric samples")
+        if previous is not None and abscissa < previous:
+            raise ValueError("Strip render requires a nondecreasing parameter")
+        previous = abscissa
+        samples.append({"parameter": float(abscissa), "value": float(ordinate)})
+    return deepcopy({
+        "schema": SCHEMA,
+        "kind": "strip",
+        "authority": dict(AUTHORITY),
+        "frame": frame,
+        "parameter_name": parameter_name,
+        "parameter_unit": parameter_unit,
+        "value_unit": value_unit,
+        "samples": samples,
+        "connect": False,
+        "note": "Declared parameter axis; points only; not a time trajectory",
+    })
+
+
+def attach_strip(panel, parameter, *, parameter_name, parameter_unit, frame):
+    units = panel.get("units")
+    if not isinstance(units, list) or not units:
+        raise ValueError("Strip render requires a retained value unit")
+    if any(unit != units[0] for unit in units):
+        raise ValueError("Strip render refuses mixed units")
+    panel["render"] = strip_from_parameter(
+        parameter, panel["values"], parameter_name=parameter_name,
+        parameter_unit=parameter_unit, value_unit=units[0], frame=frame)
+    return panel
+
+
+def attach_system(view, render):
+    """Copy a presentation descriptor onto the view so sibling panels keep the canvas."""
+    if not isinstance(view, dict):
+        raise ValueError("System render requires the inspection view")
+    if not isinstance(render, dict) or render.get("schema") != SCHEMA:
+        raise ValueError("System render requires a detached panel-render descriptor")
+    view["system_render"] = deepcopy(render)
+    return view

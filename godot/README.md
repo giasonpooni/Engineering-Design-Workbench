@@ -11,9 +11,11 @@ The client connects to `ws://127.0.0.1:8765`. The service remains usable if this
 The **Experiments** tab is the shared view of retained process, calibrated-window,
 telemetry and identified-design bundles. It follows `workbench.changed`, displays
 native values and full covariance, links instrument dependencies to retained
-results, and marks disconnected data stale. Coordinate and mesh panels that include
-a presentation `render` descriptor are drawn in the declared plane or as a declared
-wireframe; the numeric table remains authoritative. See the [experiment view guide](../docs/EXPERIMENT_VIEW.md)
+results, and marks disconnected data stale. Coordinate, mesh and declared-parameter
+panels that include a presentation `render` descriptor are drawn in the declared
+plane, as a declared wireframe, or on the retained parameter axis. Mesh-path
+views also reuse the oscillator 3D canvas for the declared vertices; the numeric
+table remains authoritative. See the [experiment view guide](../docs/EXPERIMENT_VIEW.md)
 for provider setup, protocol, scientific boundaries and testing. The existing
 oscillator viewport is available in the **Oscillator** tab.
 

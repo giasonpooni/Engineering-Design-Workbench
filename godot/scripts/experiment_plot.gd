@@ -1,5 +1,6 @@
 extends Control
-## Display native points, declared plane geometry, or a declared mesh wireframe.
+## Display native points, declared plane geometry, a declared mesh wireframe,
+## or samples on a retained parameter axis.
 ## No fit, interpolation, or measurement is performed here.
 var panel: Dictionary = {}
 
@@ -17,6 +18,9 @@ func _draw() -> void:
 		return
 	if kind == "mesh":
 		_draw_mesh(render)
+		return
+	if kind == "strip":
+		_draw_strip(render)
 		return
 	_draw_categorical()
 
@@ -182,3 +186,28 @@ func _draw_mesh(render: Dictionary) -> void:
 		elif render.get("target_vertex") != null and int(render.target_vertex) == i:
 			color = Color("60dfcd")
 		draw_circle(_map(samples[i], world, plot), 4, color)
+
+
+func _draw_strip(render: Dictionary) -> void:
+	var font := ThemeDB.fallback_font
+	var samples: Array = render.get("samples", [])
+	if samples.is_empty():
+		draw_string(font, Vector2(20, 40), "Strip render has no retained samples", HORIZONTAL_ALIGNMENT_LEFT, -1, 14)
+		return
+	var low := Vector2(INF, INF)
+	var high := Vector2(-INF, -INF)
+	for item in samples:
+		var point := Vector2(float(item.parameter), float(item.value))
+		low = low.min(point)
+		high = high.max(point)
+	var span := high - low
+	span.x = maxf(span.x, 0.05)
+	span.y = maxf(span.y, maxf(absf(high.y), 1.0) * 0.1)
+	# Independent axes: parameter and value may have different units.
+	var world := Rect2(low - span * 0.1, span * 1.2)
+	var plot := _plot_rect()
+	var caption := "Declared %s axis · points only · not event time" % str(render.get("parameter_name", "parameter"))
+	_draw_axes(world, plot, str(render.get("value_unit", "")), caption)
+	for item in samples:
+		draw_circle(_map(Vector2(float(item.parameter), float(item.value)), world, plot), 4, Color("60dfcd"))
+	draw_string(font, Vector2(plot.end.x - 90, size.y - 15), str(render.get("parameter_unit", "")), HORIZONTAL_ALIGNMENT_RIGHT, 80, 11)

@@ -2,7 +2,7 @@
 from copy import deepcopy
 
 from .experiment_view import SCHEMA, _panel
-from .view_render import attach_plane
+from .view_render import attach_plane, attach_strip
 
 
 def project(record, source, declaration, revision):
@@ -57,6 +57,8 @@ def project(record, source, declaration, revision):
             panels.append(_panel(name, title, labels, values, [unit] * len(grid), None, provenance,
                 frame_id=transfer["frame"], arclength=grid, axis_quantity="arclength",
                 covariance_status="joint_cross_arclength_covariance_not_supplied"))
+            attach_strip(panels[-1], grid, parameter_name="arclength",
+                         parameter_unit=length_unit, frame=transfer["frame"])
     return deepcopy({"schema": SCHEMA, "catalog_revision": revision, "bundle_id": record["bundle_id"],
         "kind": record["kind"], "label": source["label"], "source_id": source["source_id"], "evidence_id": source["evidence_id"],
         "upstream_bundle_id": None, "replay_source_bundle_ids": [r["source_bundle_digest"] for r in bundle.get("replay_receipts", [])],

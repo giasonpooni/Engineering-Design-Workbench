@@ -6,6 +6,7 @@ var _camera: Camera3D
 var _surface: MeshInstance3D
 var _trajectory: MeshInstance3D
 var _marker: MeshInstance3D
+var _target: MeshInstance3D
 var _axes: MeshInstance3D
 var _labels: Array[Label3D] = []
 var _points: PackedVector3Array = []
@@ -48,13 +49,16 @@ func _ready() -> void:
 	_trajectory = MeshInstance3D.new()
 	_axes = MeshInstance3D.new()
 	_marker = MeshInstance3D.new()
-	for item in [_surface, _trajectory, _axes, _marker]:
+	_target = MeshInstance3D.new()
+	for item in [_surface, _trajectory, _axes, _marker, _target]:
 		_world.add_child(item)
 	_surface.material_override = _material(Color(0.24, 0.42, 0.66, 0.36), true)
 	_trajectory.material_override = _material(Color("60dfcd"))
 	_axes.material_override = _material(Color("4e647e"))
 	_marker.material_override = _material(Color("ffcc80"))
+	_target.material_override = _material(Color("60dfcd"))
 	_marker.visible = false
+	_target.visible = false
 	_update_camera()
 
 
@@ -113,6 +117,8 @@ func set_run(run: Dictionary) -> void:
 		path.surface_end()
 	_trajectory.mesh = path
 	_marker.visible = false
+	if _target != null:
+		_target.visible = false
 	if not _points.is_empty() or not vertices.is_empty():
 		_center = (low + high) * 0.5
 		_base_radius = maxf((high - low).length() * 1.05, 1.0)
@@ -122,6 +128,83 @@ func set_run(run: Dictionary) -> void:
 		sphere.height = sphere.radius * 2
 		_marker.mesh = sphere
 		_build_axes(low, high, render.get("axis_labels", ["", "", ""]))
+		_update_camera()
+
+
+func set_system(render: Dictionary) -> void:
+	## Declared mesh/path geometry. Hidden unless this panel or the view carries a mesh.
+	if _surface == null:
+		return
+	var kind := str(render.get("kind", ""))
+	visible = kind == "mesh"
+	_marker.visible = false
+	if not visible:
+		_surface.mesh = null
+		_trajectory.mesh = null
+		_marker.visible = false
+		_target.visible = false
+		return
+	_origin = Vector3.ZERO
+	_scale = Vector3.ONE
+	_sample_indices = []
+	var vertices := PackedVector3Array()
+	var low := Vector3(INF, INF, INF)
+	var high := Vector3(-INF, -INF, -INF)
+	for value in render.get("vertices", []):
+		var coords: Array = value
+		var y := 0.0
+		var z := 0.0
+		if coords.size() > 1:
+			y = float(coords[1])
+		if coords.size() > 2:
+			z = float(coords[2])
+		var point := Vector3(float(coords[0]), y, z)
+		vertices.append(point)
+		low = low.min(point)
+		high = high.max(point)
+	var indices := PackedInt32Array()
+	for face in render.get("triangles", []):
+		indices.append(int(face[0]))
+		indices.append(int(face[1]))
+		indices.append(int(face[2]))
+	var arrays: Array = []
+	arrays.resize(Mesh.ARRAY_MAX)
+	arrays[Mesh.ARRAY_VERTEX] = vertices
+	arrays[Mesh.ARRAY_INDEX] = indices
+	var mesh := ArrayMesh.new()
+	if not vertices.is_empty() and not indices.is_empty():
+		mesh.add_surface_from_arrays(Mesh.PRIMITIVE_TRIANGLES, arrays)
+	_surface.mesh = mesh
+	_points.clear()
+	for index in render.get("path", []):
+		if int(index) >= 0 and int(index) < vertices.size():
+			_points.append(vertices[int(index)])
+	var path := ImmediateMesh.new()
+	if _points.size() > 1:
+		path.surface_begin(Mesh.PRIMITIVE_LINE_STRIP)
+		for point in _points:
+			path.surface_add_vertex(point)
+		path.surface_end()
+	_trajectory.mesh = path
+	_marker.visible = false
+	if not vertices.is_empty():
+		_center = (low + high) * 0.5
+		_base_radius = maxf((high - low).length() * 1.05, 1.0)
+		_radius = _base_radius
+		var sphere := SphereMesh.new()
+		sphere.radius = _base_radius * 0.02
+		sphere.height = sphere.radius * 2
+		_marker.mesh = sphere
+		_target.mesh = sphere.duplicate()
+		_marker.visible = false
+		_target.visible = false
+		if render.get("source_vertex") != null and int(render.source_vertex) < vertices.size():
+			_marker.visible = true
+			_marker.position = vertices[int(render.source_vertex)]
+		if render.get("target_vertex") != null and int(render.target_vertex) < vertices.size():
+			_target.visible = true
+			_target.position = vertices[int(render.target_vertex)]
+		_build_axes(low, high, [str(render.get("unit", "")), "", ""])
 		_update_camera()
 
 

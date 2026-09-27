@@ -1,6 +1,7 @@
 extends VBoxContainer
 ## One selected bundle drives all panels. Selection is local presentation state.
 const Plot = preload("res://scripts/experiment_plot.gd")
+const SystemsView = preload("res://scripts/energy_view.gd")
 var client
 var selected_bundle := ""
 var selected_result := ""
@@ -14,6 +15,7 @@ var _summary: Label
 var _status: Label
 var _panels: OptionButton
 var _plot = Plot.new()
+var _system = SystemsView.new()
 var _numbers: TextEdit
 var _graph: Tree
 var _inspector: TextEdit
@@ -69,6 +71,9 @@ func _ready() -> void:
 	_plot.custom_minimum_size.y = 220
 	_plot.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scientific.add_child(_plot)
+	_system.custom_minimum_size.y = 220
+	_system.visible = false
+	scientific.add_child(_system)
 	_numbers = _text_box()
 	_numbers.custom_minimum_size.y = 88
 	scientific.add_child(_numbers)
@@ -147,6 +152,8 @@ func apply_snapshot(snapshot: Dictionary) -> void:
 		selected_result = ""
 		view.clear()
 		_plot.set_panel({})
+		if _system != null:
+			_system.set_system({})
 		_panels.clear()
 		_graph.clear()
 		_numbers.text = ""
@@ -184,6 +191,8 @@ func _select_bundle(bundle_id: String) -> void:
 	selected_result = ""
 	view.clear()
 	_plot.set_panel({})
+	if _system != null:
+		_system.set_system({})
 	_numbers.text = ""
 	_panels.clear()
 	_graph.clear()
@@ -249,12 +258,18 @@ func apply_view(value: Dictionary) -> void:
 func _select_panel(index: int) -> void:
 	var panel: Dictionary = view.panels[index]
 	_plot.set_panel(panel)
+	var render: Dictionary = panel.get("render", {})
+	if str(render.get("kind", "")) != "mesh":
+		render = view.get("system_render", {})
+	_system.set_system(render)
 	var rows: Array[String] = []
 	for i in panel.values.size():
 		rows.append("%s = %s %s" % [panel.labels[i], JSON.stringify(panel.values[i]), panel.units[i]])
 	rows.append("Full covariance: " + JSON.stringify(panel.covariance))
 	if panel.has("render"):
 		rows.append("Presentation render: " + str(panel.render.get("kind", "")) + " · " + str(panel.render.get("note", panel.render.get("projection", "display only"))))
+	if view.get("system_render") != null:
+		rows.append("View system canvas: " + str(view.system_render.get("kind", "")) + " · display only")
 	rows.append("Basis: " + JSON.stringify(panel.context))
 	rows.append("Source: " + JSON.stringify(panel.provenance))
 	_numbers.text = "\n".join(rows)

@@ -45,8 +45,12 @@ func _run() -> void:
 				quit(1)
 				return
 			var render = value.panels[i].get("render", {})
-			if render.get("kind") in ["plane2d", "mesh"] and view._plot.panel.get("render", {}).get("kind") != render.kind:
+			if render.get("kind") in ["plane2d", "mesh", "strip"] and view._plot.panel.get("render", {}).get("kind") != render.kind:
 				push_error("Presentation render was not applied: " + path)
+				quit(1)
+				return
+			if value.get("system_render", {}).get("kind") == "mesh" and not view._system.visible:
+				push_error("View system canvas was not applied: " + path)
 				quit(1)
 				return
 		print("PASS: retained ", value.kind, " occurrence; ", value.panels.size(), " panels")

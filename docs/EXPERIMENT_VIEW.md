@@ -84,8 +84,14 @@ Replay occurrences preserve their own execution/result identities; they are neve
 appended as additional physical measurements or joined into a time trajectory.
 
 Points use the declared row order. Numeric time coordinates, clock, epoch, frame
-and units remain in panel context. Plots use categorical spacing, draw no connecting
-lines and perform no interpolation. Error bars show marginal one-standard-deviation
+and units remain in panel context. Scalar panels use categorical spacing, draw no
+connecting lines and perform no interpolation. Coordinate panels that already
+store sample-major `x,y` values also carry a presentation `render` descriptor
+(`ciw.panel-render.v1`) so the desktop can draw those same points in the declared
+plane. Mesh-path panels may attach the declared triangle mesh and retained vertex
+path; a 3D inspection canvas uses those same declared coordinates. Curved-path
+series panels may attach a `strip` render that places values on the retained
+arclength parameter instead of a categorical index. Error bars show marginal one-standard-deviation
 ranges from the retained covariance diagonal, **not** joint confidence regions.
 The full matrix stays visible, including off-diagonal and time/value terms.
 Mixed units use the numeric table instead of a common plot scale. The posterior
@@ -95,7 +101,15 @@ a panel labeled as an accepted reconciled state.
 
 The display may format floating-point values; exact source bytes and sealed native
 artifacts remain in CIW. JSON displayed by Godot is an inspection representation,
-not an artifact export to hash or replay.
+not an artifact export to hash or replay. A `render` descriptor is the same class
+of representation: copied declared coordinates and overlays, never a solver output
+and never a calculation input. A drawn circle is the retained constraint, not a
+fitted curve. A drawn mesh uses the first two declared vertex axes for the 2D
+client and the declared coordinates for the optional 3D canvas; neither projection
+is a surveyed view. A strip plot uses the retained parameter as its abscissa and
+does not treat that parameter as event time. Mesh-path inspections also copy the
+same descriptor onto `system_render` so the 3D canvas remains available while a
+sibling scalar panel is selected. That view-level copy is still presentation.
 
 ## Read-only projection protocol
 
