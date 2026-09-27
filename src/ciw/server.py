@@ -16,6 +16,16 @@ from .session import Session, _reject_constant, envelope
 LOG = logging.getLogger(__name__)
 
 
+def _unique_json_object(items):
+    """Reject ambiguous objects before dispatch, as the workspace reader does."""
+    result = {}
+    for key, value in items:
+        if key in result:
+            raise ValueError(f"Duplicate JSON key: {key}")
+        result[key] = value
+    return result
+
+
 def spatial_origins(values):
     """Validate exact host-selected browser origins; never accept wildcards."""
     if isinstance(values, str):
@@ -81,7 +91,8 @@ class WorkbenchServer:
                 try:
                     if not isinstance(raw, str):
                         raise ValueError("Protocol v1 accepts text JSON frames only")
-                    request = json.loads(raw, parse_constant=_reject_constant)
+                    request = json.loads(raw, parse_constant=_reject_constant,
+                                         object_pairs_hook=_unique_json_object)
                 except (ValueError, RecursionError) as exc:
                     await self._send(websocket, envelope("error", {"code": "invalid_request", "message": str(exc)}))
                     continue
