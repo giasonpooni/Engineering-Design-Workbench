@@ -425,10 +425,14 @@ def attach_system_canvases(view, canvases, *, default_id=None):
         offered = render.get("canvas_id")
         if offered not in (None, "", identity):
             raise ValueError("System canvas id must match the detached descriptor")
+        title = item.get("title") or identity
+        claimed = render.get("canvas_title")
+        if claimed not in (None, "", title):
+            raise ValueError("System canvas title must match the detached descriptor")
         seen.add(identity)
         payload = detach_render(render)
         payload["canvas_id"] = identity
-        payload["canvas_title"] = item.get("title") or identity
+        payload["canvas_title"] = title
         copied.append({
             "id": identity,
             "title": payload["canvas_title"],

@@ -208,6 +208,19 @@ def test_attach_system_canvases_copies_declared_planes_without_resampling():
         {"id": "cover_points", "title": "Lifted path coordinates", "render": cover["render"]},
     ])
     assert view["system_render"]["canvas_id"] == "cover_points"
+    cover["render"]["canvas_title"] = "Lifted path coordinates"
+    misplaced = dict(cover["render"])
+    misplaced["canvas_id"] = "parallelogram_points"
+    with pytest.raises(ValueError):
+        attach_system_canvases(view, [
+            {"id": "parallelogram_points", "title": "Wrapped quotient coordinates", "render": misplaced},
+        ])
+    attach_system_canvases(view, [
+        {"id": "cover_points", "title": "Lifted path coordinates", "render": cover["render"]},
+    ])
+    assert view["system_render"]["canvas_title"] == "Lifted path coordinates"
+
+
 
 
 def test_attach_system_canvases_keeps_declared_strips_on_a_named_arclength_axis():
