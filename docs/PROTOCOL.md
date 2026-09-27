@@ -12,7 +12,10 @@ that copies already-projected points, a declared mesh, or a retained parameter a
 for inspection clients. Mesh-path views may also copy that mesh onto `system_render`
 so a 3D canvas can outlive the selected panel. Circle and torus views copy a
 declared plane onto the same field so a companion 2D canvas can keep the
-constraint or quotient visible beside residual or scalar panels. It does not execute a provider or change selection/retention.
+constraint or quotient visible beside residual or scalar panels. When a view
+declares more than one retained plane, `system_canvases` lists those copies and
+`system_canvas_id` names the default. Clients may switch copies; they must not
+resample the path. It does not execute a provider or change selection/retention.
 See [the complete view contract](EXPERIMENT_VIEW.md). Existing `workbench.changed`
 notifications invalidate the catalog; clients fetch authoritative state and keep
 replay occurrences separate from measurement samples.

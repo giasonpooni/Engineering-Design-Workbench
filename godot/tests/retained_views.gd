@@ -58,6 +58,11 @@ func _run() -> void:
 					push_error("Companion plane canvas was not applied: " + path)
 					quit(1)
 					return
+				var canvases = value.get("system_canvases", [])
+				if canvases is Array and canvases.size() > 1 and (not view._canvases.visible or view._canvases.item_count != canvases.size()):
+					push_error("Declared system canvases were not offered: " + path)
+					quit(1)
+					return
 		print("PASS: retained ", value.kind, " occurrence; ", value.panels.size(), " panels")
 	view.queue_free()
 	reader.free()

@@ -2,7 +2,7 @@
 from copy import deepcopy
 
 from .experiment_view import SCHEMA, _panel
-from .view_render import attach_plane, attach_strip, attach_system
+from .view_render import attach_plane, attach_strip, attach_system_canvases
 
 
 def project(record, source, declaration, revision):
@@ -68,8 +68,9 @@ def project(record, source, declaration, revision):
             ("operation_id", "execution_id", "result_id", "numerical_result_id", "input_refs")}}]},
         "raw_observations": [], "raw_declaration": declaration, "verification": bundle["verification"], "runtimes": bundle["runtimes"],
         "authority": {"read_only": True, "numerical_replay": "not_performed_by_inspection", "state_admission": "not_performed"}})
-    preferred = next((panel.get("render") for panel in panels if panel.get("panel_id") == "parallelogram_points"), None)
-    plane = preferred or next((panel.get("render") for panel in panels if panel.get("render", {}).get("kind") == "plane2d"), None)
-    if plane is not None:
-        attach_system(view, plane)
+    preferred = next((panel for panel in panels if panel.get("panel_id") == "parallelogram_points"), None)
+    canvases = [{"id": panel["panel_id"], "title": panel["title"], "render": panel["render"]}
+                for panel in panels if panel.get("render", {}).get("kind") == "plane2d"]
+    if canvases:
+        attach_system_canvases(view, canvases, default_id=(preferred["panel_id"] if preferred else canvases[0]["id"]))
     return view

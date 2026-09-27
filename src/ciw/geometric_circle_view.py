@@ -3,7 +3,7 @@ from copy import deepcopy
 
 from .experiment_view import SCHEMA, _panel
 from .geometric_circle import request
-from .view_render import attach_plane, attach_system, declared_circle_overlay
+from .view_render import attach_plane, attach_system_canvases, declared_circle_overlay
 
 
 def project(record, source, declaration, revision):
@@ -54,7 +54,8 @@ def project(record, source, declaration, revision):
                               "point_m": observations["points_m"][index]} for index, identifier in enumerate(ids)],
         "raw_declaration": declaration, "verification": native["verification"], "runtimes": native["runtimes"],
         "authority": {"read_only": True, "numerical_replay": "not_performed_by_inspection", "state_admission": "not_performed"}})
-    plane = next((panel.get("render") for panel in panels if panel.get("render", {}).get("kind") == "plane2d"), None)
-    if plane is not None:
-        attach_system(view, plane)
+    canvases = [{"id": panel["panel_id"], "title": panel["title"], "render": panel["render"]}
+                for panel in panels if panel.get("render", {}).get("kind") == "plane2d"]
+    if canvases:
+        attach_system_canvases(view, canvases, default_id=canvases[0]["id"])
     return view

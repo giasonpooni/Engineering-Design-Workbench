@@ -179,3 +179,36 @@ def attach_system(view, render):
         raise ValueError("System render requires a detached panel-render descriptor")
     view["system_render"] = deepcopy(render)
     return view
+
+
+def attach_system_canvases(view, canvases, *, default_id=None):
+    """Copy declared alternative canvases. Selection is presentation-only."""
+    if not isinstance(view, dict):
+        raise ValueError("System canvases require the inspection view")
+    if not isinstance(canvases, (list, tuple)) or not canvases:
+        raise ValueError("System canvases require a nonempty declared list")
+    copied = []
+    seen = set()
+    for item in canvases:
+        if not isinstance(item, dict):
+            raise ValueError("System canvas entries must be objects")
+        identity = item.get("id")
+        render = item.get("render")
+        if not isinstance(identity, str) or not identity or identity in seen:
+            raise ValueError("System canvas ids must be unique retained identities")
+        if not isinstance(render, dict) or render.get("schema") != SCHEMA:
+            raise ValueError("System canvas requires a detached panel-render descriptor")
+        seen.add(identity)
+        copied.append({
+            "id": identity,
+            "title": item.get("title") or identity,
+            "render": deepcopy(render),
+        })
+    chosen = default_id or copied[-1]["id"]
+    match = next((item for item in copied if item["id"] == chosen), None)
+    if match is None:
+        raise ValueError("System canvas default is not one of the declared canvases")
+    view["system_canvases"] = copied
+    view["system_canvas_id"] = match["id"]
+    view["system_render"] = deepcopy(match["render"])
+    return view

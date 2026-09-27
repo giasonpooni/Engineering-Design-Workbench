@@ -9,6 +9,7 @@ from ciw.view_render import (
     attach_plane,
     attach_strip,
     attach_system,
+    attach_system_canvases,
     declared_circle_overlay,
     declared_mesh,
     plane_from_interleaved,
@@ -143,4 +144,31 @@ def test_attach_system_keeps_a_declared_plane_and_circle_overlay():
     assert view["system_render"]["overlays"][0]["source"] == "declared_constraint"
     panel["render"]["points"][0]["x"] = 99
     assert view["system_render"]["points"][0]["x"] == 1.0
+
+
+def test_attach_system_canvases_copies_declared_planes_without_resampling():
+    cover = {"labels": ["a.x", "a.y"], "values": [0.1, 0.2], "units": ["m", "m"]}
+    wrapped = {"labels": ["b.x", "b.y"], "values": [0.3, 0.4], "units": ["m", "m"]}
+    attach_plane(cover, frame="area-one-flat-quotient")
+    attach_plane(wrapped, frame="area-one-flat-quotient")
+    view = {"kind": "flat-torus-reference"}
+    attach_system_canvases(view, [
+        {"id": "cover_points", "title": "Lifted path coordinates", "render": cover["render"]},
+        {"id": "parallelogram_points", "title": "Wrapped quotient coordinates", "render": wrapped["render"]},
+    ], default_id="parallelogram_points")
+    assert view["system_canvas_id"] == "parallelogram_points"
+    assert [item["id"] for item in view["system_canvases"]] == ["cover_points", "parallelogram_points"]
+    assert view["system_render"]["points"][0]["x"] == 0.3
+    cover["render"]["points"][0]["x"] = 9
+    assert view["system_canvases"][0]["render"]["points"][0]["x"] == 0.1
+    with pytest.raises(ValueError):
+        attach_system_canvases(view, [
+            {"id": "cover_points", "title": "Lifted", "render": cover["render"]},
+        ], default_id="missing")
+    with pytest.raises(ValueError):
+        attach_system_canvases(view, [
+            {"id": "cover_points", "title": "Lifted", "render": cover["render"]},
+            {"id": "cover_points", "title": "Duplicate", "render": wrapped["render"]},
+        ])
+
 

@@ -16,6 +16,7 @@ var _status: Label
 var _panels: OptionButton
 var _plot = Plot.new()
 var _system_plot = Plot.new()
+var _canvases: OptionButton
 var _system = SystemsView.new()
 var _numbers: TextEdit
 var _graph: Tree
@@ -72,6 +73,11 @@ func _ready() -> void:
 	_plot.custom_minimum_size.y = 220
 	_plot.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scientific.add_child(_plot)
+	_canvases = OptionButton.new()
+	_canvases.visible = false
+	_canvases.item_selected.connect(func(_index: int):
+		_draw_system_canvas())
+	scientific.add_child(_canvases)
 	_system_plot.custom_minimum_size.y = 180
 	_system_plot.visible = false
 	scientific.add_child(_system_plot)
@@ -158,6 +164,9 @@ func apply_snapshot(snapshot: Dictionary) -> void:
 		_plot.set_panel({})
 		_system_plot.set_panel({})
 		_system_plot.visible = false
+		if _canvases != null:
+			_canvases.clear()
+			_canvases.visible = false
 		if _system != null:
 			_system.set_system({})
 		_panels.clear()
@@ -199,6 +208,9 @@ func _select_bundle(bundle_id: String) -> void:
 	_plot.set_panel({})
 	_system_plot.set_panel({})
 	_system_plot.visible = false
+	if _canvases != null:
+		_canvases.clear()
+		_canvases.visible = false
 	if _system != null:
 		_system.set_system({})
 	_numbers.text = ""
@@ -228,6 +240,7 @@ func apply_view(value: Dictionary) -> void:
 	_plot.set_panel({})
 	_numbers.text = ""
 	_panels.clear()
+	_fill_system_canvases()
 	for panel in view.panels:
 		_panels.add_item(panel.title)
 	if not view.panels.is_empty():
@@ -263,22 +276,49 @@ func apply_view(value: Dictionary) -> void:
 	_show_json(context)
 
 
+func _fill_system_canvases() -> void:
+	if _canvases == null:
+		return
+	_canvases.clear()
+	var items: Array = view.get("system_canvases", [])
+	var selected := 0
+	var default_id := str(view.get("system_canvas_id", ""))
+	for i in items.size():
+		var item: Dictionary = items[i]
+		_canvases.add_item(str(item.get("title", item.get("id", "canvas"))))
+		if str(item.get("id", "")) == default_id:
+			selected = i
+	if _canvases.item_count > 0:
+		_canvases.select(selected)
+
+
+func _canvas_render() -> Dictionary:
+	var items: Array = view.get("system_canvases", [])
+	if _canvases != null and _canvases.selected >= 0 and _canvases.selected < items.size():
+		return items[_canvases.selected].get("render", {})
+	return view.get("system_render", {})
+
+
 func _select_panel(index: int) -> void:
 	var panel: Dictionary = view.panels[index]
 	_plot.set_panel(panel)
 	var panel_render: Dictionary = panel.get("render", {})
 	var panel_kind := str(panel_render.get("kind", ""))
-	var system_render: Dictionary = view.get("system_render", {})
+	var system_render: Dictionary = _canvas_render()
+	if system_render.is_empty():
+		system_render = view.get("system_render", {})
 	var system_kind := str(system_render.get("kind", ""))
 	if panel_kind == "mesh":
 		_system.set_system(panel_render)
 	else:
-		_system.set_system(system_render)
-	if system_kind == "plane2d" and panel_kind != "plane2d":
-		_system_plot.visible = true
+		_system.set_system(system_render if system_kind == "mesh" else {})
+	var show_plane := system_kind == "plane2d" and panel_kind != "plane2d"
+	_system_plot.visible = show_plane
+	if _canvases != null:
+		_canvases.visible = show_plane and _canvases.item_count > 1
+	if show_plane:
 		_system_plot.set_panel({"render": system_render})
 	else:
-		_system_plot.visible = false
 		_system_plot.set_panel({})
 	var rows: Array[String] = []
 	for i in panel.values.size():
@@ -287,10 +327,21 @@ func _select_panel(index: int) -> void:
 	if panel.has("render"):
 		rows.append("Presentation render: " + str(panel.render.get("kind", "")) + " · " + str(panel.render.get("note", panel.render.get("projection", "display only"))))
 	if view.get("system_render") != null:
-		rows.append("View system canvas: " + str(view.system_render.get("kind", "")) + " · display only")
+		var canvas_id := str(view.get("system_canvas_id", ""))
+		if _canvases != null and _canvases.visible and _canvases.selected >= 0:
+			var items: Array = view.get("system_canvases", [])
+			if _canvases.selected < items.size():
+				canvas_id = str(items[_canvases.selected].get("id", canvas_id))
+		rows.append("View system canvas: " + system_kind + (" · " + canvas_id if not canvas_id.is_empty() else "") + " · display only")
 	rows.append("Basis: " + JSON.stringify(panel.context))
 	rows.append("Source: " + JSON.stringify(panel.provenance))
 	_numbers.text = "\n".join(rows)
+
+
+func _draw_system_canvas() -> void:
+	if view.is_empty() or _panels == null or _panels.selected < 0:
+		return
+	_select_panel(_panels.selected)
 
 
 func _select_node() -> void:

@@ -111,8 +111,10 @@ does not treat that parameter as event time. Mesh-path inspections also copy the
 same descriptor onto `system_render` so the 3D canvas remains available while a
 sibling scalar panel is selected. Circle-geometry and flat-torus inspections copy
 the declared plane onto `system_render` so a companion canvas keeps the constraint
-or quotient visible while a residual or scalar panel is selected. That view-level
-copy is still presentation.
+or quotient visible while a residual or scalar panel is selected. When more than
+one declared plane exists, `system_canvases` lists those copies and the desktop
+may switch among them. Switching does not resample, unwrap, or project the path.
+That view-level copy is still presentation.
 
 ## Read-only projection protocol
 
