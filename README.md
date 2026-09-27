@@ -2,7 +2,7 @@
 
 Part of **Notation Systems' computational instrumentation and evidence infrastructure** for industrial and cyber-physical systems.
 
-[Stack map](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/STACK.md) · [Component role and interfaces](docs/STACK_ROLE.md)
+[Stack map](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/main/docs/STACK.md) · [Component role and interfaces](docs/STACK_ROLE.md)
 
 **Reconciliation of estimated states against declared constraints, with uncertainty
 propagation and correction diagnostics.**
@@ -33,7 +33,7 @@ Solid arrows show the bounded local operation. An accepted receipt records
 correction and pre/post residuals; it does not prove the declared law physically
 true. The incoming candidate remains visible in every receipt, and execution,
 numerical-result and output-state identities remain distinct. See the
-[Instrumentation diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md).
+[Instrumentation diagram atlas](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/main/docs/DIAGRAMS.md).
 
 ## Run
 
@@ -106,7 +106,7 @@ to the calling workbench and evidence system.
 | [Geometric State Inference Engine](https://github.com/giasonpooni/Geometric-State-Inference-Engine) | Estimate state and uncertainty before optional reconciliation. |
 | [State Estimation Evaluation Testbed](https://github.com/giasonpooni/State-Estimation-Evaluation-Testbed) | Evaluate state reconstruction and degradation scenarios. |
 | [Geospatial State Visualization](https://github.com/giasonpooni/Geospatial-State-Visualization) | Present geographic and temporal state for inspection. |
-| [Computational Instrumentation Workbench](https://github.com/giasonpooni/Computational-Instrumentation-Workbench) | Provide the environment for operating, inspecting, and replaying instruments. |
+| [Notations Engineering Terminal (CIW)](https://github.com/giasonpooni/Notations-Engineering-Terminal) | Provide the existing environment for operating, inspecting, and replaying instruments. |
 
 ## Identity and compatibility
 
