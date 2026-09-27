@@ -115,6 +115,11 @@ func _run() -> void:
 						push_error("Plane declared frame was not listed: " + path)
 						quit(1)
 						return
+					var plane_id := str(value.get("system_render", {}).get("canvas_id", ""))
+					if not plane_id.is_empty() and plane_id != plane_frame and not view._numbers.text.contains(plane_id):
+						push_error("Plane canvas id was not listed: " + path)
+						quit(1)
+						return
 				var overlays = value.get("system_render", {}).get("overlays", [])
 				if overlays is Array and not overlays.is_empty():
 					var constraint := str(overlays[0].get("constraint_id", overlays[0].get("overlay_title", "")))

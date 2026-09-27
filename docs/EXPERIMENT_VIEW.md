@@ -160,7 +160,8 @@ canvas title is present. The entry
 title must match the detached canvas_title the same way. The Workbench selector
 ignores an entry whose render.canvas_id does not match that id. The companion
 plot draws nothing when payload panel_id and render.canvas_id disagree. Companion plane rows name the declared frame (`area-one-flat-quotient` or the
-GTE coordinate frame). The plane plot axis caption uses that same frame. Copy ids stay on the canvas selector. Each copy carries `canvas_id` and `canvas_title` so the plot can name the active
+GTE coordinate frame). The same row names the canvas entry (`cover_points` /
+`parallelogram_points`) as a separate `canvas` token. The plane plot axis caption uses that same frame. Copy ids stay on the canvas selector. Each copy carries `canvas_id` and `canvas_title` so the plot can name the active
 declared plane. The companion selector and numeric table also show the active
 copy's first and last declared samples. When the active copy carries a declared
 circle, the same table names that constraint_id. That view-level copy is still presentation.

@@ -320,7 +320,7 @@ func _canvas_id_phrase(render: Dictionary) -> String:
 	var identity := str(render.get("canvas_id", ""))
 	if identity.is_empty() or identity == _declared_frame(render):
 		return ""
-	return identity
+	return "canvas " + identity
 
 
 func _identity_extra(render: Dictionary) -> String:
