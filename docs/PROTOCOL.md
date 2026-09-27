@@ -10,7 +10,8 @@ verification. Coordinate, mesh and declared-parameter panels may include an opti
 presentation `render` object (`ciw.panel-render.v1`: `plane2d`, `mesh`, or `strip`)
 that copies already-projected points, a declared mesh, or a retained parameter axis
 for inspection clients. `plane2d` and `strip` copies keep `connect: false`;
-clients must not draw a polyline between those samples. Circle overlays remain
+detach refuses `connect: true` with `Plane and strip copies stay unconnected`.
+Clients must not draw a polyline between those samples. Circle overlays remain
 declared-constraint copies; detach refuses a fitted source or authority with
 `Circle overlay refuses fitted or estimated geometry`. The canvas names
 a declared circle from its retained constraint_id. Detached mesh

@@ -86,7 +86,8 @@ appended as additional physical measurements or joined into a time trajectory.
 Points use the declared row order. Numeric time coordinates, clock, epoch, frame
 and units remain in panel context. Scalar panels use categorical spacing, draw no
 connecting lines and perform no interpolation. `plane2d` and `strip` descriptors
-carry `connect: false`; that flag is authority, not a client hint. A connected
+carry `connect: false`; that flag is authority, not a client hint. Detach
+refuses `connect: true` with `Plane and strip copies stay unconnected`. A connected
 polyline would invent a trajectory. Declared mesh `path` indices remain edges,
 not interpolated samples. Coordinate panels that already
 store sample-major `x,y` values also carry a presentation `render` descriptor

@@ -336,23 +336,24 @@ def test_attach_system_canvases_keeps_declared_strips_on_a_named_arclength_axis(
     assert view["system_render"]["samples"][0]["value"] == 0.1
 
 
-def test_detach_render_clears_connect_on_plane_and_strip():
+def test_detach_render_refuses_connect_on_plane_and_strip():
     panel = {"labels": ["a.x", "a.y"], "values": [1.0, 0.0], "units": ["m", "m"]}
     attach_plane(panel, frame="bench-plane")
-    panel["render"]["connect"] = True
     copied = detach_render(panel["render"])
     assert copied["connect"] is False
+    panel["render"]["connect"] = True
+    with pytest.raises(ValueError, match="Plane and strip copies stay unconnected"):
+        detach_render(panel["render"])
     assert panel["render"]["connect"] is True
     strip = {"values": [0.1, 0.2], "units": ["m", "m"]}
-    attach_strip(strip, [0.0, 1.0], parameter_name="arclength", parameter_unit="m", frame="path")
-    strip["render"]["connect"] = True
+    attach_strip(strip, [0.0, 1.0], parameter_name="arclength", parameter_unit="m",
+                 frame="path", canvas_id="separation", canvas_title="Native transverse separation")
     view = {"kind": "curved-path-transfer"}
     attach_system(view, strip["render"])
     assert view["system_render"]["connect"] is False
-    attach_system_canvases(view, [
-        {"id": "separation", "title": "Native transverse separation", "render": strip["render"]},
-    ], default_id="separation")
-    assert view["system_canvases"][0]["render"]["connect"] is False
+    strip["render"]["connect"] = True
+    with pytest.raises(ValueError, match="Plane and strip copies stay unconnected"):
+        attach_system(view, strip["render"])
     with pytest.raises(ValueError):
         detach_render({"kind": "strip", "connect": True})
 

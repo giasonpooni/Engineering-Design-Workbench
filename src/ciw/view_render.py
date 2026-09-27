@@ -67,6 +67,8 @@ def detach_render(render):
         raise ValueError("System render requires a detached panel-render descriptor")
     payload = deepcopy(render)
     if payload.get("kind") in UNCONNECTED_KINDS:
+        if payload.get("connect") is True:
+            raise ValueError("Plane and strip copies stay unconnected")
         payload["connect"] = False
     identity = payload.get("canvas_id")
     frame = payload.get("frame")
