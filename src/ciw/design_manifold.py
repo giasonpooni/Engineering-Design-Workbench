@@ -75,3 +75,25 @@ def compose(first_id, second_id, point, *, source_frame, mid_frame, target_frame
         "target": second["target"],
         "authority": "chart_application_is_not_state_admission",
     }
+
+
+def apply_document(document):
+    """Apply a declared chart document."""
+    if not isinstance(document, dict) or document.get("schema") != SCHEMA:
+        raise ValueError("Design chart document requires schema " + SCHEMA)
+    if document.get("compose"):
+        first, second = document["compose"]
+        return compose(
+            first, second, document.get("point"),
+            source_frame=document.get("source_frame"),
+            mid_frame=document.get("mid_frame"),
+            target_frame=document.get("target_frame"),
+            first_scales=document.get("first_scales"),
+            second_scales=document.get("second_scales"),
+        )
+    return apply_chart(
+        document.get("chart_id"), document.get("point"),
+        source_frame=document.get("source_frame"),
+        target_frame=document.get("target_frame"),
+        scales=document.get("scales"),
+    )

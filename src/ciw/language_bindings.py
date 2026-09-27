@@ -82,3 +82,40 @@ def inspect_binding(binding_id, path=None):
         report["detail"] = "Native session accepted without launching SCR"
         return report
     raise ValueError("Unknown language binding")
+
+
+def inspect_runtime_files(binding_id):
+    """Hash pinned runtime files. Does not launch the runtime."""
+    catalogued = next((item for item in BINDINGS if item["id"] == binding_id), None)
+    if catalogued is None:
+        raise ValueError("Unknown language binding")
+    root = Path(__file__).resolve().parents[2]
+    files = {
+        "julia-oscillator": (
+            "runtimes/julia-oscillator/oscillator_worker.jl",
+            "runtimes/julia-oscillator/Project.toml",
+        ),
+        "native-interop-scr": (
+            "runtimes/native-interop/worker.jl",
+            "runtimes/native-interop/Project.toml",
+        ),
+    }.get(binding_id, ())
+    from hashlib import sha256
+    entries = []
+    for relative in files:
+        path = root / relative
+        if not path.is_file():
+            raise ValueError("Pinned runtime file is missing: " + relative)
+        entries.append({
+            "path": relative,
+            "sha256": sha256(path.read_bytes()).hexdigest(),
+            "bytes": path.stat().st_size,
+        })
+    return {
+        "schema": SCHEMA,
+        "binding": deepcopy(catalogued),
+        "runtime_launched": False,
+        "status": "inspectable",
+        "files": entries,
+        "detail": "Pinned runtime files hashed without launching the language",
+    }

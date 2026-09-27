@@ -197,14 +197,17 @@ def _projection(session, result):
     }
 
 
-def work(output_dir):
+def work(output_dir, topic=TOPIC):
+    if topic not in (TOPIC, ENERGY_TOPIC):
+        raise ValueError("Unsupported lesson or abstraction level")
     output_dir = Path(output_dir)
     # A new directory reserves this occurrence and prevents silent replacement.
     output_dir.mkdir(parents=True, exist_ok=False)
     session = Session(make_demo_run(), output_dir)
-    reply = _execute(session, {"channel": "q", "interval_s": [0.0, 12.0]})
+    channel = "q" if topic == TOPIC else "energy"
+    reply = _execute(session, {"channel": channel, "interval_s": [0.0, 12.0]})
     path = session.save_workspace(output_dir / "workspace.json")
-    return {"topic": TOPIC, "workspace_file": str(path), **reply}
+    return {"topic": topic, "workspace_file": str(path), **reply}
 
 
 def inspect_workspace(path, result_id):
@@ -289,7 +292,7 @@ def register_commands(commands):
         if name == "explore":
             action.add_argument("--view", choices=["why", "derive", "bridge"], default="why")
     action = actions.add_parser("work", help="Run the lesson through statistics.v1 and retain a workspace")
-    action.add_argument("topic", choices=[TOPIC])
+    action.add_argument("topic", choices=[TOPIC, ENERGY_TOPIC])
     action.add_argument("--output-dir", type=Path, required=True, help="New directory for this occurrence")
     for name in ("inspect", "verify", "replay"):
         action = actions.add_parser(name, help={
@@ -319,7 +322,7 @@ def run_cli(args):
                 print("  " + (content if isinstance(content, str) else json.dumps(content, ensure_ascii=True)))
             return 0
     elif action == "work":
-        value = work(args.output_dir)
+        value = work(args.output_dir, args.topic)
     elif action == "inspect":
         value = inspect_workspace(args.path, args.result_id)
     elif action == "verify":

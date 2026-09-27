@@ -90,3 +90,33 @@ def test_lesson_progress_sequences_the_two_oscillator_lessons():
     assert done["next"] == "oscillator-energy"
     finished = progress(["oscillator-rms", "oscillator-energy"])
     assert finished["next"] is None
+
+
+def test_energy_lesson_runs_statistics_on_the_energy_channel(tmp_path):
+    from ciw.learning import work
+    report = work(tmp_path / "energy-lesson", "oscillator-energy")
+    assert report["topic"] == "oscillator-energy"
+    assert report["result"]["channel"] == "energy"
+    assert report["result"]["data"]["unit"] == "J"
+
+
+def test_bindings_hash_pinned_runtime_files():
+    from ciw.language_bindings import inspect_runtime_files
+    report = inspect_runtime_files("julia-oscillator")
+    assert report["files"]
+    assert report["runtime_launched"] is False
+    native = inspect_runtime_files("native-interop-scr")
+    assert native["files"][0]["path"].endswith("worker.jl")
+
+
+def test_chart_document_applies_a_declared_map():
+    from ciw.design_manifold import SCHEMA, apply_document
+    mapped = apply_document({
+        "schema": SCHEMA,
+        "chart_id": "scale",
+        "point": [4.0],
+        "source_frame": "model",
+        "target_frame": "display",
+        "scales": [0.25],
+    })
+    assert mapped["target"] == [1.0]
