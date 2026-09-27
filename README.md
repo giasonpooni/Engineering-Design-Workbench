@@ -1,8 +1,8 @@
-# Notations Design Terminal
+# Notations Engineering Terminal
 
 **Run scientific calculations, compare changes, and keep a checkable record.**
 
-**Notations Design Terminal** is a terminal-first scientific computing and
+**Notations Engineering Terminal** is a terminal-first scientific computing and
 cyber-physical design workbench from **Notation Systems**. It runs supported
 models and analysis operations, saves their inputs and results, and lets you
 inspect or reopen a study without running it again. Supported sensing and
@@ -16,9 +16,12 @@ rather than saving only a final number or plot. Engineering design is the main
 use: change a permitted input, calculate the response, check the result and
 compare candidates.
 
-Notations Design Terminal extends the existing **Computational Instrumentation Workbench (CIW)**.
+Notations Engineering Terminal extends the existing **Computational Instrumentation Workbench (CIW)**.
 The Python package and terminal command remain `ciw`; this is not a second
 runtime. The software works without a graphical viewer or an AI assistant.
+Earlier documentation used **Notations Design Terminal** and **Parametric Design
+Testbed**. These are historical project titles, not new operation, execution,
+result or verification identities.
 
 [notations.io](https://notations.io) · [Quickstart](#quickstart) · [What works today](#current-scope) ·
 [How it works](#how-an-investigation-works) · [Development priorities](#next-gates) ·
@@ -144,11 +147,12 @@ and checks a workflow supports.
 
 | Component | Responsibility |
 | --- | --- |
-| **Notations / CIW** | Manage the investigation, selected operations, saved history, inspection and explicit replay. The existing Python session remains authoritative for these records. |
+| **Notations Engineering Terminal / CIW** | Manage the investigation, selected operations, saved history, inspection and explicit replay. The existing Python session remains authoritative for these records. |
 | **Scientific providers** | Supply domain models and calculations through adapters with explicit source/runtime versions. Each repository retains its own scientific contract, tests and licence. |
 | **Native execution / SCR** | Supply selected native execution adapters where a profile registers them. The Python session remains authoritative. |
 | **Checkers / ICRH, PLSR and selected SP1 paths** | Check the numerical, contract, stability or registered-computation claims they actually support. A computation does not certify itself. |
 | **Evidence handoff / ESM** | Handle separately supported retention, review and release of evidence or candidate state. An inspect copy and a `render` descriptor are not modeling inputs and do not admit corpus state. |
+| [Geospatial Systems Compiler (GSC)](https://github.com/giasonpooni/Geospatial-Systems-Compiler) | Separately maintained browser presentation and visualization project, formerly Payload Terminal V0. Its ESM read-only projection and workbench handoff are integration targets, not a second workbench or execution authority. |
 | **Inspection clients** | Display numerical, temporal, spectral, geographic or local 2D/3D views of retained inspect records. Closing a viewer does not stop the backend or change retained records. |
 
 The model, calculation and supporting evidence are related but separate records:
