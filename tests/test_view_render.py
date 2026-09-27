@@ -84,6 +84,7 @@ def test_declared_mesh_copies_faces_and_retained_path_indices():
     assert render["path"] == [1, 0, 3]
     assert render["source_label"] == "source 1"
     assert render["target_label"] == "target 3"
+    assert render["declared_planar"] is True
     assert render["canvas_id"] == "synthetic-planar-square"
     assert render["canvas_title"] == "synthetic-planar-square"
     assert render["projection"] == "first_two_declared_axes"
@@ -93,6 +94,10 @@ def test_declared_mesh_copies_faces_and_retained_path_indices():
         declared_mesh(mesh, path=[8])
     with pytest.raises(ValueError):
         declared_mesh({"vertices": [[0, 0]], "triangles": []})
+    lifted = declared_mesh({"vertices": [[0, 0, 1], [1, 0, 0], [0, 1, 0]],
+                            "triangles": [[0, 1, 2]], "units": "normalized_length",
+                            "coordinate_frame": "lifted-triangle"})
+    assert lifted["declared_planar"] is False
 
 
 def test_interleaved_native_points_keep_declared_circle_as_overlay_only():

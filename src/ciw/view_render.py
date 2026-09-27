@@ -230,6 +230,7 @@ def detach_mesh_geometry(render):
         "target_vertex": target,
         "source_label": None if source is None else "source %s" % source,
         "target_label": None if target is None else "target %s" % target,
+        "declared_planar": all(len(vertex) < 3 or vertex[2] == 0 for vertex in vertices),
     }
 
 
@@ -258,10 +259,13 @@ def declared_mesh(mesh, *, path=(), source_vertex=None, target_vertex=None,
         "path": geometry["path"],
         "source_vertex": geometry["source_vertex"],
         "target_vertex": geometry["target_vertex"],
-        "source_label": None if geometry["source_vertex"] is None else "source %s" % geometry["source_vertex"],
-        "target_label": None if geometry["target_vertex"] is None else "target %s" % geometry["target_vertex"],
+        "source_label": geometry["source_label"],
+        "target_label": geometry["target_label"],
+        "declared_planar": geometry["declared_planar"],
         "projection": "first_two_declared_axes",
-        "note": "Wireframe of declared vertices; 2D clients use the first two axes only",
+        "note": ("Wireframe of declared planar vertices"
+                 if geometry["declared_planar"]
+                 else "Wireframe of declared vertices; 2D clients use the first two axes only"),
     }
     if identity:
         payload["canvas_id"] = identity

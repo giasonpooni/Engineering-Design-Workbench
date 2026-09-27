@@ -235,7 +235,15 @@ func _draw_mesh(render: Dictionary) -> void:
 		return
 	var world := _bounds(samples)
 	var plot := _plot_rect()
-	_draw_axes(world, plot, _axis_unit(render), _canvas_caption(render, "Declared mesh · first two axes · not a surveyed surface"))
+	var planar := bool(render.get("declared_planar", true))
+	if not render.has("declared_planar"):
+		planar = true
+		for vertex in vertices:
+			if typeof(vertex) in [TYPE_ARRAY, TYPE_PACKED_FLOAT32_ARRAY, TYPE_PACKED_FLOAT64_ARRAY] and vertex.size() > 2 and not is_zero_approx(float(vertex[2])):
+				planar = false
+				break
+	var fallback := "Declared planar mesh · not a surveyed surface" if planar else "Declared mesh · first two axes · not a surveyed surface"
+	_draw_axes(world, plot, _axis_unit(render), _canvas_caption(render, fallback))
 	_draw_canvas_id(render, plot)
 	for face in triangles:
 		var a := _map(samples[int(face[0])], world, plot)

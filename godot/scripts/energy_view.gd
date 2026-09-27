@@ -178,6 +178,8 @@ func set_system(render: Dictionary) -> void:
 	var low := Vector3(INF, INF, INF)
 	var high := Vector3(-INF, -INF, -INF)
 	var planar_z := true
+	if render.has("declared_planar"):
+		planar_z = bool(render.declared_planar)
 	for value in render.get("vertices", []):
 		var coords: Array = value
 		var y := 0.0
