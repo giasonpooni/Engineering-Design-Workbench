@@ -28,25 +28,34 @@ runtime. The software works without a graphical viewer or an AI assistant.
 ## What works today
 
 Support is specific to each operation. The [operation catalogue](docs/INSTRUMENTS.md)
-contains the commands; [integration coverage](docs/INTEGRATION_COVERAGE.md)
-records exercised paths, independent checks and remaining gaps.
+is the authoritative command list; [integration coverage](docs/INTEGRATION_COVERAGE.md)
+records exercised paths, independent checks and remaining gaps. Prefer those two
+documents over any aspirational language elsewhere in this README.
 
-| You can | Scope and requirements |
-| --- | --- |
-| Generate a synthetic oscillator recording and calculate statistics or a spectrum. | Built-in example; no external scientific provider or hardware required. |
-| Save, inspect, reopen and explicitly replay investigations. | Reopening reads retained inputs and results without recomputing them. Replay is a new execution with its own identity. |
-| Run supported measurement, telemetry, calibration, estimation and design workflows. | Uses the exact provider versions and input assumptions listed in the integration guides; not a generic live sensor-fusion service. |
-| Evaluate supported covariance and geometric-path calculations. | Bounded matrix, mesh, translation-flow, flat-torus and curved-path operations; each has its own numerical limits. |
-| Inspect model equations and make bounded what-if previews. | Equation cards and offline previews associated with the oscillator workflow; the full learning curriculum is not implemented. |
-| Follow a retained RMS lesson through the existing statistics operation. | [One worked investigation](docs/LEARNING.md), with a separate Decimal comparison and explicit replay; no new curriculum engine or proof claim. |
-| Evaluate a recorded machine configuration. | Read-only encoder/gearbox/leadscrew reference workflow, with configuration, inputs and results retained together; no firmware loading or actuation. |
-| Run selected stability and computation checks. | PLSR and registered SCR/SP1 operations have separate requirements and scopes; they do not verify every calculation or physical model. |
-| Capture and compare GPU energy-to-accuracy measurements. | Explicit host capture requires a supported NVIDIA device and its NVML interface. Shared-session analysis uses retained logs. |
-| Inspect results in optional graphical clients. | Godot views and read-only geographic inspection use retained records; neither changes the scientific result. |
+| You can | Scope and requirements | Catalogue |
+| --- | --- | --- |
+| Generate a synthetic oscillator recording and calculate statistics or a spectrum. | Built-in example; no external scientific provider or hardware required. | [Instruments: synthetic damped oscillator](docs/INSTRUMENTS.md#synthetic-damped-oscillator); [coverage matrix](docs/INTEGRATION_COVERAGE.md) |
+| Save, inspect, reopen and explicitly replay investigations. | Reopening reads retained inputs and results without recomputing them. Replay is a new execution with its own identity. | [Instruments](docs/INSTRUMENTS.md); [coverage: reopen/replay rows](docs/INTEGRATION_COVERAGE.md) |
+| Run supported measurement, telemetry, calibration, estimation and design workflows. | Uses the exact provider versions and input assumptions listed in the integration guides; not a generic live sensor-fusion service. | [Instruments](docs/INSTRUMENTS.md); [coverage matrix](docs/INTEGRATION_COVERAGE.md) |
+| Evaluate supported covariance and geometric-path calculations. | Bounded matrix, mesh, translation-flow, flat-torus and curved-path operations; each has its own numerical limits. | [Instruments: covariance / GTE / geodesic refs](docs/INSTRUMENTS.md); [coverage](docs/INTEGRATION_COVERAGE.md) |
+| Inspect model equations and make bounded what-if previews. | Equation cards and offline previews associated with the oscillator workflow only. | [Model exploration](docs/MODEL_EXPLORATION.md); [Instruments: Julia oscillator](docs/INSTRUMENTS.md) |
+| Follow a retained RMS lesson through the existing statistics operation. | [One worked investigation](docs/LEARNING.md), with a separate Decimal comparison and explicit replay; no new engine or proof claim. | [Learning note](docs/LEARNING.md); [Instruments: oscillator stats](docs/INSTRUMENTS.md#synthetic-damped-oscillator) |
+| Evaluate a recorded machine configuration. | Read-only encoder/gearbox/leadscrew reference workflow, with configuration, inputs and results retained together; no firmware loading or actuation. | [Coverage: encoder-position](docs/INTEGRATION_COVERAGE.md); [Instruments](docs/INSTRUMENTS.md) |
+| Run selected stability and computation checks. | PLSR and registered SCR/SP1 operations have separate requirements and scopes; they do not verify every calculation or physical model. | [Instruments: PLSR / proved heat](docs/INSTRUMENTS.md); [coverage](docs/INTEGRATION_COVERAGE.md) |
+| Capture and compare GPU energy-to-accuracy measurements. | Explicit host capture requires a supported NVIDIA device and its NVML interface. Shared-session analysis uses retained logs. | [Energy-to-accuracy](docs/ENERGY_ACCURACY.md); [Instruments](docs/INSTRUMENTS.md); [coverage](docs/INTEGRATION_COVERAGE.md) |
+| Inspect results in optional graphical clients. | Godot views and read-only geographic inspection use retained records; neither changes the scientific result. | [Coverage: GSV / session views](docs/INTEGRATION_COVERAGE.md); [Instruments](docs/INSTRUMENTS.md) |
 
-The broader laboratory integration is still being completed. Current support
-does **not** establish general-purpose hardware acquisition, equipment control,
-a complete mathematics curriculum or platform-wide industrial qualification.
+### Not claimed / not implemented
+
+The following are **not** delivered product features. They may appear later in
+this README only as planned or research notes.
+
+- OpenUSD scene interchange
+- Full mathematics curriculum / `history` / `learn` / `explore` surfaces
+- Parametric design manifolds / category-theoretic composition as product features
+- General hardware gateway beyond the bounded GPU energy-to-accuracy path
+- Platform-wide industrial qualification
+- Julia / C++ / Rust as a mandatory language chain
 
 ## Quickstart
 
@@ -126,8 +135,8 @@ The existing workflows remain in place:
 
 A failed or refused operation remains part of the investigation. Original
 observations remain distinct from predictions, estimates and corrected values.
-The question, assumptions, objectives and standard of evidence are chosen by
-the operator, not inferred from a successful calculation.
+The question, assumptions, objectives and standard of evidence are chosen by the
+operator, not inferred from a successful calculation.
 
 <a id="one-environment-separate-responsibilities"></a>
 <a id="existing-runtime-same-substrate"></a>
@@ -142,7 +151,7 @@ and checks a workflow supports.
 | --- | --- |
 | **Notations / CIW** | Manage the investigation, selected operations, saved history, inspection and explicit replay. The existing Python session remains authoritative for these records. |
 | **Scientific providers** | Supply domain models and calculations through adapters with explicit source/runtime versions. Each repository retains its own scientific contract, tests and licence. |
-| **Native execution / SCR** | Supply supported native execution services and runtime bindings. Python, Julia and C/C++ implementations connect through the applicable registered boundary; no mandatory language chain is imposed. |
+| **Native execution / SCR** | Supply supported native execution services and runtime bindings. Selected providers may be bound where registered; Python remains the shared session. There is no mandatory multi-language chain. |
 | **Checkers / ICRH, PLSR and selected SP1 paths** | Check the numerical, contract, stability or registered-computation claims they actually support. A computation does not certify itself. |
 | **Evidence handoff / ESM** | Handle separately supported retention, review and release of evidence or candidate state. Producing a result does not approve it as authoritative state. |
 | **Inspection clients** | Display numerical, temporal, spectral, geographic or local 2D/3D views. Closing a viewer does not stop the backend or change retained records. |
@@ -198,56 +207,59 @@ operation, its algorithm, its implementation and its checks remain distinct.
 <a id="unified-mathematical-reasoning-and-learning-layer"></a>
 <a id="one-substrate-two-complementary-uses"></a>
 <a id="proposed-terminal-surfaces"></a>
-### Learning and reasoning direction
+### Learning and reasoning — Planned / not implemented
 
-**Planned extension after the currently assigned pilot work is completed and
-verified.** The existing equation cards and previews are a starting point, not
-an implemented universal tutor or theorem prover.
+**Planned / not implemented.** The existing equation cards, offline previews and
+one retained RMS lesson (see [What works today](#current-scope)) are delivered
+starting points. A universal tutor, theorem prover or full pedagogical surface
+set is **not** implemented.
 
-The aim is to teach the same mathematics that users execute in the workbench,
-with a concept retaining its identity across explanations, worked examples,
-calculations and checks. The proposed surfaces are:
+The longer-term aim would be to teach the same mathematics that users execute in
+the workbench, with a concept retaining its identity across explanations, worked
+examples, calculations and checks. Proposed surfaces (not commands added by this
+README; existing `ciw` commands remain the operating interface):
 
-| Surface | Purpose |
-| --- | --- |
-| `history` | Explain the problems, stories and contributions behind mathematical ideas. |
-| `learn` | Develop a concept through examples, mechanism, notation, calculation and verification. |
-| `explore` | Inspect, derive, connect and generalize concepts. |
-| `work` | Use supported calculations through the existing operation system. |
-| `verify` | Inspect the specific checks, bounds or proofs supporting a claim. |
+| Surface | Purpose | Status |
+| --- | --- | --- |
+| `history` | Explain the problems, stories and contributions behind mathematical ideas. | Not implemented |
+| `learn` | Develop a concept through examples, mechanism, notation, calculation and verification. | Not implemented |
+| `explore` | Inspect, derive, connect and generalize concepts. | Not implemented |
+| `work` | Use supported calculations through the existing operation system. | Delivered via existing `ciw` operations |
+| `verify` | Inspect the specific checks, bounds or proofs supporting a claim. | Partial: checks that exist for registered operations only |
 
-These are **interface proposals**, not commands added by this README. Existing
-`ciw` commands remain the operating interface.
+<details>
+<summary>Planned pedagogy sketch (not shipped)</summary>
 
-<a id="historical-prologue-and-capability-map"></a>
-The built-in curriculum is intended to start with a substantial historical
-prologue covering the development and roles of mathematical fields, followed by
-the shared pedagogy:
+The intended pedagogy, if implemented, would start with historical context and
+follow:
 
 ```text
 Historical problem -> example -> mechanism -> mathematical structure
                    -> notation -> computation -> verification -> generalization
 ```
 
-Users should be able to move between concrete, geometric, symbolic, structural,
-formal, computational and research explanations without changing systems.
-Learning remains optional for users who simply need to work. A first executable
-lesson must reuse the same concept and operation records as its calculation and
-checks; it must not introduce a second session, evidence store or execution engine.
+Users would move between concrete, geometric, symbolic, structural, formal,
+computational and research explanations without changing systems. Learning would
+remain optional for users who simply need to work. A first executable lesson must
+reuse the same concept and operation records as its calculation and checks; it
+must not introduce a second session, evidence store or execution engine.
 
-<a id="applied-reasoning-and-natural-philosophy-boundary"></a>
-This also supports the broader inquiry discussed as **natural philosophy**:
-observation, questions, theories, predictions, experiments and revision. The
-workbench assists formalization, computation and comparison; it does not replace
-human judgment about questions, experiments or what the evidence establishes.
-Mathematical proof and empirical validation remain different activities.
+This direction also relates to broader inquiry sometimes discussed as **natural
+philosophy**: observation, questions, theories, predictions, experiments and
+revision. The workbench would assist formalization, computation and comparison;
+it would not replace human judgment. Mathematical proof and empirical validation
+remain different activities.
+
+</details>
 
 ## Physical integration direction
 
-**General instrument and equipment integration remains delivery work.** The
-longer-term laboratory combines computational studies with supported sensors,
-data-acquisition equipment and local controllers. The bounded GPU measurement
-path above is not evidence of a general hardware gateway.
+**General instrument and equipment integration remains delivery work; not a
+general hardware gateway.** The longer-term laboratory would combine
+computational studies with supported sensors, data-acquisition equipment and
+local controllers. The bounded GPU energy-to-accuracy path in
+[What works today](#current-scope) is a delivered, narrowly scoped measurement
+workflow — not evidence of a general hardware gateway.
 
 A physical workflow must separate:
 
@@ -280,7 +292,7 @@ error and execution/checking costs separately.
 This is a research programme, not a demonstrated universal compiler or a measured
 compression advantage. Broader physics, chemistry/materials, biology, agriculture,
 AEC, logistics, manufacturing, robotics and social-modelling coverage requires
-separately supported models, providers and validation. The learning benefit also
+separately supported models, providers and validation. Any learning benefit also
 needs to be tested rather than inferred from the architecture.
 
 <a id="kernel-architecture"></a>
@@ -290,18 +302,21 @@ needs to be tested rather than inferred from the architecture.
 <a id="qualification-and-next-executable-slice"></a>
 ### Extending calculations and sensor fusion
 
-A **computational kernel** performs one bounded mathematical operation. The
-existing and proposed work is organized into six families: numerical algebra and
-local response; dynamics and geometry; inference and sensor fusion; constraint
+A **computational kernel** performs one bounded mathematical operation. Existing
+and proposed work is organized into six families: numerical algebra and local
+response; dynamics and geometry; inference and sensor fusion; constraint
 reconciliation; design and experiment selection; and claim/certificate checking.
 These are responsibilities, not six new services or a completed universal library.
 
-Extensions reuse existing providers and the CIW/SCR interfaces. Python remains
-responsible for the shared session and records; Julia and C/C++ supply selected
-scientific calculations; Rust supplies supported native execution and checks.
-JuMP and JuliaControl remain candidate extensions. SP1 applies only to selected
-registered computations, not automatically to Julia output or physical truth.
-See [Julia/SP1 contracts](docs/JULIA_SP1.md) and [integration coverage](docs/INTEGRATION_COVERAGE.md).
+**Language boundaries — selected providers where bound.** Python remains
+responsible for the shared session and records. Where a provider is registered
+and exercised, its implementation language is whatever that adapter binds
+(documented per operation in [Instruments](docs/INSTRUMENTS.md) and
+[integration coverage](docs/INTEGRATION_COVERAGE.md)). There is no implication
+that every language is wired, and no mandatory multi-language chain. JuMP and
+JuliaControl remain candidate extensions. SP1 applies only to selected registered
+computations, not automatically to any provider output or physical truth. See
+[Julia/SP1 contracts](docs/JULIA_SP1.md) and [integration coverage](docs/INTEGRATION_COVERAGE.md).
 
 The next numerical extension starts with an actual bounded linear-response or
 oscillator request, an independent reference comparison and retained results.
@@ -340,37 +355,38 @@ handling. The [covariance guide](docs/COVARIANCE.md) records current limits.
 </details>
 
 <a id="testbed-framework-and-design-spaces"></a>
-### Advanced descriptions of design spaces
+### Advanced descriptions of design spaces — research vocabulary only
 
-A smooth family of designs may use local coordinates and a manifold description;
-other designs may be discrete or mix both. **Parametric design manifolds** name
-that specialized research case, not every investigation. Equivalence-based model
-descriptions, topology and category-theoretic composition are tools to use where
-a workload requires them, not prerequisites for running Notations.
+**Research vocabulary only; not shipping product features.** A smooth family of
+designs may use local coordinates; other designs may be discrete or mix both.
+Specialized geometric or algebraic language used in research notes (including
+terms for continuous families of designs, equivalence-based model descriptions,
+topology and compositional structure) names tools for workloads that require them,
+not prerequisites for running PDT and not delivered product surfaces.
 
 Changing coordinates, reducing a model, losing information in an encoding and
-coupling two physical models are different operations. A change of domain is not
-automatically a new chart on the same manifold. Required calculation inputs must
-survive a representation change; preserving one invariant alone is insufficient.
-The existing [research context](docs/RESEARCH_CONTEXT.md) and
+coupling two physical models are different operations. Required calculation
+inputs must survive a representation change; preserving one invariant alone is
+insufficient. The existing [research context](docs/RESEARCH_CONTEXT.md) and
 [state transformation contract](docs/STATE_TRANSFORMATIONS.md) describe this work.
 
 ## OpenUSD scene interchange
 
-**Selected direction; implementation pending.** OpenUSD is intended to export
-supported geometry and trajectories for inspection alongside the existing
-scientific records. It does not replace the investigation, model or evidence
+**Selected direction; implementation pending.** OpenUSD scene interchange does
+not exist in the tree as an operation yet. It is intended, if implemented, to
+export supported geometry and trajectories for inspection alongside the existing
+scientific records. It would not replace the investigation, model or evidence
 formats. Godot, geographic inspection and terminal-only use remain independent
-of an OpenUSD installation.
+of any OpenUSD installation.
+
+<details>
+<summary>Scene-export requirements (pending; no operation in tree)</summary>
 
 Start with a read-only `.usda` export of one retained oscillator trajectory.
 Reopen it with a pinned OpenUSD runtime and compare geometry, units, time mapping
 and links to the original result. Challenge missing or altered dependencies
 before claiming that export supported. Binary `.usdc`, packaged `.usdz` and
 scene import are later, separately tested extensions.
-
-<details>
-<summary>Scene-export requirements</summary>
 
 Use the upstream C++ API or Python bindings behind a registered adapter, rather
 than inventing another scene format. Prims and transforms describe supported
@@ -438,8 +454,8 @@ equipment. Unavailable, inconclusive, refused and failed checks remain visible.
 
 **Finish and verify the currently assigned work first.** The agreed initial
 end-to-end demonstration (the **base pilot**) remains the development priority.
-The learning layer, new providers and broader research directions extend that
-work; they do not replace it, reset its queue or justify speculative rewrites.
+Planned learning surfaces, new providers and broader research directions extend
+that work; they do not replace it, reset its queue or justify speculative rewrites.
 
 Use the existing oscillator/thermal, measurement-chain and curved-path foundations
 to close a shared investigation workflow, not a set of disconnected demos.
@@ -452,7 +468,7 @@ These are acceptance requirements, not gates claimed passed by this README:
 | Investigate | Retain baseline/candidate changes, assumptions, responses, uncertainty status and checks, including invalid or unresolved cases. |
 | Reopen and replay | Read saved records without executing providers; explicitly replay with new execution identities and preserved history/version bindings. |
 | Challenge and recover | Reject altered bindings and incompatible inputs; retain bounded failures, recover without losing results and identify affected dependencies. |
-| Inspect and hand off | Keep headless use working; test each client, export and evidence handoff separately. OpenUSD must pass its export/reload gate. |
+| Inspect and hand off | Keep headless use working; test each client, export and evidence handoff separately. Any future scene-export path must pass its own export/reload gate before being claimed. |
 | Physical apparatus | For each supported device, bind configuration and authorization; test disconnects, duplicate requests, stale plans and uncertain outcomes. |
 | Qualify claims | Retain actual evidence for each numerical, proof or physical claim. Report startup, transfer, computation and checking costs separately. |
 
