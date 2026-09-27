@@ -2,7 +2,7 @@
 
 Part of **Notation Systems' computational instrumentation and evidence infrastructure**.
 
-[Stack map](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/STACK.md) · [Component role](docs/STACK_ROLE.md) · [Request and result contract](docs/CONTRACT.md)
+[Notations Engineering Terminal (CIW)](https://github.com/giasonpooni/Notations-Engineering-Terminal) · [Stack map](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/main/docs/STACK.md) · [Component role](docs/STACK_ROLE.md) · [Request and result contract](docs/CONTRACT.md)
 
 **Status: implemented bounded reference.** This Python provider follows declared
 straight-line flow across connected square-tiled translation surfaces. Right and
@@ -92,12 +92,13 @@ flowchart LR
   D -. "explicit versioned adapter" .-> W["CIW investigation"]
 ```
 
-The solid path is implemented here. CIW owns installation, revision binding,
-investigation retention and presentation through its separately versioned
-adapter. A current provider checkout does not imply that a deployed workbench
-has installed it. General polygon gluings, arbitrary real directions, vertex
-continuation, Jacobi fields and moduli-space exploration remain outside this
-profile. See [scope](docs/SCOPE.md) and [contributor invariants](CONTRIBUTING.md).
+The solid path is implemented here. Notations Engineering Terminal (CIW) owns
+installation, revision binding, investigation retention and presentation through
+its separately versioned adapter. A current provider checkout does not imply
+that a deployed workbench has installed it. General polygon gluings, arbitrary
+real directions, vertex continuation, Jacobi fields and moduli-space exploration
+remain outside this profile. See [scope](docs/SCOPE.md) and
+[contributor invariants](CONTRIBUTING.md).
 
 ## License
 
