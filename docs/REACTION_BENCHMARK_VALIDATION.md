@@ -143,6 +143,15 @@ It installs the existing hash-locked worker requirements into a separate Windows
 x64 Python 3.12.14 environment. The CIW/pytest harness retains its own NumPy
 version; it never installs CIW into the worker environment.
 
+The first hosted attempt exposed that setup-python does not provide Windows
+3.12.14. Both reaction workflows now use the shared
+[provisioning helper](../scripts/provision_cantera_python.ps1) to download the
+exact python-build-standalone 20260924 Windows x64 archive, verify its published
+SHA-256 `c5303174bc29f5205decf6721ac549d4eb41c448f9b8c46cbc562d00348865bb`,
+and record the observed interpreter identity. The harness uses setup-python
+3.12 independently. This archive check does not replace the registered runtime
+executable pin; the full qualification workflow still enforces that pin.
+
 The genuine worker tests compare the entire handshake identity and both source
 file hashes with the existing Cantera pins. JUnit retains the observed identity,
 worker executable digest and whether that executable matches the registered pin.
@@ -159,7 +168,8 @@ or any skips, and retains its scope/outcome even when it fails. Its workflow
 definition alone is not evidence of a successful run. The required full
 [reaction qualification](../.github/workflows/reaction-benchmark.yml), including
 exact executable/SCR bindings, Catalyst, installed-wheel replay and the two-engine
-benchmark, is unchanged. Passing this component gate cannot close those gates.
+benchmark, keeps its existing acceptance checks. Passing this component gate
+cannot close those gates.
 
 ## Scope and remaining gates
 

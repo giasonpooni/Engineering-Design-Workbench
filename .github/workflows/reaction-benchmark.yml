@@ -25,7 +25,7 @@ jobs:
           @{ schema = 'ciw.reaction-ci-audit.v1'; source_revision = (git rev-parse HEAD); run_id = $env:GITHUB_RUN_ID; run_attempt = $env:GITHUB_RUN_ATTEMPT; status = 'started' } | ConvertTo-Json | Set-Content "$env:RUNNER_TEMP/reaction-audit/start.json"
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12.14'
+          python-version: '3.12'
       - name: Read the qualified SCR revision
         id: pin
         shell: pwsh
@@ -60,7 +60,8 @@ jobs:
           $PSNativeCommandUseErrorActionPreference = $true
           python -m pip install uv==0.10.10 build
           $provisioned = (Get-Command python).Source
-          uv venv --no-python-downloads --python $provisioned "$env:RUNNER_TEMP/cantera-env"
+          $workerBase = ./scripts/provision_cantera_python.ps1 -Destination "$env:RUNNER_TEMP/cantera-python-base" -AuditPath "$env:RUNNER_TEMP/reaction-audit/python-provision.json"
+          uv venv --no-python-downloads --python $workerBase "$env:RUNNER_TEMP/cantera-env"
           $expected = (Get-Content src/ciw/native-interop-runtimes.json -Raw | ConvertFrom-Json).reaction_families.cantera.executable_sha256
           $actual = 'sha256:' + (Get-FileHash -Algorithm SHA256 "$env:RUNNER_TEMP/cantera-env/Scripts/python.exe").Hash.ToLowerInvariant()
           @{ expected = $expected; actual = $actual; qualified = ($expected -eq $actual) } | ConvertTo-Json | Set-Content "$env:RUNNER_TEMP/reaction-audit/python-executable.json"

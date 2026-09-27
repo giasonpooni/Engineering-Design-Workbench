@@ -4,6 +4,7 @@ on:
   push:
     paths:
       - '.github/workflows/cantera-worker.yml'
+      - 'scripts/provision_cantera_python.ps1'
       - 'runtimes/cantera-reaction/**'
       - 'tests/test_reaction_cantera_worker.py'
       - 'src/ciw/reaction_contract.py'
@@ -13,6 +14,7 @@ on:
   pull_request:
     paths:
       - '.github/workflows/cantera-worker.yml'
+      - 'scripts/provision_cantera_python.ps1'
       - 'runtimes/cantera-reaction/**'
       - 'tests/test_reaction_cantera_worker.py'
       - 'src/ciw/reaction_contract.py'
@@ -42,7 +44,7 @@ jobs:
           Copy-Item src/ciw/native-interop-runtimes.json "$env:RUNNER_TEMP/cantera-worker-audit/qualification-pins.json"
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12.14'
+          python-version: '3.12'
           architecture: x64
       - name: Provision separate harness and hash-locked worker environments
         shell: pwsh
@@ -51,7 +53,8 @@ jobs:
           $PSNativeCommandUseErrorActionPreference = $true
           # CIW's NumPy 2.4.3 stays in the harness. Never install CIW in the worker.
           python -m pip install -e ".[dev]"
-          python -m venv "$env:RUNNER_TEMP/cantera-worker"
+          $workerBase = ./scripts/provision_cantera_python.ps1 -Destination "$env:RUNNER_TEMP/cantera-python-base" -AuditPath "$env:RUNNER_TEMP/cantera-worker-audit/python-provision.json"
+          & $workerBase -I -m venv "$env:RUNNER_TEMP/cantera-worker"
           $workerPython = "$env:RUNNER_TEMP/cantera-worker/Scripts/python.exe"
           & $workerPython -m pip install --only-binary=:all: --require-hashes -r runtimes/cantera-reaction/requirements.txt
           "CIW_TEST_REACTION_CANTERA=$workerPython" >> $env:GITHUB_ENV
