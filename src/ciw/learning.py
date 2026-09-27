@@ -71,6 +71,7 @@ LESSON = {
 
 
 ENERGY_TOPIC = "oscillator-energy"
+VELOCITY_TOPIC = "oscillator-velocity"
 ENERGY_LESSON = {
     "topic": ENERGY_TOPIC,
     "title": "From oscillator energy samples to a retained scalar",
@@ -111,6 +112,45 @@ ENERGY_EXPLANATIONS = {
     "computational": "statistics.v1 on channel energy reuses the existing operation path.",
 }
 
+VELOCITY_LESSON = {
+    "topic": VELOCITY_TOPIC,
+    "title": "From oscillator velocity samples to a retained scalar",
+    "prerequisites": ["oscillator-rms"],
+    "phenomenon": "Velocity changes sign. A statistics summary is not a trajectory and not plant state.",
+    "state": "v = (v_1, ..., v_N), velocity samples in metres per second.",
+    "structure": "Same synthetic recording as the displacement and energy lessons.",
+    "question": "What does statistics.v1 on velocity claim?",
+    "transformation": "Use statistics.v1 on channel v.",
+    "invariants": "The channel unit stays m/s.",
+    "information_loss": "RMS or mean velocity cannot recover phase.",
+    "computation": "statistics.v1 on the retained velocity channel.",
+    "verification": "Inspection only.",
+    "generalization": "A third lesson is still not a curriculum engine.",
+    "uncertainty": "Synthetic source.",
+    "exercise": "Compare velocity statistics with displacement RMS.",
+    "derive": [
+        "Keep the recorded velocity channel.",
+        "Run statistics.v1 on the same interval.",
+        "Do not treat the scalar as a conserved momentum.",
+    ],
+    "bridge": [
+        "q, v and energy are three maps on one recording.",
+    ],
+    "history": {
+        "problem": "How can signed velocity samples be summarized without calling the summary a momentum integral?",
+        "context": "The built-in oscillator already stores velocity next to displacement.",
+        "new_capability": "A third lesson over the same recording.",
+        "scope": "Three lessons, not a mathematics curriculum.",
+        "reading": "docs/LEARNING.md",
+    },
+}
+VELOCITY_EXPLANATIONS = {
+    "concrete": "Velocity crosses zero while motion continues.",
+    "structural": "The velocity vector maps through statistics.v1 with unit m/s.",
+    "formal": "No momentum conservation is declared for the discrete map.",
+    "computational": "statistics.v1 on channel v reuses the existing operation path.",
+}
+
 
 def catalog():
     return {
@@ -118,7 +158,7 @@ def catalog():
         "grammar": ["state", "structure", "change", "compute", "verify"],
         "books": [{"book": number, "title": title, "purpose": purpose,
                    "status": "curriculum_outline"} for number, title, purpose in BOOKS],
-        "available_lessons": [TOPIC, ENERGY_TOPIC],
+        "available_lessons": [TOPIC, ENERGY_TOPIC, VELOCITY_TOPIC],
         "available_commands": ["history", "learn", "explore", "work", "inspect", "verify", "replay"],
         "pending": ["broader lessons and sourced historical narratives",
                     "learner-selected prerequisite records", "symbolic and proof-provider bindings"],
@@ -133,12 +173,14 @@ def lesson(topic=TOPIC, level="structural"):
         return {**deepcopy(LESSON), "level": level, "explanation": EXPLANATIONS[level]}
     if topic == ENERGY_TOPIC:
         return {**deepcopy(ENERGY_LESSON), "level": level, "explanation": ENERGY_EXPLANATIONS[level]}
+    if topic == VELOCITY_TOPIC:
+        return {**deepcopy(VELOCITY_LESSON), "level": level, "explanation": VELOCITY_EXPLANATIONS[level]}
     raise ValueError("Unsupported lesson or abstraction level")
 
 
 def sequence():
     """Ordered lessons on the built-in oscillator. Not a tutor engine."""
-    return [TOPIC, ENERGY_TOPIC]
+    return [TOPIC, ENERGY_TOPIC, VELOCITY_TOPIC]
 
 
 def progress(completed=()):
@@ -198,13 +240,14 @@ def _projection(session, result):
 
 
 def work(output_dir, topic=TOPIC):
-    if topic not in (TOPIC, ENERGY_TOPIC):
+    if topic not in (TOPIC, ENERGY_TOPIC, VELOCITY_TOPIC):
         raise ValueError("Unsupported lesson or abstraction level")
     output_dir = Path(output_dir)
     # A new directory reserves this occurrence and prevents silent replacement.
     output_dir.mkdir(parents=True, exist_ok=False)
     session = Session(make_demo_run(), output_dir)
-    channel = "q" if topic == TOPIC else "energy"
+    channel = {"oscillator-rms": "q", "oscillator-energy": "energy",
+               "oscillator-velocity": "v"}[topic]
     reply = _execute(session, {"channel": channel, "interval_s": [0.0, 12.0]})
     path = session.save_workspace(output_dir / "workspace.json")
     return {"topic": topic, "workspace_file": str(path), **reply}
@@ -286,7 +329,7 @@ def register_commands(commands):
     actions = math.add_subparsers(dest="math_command")
     for name in ("history", "learn", "explore"):
         action = actions.add_parser(name, help="Read the bounded lesson without running an operation")
-        action.add_argument("topic", choices=[TOPIC, ENERGY_TOPIC])
+        action.add_argument("topic", choices=[TOPIC, ENERGY_TOPIC, VELOCITY_TOPIC])
         action.add_argument("--level", choices=LEVELS, default="structural")
         action.add_argument("--json", action="store_true", help="Print structured lesson content")
         if name == "explore":

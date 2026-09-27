@@ -119,3 +119,33 @@ def inspect_runtime_files(binding_id):
         "files": entries,
         "detail": "Pinned runtime files hashed without launching the language",
     }
+
+
+def create(binding_id, source_path, output_path, *, julia=None, runtime=None):
+    """Run create through a pinned binding. Missing pins are refused."""
+    if binding_id != "julia-oscillator":
+        raise ValueError("Create is implemented for the julia-oscillator binding only")
+    from pathlib import Path
+    julia_bin = Path(julia) if julia else None
+    runtime_dir = Path(runtime) if runtime else None
+    if julia_bin is None or not julia_bin.is_file() or runtime_dir is None or not runtime_dir.is_dir():
+        return {
+            "schema": SCHEMA,
+            "binding_id": binding_id,
+            "status": "refused",
+            "runtime_launched": False,
+            "detail": "Pinned julia executable and julia-oscillator runtime directory are required",
+        }
+    from .julia_oscillator import workflow as julia_workflow
+    from .session import write_json
+    raw = Path(source_path).read_bytes()
+    bundle = julia_workflow.create_session(raw, {"julia_runtime": runtime_dir, "julia": julia_bin})
+    write_json(Path(output_path), bundle)
+    return {
+        "schema": SCHEMA,
+        "binding_id": binding_id,
+        "status": "created",
+        "runtime_launched": True,
+        "bundle_file": str(output_path),
+        "bundle_id": bundle.get("bundle_digest"),
+    }

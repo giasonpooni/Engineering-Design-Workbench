@@ -49,3 +49,11 @@ def replay_log(path):
         "device_opened": False,
         "analysis": report,
     }
+
+
+def measure(device_index=0):
+    """One NVML identity/counter read. Not actuation and not a workload."""
+    report = status(device_index)
+    report["mode"] = "measurement_only"
+    report["actuation"] = "not_performed"
+    return report

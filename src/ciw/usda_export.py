@@ -232,3 +232,37 @@ def compare_export(payload, text):
     return {"status": "matched", "schema": SCHEMA, "point_count": len(exported),
             "authority": AUTHORITY, "openusd_runtime": "not_loaded"}
 
+
+def open_with_runtime(usda_path, usd_bin):
+    """Open a CIW USDA copy with a pinned usdcat/usdview binary."""
+    from pathlib import Path
+    import subprocess
+    pin = Path(usd_bin) if usd_bin is not None else None
+    if pin is None or not pin.is_file():
+        return {
+            "status": "refused",
+            "schema": SCHEMA,
+            "authority": AUTHORITY,
+            "openusd_runtime": "pin_required",
+            "detail": "Pinned usdcat or usdview executable is required to open the copy",
+        }
+    completed = subprocess.run(
+        [str(pin), str(usda_path)],
+        check=False, capture_output=True, text=True, timeout=30,
+    )
+    if completed.returncode != 0:
+        return {
+            "status": "refused",
+            "schema": SCHEMA,
+            "authority": AUTHORITY,
+            "openusd_runtime": str(pin),
+            "detail": (completed.stderr or completed.stdout or "usd runtime refused the copy")[:1024],
+        }
+    return {
+        "status": "opened",
+        "schema": SCHEMA,
+        "authority": AUTHORITY,
+        "openusd_runtime": str(pin),
+        "detail": "Pinned OpenUSD binary opened the ASCII copy",
+    }
+

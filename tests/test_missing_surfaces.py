@@ -88,7 +88,7 @@ def test_lesson_progress_sequences_the_two_oscillator_lessons():
     assert state["next"] == "oscillator-rms"
     done = progress(["oscillator-rms"])
     assert done["next"] == "oscillator-energy"
-    finished = progress(["oscillator-rms", "oscillator-energy"])
+    finished = progress(["oscillator-rms", "oscillator-energy", "oscillator-velocity"])
     assert finished["next"] is None
 
 
@@ -120,3 +120,32 @@ def test_chart_document_applies_a_declared_map():
         "scales": [0.25],
     })
     assert mapped["target"] == [1.0]
+
+
+def test_openusd_runtime_pin_is_required_to_open():
+    from ciw.usda_export import open_with_runtime
+    report = open_with_runtime("recordings/demo.usda", None)
+    assert report["status"] == "refused"
+    assert report["openusd_runtime"] == "pin_required"
+
+
+def test_julia_create_refuses_without_pins():
+    from ciw.language_bindings import create
+    report = create("julia-oscillator", "examples/julia/oscillator.json", "out.json")
+    assert report["status"] == "refused"
+    assert report["runtime_launched"] is False
+
+
+def test_nvml_measure_is_measurement_only():
+    from ciw.energy_gateway import measure
+    report = measure(0)
+    assert report["mode"] == "measurement_only"
+    assert report["actuation"] == "not_performed"
+
+
+def test_velocity_lesson_has_its_own_work_path(tmp_path):
+    from ciw.learning import work
+    report = work(tmp_path / "velocity-lesson", "oscillator-velocity")
+    assert report["topic"] == "oscillator-velocity"
+    assert report["result"]["channel"] == "v"
+    assert report["result"]["data"]["unit"] == "m/s"

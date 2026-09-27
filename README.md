@@ -42,9 +42,10 @@ records exercised paths, independent checks and remaining gaps.
 | Evaluate a recorded machine configuration. | Read-only encoder/gearbox/leadscrew reference workflow, with configuration, inputs and results retained together; no firmware loading or actuation. |
 | Run selected stability and computation checks. | PLSR and registered SCR/SP1 operations have separate requirements and scopes; they do not verify every calculation or physical model. |
 | Inspect results in optional graphical clients. | Godot Experiments and read-only geographic views use retained `ciw.experiment-view.v1` records. Coordinate, strip and mesh panels that carry `ciw.panel-render.v1` are drawn as detached copies (`connect: false`, canvas id distinct from frame). Neither client changes the scientific result. |
-| Export a retained inspect canvas to ASCII USDA. | `ciw export usda` writes unconnected points or declared faces and can `--compare` them to the source. It does not load OpenUSD or treat the scene as an observation. |
-| Inspect registered language bindings. | `ciw bindings` lists Python, Julia-oscillator and native-interop inspect paths. A missing runtime is refused; no language chain is required. |
-| Report GPU energy availability. | `ciw energy status` returns available or unavailable. `ciw energy replay-log` recomputes a retained log without opening a device. That is not a laboratory control gateway. |
+| Export a retained inspect canvas to ASCII USDA. | `ciw export usda --compare` matches retained points. `--usd-bin` opens the copy with a pinned usdcat/usdview; a missing pin is refused. |
+| Inspect registered language bindings. | `ciw bindings` inspects without launching. `ciw bindings julia-oscillator --create` runs create only with pinned `--julia` and `--runtime`. |
+| Report GPU energy availability. | `ciw energy measure` is one NVML read, measurement only. `replay-log` recomputes a retained log. No actuation. |
+| Read oscillator lessons. | `ciw math work` accepts oscillator-rms, oscillator-energy and oscillator-velocity. Three lessons, not a curriculum engine. |
 | Apply a declared design chart. | `ciw chart identity|scale` maps finite coordinates between named frames. A chart is not a manifold runtime or state admission. |
 | Read a second oscillator lesson. | `ciw math learn oscillator-energy` is a second lesson on the same recording. It is not a curriculum engine. |
 
