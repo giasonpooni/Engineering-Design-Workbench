@@ -98,6 +98,12 @@ def test_declared_mesh_copies_faces_and_retained_path_indices():
                             "triangles": [[0, 1, 2]], "units": "normalized_length",
                             "coordinate_frame": "lifted-triangle"})
     assert lifted["declared_planar"] is False
+    named = declared_mesh(mesh, path=[1, 0, 3], source_vertex=1, target_vertex=3,
+                         canvas_id="vertex-distances",
+                         canvas_title="Shortest distances along mesh edges")
+    assert named["canvas_id"] == "vertex-distances"
+    assert named["canvas_title"] == "Shortest distances along mesh edges"
+    assert named["frame"] == "synthetic-planar-square"
 
 
 def test_interleaved_native_points_keep_declared_circle_as_overlay_only():

@@ -165,8 +165,10 @@ func _declared_circle(overlay: Variant) -> bool:
 
 
 func _draw_canvas_id(render: Dictionary, plot: Rect2) -> void:
-	var identity := str(render.get("canvas_id", panel.get("panel_id", "")))
+	var identity := str(render.get("canvas_id", ""))
 	if identity.is_empty():
+		return
+	if identity == _declared_frame(render):
 		return
 	draw_string(ThemeDB.fallback_font, Vector2(plot.end.x - 170, 18), identity, HORIZONTAL_ALIGNMENT_RIGHT, 160, 11)
 
