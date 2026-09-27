@@ -53,6 +53,14 @@ func _run() -> void:
 				push_error("View system canvas was not applied: " + path)
 				quit(1)
 				return
+			if value.get("system_render", {}).get("kind") == "mesh":
+				var caption := ""
+				if view._system._caption != null:
+					caption = str(view._system._caption.text)
+				if caption.is_empty():
+					push_error("Mesh canvas identity was not labeled: " + path)
+					quit(1)
+					return
 			if value.get("system_render", {}).get("kind") == "plane2d" and render.get("kind") != "plane2d":
 				if not view._system_plot.visible or view._system_plot.panel.get("render", {}).get("kind") != "plane2d":
 					push_error("Companion plane canvas was not applied: " + path)

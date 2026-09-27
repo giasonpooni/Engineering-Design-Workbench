@@ -183,7 +183,8 @@ func _draw_mesh(render: Dictionary) -> void:
 		samples.append(Vector2(float(vertex[0]), float(vertex[1])))
 	var world := _bounds(samples)
 	var plot := _plot_rect()
-	_draw_axes(world, plot, str(render.get("unit", "")), "Declared mesh · first two axes · not a surveyed surface")
+	_draw_axes(world, plot, str(render.get("unit", "")), _canvas_caption(render, "Declared mesh · first two axes · not a surveyed surface"))
+	_draw_canvas_id(render, plot)
 	for face in triangles:
 		var a := _map(samples[int(face[0])], world, plot)
 		var b := _map(samples[int(face[1])], world, plot)

@@ -45,7 +45,9 @@ def project(record, source, declaration, revision):
             metric="edge_length_graph", uncertainty="not_estimated"))
         mesh_render = declared_mesh(mesh, path=solution.get("target_path") or (),
                                     source_vertex=request.get("source_vertex"),
-                                    target_vertex=request.get("target_vertex"))
+                                    target_vertex=request.get("target_vertex"),
+                                    canvas_id=mesh.get("coordinate_frame") or "declared-mesh",
+                                    canvas_title="Declared mesh path")
         panels[0]["render"] = mesh_render
         if solution["reachable"]:
             panels.append(_panel("target-bounds", "Target path and Euclidean lower bound",

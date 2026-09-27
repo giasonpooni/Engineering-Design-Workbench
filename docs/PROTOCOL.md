@@ -10,7 +10,8 @@ verification. Coordinate, mesh and declared-parameter panels may include an opti
 presentation `render` object (`ciw.panel-render.v1`: `plane2d`, `mesh`, or `strip`)
 that copies already-projected points, a declared mesh, or a retained parameter axis
 for inspection clients. Mesh-path views may also copy that mesh onto `system_render`
-so a 3D canvas can outlive the selected panel. Circle and torus views copy a
+so a 3D canvas can outlive the selected panel. That mesh copy carries the declared
+frame identity for the viewport caption. Circle and torus views copy a
 declared plane onto the same field so a companion 2D canvas can keep the
 constraint or quotient visible beside residual or scalar panels. When a view
 declares more than one retained plane, `system_canvases` lists those copies and

@@ -74,6 +74,8 @@ def test_declared_mesh_copies_faces_and_retained_path_indices():
     render = declared_mesh(mesh, path=[1, 0, 3], source_vertex=1, target_vertex=3)
     assert render["kind"] == "mesh"
     assert render["path"] == [1, 0, 3]
+    assert render["canvas_id"] == "synthetic-planar-square"
+    assert render["canvas_title"] == "synthetic-planar-square"
     assert render["projection"] == "first_two_declared_axes"
     render["vertices"][0][0] = 9
     assert mesh["vertices"][0][0] == 0
@@ -125,6 +127,7 @@ def test_attach_system_copies_the_mesh_and_survives_panel_mutation():
     attach_system(view, render)
     assert view["system_render"]["kind"] == "mesh"
     assert view["system_render"]["path"] == [0, 1]
+    assert view["system_render"]["canvas_id"] == "synthetic-triangle"
     render["path"].append(2)
     view["panels"][0]["render"]["vertices"][0][0] = 9
     assert view["system_render"]["path"] == [0, 1]

@@ -75,7 +75,8 @@ def declared_circle_overlay(constraint):
     })
 
 
-def declared_mesh(mesh, *, path=(), source_vertex=None, target_vertex=None):
+def declared_mesh(mesh, *, path=(), source_vertex=None, target_vertex=None,
+                  canvas_id=None, canvas_title=None):
     """Copy a declared triangle mesh for wireframe inspection."""
     if not isinstance(mesh, dict):
         raise ValueError("Mesh render requires the retained mesh declaration")
@@ -102,7 +103,9 @@ def declared_mesh(mesh, *, path=(), source_vertex=None, target_vertex=None):
     route = [int(index) for index in path] if path else []
     if any(index < 0 or index >= count for index in route):
         raise ValueError("Mesh path index is outside the declared vertices")
-    return deepcopy({
+    identity = canvas_id or mesh.get("coordinate_frame")
+    title = canvas_title or mesh.get("coordinate_frame")
+    payload = {
         "schema": SCHEMA,
         "kind": "mesh",
         "authority": dict(AUTHORITY),
@@ -115,7 +118,12 @@ def declared_mesh(mesh, *, path=(), source_vertex=None, target_vertex=None):
         "target_vertex": target_vertex,
         "projection": "first_two_declared_axes",
         "note": "Wireframe of declared vertices; 2D clients use the first two axes only",
-    })
+    }
+    if identity:
+        payload["canvas_id"] = identity
+    if title:
+        payload["canvas_title"] = title
+    return deepcopy(payload)
 
 
 def attach_plane(panel, *, frame, overlays=(), canvas_id=None, canvas_title=None):

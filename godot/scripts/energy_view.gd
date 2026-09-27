@@ -19,6 +19,7 @@ var _pitch := 0.42
 var _origin := Vector3.ZERO
 var _scale := Vector3.ONE
 var _stale := true
+var _caption: Label
 
 
 func _ready() -> void:
@@ -59,6 +60,12 @@ func _ready() -> void:
 	_target.material_override = _material(Color("60dfcd"))
 	_marker.visible = false
 	_target.visible = false
+	_caption = Label.new()
+	_caption.add_theme_font_size_override("font_size", 12)
+	_caption.add_theme_color_override("font_color", Color("a4b4c8"))
+	_caption.mouse_filter = Control.MOUSE_FILTER_IGNORE
+	_caption.position = Vector2(8, 6)
+	add_child(_caption)
 	_update_camera()
 
 
@@ -143,6 +150,8 @@ func set_system(render: Dictionary) -> void:
 		_trajectory.mesh = null
 		_marker.visible = false
 		_target.visible = false
+		if _caption != null:
+			_caption.text = ""
 		return
 	_origin = Vector3.ZERO
 	_scale = Vector3.ONE
@@ -206,6 +215,20 @@ func set_system(render: Dictionary) -> void:
 			_target.position = vertices[int(render.target_vertex)]
 		_build_axes(low, high, [str(render.get("unit", "")), "", ""])
 		_update_camera()
+	if _caption != null:
+		var bits: Array[String] = []
+		var title := str(render.get("canvas_title", render.get("frame", "")))
+		var identity := str(render.get("canvas_id", ""))
+		if not title.is_empty():
+			bits.append(title)
+		if not identity.is_empty() and identity != title:
+			bits.append(identity)
+		if render.get("source_vertex") != null:
+			bits.append("source " + str(render.source_vertex))
+		if render.get("target_vertex") != null:
+			bits.append("target " + str(render.target_vertex))
+		bits.append("declared vertices · display only")
+		_caption.text = " · ".join(bits)
 
 
 func _build_axes(low: Vector3, high: Vector3, labels: Array) -> void:
