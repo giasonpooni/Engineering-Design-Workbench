@@ -63,6 +63,8 @@ def detach_render(render):
         payload["connect"] = False
     if payload.get("kind") == "plane2d":
         payload["overlays"] = detach_overlays(payload.get("overlays"))
+    if payload.get("kind") == "mesh":
+        payload.update(detach_mesh_geometry(payload))
     return payload
 
 
@@ -122,14 +124,8 @@ def declared_circle_overlay(constraint):
     })
 
 
-def declared_mesh(mesh, *, path=(), source_vertex=None, target_vertex=None,
-                  canvas_id=None, canvas_title=None):
-    """Copy a declared triangle mesh for wireframe inspection."""
-    if not isinstance(mesh, dict):
-        raise ValueError("Mesh render requires the retained mesh declaration")
-    vertices = mesh.get("vertices")
-    triangles = mesh.get("triangles")
-    if not isinstance(vertices, list) or not isinstance(triangles, list) or not vertices or not triangles:
+def _declared_vertices(vertices):
+    if not isinstance(vertices, list) or not vertices:
         raise ValueError("Mesh render requires declared vertices and triangles")
     copied = []
     for vertex in vertices:
@@ -138,8 +134,13 @@ def declared_mesh(mesh, *, path=(), source_vertex=None, target_vertex=None,
         copied.append([float(component) for component in vertex])
         if any(item != item or abs(item) == float("inf") for item in copied[-1]):
             raise ValueError("Mesh vertices must be finite")
+    return copied
+
+
+def _declared_faces(triangles, count):
+    if not isinstance(triangles, list) or not triangles:
+        raise ValueError("Mesh render requires declared vertices and triangles")
     faces = []
-    count = len(copied)
     for face in triangles:
         if not isinstance(face, (list, tuple)) or len(face) != 3:
             raise ValueError("Mesh triangles must be three vertex indices")
@@ -147,9 +148,54 @@ def declared_mesh(mesh, *, path=(), source_vertex=None, target_vertex=None,
         if any(index < 0 or index >= count for index in indices):
             raise ValueError("Mesh triangle index is outside the declared vertices")
         faces.append(indices)
-    route = [int(index) for index in path] if path else []
+    return faces
+
+
+def _declared_indices(values, count, name):
+    if values in (None, ()):
+        return []
+    if not isinstance(values, (list, tuple)):
+        raise ValueError(name + " must be a declared index list")
+    route = [int(index) for index in values]
     if any(index < 0 or index >= count for index in route):
-        raise ValueError("Mesh path index is outside the declared vertices")
+        raise ValueError(name + " is outside the declared vertices")
+    return route
+
+
+def _declared_index(value, count, name):
+    if value is None:
+        return None
+    index = int(value)
+    if index < 0 or index >= count:
+        raise ValueError(name + " is outside the declared vertices")
+    return index
+
+
+def detach_mesh_geometry(render):
+    """Copy declared mesh faces and path indices. Out-of-range paths are refused."""
+    vertices = _declared_vertices(render.get("vertices"))
+    count = len(vertices)
+    return {
+        "vertices": vertices,
+        "triangles": _declared_faces(render.get("triangles"), count),
+        "path": _declared_indices(render.get("path"), count, "Mesh path index"),
+        "source_vertex": _declared_index(render.get("source_vertex"), count, "Mesh source vertex"),
+        "target_vertex": _declared_index(render.get("target_vertex"), count, "Mesh target vertex"),
+    }
+
+
+def declared_mesh(mesh, *, path=(), source_vertex=None, target_vertex=None,
+                  canvas_id=None, canvas_title=None):
+    """Copy a declared triangle mesh for wireframe inspection."""
+    if not isinstance(mesh, dict):
+        raise ValueError("Mesh render requires the retained mesh declaration")
+    geometry = detach_mesh_geometry({
+        "vertices": mesh.get("vertices"),
+        "triangles": mesh.get("triangles"),
+        "path": path,
+        "source_vertex": source_vertex,
+        "target_vertex": target_vertex,
+    })
     identity = canvas_id or mesh.get("coordinate_frame")
     title = canvas_title or mesh.get("coordinate_frame")
     payload = {
@@ -158,11 +204,11 @@ def declared_mesh(mesh, *, path=(), source_vertex=None, target_vertex=None,
         "authority": dict(AUTHORITY),
         "frame": mesh.get("coordinate_frame"),
         "unit": mesh.get("units"),
-        "vertices": copied,
-        "triangles": faces,
-        "path": route,
-        "source_vertex": source_vertex,
-        "target_vertex": target_vertex,
+        "vertices": geometry["vertices"],
+        "triangles": geometry["triangles"],
+        "path": geometry["path"],
+        "source_vertex": geometry["source_vertex"],
+        "target_vertex": geometry["target_vertex"],
         "projection": "first_two_declared_axes",
         "note": "Wireframe of declared vertices; 2D clients use the first two axes only",
     }

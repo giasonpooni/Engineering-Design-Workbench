@@ -11,7 +11,8 @@ presentation `render` object (`ciw.panel-render.v1`: `plane2d`, `mesh`, or `stri
 that copies already-projected points, a declared mesh, or a retained parameter axis
 for inspection clients. `plane2d` and `strip` copies keep `connect: false`;
 clients must not draw a polyline between those samples. Circle overlays remain
-declared-constraint copies; fitted radii are refused on detach. Jacobi views may copy declared arclength strips onto
+declared-constraint copies; fitted radii are refused on detach. Detached mesh
+copies refuse path indices outside the declared vertices. Jacobi views may copy declared arclength strips onto
 `system_canvases` so a named companion axis remains beside mixed-unit pose
 panels. Mesh-path views may also copy that mesh onto `system_render`
 so a 3D canvas can outlive the selected panel. That mesh copy carries the declared

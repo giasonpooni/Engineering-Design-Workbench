@@ -249,3 +249,23 @@ def test_detach_render_keeps_declared_circles_and_refuses_fitted_overlays():
         plane_from_interleaved([1.0, 0.0], ["a.x", "a.y"], ["m", "m"], frame="bench-plane", overlays=[fitted])
 
 
+def test_detach_render_refuses_a_mesh_path_outside_declared_vertices():
+    mesh = {"vertices": [[0, 0, 0], [1, 0, 0], [0, 1, 0]],
+            "triangles": [[0, 1, 2]], "units": "normalized_length",
+            "coordinate_frame": "synthetic-triangle"}
+    render = declared_mesh(mesh, path=[0, 1], source_vertex=0, target_vertex=1)
+    view = {"kind": "mesh-path"}
+    attach_system(view, render)
+    assert view["system_render"]["path"] == [0, 1]
+    render["path"].append(9)
+    assert view["system_render"]["path"] == [0, 1]
+    with pytest.raises(ValueError):
+        attach_system(view, render)
+    render["path"] = [0, 1]
+    render["source_vertex"] = 8
+    with pytest.raises(ValueError):
+        attach_system(view, render)
+    with pytest.raises(ValueError):
+        declared_mesh(mesh, path=[0, 1], source_vertex=8)
+
+

@@ -201,7 +201,11 @@ func _draw_mesh(render: Dictionary) -> void:
 		draw_line(c, a, Color("4e647e"), 1.2)
 	var path: Array = render.get("path", [])
 	for i in range(path.size() - 1):
-		draw_line(_map(samples[int(path[i])], world, plot), _map(samples[int(path[i + 1])], world, plot), Color("60dfcd"), 2.4)
+		var a := int(path[i])
+		var b := int(path[i + 1])
+		if a < 0 or b < 0 or a >= samples.size() or b >= samples.size():
+			continue
+		draw_line(_map(samples[a], world, plot), _map(samples[b], world, plot), Color("60dfcd"), 2.4)
 	for i in samples.size():
 		var color := Color("dce6f1")
 		if render.get("source_vertex") != null and int(render.source_vertex) == i:
