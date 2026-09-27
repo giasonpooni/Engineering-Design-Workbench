@@ -127,7 +127,8 @@ sibling scalar panel is selected. The mesh descriptor carries `canvas_id` and
 `canvas_title` from the declared coordinate frame so the 3D viewport can name
 that frame and the retained source/target vertices. The 2D wireframe and 3D
 viewport label those vertices from the declared indices. The 2D wireframe axis
-caption uses the retained unit and coordinate frame, matching the 3D caption. The numeric table repeats
+caption uses the retained unit and coordinate frame, matching the 3D caption. The
+3D triad labels the first declared axis with that same unit and frame. The numeric table repeats
 those source and target identities while a sibling scalar panel is selected. The
 same row names the declared mesh `canvas_id` / coordinate frame. Circle-geometry and flat-torus inspections copy
 the declared plane onto `system_render` so a companion canvas keeps the constraint
