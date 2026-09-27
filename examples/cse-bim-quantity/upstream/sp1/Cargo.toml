@@ -1,0 +1,7 @@
+# Cite-only: MCP-read path sp1/kernel/Cargo.toml @ 4b74abda
+# Full CSE sp1/ tree not vendored. Listing: sp1/beam, sp1/kernel/{lib,program,script}.
+[package]
+name = "cse-sp1-kernel-cite"
+version = "0.0.0"
+edition = "2021"
+description = "Cite placeholder — not a buildable package; see upstream CSE sp1/kernel"

@@ -6,7 +6,33 @@
 returns `ciw.experiment-view.v1`. It projects one committed native occurrence into
 ordered scientific panels and its recorded input graph, retaining full covariance,
 units, time/frame context, source/evidence/result/execution identities and original
-verification. It does not execute a provider or change selection/retention.
+verification. Coordinate, mesh and declared-parameter panels may include an optional
+presentation `render` object (`ciw.panel-render.v1`: `plane2d`, `mesh`, or `strip`)
+that copies already-projected points, a declared mesh, or a retained parameter axis
+for inspection clients. `plane2d` and `strip` copies keep `connect: false`;
+detach refuses `connect: true` with `Plane and strip copies stay unconnected`.
+Clients must not draw a polyline between those samples. Circle overlays remain
+declared-constraint copies; detach refuses a fitted source or authority with
+`Circle overlay refuses fitted or estimated geometry`. The canvas names
+a declared circle from its retained constraint_id. Detached mesh
+copies refuse path indices outside the declared vertices. Detached strip copies
+refuse a nonfinite or decreasing parameter. Detached plane copies refuse
+nonfinite coordinates. Jacobi views may copy declared arclength strips onto
+`system_canvases` so a named companion axis remains beside mixed-unit pose
+panels. Mesh-path views may also copy that mesh onto `system_render`
+so a 3D canvas can outlive the selected panel. That mesh copy carries the declared
+frame identity for the viewport caption. Circle and torus views copy a
+declared plane onto the same field so a companion 2D canvas can keep the
+constraint or quotient visible beside residual or scalar panels. When a view
+declares more than one retained plane, `system_canvases` lists those copies and
+`system_canvas_id` names the default. `canvas_id` is the canvas entry
+(`cover_points`, `parallelogram_points`, `observed_points_m`, `separation`,
+`vertex-distances`). `frame` is the declared coordinate or path frame
+(`area-one-flat-quotient`, a GTE coordinate frame, a Jacobi path frame).
+Those two names stay distinct once an entry id is stamped. Detach and
+headless inspect refuse a collapse with `Stamped canvas id equals the
+declared frame`. Clients may switch copies; they must not
+resample the path. It does not execute a provider or change selection/retention.
 See [the complete view contract](EXPERIMENT_VIEW.md). Existing `workbench.changed`
 notifications invalidate the catalog; clients fetch authoritative state and keep
 replay occurrences separate from measurement samples.

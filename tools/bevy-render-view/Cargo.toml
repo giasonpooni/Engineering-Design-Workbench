@@ -1,0 +1,18 @@
+[package]
+name = "bevy-render-view"
+version = "0.1.0"
+edition = "2021"
+description = "Thin Bevy projector over CIW host render JSON (same schema as Godot). Presentation only."
+license = "MIT OR Apache-2.0"
+publish = false
+
+[dependencies]
+# Pin: giasonpooni/bevy @ 0f38358f573a7dc6ea961076f6151be662142010 (0.20.0-dev).
+# Prefer local checkout when present (see .cargo/config.toml patch). Do not vendor
+# the engine into this terminal repo. Do not patch the engine tree for instrument tabs.
+bevy = { git = "https://github.com/giasonpooni/bevy.git", rev = "0f38358f573a7dc6ea961076f6151be662142010", default-features = false, features = ["3d", "ui"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+
+[profile.dev]
+opt-level = 1

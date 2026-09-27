@@ -1,6 +1,7 @@
 extends VBoxContainer
 ## One selected bundle drives all panels. Selection is local presentation state.
 const Plot = preload("res://scripts/experiment_plot.gd")
+const SystemsView = preload("res://scripts/energy_view.gd")
 var client
 var selected_bundle := ""
 var selected_result := ""
@@ -14,6 +15,9 @@ var _summary: Label
 var _status: Label
 var _panels: OptionButton
 var _plot = Plot.new()
+var _system_plot = Plot.new()
+var _canvases: OptionButton
+var _system = SystemsView.new()
 var _numbers: TextEdit
 var _graph: Tree
 var _inspector: TextEdit
@@ -66,9 +70,20 @@ func _ready() -> void:
 	_panels = OptionButton.new()
 	_panels.item_selected.connect(_select_panel)
 	scientific.add_child(_panels)
-	_plot.custom_minimum_size.y = 180
+	_plot.custom_minimum_size.y = 220
 	_plot.size_flags_vertical = Control.SIZE_EXPAND_FILL
 	scientific.add_child(_plot)
+	_canvases = OptionButton.new()
+	_canvases.visible = false
+	_canvases.item_selected.connect(func(_index: int):
+		_draw_system_canvas())
+	scientific.add_child(_canvases)
+	_system_plot.custom_minimum_size.y = 180
+	_system_plot.visible = false
+	scientific.add_child(_system_plot)
+	_system.custom_minimum_size.y = 220
+	_system.visible = false
+	scientific.add_child(_system)
 	_numbers = _text_box()
 	_numbers.custom_minimum_size.y = 88
 	scientific.add_child(_numbers)
@@ -147,6 +162,13 @@ func apply_snapshot(snapshot: Dictionary) -> void:
 		selected_result = ""
 		view.clear()
 		_plot.set_panel({})
+		_system_plot.set_panel({})
+		_system_plot.visible = false
+		if _canvases != null:
+			_canvases.clear()
+			_canvases.visible = false
+		if _system != null:
+			_system.set_system({})
 		_panels.clear()
 		_graph.clear()
 		_numbers.text = ""
@@ -184,6 +206,13 @@ func _select_bundle(bundle_id: String) -> void:
 	selected_result = ""
 	view.clear()
 	_plot.set_panel({})
+	_system_plot.set_panel({})
+	_system_plot.visible = false
+	if _canvases != null:
+		_canvases.clear()
+		_canvases.visible = false
+	if _system != null:
+		_system.set_system({})
 	_numbers.text = ""
 	_panels.clear()
 	_graph.clear()
@@ -211,6 +240,7 @@ func apply_view(value: Dictionary) -> void:
 	_plot.set_panel({})
 	_numbers.text = ""
 	_panels.clear()
+	_fill_system_canvases()
 	for panel in view.panels:
 		_panels.add_item(panel.title)
 	if not view.panels.is_empty():
@@ -246,16 +276,240 @@ func apply_view(value: Dictionary) -> void:
 	_show_json(context)
 
 
+func _overlay_phrase(render: Dictionary) -> String:
+	var names: Array[String] = []
+	for overlay in render.get("overlays", []):
+		if typeof(overlay) != TYPE_DICTIONARY:
+			continue
+		if overlay.get("kind") != "declared_circle" or overlay.get("source") != "declared_constraint":
+			continue
+		var name := str(overlay.get("overlay_title", overlay.get("constraint_id", "")))
+		if not name.is_empty() and names.find(name) < 0:
+			names.append(name)
+	return " · ".join(names)
+
+
+func _endpoint_phrase(render: Dictionary) -> String:
+	var start := str(render.get("start_label", render.get("source_label", "")))
+	var end := str(render.get("end_label", render.get("target_label", "")))
+	if start.is_empty() and end.is_empty():
+		return ""
+	if end.is_empty() or end == start:
+		return start
+	return start + " → " + end
+
+
+func _mesh_extent_phrase(render: Dictionary) -> String:
+	if str(render.get("kind", "")) != "mesh":
+		return ""
+	if render.get("declared_planar") == true:
+		return "declared_planar"
+	if render.get("declared_planar") == false:
+		return "first two declared axes"
+	return ""
+
+
+func _declared_frame(render: Dictionary) -> String:
+	var frame: Variant = render.get("frame", "")
+	if typeof(frame) == TYPE_DICTIONARY:
+		return str(frame.get("id", frame.get("frame_id", "")))
+	return str(frame)
+
+
+func _canvas_id_phrase(render: Dictionary) -> String:
+	var identity := str(render.get("canvas_id", ""))
+	if identity.is_empty() or identity == _declared_frame(render):
+		return ""
+	return "canvas " + identity
+
+
+func _identity_extra(render: Dictionary) -> String:
+	var bits: Array[String] = []
+	var identity := _canvas_id_phrase(render)
+	var frame := _frame_phrase(render)
+	var declared := _declared_frame(render)
+	if not declared.is_empty() and not frame.is_empty() and not frame.contains("frame " + declared):
+		frame = frame.replace(declared, "frame " + declared)
+	var extent := _mesh_extent_phrase(render)
+	if not identity.is_empty():
+		bits.append(identity)
+	if not frame.is_empty() and bits.find(frame) < 0:
+		bits.append(frame)
+	if not extent.is_empty() and bits.find(extent) < 0:
+		bits.append(extent)
+	return " · ".join(bits)
+
+
+func _frame_phrase(render: Dictionary) -> String:
+	var kind := str(render.get("kind", ""))
+	if kind == "strip":
+		var bits: Array[String] = []
+		for key in ["parameter_name", "frame", "parameter_unit"]:
+			var value := str(render.get(key, ""))
+			if key == "frame":
+				value = _declared_frame(render)
+			if not value.is_empty() and bits.find(value) < 0:
+				bits.append(value)
+		return " · ".join(bits)
+	if kind == "plane2d":
+		var bits: Array[String] = []
+		var frame := _declared_frame(render)
+		var unit := str(render.get("unit", ""))
+		if not frame.is_empty():
+			bits.append(frame)
+		if not unit.is_empty() and bits.find(unit) < 0:
+			bits.append(unit)
+		return " · ".join(bits)
+	var identity := str(render.get("canvas_id", ""))
+	var frame := _declared_frame(render)
+	if kind == "mesh":
+		return frame
+	if not identity.is_empty():
+		return identity
+	return frame
+
+
+func _canvas_matches(item: Dictionary) -> bool:
+	var identity := str(item.get("id", ""))
+	if identity.is_empty():
+		return false
+	var render: Dictionary = item.get("render", {})
+	var offered := str(render.get("canvas_id", ""))
+	if not offered.is_empty() and offered != identity:
+		return false
+	var title := str(item.get("title", identity))
+	var claimed := str(render.get("canvas_title", ""))
+	if not claimed.is_empty() and claimed != title:
+		return false
+	return true
+
+
+func _fill_system_canvases() -> void:
+	if _canvases == null:
+		return
+	_canvases.clear()
+	var items: Array = view.get("system_canvases", [])
+	var selected := 0
+	var default_id := str(view.get("system_canvas_id", ""))
+	for i in items.size():
+		var item: Dictionary = items[i]
+		if not _canvas_matches(item):
+			continue
+		var title := str(item.get("title", item.get("id", "canvas")))
+		var extra := _identity_extra(item.get("render", {}))
+		if not extra.is_empty() and title.find(extra) < 0:
+			title += " · " + extra
+		var ends := _endpoint_phrase(item.get("render", {}))
+		if not ends.is_empty():
+			title += " · " + ends
+		var overlays := _overlay_phrase(item.get("render", {}))
+		if not overlays.is_empty():
+			title += " · " + overlays
+		_canvases.add_item(title)
+		_canvases.set_item_metadata(_canvases.item_count - 1, str(item.get("id", "")))
+		if str(item.get("id", "")) == default_id:
+			selected = _canvases.item_count - 1
+	if _canvases.item_count > 0:
+		_canvases.select(selected)
+
+
+func _canvas_render() -> Dictionary:
+	var items: Array = view.get("system_canvases", [])
+	var identity := ""
+	if _canvases != null and _canvases.selected >= 0 and _canvases.selected < _canvases.item_count:
+		identity = str(_canvases.get_item_metadata(_canvases.selected))
+	for item in items:
+		if typeof(item) != TYPE_DICTIONARY:
+			continue
+		if str(item.get("id", "")) != identity:
+			continue
+		if _canvas_matches(item):
+			return item.get("render", {})
+	var fallback: Dictionary = view.get("system_render", {})
+	if not identity.is_empty() and str(fallback.get("canvas_id", "")) not in ["", identity]:
+		return {}
+	return fallback
+
+
+func _companion_payload(system_render: Dictionary) -> Dictionary:
+	if system_render.is_empty():
+		return {}
+	var payload := {"render": system_render}
+	var panel_id := str(system_render.get("canvas_id", ""))
+	var title := str(system_render.get("canvas_title", ""))
+	if _canvases != null and _canvases.selected >= 0 and _canvases.selected < _canvases.item_count:
+		panel_id = str(_canvases.get_item_metadata(_canvases.selected))
+		if title.is_empty():
+			title = str(_canvases.get_item_text(_canvases.selected))
+	var offered := str(system_render.get("canvas_id", ""))
+	if not offered.is_empty() and not panel_id.is_empty() and offered != panel_id:
+		return {}
+	if not panel_id.is_empty():
+		payload["panel_id"] = panel_id
+	if not title.is_empty():
+		payload["title"] = title
+	return payload
+
 func _select_panel(index: int) -> void:
 	var panel: Dictionary = view.panels[index]
 	_plot.set_panel(panel)
+	var panel_render: Dictionary = panel.get("render", {})
+	var panel_kind := str(panel_render.get("kind", ""))
+	var system_render: Dictionary = _canvas_render()
+	if system_render.is_empty():
+		system_render = view.get("system_render", {})
+	var system_kind := str(system_render.get("kind", ""))
+	var expected_id := str(view.get("system_canvas_id", ""))
+	if panel_kind == "mesh":
+		_system.set_system(panel_render, expected_id)
+	else:
+		_system.set_system(system_render if system_kind == "mesh" else {}, expected_id)
+	var show_companion := system_kind in ["plane2d", "strip"] and panel_kind != system_kind
+	_system_plot.visible = show_companion
+	if _canvases != null:
+		_canvases.visible = show_companion and _canvases.item_count > 1
+	if show_companion:
+		_system_plot.set_panel(_companion_payload(system_render))
+	else:
+		_system_plot.set_panel({})
 	var rows: Array[String] = []
 	for i in panel.values.size():
 		rows.append("%s = %s %s" % [panel.labels[i], JSON.stringify(panel.values[i]), panel.units[i]])
 	rows.append("Full covariance: " + JSON.stringify(panel.covariance))
+	if panel.has("render"):
+		rows.append("Presentation render: " + str(panel.render.get("kind", "")) + " · " + str(panel.render.get("note", panel.render.get("projection", "display only"))))
+		var panel_ends := _endpoint_phrase(panel.render)
+		if not panel_ends.is_empty():
+			var panel_row := "Panel vertices" if str(panel.render.get("kind", "")) == "mesh" else "Panel endpoints"
+			var panel_extra := _identity_extra(panel.render)
+			rows.append(panel_row + ": " + panel_ends + (" · " + panel_extra if not panel_extra.is_empty() else "") + " · display only")
+		var panel_overlays := _overlay_phrase(panel.render)
+		if not panel_overlays.is_empty():
+			rows.append("Panel constraint: " + panel_overlays + " · declared_constraint · display only")
+	if view.get("system_render") != null:
+		var canvas_id := str(system_render.get("canvas_id", view.get("system_canvas_id", "")))
+		if _canvases != null and _canvases.visible and _canvases.selected >= 0 and _canvases.selected < _canvases.item_count:
+			var selected_id := str(_canvases.get_item_metadata(_canvases.selected))
+			if not selected_id.is_empty():
+				canvas_id = selected_id
+		rows.append("View system canvas: " + system_kind + (" · " + canvas_id if not canvas_id.is_empty() else "") + " · display only")
+		var companion_ends := _endpoint_phrase(system_render)
+		if not companion_ends.is_empty():
+			var row_name := "Companion vertices" if system_kind == "mesh" else "Companion endpoints"
+			var companion_extra := _identity_extra(system_render)
+			rows.append(row_name + ": " + companion_ends + (" · " + companion_extra if not companion_extra.is_empty() else "") + " · display only")
+		var companion_overlays := _overlay_phrase(system_render)
+		if not companion_overlays.is_empty():
+			rows.append("Companion constraint: " + companion_overlays + " · declared_constraint · display only")
 	rows.append("Basis: " + JSON.stringify(panel.context))
 	rows.append("Source: " + JSON.stringify(panel.provenance))
 	_numbers.text = "\n".join(rows)
+
+
+func _draw_system_canvas() -> void:
+	if view.is_empty() or _panels == null or _panels.selected < 0:
+		return
+	_select_panel(_panels.selected)
 
 
 func _select_node() -> void:

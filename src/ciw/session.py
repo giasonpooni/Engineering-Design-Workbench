@@ -82,11 +82,20 @@ def unique_object_pairs(items):
     return result
 
 
+def _finite_json_float(text: str) -> float:
+    """Reject valid JSON number spellings that overflow the float representation."""
+    value = float(text)
+    if not math.isfinite(value):
+        raise ValueError("Nonfinite JSON number: floating-point overflow")
+    return value
+
+
 def loads_json(text: str) -> Any:
     """Parse JSON with the workspace reader's duplicate-key and nonfinite rules."""
     if not isinstance(text, str):
         raise ValueError("JSON text must be a string")
-    return json.loads(text, parse_constant=_reject_constant, object_pairs_hook=unique_object_pairs)
+    return json.loads(text, parse_constant=_reject_constant, parse_float=_finite_json_float,
+                      object_pairs_hook=unique_object_pairs)
 
 
 def read_json(path: Path) -> Any:
@@ -397,12 +406,33 @@ class Session:
             _keys(payload, {"channel", "interval_s"})
             with self._lock:
                 selected = copy.deepcopy(self.selection)
-            channel = self._channel(payload.get("channel", selected["channel"]))
-            interval = self._interval(payload.get("interval_s", selected["interval_s"]))
+                captured_run = copy.deepcopy(self.run)
+                recording_file = self.recording_file
+            channel = _channel_for_run(captured_run, payload.get("channel", selected["channel"]))
+            interval = _interval_for_run(captured_run, payload.get("interval_s", selected["interval_s"]))
             operation_id = "statistics.v1" if kind == "analysis.stats" else "spectrum.periodogram.v1"
             try:
-                data = self.operations.get(operation_id).execute(
-                    self.run, {"channel": channel, "interval_s": interval})
+                operation = self.operations.get(operation_id)
+                from .operations.schemas import validate_role
+                validate_role(operation_id, operation.role)
+                # Legacy commands keep their flat result format, but must not
+                # expose session evidence or retain provider-owned mutable data.
+                parameters = {"channel": channel, "interval_s": interval}
+                data = copy.deepcopy(operation.execute(
+                    copy.deepcopy(captured_run), copy.deepcopy(parameters)))
+                result_id = "result-" + uuid.uuid4().hex
+                result = {
+                    "result_id": result_id, "evidence_id": captured_run["evidence_id"],
+                    "operation_id": operation_id,
+                    "execution_id": "execution-" + uuid.uuid4().hex,
+                    "verification_id": None, "verification_status": "not_verified",
+                    "run_id": captured_run["run_id"], "selection_revision": selected["revision"],
+                    "channel": channel, "interval_s": interval, "created_at": utc_now(),
+                    "recording_file": recording_file, "data": data,
+                }
+                # Reuse the offline structural check without recomputing the
+                # numerics. Bad results retain a failed attempt, never a RESULT.
+                _validate_saved_result(result, captured_run, selected["revision"], recording_file)
             except Exception as exc:
                 # The request was accepted. Keep the attempt, but do not publish a RESULT
                 # or relabel a provider OSError as a storage failure. Process-control
@@ -410,8 +440,8 @@ class Session:
                 refusal = _analysis_refusal(exc)
                 execution = {
                     "schema": "ciw.execution.v1", "execution_id": "execution-" + uuid.uuid4().hex,
-                    "operation_id": operation_id, "evidence_id": self.run["evidence_id"],
-                    "run_id": self.run["run_id"], "selection_revision": selected["revision"],
+                    "operation_id": operation_id, "evidence_id": captured_run["evidence_id"],
+                    "run_id": captured_run["run_id"], "selection_revision": selected["revision"],
                     "channel": channel, "interval_s": copy.deepcopy(interval),
                     "parameters": {"channel": channel, "interval_s": copy.deepcopy(interval)},
                     "created_at": utc_now(), "runtime": None, "status": "refused",
@@ -426,16 +456,6 @@ class Session:
                     self.executions[execution["execution_id"]] = execution
                 raise AdapterRefusal(
                     refusal["code"], refusal["message"], reason_code=refusal.get("reason_code")) from None
-            result_id = "result-" + uuid.uuid4().hex
-            result = {
-                "result_id": result_id, "evidence_id": self.run["evidence_id"],
-                "operation_id": "statistics.v1" if kind == "analysis.stats" else "spectrum.periodogram.v1",
-                "execution_id": "execution-" + uuid.uuid4().hex,
-                "verification_id": None, "verification_status": "not_verified",
-                "run_id": self.run["run_id"], "selection_revision": selected["revision"],
-                "channel": channel, "interval_s": interval, "created_at": utc_now(),
-                "recording_file": self.recording_file, "data": data,
-            }
             with self._lock:
                 if len(self.results) >= 1024:
                     raise ProtocolError("capacity_exceeded", "Save the workspace and start a new session after 1024 results")
@@ -490,9 +510,32 @@ class Session:
                     if (len(self.executions) >= 1024
                             or (result is not None and len(self.results) >= 1024)):
                         raise ProtocolError("capacity_exceeded", "Save and start a new session after 1024 operations")
-                    write_json(self.output_dir / (execution["execution_id"] + ".json"), execution)
+                    execution_path = self.output_dir / (execution["execution_id"] + ".json")
+                    result_path = None if result is None else self.output_dir / (result["result_id"] + ".json")
+                    try:
+                        # Write the dependency first: a completed execution must
+                        # never precede the result it claims was retained.
+                        if result is not None:
+                            write_json(result_path, result)
+                        write_json(execution_path, execution)
+                    except OSError:
+                        # These identities were freshly allocated by this attempt.
+                        # Best-effort cleanup must not erase prior records, publish
+                        # partial in-memory state, or mask the original failure.
+                        try:
+                            execution_path.unlink(missing_ok=True)
+                        except OSError:
+                            # A completion marker may still exist. Preserve its
+                            # result dependency instead of creating an orphan.
+                            LOG.exception("Unable to remove unpublished operation record: %s", execution_path)
+                        else:
+                            if result_path is not None:
+                                try:
+                                    result_path.unlink(missing_ok=True)
+                                except OSError:
+                                    LOG.exception("Unable to remove unpublished operation record: %s", result_path)
+                        raise
                     if result is not None:
-                        write_json(self.output_dir / (result["result_id"] + ".json"), result)
                         self.results[result["result_id"]] = result
                     self.executions[execution["execution_id"]] = execution
             finally:

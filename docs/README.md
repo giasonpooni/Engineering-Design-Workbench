@@ -30,6 +30,7 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 | Provider-free index of existing surfaces; not discovery or qualification | [Capability index](CAPABILITIES.md) |
 | Retained native heading candidates and matrix contributions | [Curved-path study](CURVED_PATH_STUDY.md) |
 | Equations, assumptions and bounded what-if previews | [Mathematical model exploration](MODEL_EXPLORATION.md) |
+| Named but unimplemented research directions | [Unimplemented directions](UNIMPLEMENTED_DIRECTIONS.md) |
 
 ## Contracts and operations
 
@@ -37,6 +38,7 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 - [Contract foundations and typed exchange](CONTRACT_FOUNDATIONS.md)
 - [State-space transformation contract](STATE_TRANSFORMATIONS.md)
 - [Workbench research context](RESEARCH_CONTEXT.md)
+- [Unimplemented directions](UNIMPLEMENTED_DIRECTIONS.md)
 - [Generic adapters](ADAPTERS.md)
 - [Covariance provenance and replay](COVARIANCE.md)
 - [Retained telemetry](TELEMETRY.md) and [shared telemetry](SHARED_TELEMETRY.md)

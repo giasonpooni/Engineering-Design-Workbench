@@ -12,7 +12,7 @@ def project(record, source, declaration, revision):
     object_kinds = {"schematic-assessment": "declared_schematic", "schematic-companions": "local_model_analysis",
                     "numerical-heat": "integer_numerical_field", "proved-heat": "proved_integer_numerical_field", "bim-quantity": "construction_quantity",
                     "acquired-dataset": "acquired_evidence", "thermal-observer": "thermal_observer_reference",
-                    "machine-manifest": "machine_manifest_reference", "julia-oscillator": "julia_tsit5_trajectory", "native-interop": "native_computation"}
+                    "machine-manifest": "machine_manifest_reference", "project-graph": "project_graph_reference", "julia-oscillator": "julia_tsit5_trajectory", "native-interop": "native_computation"}
     context = {"object_kind": object_kinds[kind],
                "owner": step["runtime_ref"], "configuration": native["configuration"],
                "covariance_status": "not_applicable", "sensor_fusion": "not_performed",
@@ -108,6 +108,26 @@ def project(record, source, declaration, revision):
                              {**provenance, "result_id": step["result_id"], "execution_id": step["execution_id"]},
                              frame=position["frame"], time_basis=position["time_basis"],
                              uncertainty_scope=context["uncertainty_scope"], claim_scope=data["claim_scope"]))
+    elif kind == "project-graph":
+        inspection = data["inspection"]
+        context.update(
+            summary="Provider-free project graph inspection",
+            project_id=data["project_id"],
+            project_revision=data["project_revision"],
+            project_status=inspection["status"],
+            history_length=inspection["history_length"],
+            unresolved_physical_edges=len(inspection["unresolved_physical_edges"]),
+            physical_validation="not_performed",
+            execution="not_performed",
+            claim_scope=data["claim_scope"],
+        )
+        panels.append(_panel("graph", "Project graph summary",
+                             ["objects", "edges", "history_length", "unresolved_physical_edges"],
+                             [len(inspection["objects"]), len(inspection["edges"]),
+                              inspection["history_length"], len(inspection["unresolved_physical_edges"])],
+                             ["count", "count", "count", "count"], None,
+                             {**provenance, "result_id": step["result_id"], "execution_id": step["execution_id"]},
+                             project_status=inspection["status"], claim_scope=data["claim_scope"]))
     elif kind == "julia-oscillator":
         from .model_education import oscillator_model_card
         card = oscillator_model_card(declaration, data, provenance)

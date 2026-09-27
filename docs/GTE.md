@@ -70,8 +70,10 @@ overrides are operation parameters; they create new execution/result identities
 over the same retained observations. For example, a stricter correction policy
 can hold a candidate without replacing or relabelling its evidence. Replay uses
 the last invocation's exact parameters. Observation, covariance and timestamp
-overrides are refused; import a new source for changed evidence. The current Godot client
-declines external instrument render contracts; no GTE viewport is supplied.
+overrides are refused; import a new source for changed evidence. The Workbench
+client may draw retained GTE coordinates and the declared constraint circle from
+the presentation `render` descriptor on `experiment.inspect`. That canvas is not
+a GTE viewport contract, a fitted curve, or a measurement.
 
 ## Input and output specifications
 

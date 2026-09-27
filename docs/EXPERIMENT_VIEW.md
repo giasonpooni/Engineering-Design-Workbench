@@ -84,8 +84,19 @@ Replay occurrences preserve their own execution/result identities; they are neve
 appended as additional physical measurements or joined into a time trajectory.
 
 Points use the declared row order. Numeric time coordinates, clock, epoch, frame
-and units remain in panel context. Plots use categorical spacing, draw no connecting
-lines and perform no interpolation. Error bars show marginal one-standard-deviation
+and units remain in panel context. Scalar panels use categorical spacing, draw no
+connecting lines and perform no interpolation. `plane2d` and `strip` descriptors
+carry `connect: false`; that flag is authority, not a client hint. Detach
+refuses `connect: true` with `Plane and strip copies stay unconnected`. The
+Workbench plot prints that sentence instead of drawing the samples. A connected
+polyline would invent a trajectory. Declared mesh `path` indices remain edges,
+not interpolated samples. Coordinate panels that already
+store sample-major `x,y` values also carry a presentation `render` descriptor
+(`ciw.panel-render.v1`) so the desktop can draw those same points in the declared
+plane. Mesh-path panels may attach the declared triangle mesh and retained vertex
+path; a 3D inspection canvas uses those same declared coordinates. Curved-path
+series panels may attach a `strip` render that places values on the retained
+arclength parameter instead of a categorical index. Error bars show marginal one-standard-deviation
 ranges from the retained covariance diagonal, **not** joint confidence regions.
 The full matrix stays visible, including off-diagonal and time/value terms.
 Mixed units use the numeric table instead of a common plot scale. The posterior
@@ -95,7 +106,75 @@ a panel labeled as an accepted reconciled state.
 
 The display may format floating-point values; exact source bytes and sealed native
 artifacts remain in CIW. JSON displayed by Godot is an inspection representation,
-not an artifact export to hash or replay.
+not an artifact export to hash or replay. A `render` descriptor is the same class
+of representation: copied declared coordinates and overlays, never a solver output
+and never a calculation input. A drawn circle is the retained constraint, not a
+fitted curve. Overlay copies keep `source: declared_constraint`; detach
+refuses a fitted source or authority with `Circle overlay refuses fitted or
+estimated geometry`. The canvas labels a
+declared circle with its retained `constraint_id`. Detach refuses an overlay
+title that no longer matches that identity. A drawn mesh uses the first two declared vertex axes for the 2D
+client and the declared coordinates for the optional 3D canvas; neither projection
+is a surveyed view. Detached mesh copies refuse a path or source/target index
+outside the declared vertices. Detach recomputes `declared_planar` from the
+copied vertices and refuses a copy that claims planar after a lifted z. Detached strip copies refuse a nonfinite or
+decreasing parameter before that copy reaches a companion canvas. Detach
+recomputes strip endpoint labels from the copied samples and refuses a caption
+that no longer matches the axis. Detach recomputes plane endpoint labels from the
+copied points and refuses a caption that no longer matches those identities. Detached plane
+copies refuse a nonfinite x,y before the companion canvas draws it. A strip plot uses the retained parameter as its abscissa and
+does not treat that parameter as event time. Strip plots label only the first and
+last declared parameter samples. The strip axis caption names the retained path
+frame beside that parameter; the value unit stays on the opposite axis. Plane plots label the first and last declared
+points the same way and still draw no connecting line. Jacobi inspections stamp `canvas_id`
+and `canvas_title` on each strip and copy those strips onto `system_canvases` so
+a mixed-unit pose panel keeps a named arclength companion. That companion row
+names the retained path frame and parameter unit next to the endpoint labels. Mesh-path inspections also copy the
+same descriptor onto `system_render` so the 3D canvas remains available while a
+sibling scalar panel is selected. Mesh-path canvas_id is the panel identity;
+the coordinate frame stays on `frame`. The 2D wireframe corner names that
+canvas entry when it differs from the frame. A Jacobi strip corner names
+`separation` or `heading-change`; the axes name `arclength` and the path frame.
+The 3D viewport hides a mesh whose
+canvas_id disagrees with system_canvas_id. The 3D caption uses
+`canvas vertex-distances · frame <coordinate-frame>`. Provider-free cases
+assert that system_render.canvas_id stays vertex-distances and frame stays
+the coordinate frame. GTE planes keep observed_points_m / projected_points_m
+as canvas ids and the declared coordinate frame on frame. Jacobi strips keep
+separation / heading-change as canvas ids and the path frame on frame. The mesh descriptor carries `canvas_id` and
+`canvas_title` from the declared coordinate frame so the 3D viewport can name
+that frame and the retained source/target vertices. Detach recomputes those
+labels from the declared indices and refuses a caption that no longer matches.
+The 2D wireframe and 3D
+viewport label those vertices from the declared indices. The 2D wireframe axis
+caption uses the retained unit and coordinate frame, matching the 3D caption. The
+3D triad labels the first declared axis with that same unit and frame. When every
+declared vertex has z = 0, the third axis is unlabeled so a planar mesh is not
+shown as a surveyed 3D frame. The 2D caption says “first two declared axes”
+only when a third coordinate is actually present. The numeric table repeats
+`declared_planar` plus source and target identities while a sibling scalar panel
+is selected. The
+same row names the declared mesh `canvas_id` and coordinate frame as separate
+tokens. Circle-geometry and flat-torus inspections copy
+the declared plane onto `system_render` so a companion canvas keeps the constraint
+or quotient visible while a residual or scalar panel is selected. When more than
+one declared plane exists, `system_canvases` lists those copies and the desktop
+may switch among them. Switching does not resample, unwrap, or project the path.
+A canvas entry id must match the detached descriptor's canvas_id; a cover copy
+cannot be labeled as the quotient by editing the presentation object. Plane and
+strip canvas ids must also stay distinct from the declared frame. A mesh entry
+id such as vertex-distances cannot collapse onto the coordinate frame once a
+canvas title is present. The entry
+title must match the detached canvas_title the same way. The Workbench selector
+ignores an entry whose render.canvas_id does not match that id. The companion
+plot draws nothing when payload panel_id and render.canvas_id disagree. Companion plane rows name the declared frame (`area-one-flat-quotient` or the
+GTE coordinate frame). The same row names the canvas entry (`cover_points` /
+`parallelogram_points`) as a separate `canvas` token. The declared frame is
+prefixed `frame` on that same row. The plane plot corner and axis caption use
+those same `canvas` and `frame` prefixes. Copy ids stay on the canvas selector. Each copy carries `canvas_id` and `canvas_title` so the plot can name the active
+declared plane. The companion selector and numeric table also show the active
+copy's first and last declared samples. When the active copy carries a declared
+circle, the same table names that constraint_id. That view-level copy is still presentation.
 
 ## Read-only projection protocol
 
@@ -141,7 +220,10 @@ races, explicit following, replay separation and stale/disconnect behavior.
 graphics driver for visual inspection.
 `godot --headless --path godot --script res://tests/retained_views.gd -- view.json`
 checks every panel of actual `experiment.inspect` projections, including the
-required typed context used by the desktop. Multiple projection paths are accepted.
+required typed context used by the desktop. A stamped canvas_id that equals
+the declared frame fails that check (`Stamped canvas id equals the declared
+frame`). Untitled standalone meshes may still use the frame as a default id.
+Multiple projection paths are accepted.
 
 This is event-driven visualization of **committed bounded experiments**, not
 continuous physical acquisition. No cross-bundle averaging, uncertainty reduction,
