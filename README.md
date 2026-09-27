@@ -2,7 +2,7 @@
 
 Part of Notation Systems' computational instrumentation and evidence infrastructure.
 
-[Stack map](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/STACK.md) · [Contract](docs/CONTRACT.md) · [Stack role](docs/STACK_ROLE.md) · [Validation](docs/IMPLEMENTATION_PLAN.md)
+[Stack map](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/main/docs/STACK.md) · [Contract](docs/CONTRACT.md) · [Stack role](docs/STACK_ROLE.md) · [Validation](docs/IMPLEMENTATION_PLAN.md)
 
 ## Implemented scope
 
@@ -47,7 +47,7 @@ flowchart TD
 Malformed or unsupported declarations also refuse. Success establishes the
 bounded calculation, not source authenticity, calibration validity or an
 independent verification. See [causality and identity diagrams](docs/STACK_ROLE.md#causality-and-identity-diagrams)
-and [Diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md).
+and [Diagram atlas](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/main/docs/DIAGRAMS.md).
 
 ## Numerical contract
 
@@ -77,11 +77,15 @@ Optional adjacent-checkout conformance tests:
 
 ```sh
 STFE_SET_REPO=/path/to/State-Estimation-Evaluation-Testbed \
-STFE_CIW_REPO=/path/to/Computational-Instrumentation-Workbench \
+STFE_CIW_REPO=/path/to/Notations-Engineering-Terminal \
 python -m pytest -q
 ```
 
-The hosted test workflow pins the external SET checker and CIW inspector. CIW owns any composed replay session. An accepted exchange projection alone does not prove source authenticity, numerical execution, physical validity or ESM admission.
+The hosted test workflow pins the external SET checker and CIW inspector.
+**Notations Engineering Terminal** is the current workbench title; `ciw` and
+`STFE_CIW_REPO` retain their existing runtime/configuration identities. CIW owns
+any composed replay session. An accepted exchange projection alone does not
+prove source authenticity, numerical execution, physical validity or ESM admission.
 
 ## Stack responsibility
 
@@ -92,7 +96,7 @@ The hosted test workflow pins the external SET checker and CIW inspector. CIW ow
 | [Geometric State Inference Engine](https://github.com/giasonpooni/Geometric-State-Inference-Engine) | Separate state estimation and fusion |
 | GTE / CBSR | Geometry / declared-constraint reconciliation |
 | SET | Exchange eligibility and separately implemented evaluation checks |
-| CIW / SCR | Replay composition / declared execution records |
+| [Notations Engineering Terminal (CIW)](https://github.com/giasonpooni/Notations-Engineering-Terminal) / SCR | Replay composition / declared execution records |
 | ESM | Governed evidence admission and release |
 
 The three geometry scaffolds are not dependencies. Public code contains reusable operations, contracts and synthetic fixtures; customer data, calibration profiles, deployment policy and internal planning do not belong here.
