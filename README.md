@@ -2,7 +2,7 @@
 
 Part of **Notation Systems' computational instrumentation and evidence infrastructure** for industrial and cyber-physical systems.
 
-[Stack map](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/STACK.md) · [Component role and interfaces](docs/STACK_ROLE.md)
+[Notations Engineering Terminal (CIW)](https://github.com/giasonpooni/Notations-Engineering-Terminal) · [Stack map](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/main/docs/STACK.md) · [Component role and interfaces](docs/STACK_ROLE.md)
 
 A computational testbed for propagating local perturbations through
 composed scientific models, with derivative verification,
@@ -36,7 +36,7 @@ X["Input x and perturbation dx"] --> F["Declared model f"]
 
 Solid arrows summarize implemented model and coordinate-consistency APIs. Raw Jacobian entries are not invariants: the perturbation and output must move with the declared invertible charts. This model-based diagram is distinct from the covariance endpoint below, which accepts a supplied Jacobian and does not verify that derivative.
 
-[Instrumentation diagram atlas](https://github.com/giasonpooni/Computational-Instrumentation-Workbench/blob/main/docs/DIAGRAMS.md).
+[Instrumentation diagram atlas](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/main/docs/DIAGRAMS.md).
 
 ## What is in the first release
 
@@ -116,8 +116,10 @@ variance `1` remains, while independent reading variance `0.09` is divided
 among three readings. Negative weights can legitimately cancel a shared
 component. The endpoint uses the existing covariance kernels; it neither
 computes a derivative from the supplied matrix nor performs a nonlinear
-Monte Carlo comparison. CIW may bind a specific clean Git revision as a
-pinned subprocess; JSPT retains scientific ownership.
+Monte Carlo comparison. Notations Engineering Terminal's existing CIW runtime
+may bind a specific clean Git revision as a pinned subprocess; JSPT retains
+scientific ownership. The `sensitivity.ciw_adapter` module and versioned
+operation identifiers are unchanged by the workbench title update.
 
 See [docs/CIW_ADAPTER.md](docs/CIW_ADAPTER.md) for the exact transport,
 artifact contract, refusal meanings, and validation evidence.
