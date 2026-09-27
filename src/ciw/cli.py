@@ -18,7 +18,7 @@ from websockets.exceptions import WebSocketException
 from .adapters.protocol import AdapterRefusal
 from .instruments import make_demo_run, validate_run
 from .server import run_server
-from .session import Session, _reject_constant, read_json, write_json
+from .session import Session, loads_json, read_json, write_json
 
 
 def print_json(value) -> None:
@@ -119,7 +119,7 @@ async def request_remote(url: str, kind: str, payload: dict, *, timeout_s: float
             async for raw in socket:
                 if not isinstance(raw, str):
                     raise ValueError("Protocol v1 requires a text JSON response")
-                response = json.loads(raw, parse_constant=_reject_constant)
+                response = loads_json(raw)
                 if not isinstance(response, dict):
                     raise ValueError("Service returned a non-object response")
                 if response.get("request_id") == request_id:
@@ -200,7 +200,9 @@ async def watch_remote(url: str) -> None:
     async with connect(url, max_size=8_388_608, open_timeout=5, close_timeout=2,
                        proxy=None) as socket:
         async for raw in socket:
-            event = json.loads(raw, parse_constant=_reject_constant)
+            if not isinstance(raw, str):
+                raise ValueError("Protocol v1 requires a text JSON event")
+            event = loads_json(raw)
             print(json.dumps(event, allow_nan=False), flush=True)
 
 
@@ -668,8 +670,7 @@ def main(argv: list[str] | None = None) -> int:
         elif args.command == "health":
             print_json(asyncio.run(health_remote(args.url)))
         elif args.command == "send":
-            payload = (read_json(args.payload_file) if args.payload_file else
-                       json.loads(args.payload, parse_constant=_reject_constant))
+            payload = read_json(args.payload_file) if args.payload_file else loads_json(args.payload)
             if not isinstance(payload, dict):
                 raise ValueError("payload must be a JSON object")
             if not math.isfinite(args.timeout) or not 0 < args.timeout <= 3600:

@@ -50,16 +50,25 @@ def _reject_constant(value: str) -> None:
     raise ValueError(f"Nonfinite JSON number: {value}")
 
 
+def unique_object_pairs(items):
+    """Reject ambiguous objects, including escaped spellings of the same key."""
+    result = {}
+    for key, value in items:
+        if key in result:
+            raise ValueError(f"Duplicate JSON key: {key}")
+        result[key] = value
+    return result
+
+
+def loads_json(text: str) -> Any:
+    """Parse JSON with the workspace reader's duplicate-key and nonfinite rules."""
+    if not isinstance(text, str):
+        raise ValueError("JSON text must be a string")
+    return json.loads(text, parse_constant=_reject_constant, object_pairs_hook=unique_object_pairs)
+
+
 def read_json(path: Path) -> Any:
-    def unique_pairs(items):
-        result = {}
-        for key, value in items:
-            if key in result:
-                raise ValueError(f"Duplicate JSON key: {key}")
-            result[key] = value
-        return result
-    return json.loads(Path(path).read_text(encoding="utf-8"), parse_constant=_reject_constant,
-                      object_pairs_hook=unique_pairs)
+    return loads_json(Path(path).read_text(encoding="utf-8"))
 
 
 def write_json(path: Path, data: Any) -> Path:
