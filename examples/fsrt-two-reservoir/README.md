@@ -22,8 +22,8 @@ Marked **HOST_REPLAY_OF_PUBLISHED_QUICKSTART** (not native set_lcm import).
 | Large disagreement → hold | `[60.0, 50.0]` | hold when consistency_stat > threshold |
 
 Constraint: `A=[[1,1]]`, `b=[100]`, `b_var=[0.25]`, `cov=I`.
-`S = A P A^T + R = 2.25`. `consistency_stat = r^T S^{-1} r` with `r = Ax - b`.
-Threshold ≈ χ² 0.999 df=1 ≈ `10.8275661707` (scipy if present, else hardcode).
+`S = A P A^T + R = 2.25`. `consistency_stat = r^T S^{-1} r` with
+`r = Ax - b`. Threshold ≈ χ² 0.999 df=1 ≈ `10.8275661707` (scipy if present, else hardcode).
 
 HOST hard reconcile: when not held, `x_hat = x - A^T/S * r`; when held keep
 `x` and `residual_post` null.
