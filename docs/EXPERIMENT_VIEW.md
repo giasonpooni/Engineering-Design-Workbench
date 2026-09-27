@@ -129,7 +129,9 @@ names the retained path frame and parameter unit next to the endpoint labels. Me
 same descriptor onto `system_render` so the 3D canvas remains available while a
 sibling scalar panel is selected. The mesh descriptor carries `canvas_id` and
 `canvas_title` from the declared coordinate frame so the 3D viewport can name
-that frame and the retained source/target vertices. The 2D wireframe and 3D
+that frame and the retained source/target vertices. Detach recomputes those
+labels from the declared indices and refuses a caption that no longer matches.
+The 2D wireframe and 3D
 viewport label those vertices from the declared indices. The 2D wireframe axis
 caption uses the retained unit and coordinate frame, matching the 3D caption. The
 3D triad labels the first declared axis with that same unit and frame. When every

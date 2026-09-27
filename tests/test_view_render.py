@@ -390,3 +390,25 @@ def test_detach_render_refuses_a_plane_caption_that_outruns_the_points():
     assert view["system_render"]["end_label"] == "q1"
 
 
+def test_detach_render_refuses_a_mesh_caption_that_outruns_the_vertices():
+    mesh = {"vertices": [[0, 0, 0], [1, 0, 0], [0, 1, 0]],
+            "triangles": [[0, 1, 2]], "units": "normalized_length",
+            "coordinate_frame": "synthetic-triangle"}
+    render = declared_mesh(mesh, source_vertex=0, target_vertex=2)
+    view = {"kind": "mesh-path"}
+    attach_system(view, render)
+    assert view["system_render"]["source_label"] == "source 0"
+    render["source_label"] = "source fitted"
+    assert view["system_render"]["source_label"] == "source 0"
+    with pytest.raises(ValueError):
+        attach_system(view, render)
+    render["source_label"] = "source 0"
+    render["source_vertex"] = 1
+    with pytest.raises(ValueError):
+        attach_system(view, render)
+    render["source_label"] = "source 1"
+    attach_system(view, render)
+    assert view["system_render"]["source_label"] == "source 1"
+    assert view["system_render"]["source_vertex"] == 1
+
+
