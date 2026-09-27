@@ -4,6 +4,7 @@ from __future__ import annotations
 import copy
 import hashlib
 import json
+import logging
 import math
 import re
 import uuid
@@ -13,6 +14,8 @@ from ..adapters.protocol import AdapterRefusal
 from ..core.records import finite_tree
 from .registry import OperationRegistry, valid_operation_id
 from .schemas import validate_payload, validate_role
+
+LOG = logging.getLogger(__name__)
 
 
 def digest(value) -> str:
@@ -70,9 +73,26 @@ def execute(registry: OperationRegistry, run: dict, selection: dict, recording_f
         json.dumps(data, allow_nan=False)
     except AdapterRefusal as exc:
         execution["refusal"] = exc.to_dict()
+        if not execution["refusal"]["message"].strip():
+            execution["refusal"]["message"] = type(exc).__name__ + " (no diagnostic message)"
         return seal(execution), None
     except (ValueError, TypeError, KeyError, OverflowError) as exc:
-        execution["refusal"] = {"code": "invalid_operation", "message": str(exc)}
+        message = str(exc)
+        execution["refusal"] = {
+            "code": "invalid_operation",
+            "message": message if message.strip() else type(exc).__name__ + " (no diagnostic message)",
+        }
+        return seal(execution), None
+    except Exception as exc:
+        # Once accepted, an ordinary provider/validator failure is an execution
+        # outcome, not an absent attempt or a storage error. Keep raw traceback
+        # details in host logs rather than leaking them through a saved record.
+        # BaseException (including process cancellation/termination) propagates.
+        LOG.exception("Operation %s failed (execution %s)", operation_id, execution["execution_id"])
+        execution["refusal"] = {
+            "code": "operation_failed",
+            "message": "Unexpected operation failure (" + type(exc).__name__ + ")",
+        }
         return seal(execution), None
     result = {
         "schema": "ciw.operation-result.v1", "result_id": "result-" + uuid.uuid4().hex,
