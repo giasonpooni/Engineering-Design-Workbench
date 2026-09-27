@@ -288,6 +288,26 @@ def test_detach_render_refuses_a_mesh_path_outside_declared_vertices():
         declared_mesh(mesh, path=[0, 1], source_vertex=8)
 
 
+def test_detach_render_refuses_declared_planar_after_a_lifted_vertex():
+    mesh = {"vertices": [[0, 0, 0], [1, 0, 0], [0, 1, 0]],
+            "triangles": [[0, 1, 2]], "units": "normalized_length",
+            "coordinate_frame": "synthetic-triangle"}
+    render = declared_mesh(mesh)
+    assert render["declared_planar"] is True
+    view = {"kind": "mesh-path"}
+    attach_system(view, render)
+    render["vertices"][0][2] = 1.0
+    render["declared_planar"] = True
+    assert view["system_render"]["declared_planar"] is True
+    assert view["system_render"]["vertices"][0][2] == 0
+    with pytest.raises(ValueError):
+        attach_system(view, render)
+    render["declared_planar"] = False
+    attach_system(view, render)
+    assert view["system_render"]["declared_planar"] is False
+    assert view["system_render"]["vertices"][0][2] == 1.0
+
+
 def test_detach_render_refuses_a_decreasing_or_nonfinite_strip_axis():
     panel = {"values": [0.1, 0.2, 0.15], "units": ["m", "m", "m"]}
     attach_strip(panel, [0.0, 0.5, 1.0], parameter_name="arclength", parameter_unit="m",

@@ -112,7 +112,8 @@ cannot be attached by editing the presentation object. The canvas labels a
 declared circle with its retained `constraint_id`. A drawn mesh uses the first two declared vertex axes for the 2D
 client and the declared coordinates for the optional 3D canvas; neither projection
 is a surveyed view. Detached mesh copies refuse a path or source/target index
-outside the declared vertices. Detached strip copies refuse a nonfinite or
+outside the declared vertices. Detach recomputes `declared_planar` from the
+copied vertices and refuses a copy that claims planar after a lifted z. Detached strip copies refuse a nonfinite or
 decreasing parameter before that copy reaches a companion canvas. Detached plane
 copies refuse a nonfinite x,y before the companion canvas draws it. A strip plot uses the retained parameter as its abscissa and
 does not treat that parameter as event time. Strip plots label only the first and

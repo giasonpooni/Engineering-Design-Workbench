@@ -222,6 +222,9 @@ def detach_mesh_geometry(render):
     count = len(vertices)
     source = _declared_index(render.get("source_vertex"), count, "Mesh source vertex")
     target = _declared_index(render.get("target_vertex"), count, "Mesh target vertex")
+    planar = all(len(vertex) < 3 or vertex[2] == 0 for vertex in vertices)
+    if render.get("declared_planar") is True and not planar:
+        raise ValueError("Mesh declared_planar refuses a lifted vertex")
     return {
         "vertices": vertices,
         "triangles": _declared_faces(render.get("triangles"), count),
@@ -230,7 +233,7 @@ def detach_mesh_geometry(render):
         "target_vertex": target,
         "source_label": None if source is None else "source %s" % source,
         "target_label": None if target is None else "target %s" % target,
-        "declared_planar": all(len(vertex) < 3 or vertex[2] == 0 for vertex in vertices),
+        "declared_planar": planar,
     }
 
 
