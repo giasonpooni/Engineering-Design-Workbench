@@ -19,16 +19,31 @@ const PANEL := Color("101a28")
 const CAPTION := "presentation of retained values; meshes do not compute"
 
 const STATUS_VOCAB := [
-	"LIVE", "STALE", "UNAVAILABLE", "REFUSED", "HELD", "RECONCILED",
-	"SATISFIED", "VIOLATED", "REQUEST_EVIDENCE", "HISTORICAL",
+	"LIVE",
+	"STALE",
+	"UNAVAILABLE",
+	"REFUSED",
+	"HELD",
+	"RECONCILED",
+	"SATISFIED",
+	"VIOLATED",
+	"REQUEST_EVIDENCE",
+	"HISTORICAL",
 ]
 
 const _STATUS_COLORS := {
-	"LIVE": TEAL, "RECONCILED": TEAL, "SATISFIED": TEAL,
-	"STALE": AMBER, "UNAVAILABLE": AMBER, "HELD": AMBER,
-	"REQUEST_EVIDENCE": AMBER, "HISTORICAL": AMBER,
-	"REFUSED": Color("e57373"), "VIOLATED": Color("e57373"),
+	"LIVE": TEAL,
+	"RECONCILED": TEAL,
+	"SATISFIED": TEAL,
+	"STALE": AMBER,
+	"UNAVAILABLE": AMBER,
+	"HELD": AMBER,
+	"REQUEST_EVIDENCE": AMBER,
+	"HISTORICAL": AMBER,
+	"REFUSED": Color("e57373"),
+	"VIOLATED": Color("e57373"),
 }
+
 
 static func unshaded(color: Color, transparent: bool = false) -> StandardMaterial3D:
 	var material := StandardMaterial3D.new()
@@ -39,16 +54,22 @@ static func unshaded(color: Color, transparent: bool = false) -> StandardMateria
 		material.transparency = BaseMaterial3D.TRANSPARENCY_ALPHA
 	return material
 
+
 static func status_color(status: String) -> Color:
 	var key := status.strip_edges().to_upper()
-	if _STATUS_COLORS.has(key): return _STATUS_COLORS[key]
+	if _STATUS_COLORS.has(key):
+		return _STATUS_COLORS[key]
 	return AMBER
+
 
 static func format_status_label(status: String) -> String:
 	var key := status.strip_edges().to_upper()
-	if key == "HISTORICAL": return "retained_runtime_report_requires_fresh_verification"
-	if key.is_empty(): return "—"
+	if key == "HISTORICAL":
+		return "retained_runtime_report_requires_fresh_verification"
+	if key.is_empty():
+		return "—"
 	return key
+
 
 static func panel_style() -> StyleBoxFlat:
 	var style := StyleBoxFlat.new()
@@ -62,12 +83,14 @@ static func panel_style() -> StyleBoxFlat:
 	style.content_margin_bottom = 10
 	return style
 
+
 static func make_label(text: String, font_size: int = 14, color: Color = TEXT) -> Label:
 	var label := Label.new()
 	label.text = text
 	label.add_theme_font_size_override("font_size", font_size)
 	label.add_theme_color_override("font_color", color)
 	return label
+
 
 static func make_card(title: String, value_label: Label = null) -> Dictionary:
 	var card := PanelContainer.new()
@@ -81,35 +104,49 @@ static func make_card(title: String, value_label: Label = null) -> Dictionary:
 	contents.add_child(value)
 	return {"card": card, "value": value}
 
+
 static func resolve_render_path(default_relative: String, match_name: String = "") -> String:
 	var arguments := OS.get_cmdline_user_args()
 	for argument in arguments:
 		var text := str(argument)
 		var matched := false
-		if not match_name.is_empty(): matched = text.ends_with(match_name) or text.ends_with("/" + match_name)
-		elif text.ends_with(".json"): matched = true
+		if not match_name.is_empty():
+			matched = text.ends_with(match_name) or text.ends_with("/" + match_name)
+		elif text.ends_with(".json"):
+			matched = true
 		if matched:
-			if text.is_absolute_path(): return text
+			if text.is_absolute_path():
+				return text
 			return ProjectSettings.globalize_path("res://").path_join("..").path_join(text).simplify_path()
 	var project_dir := ProjectSettings.globalize_path("res://").rstrip("/")
 	return project_dir.path_join(default_relative).simplify_path()
 
+
 static func load_json(path: String) -> Dictionary:
-	if path.is_empty() or not FileAccess.file_exists(path): return {}
+	if path.is_empty() or not FileAccess.file_exists(path):
+		return {}
 	var file := FileAccess.open(path, FileAccess.READ)
-	if file == null: return {}
+	if file == null:
+		return {}
 	var parsed: Variant = JSON.parse_string(file.get_as_text())
-	if typeof(parsed) != TYPE_DICTIONARY: return {}
+	if typeof(parsed) != TYPE_DICTIONARY:
+		return {}
 	return parsed
+
 
 static func apply_stale(controls: Array, stale: bool) -> void:
 	var filter := Control.MOUSE_FILTER_IGNORE if stale else Control.MOUSE_FILTER_STOP
 	for control in controls:
-		if control is Control: (control as Control).mouse_filter = filter
+		if control is Control:
+			(control as Control).mouse_filter = filter
+
 
 static func verification_label(data: Dictionary) -> String:
-	if bool(data.get("fresh_verifier_occurrence", false)): return "VERIFIED"
+	## Never paint VERIFIED unless the retained JSON asserts a fresh verifier occurrence.
+	if bool(data.get("fresh_verifier_occurrence", false)):
+		return "VERIFIED"
 	return "VERIFICATION  /  NOT CLAIMED"
+
 
 static func panel() -> PanelContainer:
 	var node := PanelContainer.new()
