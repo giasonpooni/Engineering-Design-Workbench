@@ -46,8 +46,9 @@ The live Session now hosts `ciw.telemetry.v1`, `ciw.calibrated-observable.v1` an
 `ciw.measurement-chain.v1`, `ciw.geometric-circle.v1` and
 `ciw.identified-stability.v1`, `ciw.flat-torus-reference.v1`,
 `ciw.curved-path-transfer.v1`, `ciw.thermal-observer.v1`,
-`ciw.julia-oscillator.v1` and
-`ciw.encoder-position.v1`, through
+`ciw.julia-oscillator.v1`,
+`ciw.encoder-position.v1` and
+`ciw.project-graph.v1`, through
 `operation.list/execute`.
 `source.*`, `bundle.*` and `fusion.list` expose retained inputs, native bundles
 and candidate contexts; result and execution lists include those native records
@@ -94,6 +95,7 @@ keep their native owners; the table below distinguishes implemented ICRH profile
 | Two-capacity thermal model → Python reference observer | Shared `ciw.thermal-observer.v1`; ordered state/input/sensor declarations, dropout-aware observer, bounded sensor selection, read-only authority and fresh replay | CIW contract and save/reopen/replay tests; Julia parity and independent ICRH profile pending | Synthetic thermal source only; no physical telemetry, Julia provider admission, hardware actuation or calibration claim. |
 | Declared oscillator source → Julia OrdinaryDiffEqTsit5 → Python analytic oracle | Shared `ciw.julia-oscillator.v1`; bounded framed data-only worker, exact request/response bytes, solver diagnostics, componentwise oracle comparison, distinct execution/result/verification identities and fresh replay | Contract, framing, refusal, oracle, offline projection and replay tests; genuine Julia 1.10.12 environment and headless Godot run remain pending | Simulated trajectory only; no physical calibration, measurement uncertainty, SP1 proof or actuation. |
 | Evidence bundle → machine manifest compiler | Shared `ciw.encoder-position.v1`; evidence-bound encoder/gearbox/leadscrew candidate, deterministic challenge, position/covariance evaluation, separate execution/result identities and fresh replay | CIW machine contract plus save/reopen/replay, tamper and runtime-identity refusal tests; independent ICRH profile pending | Read-only reference evaluation only; no document retrieval, physical calibration, state admission, firmware loading or actuation. |
+| Declared project graph → provider-free inspection | Shared `ciw.project-graph.v1`; versioned append-only project artifact, typed objects/edges, deterministic inspection, separate execution/result identities and fresh replay | CIW project contract plus save/reopen/replay, tamper and runtime-identity refusal tests; independent ICRH profile pending | Inspection only; declared computation nodes are not executed, and no physical validation or state admission is granted. |
 
 “Independent harness” means a separately implemented conformance checker. It
 does not mean an independent physical measurement or independent validation of
