@@ -42,11 +42,22 @@ records exercised paths, independent checks and remaining gaps.
 | Evaluate a recorded machine configuration. | Read-only encoder/gearbox/leadscrew reference workflow, with configuration, inputs and results retained together; no firmware loading or actuation. |
 | Run selected stability and computation checks. | PLSR and registered SCR/SP1 operations have separate requirements and scopes; they do not verify every calculation or physical model. |
 | Capture and compare GPU energy-to-accuracy measurements. | Explicit host capture requires a supported NVIDIA device and its NVML interface. Shared-session analysis uses retained logs. |
-| Inspect results in optional graphical clients. | Godot views and read-only geographic inspection use retained records; neither changes the scientific result. |
+| Inspect results in optional graphical clients. | Godot Experiments and read-only geographic views use retained `ciw.experiment-view.v1` records. Coordinate, strip and mesh panels that carry `ciw.panel-render.v1` are drawn as detached copies (`connect: false`, canvas id distinct from frame). Neither client changes the scientific result. |
 
 The broader laboratory integration is still being completed. Current support
 does **not** establish general-purpose hardware acquisition, equipment control,
 a complete mathematics curriculum or platform-wide industrial qualification.
+
+The sections below still name research and integration directions. None of these
+are implemented by the inspect or render path, and naming them here does not
+make them available:
+
+- OpenUSD scene export or reload
+- a curriculum engine beyond the one retained RMS lesson
+- a required Julia, C/C++ or Rust language chain
+- category-theoretic design manifolds as a runtime
+- a general GPU or laboratory hardware gateway
+- Evidence and State Management admission from a plot or `render` descriptor
 
 ## Quickstart
 
@@ -144,8 +155,8 @@ and checks a workflow supports.
 | **Scientific providers** | Supply domain models and calculations through adapters with explicit source/runtime versions. Each repository retains its own scientific contract, tests and licence. |
 | **Native execution / SCR** | Supply supported native execution services and runtime bindings. Python, Julia and C/C++ implementations connect through the applicable registered boundary; no mandatory language chain is imposed. |
 | **Checkers / ICRH, PLSR and selected SP1 paths** | Check the numerical, contract, stability or registered-computation claims they actually support. A computation does not certify itself. |
-| **Evidence handoff / ESM** | Handle separately supported retention, review and release of evidence or candidate state. Producing a result does not approve it as authoritative state. |
-| **Inspection clients** | Display numerical, temporal, spectral, geographic or local 2D/3D views. Closing a viewer does not stop the backend or change retained records. |
+| **Evidence handoff / ESM** | Handle separately supported retention, review and release of evidence or candidate state. An inspect copy and a `render` descriptor are not modeling inputs and do not admit corpus state. |
+| **Inspection clients** | Display numerical, temporal, spectral, geographic or local 2D/3D views of retained inspect records. Closing a viewer does not stop the backend or change retained records. |
 
 The model, calculation and supporting evidence are related but separate records:
 what is being studied, what ran, and why its conclusion should be trusted.
@@ -222,7 +233,8 @@ These are **interface proposals**, not commands added by this README. Existing
 <a id="historical-prologue-and-capability-map"></a>
 The built-in curriculum is intended to start with a substantial historical
 prologue covering the development and roles of mathematical fields, followed by
-the shared pedagogy:
+the shared pedagogy. That programme is **not implemented**; the only executable
+lesson is the retained RMS statistics walkthrough.
 
 ```text
 Historical problem -> example -> mechanism -> mathematical structure
@@ -344,7 +356,8 @@ handling. The [covariance guide](docs/COVARIANCE.md) records current limits.
 
 A smooth family of designs may use local coordinates and a manifold description;
 other designs may be discrete or mix both. **Parametric design manifolds** name
-that specialized research case, not every investigation. Equivalence-based model
+that specialized research case, not every investigation. It is not an
+implemented runtime. Equivalence-based model
 descriptions, topology and category-theoretic composition are tools to use where
 a workload requires them, not prerequisites for running Notations.
 
