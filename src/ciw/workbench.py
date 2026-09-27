@@ -568,6 +568,7 @@ class Workbench:
         self._lock = RLock()
         self._sources = {}
         self._bundles = {}
+        self._failures = {}
         self._bindings = {"energy-accuracy": {}, "thermal-observer": {}, "machine-manifest": {}}
         self._candidate_adapters = {}
         self._candidates = {}
@@ -601,6 +602,11 @@ class Workbench:
     def pending_operations(self):
         with self._lock:
             return self._pending
+
+    @property
+    def revision(self):
+        with self._lock:
+            return self._revision
 
     def describe_operations(self):
         with self._lock:
@@ -798,16 +804,49 @@ class Workbench:
                 raise ValueError("Unknown retained workbench bundle")
             return deepcopy(self._bundles[bundle_id]["native"])
 
-    def _reserve(self, kind):
+    def _reserve(self, kind, failure_bytes=0):
         if kind not in self._bindings:
             raise AdapterRefusal("operation_unavailable", "No trusted repositories bound for this workbench workflow")
-        reserved = _workflow(kind).MAX_BYTES + _OVERHEAD
-        if (len(self._bundles) + self._pending >= MAX_BUNDLES or
+        reserved = _workflow(kind).MAX_BYTES + _OVERHEAD + failure_bytes
+        if (len(self._bundles) + len(self._failures) + self._pending >= MAX_BUNDLES or
                 self._used_bytes + self._reserved_bytes + reserved + _OVERHEAD > MAX_BYTES):
             raise AdapterRefusal("workbench_capacity", "Retained bundle capacity exceeded")
         self._pending += 1
         self._reserved_bytes += reserved
         return dict(self._bindings[kind]), reserved
+
+    def list_failed_executions(self):
+        with self._lock:
+            return deepcopy(list(self._failures.values()))
+
+    def failed_execution_summaries(self):
+        """Bound live projections; exact requests remain in saved/local history."""
+        fields = ("execution_id", "scope", "kind", "action", "operation_id", "source_id",
+                  "evidence_id", "request_sha256", "started_at", "finished_at", "phase",
+                  "status", "runtime", "runtime_status", "result_id", "bundle_id",
+                  "failure", "record_sha256")
+        with self._lock:
+            return deepcopy([{"schema": "ciw.workflow-failure-summary.v1",
+                **{key: record[key] for key in fields},
+                "replay_of_bundle_id": record["request"]["bundle_id"] if record["action"] == "replay" else None}
+                for record in self._failures.values()])
+
+    def _retain_failure(self, context, phase, exc, reserved):
+        from . import workflow_attempts as attempts
+        record = attempts.finish(context, phase, exc)
+        size = len(_canonical(record))
+        with self._lock:
+            attempts.validate(record, self._sources, self._bundles, OPERATIONS, UPSTREAM_KINDS)
+            claims = attempts.claims(record)
+            self._check_claims(claims)
+            if record["execution_id"] in self._failures:
+                raise ValueError("Duplicate failed workflow execution identity")
+            if size > reserved or self._used_bytes + size + _OVERHEAD > MAX_BYTES:
+                raise ValueError("Failed workflow record exceeded its reservation")
+            self._failures[record["execution_id"]] = record
+            self._identities.update(claims)
+            self._used_bytes += size
+            self._revision += 1
 
     def _retain(self, kind, source, upstream_id, native):
         native = deepcopy(native)
@@ -830,6 +869,7 @@ class Workbench:
 
     def execute(self, payload):
         _keys(payload, {"operation_id", "source_id"}, {"upstream_bundle_id", "configuration"})
+        payload = deepcopy(payload)
         _text(payload["operation_id"], "Operation identity")
         _text(payload["source_id"], "Source identity")
         kind = next((kind for kind, operation in OPERATIONS.items() if operation == payload["operation_id"]), None)
@@ -862,7 +902,11 @@ class Workbench:
                 if any(identity not in self._bundles for identity in requested):
                     raise ValueError("Select window bundles already retained in this workbench")
                 upstream = {identity: deepcopy(self._bundles[identity]["native"]) for identity in requested}
-            bindings, reserved = self._reserve(kind)
+            from . import workflow_attempts as attempts
+            context = attempts.start(kind, "execute", payload, source, operation_id=OPERATIONS[kind])
+            failure_bytes = len(_canonical(payload)) + attempts.MAX_OVERHEAD
+            bindings, reserved = self._reserve(kind, failure_bytes)
+        phase = "dispatch"
         try:
             raw = base64.b64decode(source["bytes_b64"], validate=True)
             workflow = _workflow(kind)
@@ -873,7 +917,11 @@ class Workbench:
                 native = workflow.create_session(raw, configuration, {role: bindings[role] for role in roles})
             else:
                 native = workflow.create_session(raw, bindings) if upstream is None else workflow.create_session(raw, upstream, bindings)
+            phase = "retention"
             return self._retain(kind, source, upstream_id, native)
+        except Exception as exc:
+            self._retain_failure(context, phase, exc, failure_bytes)
+            raise
         finally:
             with self._lock:
                 self._pending -= 1
@@ -881,13 +929,19 @@ class Workbench:
 
     def replay(self, payload):
         _keys(payload, {"bundle_id"})
+        payload = deepcopy(payload)
         _text(payload["bundle_id"], "Bundle identity")
         with self._lock:
             if payload["bundle_id"] not in self._bundles:
                 raise ValueError("Unknown retained workbench bundle")
             record = deepcopy(self._bundles[payload["bundle_id"]])
             source = deepcopy(self._sources[record["source_id"]])
-            bindings, reserved = self._reserve(record["kind"])
+            from . import workflow_attempts as attempts
+            context = attempts.start(record["kind"], "replay", payload, source,
+                                     operation_id=OPERATIONS[record["kind"]])
+            failure_bytes = len(_canonical(payload)) + attempts.MAX_OVERHEAD
+            bindings, reserved = self._reserve(record["kind"], failure_bytes)
+        phase = "dispatch"
         try:
             if record["kind"] == "telemetry":
                 roles = set(record["native"]["runtimes"])
@@ -895,12 +949,16 @@ class Workbench:
                     raise AdapterRefusal("operation_unavailable", "Replay requires the original telemetry provider set")
                 bindings = {role: bindings[role] for role in roles}
             replayed = _workflow(record["kind"]).replay_session(record["native"], bindings)
+            phase = "retention"
             native, receipt = replayed["session"], replayed["replay_receipt"]
             if (receipt["source_bundle_digest"] != record["bundle_id"] or
                     _canonical(native.get("replay_receipts")) != _canonical([receipt])):
                 raise ValueError("Replay receipt differs from the returned native bundle")
             summary = self._retain(record["kind"], source, record["upstream_bundle_id"], native)
             return {"bundle": summary, "replay_receipt": deepcopy(receipt)}
+        except Exception as exc:
+            self._retain_failure(context, phase, exc, failure_bytes)
+            raise
         finally:
             with self._lock:
                 self._pending -= 1
@@ -1023,20 +1081,22 @@ class Workbench:
                 **({"native_source_evidence_id": native["source"]["evidence"][0]["artifact_ref"]}
                    if record["kind"] == "acquired-calibrated-window" else {}),
                 "status": "completed"}
-                for record, native, step in self._native_steps()])
+                for record, native, step in self._native_steps()]) + self.failed_execution_summaries()
 
     def snapshot(self):
         with self._lock:
             return {"schema": SCHEMA, "revision": self._revision, "sources": self.list_sources(),
                 "bundles": self.list_bundles(), "fusion_contexts": self.fusion_contexts(),
                 "instruments": self.instrument_views(), "candidates": self.list_candidates(),
+                **({"failed_executions": self.failed_execution_summaries()} if self._failures else {}),
                 "operations": self.describe_operations()}
 
     def serialize(self):
         with self._lock:
-            return deepcopy({"schema": "ciw.retained-workbench.v2" if self._candidates else SCHEMA, "revision": self._revision,
+            return deepcopy({"schema": "ciw.retained-workbench.v3" if self._failures else "ciw.retained-workbench.v2" if self._candidates else SCHEMA, "revision": self._revision,
                 "sources": list(self._sources.values()), "bundles": list(self._bundles.values()),
-                **({"candidates": list(self._candidates.values())} if self._candidates else {})})
+                **({"candidates": list(self._candidates.values())} if self._candidates or self._failures else {}),
+                **({"failed_executions": list(self._failures.values())} if self._failures else {})})
 
     @classmethod
     def restore(cls, value):
@@ -1045,15 +1105,21 @@ class Workbench:
             if len(_canonical(value)) > MAX_BYTES:
                 raise ValueError("Retained workbench exceeds the byte budget")
             value = deepcopy(value)
-            new = value.get("schema") == "ciw.retained-workbench.v2"
-            _keys(value, {"schema", "revision", "sources", "bundles"} | ({"candidates"} if new else set()))
+            failures_version = value.get("schema") == "ciw.retained-workbench.v3"
+            new = value.get("schema") in {"ciw.retained-workbench.v2", "ciw.retained-workbench.v3"}
+            _keys(value, {"schema", "revision", "sources", "bundles"} | ({"candidates"} if new else set())
+                  | ({"failed_executions"} if failures_version else set()))
             candidates = value.get("candidates", [])
+            failures = value.get("failed_executions", [])
+            if (not isinstance(failures, list) or len(failures) > MAX_BUNDLES
+                    or (failures_version and not failures)):
+                raise ValueError("Malformed failed workflow catalog")
             if not isinstance(candidates, list) or len(candidates) > MAX_BUNDLES:
                 raise ValueError("Malformed candidate receipt catalog")
-            if (value["schema"] not in {SCHEMA, "ciw.retained-workbench.v2"} or type(value["revision"]) is not int or
+            if (value["schema"] not in {SCHEMA, "ciw.retained-workbench.v2", "ciw.retained-workbench.v3"} or type(value["revision"]) is not int or
                     not isinstance(value["sources"], list) or not isinstance(value["bundles"], list) or
-                    len(value["sources"]) > MAX_SOURCES or len(value["bundles"]) > MAX_BUNDLES or
-                    value["revision"] != len(value["sources"]) + len(value["bundles"]) + len(candidates)):
+                    len(value["sources"]) > MAX_SOURCES or len(value["bundles"]) + len(failures) > MAX_BUNDLES or
+                    value["revision"] != len(value["sources"]) + len(value["bundles"]) + len(candidates) + len(failures)):
                 raise ValueError("Malformed retained workbench catalog")
             restored = cls()
             for retained in value["sources"]:
@@ -1076,6 +1142,16 @@ class Workbench:
                 restored._used_bytes += len(_canonical(record))
             for record in restored._bundles.values():
                 _validate_links(record, restored._bundles)
+            from . import workflow_attempts as attempts
+            for record in failures:
+                attempts.validate(record, restored._sources, restored._bundles, OPERATIONS, UPSTREAM_KINDS)
+                if record["execution_id"] in restored._failures:
+                    raise ValueError("Duplicate failed workflow execution identity")
+                claims = attempts.claims(record)
+                restored._check_claims(claims)
+                restored._failures[record["execution_id"]] = record
+                restored._identities.update(claims)
+                restored._used_bytes += len(_canonical(record))
             occurrences = {entry["execution_id"] for entry in restored.native_executions()}
             for record in candidates:
                 restored._validate_candidate(record)
