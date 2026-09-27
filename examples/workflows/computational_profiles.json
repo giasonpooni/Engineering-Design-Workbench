@@ -1,0 +1,781 @@
+{
+  "schema": "computational-profiles.v1",
+  "application_description_count": 9074,
+  "unique_computational_profiles": 10,
+  "profiles": [
+    {
+      "profile_id": "9eccaafa8bc49a47",
+      "family": "CSE",
+      "instrument_family": "CSE (BIM quantity conditioning)",
+      "operation_id": "ciw.bim-quantity.v1",
+      "operation_note": "quantity-only teaching dispositions",
+      "model_regime": "IFC/--demo quantity conditioning; geometry_authority=QUANTITY_ONLY",
+      "input_source": "synthetic",
+      "scenario": "ACCEPT / REQUEST_EVIDENCE / REJECT teaching gate",
+      "verbs": [
+        "evidence-screen",
+        "gate",
+        "quantity-review"
+      ],
+      "member_count": 1138,
+      "member_slug_sample": [
+        "airport-maintenance-evidence-screen",
+        "airport-maintenance-gate",
+        "airport-maintenance-quantity-review",
+        "airport-operations-evidence-screen",
+        "airport-operations-gate",
+        "airport-operations-quantity-review",
+        "airport-planning-evidence-screen",
+        "airport-planning-gate"
+      ],
+      "fingerprint_core": {
+        "family": "CSE",
+        "operation": "ciw.bim-quantity.v1",
+        "schema": "ciw.host-bim-quantity-render.v1",
+        "kind_core": "CSE",
+        "model": null,
+        "uncertainty": {
+          "prior_std": null,
+          "total_mass_variance_kg2": null,
+          "constraint_b_var": null,
+          "threshold": null,
+          "trust_scope": null,
+          "upstream_status": "HOST_TEACHING_FROM_PUBLISHED_BIM_QUANTITY"
+        },
+        "expected_outcome_class": [
+          {
+            "id": "conditioned-accept-recommendation",
+            "status": "accepted",
+            "verdict": "ACCEPT",
+            "reason": "conditioned"
+          },
+          {
+            "id": "held-request-evidence",
+            "status": "held",
+            "verdict": "REQUEST_EVIDENCE",
+            "reason": "unknown_cross_covariance"
+          },
+          {
+            "id": "refused-violated",
+            "status": "refused",
+            "verdict": "REJECT",
+            "reason": "invariant_rejection"
+          }
+        ],
+        "source_class": "HOST / published teaching quantities"
+      }
+    },
+    {
+      "profile_id": "86c913a772e11a44",
+      "family": "CSG",
+      "instrument_family": "CSG (Curved-Surface-Geodesic-Sensitivity)",
+      "operation_id": "ciw.curved-path-transfer.v1",
+      "operation_note": "presentation of HOST-sampled constant-curvature Jacobi strip",
+      "model_regime": "declared constant curvature; no surveyed BIM",
+      "input_source": "synthetic",
+      "scenario": "path sensitivity / Jacobi strip inspection",
+      "verbs": [
+        "jacobi-strip",
+        "path-sensitivity",
+        "route-check"
+      ],
+      "member_count": 1144,
+      "member_slug_sample": [
+        "airport-maintenance-jacobi-strip",
+        "airport-maintenance-path-sensitivity",
+        "airport-maintenance-route-check",
+        "airport-operations-jacobi-strip",
+        "airport-operations-path-sensitivity",
+        "airport-operations-route-check",
+        "airport-planning-jacobi-strip",
+        "airport-planning-path-sensitivity"
+      ],
+      "fingerprint_core": {
+        "family": "CSG",
+        "operation": "ciw.curved-path-transfer.v1",
+        "schema": "ciw.host-csg-render.v1",
+        "kind_core": "CSG",
+        "model": {
+          "geometry_basis": "declared_constant_curvature",
+          "solver": "native_rk4",
+          "observation_mode": "intrinsic-surface-distance",
+          "uncertainty": "conditional_on_declared_starting_covariance",
+          "physical_geometry": "not_established"
+        },
+        "uncertainty": {
+          "prior_std": null,
+          "total_mass_variance_kg2": null,
+          "constraint_b_var": null,
+          "threshold": null,
+          "trust_scope": null,
+          "upstream_status": "HOST_SYNTHETIC_FROM_PUBLISHED_BOUNDARY_PARAMS"
+        },
+        "expected_outcome_class": [],
+        "source_class": "HOST_SYNTHETIC_FROM_PUBLISHED_BOUNDARY_PARAMS"
+      }
+    },
+    {
+      "profile_id": "b0e89a20f6c8870e",
+      "family": "ENERGY_ACCURACY",
+      "instrument_family": "ENERGY_ACCURACY",
+      "operation_id": "ciw.energy-accuracy.v1",
+      "operation_note": "amortized joules/qualified-solve teaching phases",
+      "model_regime": "synthetic fixtures; free energy / joules / time kept separate",
+      "input_source": "synthetic",
+      "scenario": "baseline-qualified and incomplete-bracket phases",
+      "verbs": [
+        "energy-accuracy",
+        "phase-review"
+      ],
+      "member_count": 752,
+      "member_slug_sample": [
+        "airport-maintenance-energy-accuracy",
+        "airport-maintenance-phase-review",
+        "airport-operations-energy-accuracy",
+        "airport-operations-phase-review",
+        "airport-planning-energy-accuracy",
+        "airport-planning-phase-review",
+        "airport-quality-energy-accuracy",
+        "airport-quality-phase-review"
+      ],
+      "fingerprint_core": {
+        "family": "ENERGY_ACCURACY",
+        "operation": "ciw.energy-accuracy.v1",
+        "schema": "ciw.host-energy-accuracy-teach-render.v1",
+        "kind_core": "ENERGY_ACCURACY",
+        "model": null,
+        "uncertainty": {
+          "prior_std": null,
+          "total_mass_variance_kg2": null,
+          "constraint_b_var": null,
+          "threshold": null,
+          "trust_scope": null,
+          "upstream_status": "HOST_FROM_PUBLISHED_FIXTURES"
+        },
+        "expected_outcome_class": [
+          {
+            "id": "baseline-qualified",
+            "status": "LIVE",
+            "verdict": "qualified",
+            "reason": "target_met_complete_brackets"
+          },
+          {
+            "id": "under-target-not-met",
+            "status": "REFUSED",
+            "verdict": "not_qualified",
+            "reason": "accuracy_target_not_met_by_every_batch"
+          },
+          {
+            "id": "missing-endpoint-brackets",
+            "status": "HELD",
+            "verdict": "not_qualified",
+            "reason": "missing_endpoint_brackets"
+          },
+          {
+            "id": null,
+            "status": "LIVE",
+            "verdict": "qualified",
+            "reason": "target_met_complete_brackets"
+          },
+          {
+            "id": null,
+            "status": "REFUSED",
+            "verdict": "not_qualified",
+            "reason": "accuracy_target_not_met_by_every_batch"
+          },
+          {
+            "id": null,
+            "status": "HELD",
+            "verdict": "not_qualified",
+            "reason": "missing_endpoint_brackets"
+          }
+        ],
+        "source_class": "HOST_FROM_PUBLISHED_FIXTURES"
+      }
+    },
+    {
+      "profile_id": "255c3a6953b25b6b",
+      "family": "FSRT",
+      "instrument_family": "FSRT (Fluid-State-Reconstruction-Testbed teaching)",
+      "operation_id": "BLOCKED",
+      "operation_note": "HOST replay of published FSRT quickstart; does not mint ciw.fluid-volume.v1; no native set_lcm import",
+      "model_regime": "two-reservoir linear ConstraintSet; P=I HOST hard reconcile",
+      "input_source": "HOST replay",
+      "scenario": "reconcile-vs-hold on consistency_stat vs χ² threshold",
+      "verbs": [
+        "inventory-balance",
+        "reservoir-reconcile",
+        "shift-check"
+      ],
+      "member_count": 1148,
+      "member_slug_sample": [
+        "airport-fuel-farm",
+        "airport-maintenance-inventory-balance",
+        "airport-maintenance-reservoir-reconcile",
+        "airport-maintenance-shift-check",
+        "airport-operations-inventory-balance",
+        "airport-operations-reservoir-reconcile",
+        "airport-operations-shift-check",
+        "airport-planning-inventory-balance"
+      ],
+      "fingerprint_core": {
+        "family": "FSRT",
+        "operation": "BLOCKED::HOST replay of published FSRT quickstart; does not mint ciw.fluid-volume.v1; no native set_lcm import",
+        "schema": "ciw.host-fsrt-render.v1",
+        "kind_core": "FSRT",
+        "model": {
+          "kind": "reservoir2-linear-v1",
+          "prior_mean": [
+            70.0,
+            30.0
+          ],
+          "prior_std": 5.0,
+          "total_mass_kg": 100.0,
+          "total_mass_variance_kg2": 0.25,
+          "fixture": "examples/adapters/two-reservoir.json",
+          "constraint": {
+            "A": [
+              [
+                1.0,
+                1.0
+              ]
+            ],
+            "b": [
+              100.0
+            ],
+            "b_var": [
+              0.25
+            ],
+            "cov": "I",
+            "note": "Published quickstart ConstraintSet; P=I for HOST replay"
+          },
+          "source_description": "Two independent simulated reservoir mass sensors; no physical device, field acquisition or metrological traceability claim"
+        },
+        "uncertainty": {
+          "prior_std": 5.0,
+          "total_mass_variance_kg2": 0.25,
+          "constraint_b_var": [
+            0.25
+          ],
+          "threshold": null,
+          "trust_scope": null,
+          "upstream_status": "HOST_REPLAY_OF_PUBLISHED_QUICKSTART"
+        },
+        "expected_outcome_class": [
+          {
+            "id": "small-disagreement-reconciled",
+            "status": "reconciled",
+            "verdict": "ok",
+            "reason": null
+          },
+          {
+            "id": "large-disagreement-held",
+            "status": "held",
+            "verdict": "model_inconsistent",
+            "reason": null
+          }
+        ],
+        "source_class": "HOST_REPLAY_OF_PUBLISHED_QUICKSTART"
+      }
+    },
+    {
+      "profile_id": "f3bf97b187d9d148",
+      "family": "GTE_CIRCLE",
+      "instrument_family": "GTE geometric circle",
+      "operation_id": "ciw.geometric-circle.v1",
+      "operation_note": "eligibility / held teaching cases",
+      "model_regime": "declared frame bench-plane only",
+      "input_source": "synthetic",
+      "scenario": "circle eligibility and radial residual screen",
+      "verbs": [
+        "circle-fit",
+        "radial-screen"
+      ],
+      "member_count": 752,
+      "member_slug_sample": [
+        "airport-maintenance-circle-fit",
+        "airport-maintenance-radial-screen",
+        "airport-operations-circle-fit",
+        "airport-operations-radial-screen",
+        "airport-planning-circle-fit",
+        "airport-planning-radial-screen",
+        "airport-quality-circle-fit",
+        "airport-quality-radial-screen"
+      ],
+      "fingerprint_core": {
+        "family": "GTE_CIRCLE",
+        "operation": "ciw.geometric-circle.v1",
+        "schema": "ciw.host-gte-circle-eligibility-render.v1",
+        "kind_core": "GTE_CIRCLE",
+        "model": null,
+        "uncertainty": {
+          "prior_std": null,
+          "total_mass_variance_kg2": null,
+          "constraint_b_var": null,
+          "threshold": null,
+          "trust_scope": null,
+          "upstream_status": "HOST_FROM_PUBLISHED_FIXTURES"
+        },
+        "expected_outcome_class": [
+          {
+            "id": "eligible-source",
+            "status": "LIVE",
+            "verdict": "eligible",
+            "reason": "corrections_within_policy"
+          },
+          {
+            "id": "held-correction-limit",
+            "status": "HELD",
+            "verdict": "held",
+            "reason": "correction_limit"
+          },
+          {
+            "id": "refused-singular-center",
+            "status": "REFUSED",
+            "verdict": "refused",
+            "reason": "numeric_geometry"
+          },
+          {
+            "id": null,
+            "status": "LIVE",
+            "verdict": "eligible",
+            "reason": "corrections_within_policy"
+          },
+          {
+            "id": null,
+            "status": "HELD",
+            "verdict": "held",
+            "reason": "correction_limit"
+          },
+          {
+            "id": null,
+            "status": "REFUSED",
+            "verdict": "refused",
+            "reason": "numeric_geometry"
+          }
+        ],
+        "source_class": "HOST_FROM_PUBLISHED_FIXTURES"
+      }
+    },
+    {
+      "profile_id": "1ad6ec86bd1fcef8",
+      "family": "MEASUREMENT_CHAIN",
+      "instrument_family": "MEASUREMENT_CHAIN (RCI→FSRT→JSPT testbed)",
+      "operation_id": "ciw.measurement-chain.v1",
+      "operation_note": "operation_language RCI calibrate.v2 → FSRT snapshot → JSPT",
+      "model_regime": "HOST_SYNTHETIC stages; native results keep not_verified",
+      "input_source": "synthetic",
+      "scenario": "instrument-chain stage walk / chain audit",
+      "verbs": [
+        "chain-audit",
+        "measurement-chain"
+      ],
+      "member_count": 752,
+      "member_slug_sample": [
+        "airport-maintenance-chain-audit",
+        "airport-maintenance-measurement-chain",
+        "airport-operations-chain-audit",
+        "airport-operations-measurement-chain",
+        "airport-planning-chain-audit",
+        "airport-planning-measurement-chain",
+        "airport-quality-chain-audit",
+        "airport-quality-measurement-chain"
+      ],
+      "fingerprint_core": {
+        "family": "MEASUREMENT_CHAIN",
+        "operation": "ciw.measurement-chain.v1",
+        "schema": "ciw.host-measurement-chain-teach-render.v1",
+        "kind_core": "MEASUREMENT_CHAIN",
+        "model": {
+          "scope": "measurement-chain-testbed",
+          "state_admission": "not_performed",
+          "gsie_fusion": "not_performed",
+          "physical_traceability": "not_established"
+        },
+        "uncertainty": {
+          "prior_std": null,
+          "total_mass_variance_kg2": null,
+          "constraint_b_var": null,
+          "threshold": null,
+          "trust_scope": null,
+          "upstream_status": "HOST_SYNTHETIC"
+        },
+        "expected_outcome_class": [
+          {
+            "id": null,
+            "status": "LIVE",
+            "verdict": null,
+            "reason": null
+          },
+          {
+            "id": null,
+            "status": "LIVE",
+            "verdict": null,
+            "reason": null
+          },
+          {
+            "id": null,
+            "status": "HISTORICAL",
+            "verdict": null,
+            "reason": null
+          },
+          {
+            "id": null,
+            "status": "RECONCILED",
+            "verdict": null,
+            "reason": null
+          },
+          {
+            "id": "raw",
+            "status": "LIVE",
+            "verdict": null,
+            "reason": null
+          },
+          {
+            "id": "calibrated",
+            "status": "LIVE",
+            "verdict": null,
+            "reason": null
+          },
+          {
+            "id": "estimate",
+            "status": "HISTORICAL",
+            "verdict": null,
+            "reason": null
+          },
+          {
+            "id": "reconcile",
+            "status": "RECONCILED",
+            "verdict": null,
+            "reason": null
+          }
+        ],
+        "source_class": "HOST_SYNTHETIC"
+      }
+    },
+    {
+      "profile_id": "e53d1d4e38444add",
+      "family": "PLSR",
+      "instrument_family": "PLSR identified stability",
+      "operation_id": "ciw.identified-stability.v1",
+      "operation_note": "retained numerical verdict; proof NOT_CHECKED in teaching emit",
+      "model_regime": "identity certificate / level-set; parameter covariance unknown",
+      "input_source": "HOST replay",
+      "scenario": "NUMERICAL_INCONCLUSIVE / OUTSIDE_LEVEL_SET teaching",
+      "verbs": [
+        "contour-check",
+        "stability-verdict",
+        "verdict-review"
+      ],
+      "member_count": 1128,
+      "member_slug_sample": [
+        "airport-maintenance-contour-check",
+        "airport-maintenance-stability-verdict",
+        "airport-maintenance-verdict-review",
+        "airport-operations-contour-check",
+        "airport-operations-stability-verdict",
+        "airport-operations-verdict-review",
+        "airport-planning-contour-check",
+        "airport-planning-stability-verdict"
+      ],
+      "fingerprint_core": {
+        "family": "PLSR",
+        "operation": "ciw.identified-stability.v1",
+        "schema": "ciw.host-plsr-stability-verdict-render.v1",
+        "kind_core": "PLSR",
+        "model": null,
+        "uncertainty": {
+          "prior_std": null,
+          "total_mass_variance_kg2": null,
+          "constraint_b_var": null,
+          "threshold": null,
+          "trust_scope": null,
+          "upstream_status": "HOST_FROM_DOCUMENTED_OUTCOMES"
+        },
+        "expected_outcome_class": [
+          {
+            "id": "identity-certificate-inconclusive",
+            "status": "HISTORICAL",
+            "verdict": "NUMERICAL_INCONCLUSIVE",
+            "reason": "neutral_conservation_mode"
+          },
+          {
+            "id": "level-zero-outside",
+            "status": "REFUSED",
+            "verdict": "OUTSIDE_LEVEL_SET",
+            "reason": "nonzero_state_outside_zero_level"
+          },
+          {
+            "id": null,
+            "status": "HISTORICAL",
+            "verdict": "NUMERICAL_INCONCLUSIVE",
+            "reason": null
+          },
+          {
+            "id": null,
+            "status": "REFUSED",
+            "verdict": "OUTSIDE_LEVEL_SET",
+            "reason": null
+          }
+        ],
+        "source_class": "HOST_FROM_DOCUMENTED_OUTCOMES"
+      }
+    },
+    {
+      "profile_id": "4e1754ccff604b3d",
+      "family": "PROVED_HEAT",
+      "instrument_family": "PROVED_HEAT (SCR/SP1 integer heat)",
+      "operation_id": "ciw.proved-heat.v1",
+      "operation_note": "proof-before-result; no ciw.proved-heat.v2",
+      "model_regime": "bounded registered guest [0,100,200,100,0]→[0,65,92,65,0]",
+      "input_source": "synthetic",
+      "scenario": "UNAVAILABLE when binaries absent; REFUSED on missing/corrupt proof",
+      "verbs": [
+        "proof-gate",
+        "thermal-release"
+      ],
+      "member_count": 755,
+      "member_slug_sample": [
+        "airport-maintenance-proof-gate",
+        "airport-maintenance-thermal-release",
+        "airport-operations-proof-gate",
+        "airport-operations-thermal-release",
+        "airport-planning-proof-gate",
+        "airport-planning-thermal-release",
+        "airport-quality-proof-gate",
+        "airport-quality-thermal-release"
+      ],
+      "fingerprint_core": {
+        "family": "PROVED_HEAT",
+        "operation": "ciw.proved-heat.v1",
+        "schema": "ciw.host-proved-heat-render.v1",
+        "kind_core": "PROVED_HEAT",
+        "model": {
+          "scope": "bounded_registered_guest_only",
+          "initial_values": [
+            0,
+            100,
+            200,
+            100,
+            0
+          ],
+          "steps": 4,
+          "final_values": [
+            0,
+            65,
+            92,
+            65,
+            0
+          ],
+          "unit": "1",
+          "arithmetic": "signed_integer_truncation_toward_zero",
+          "proof_policy": "required_before_result",
+          "non_claims": [
+            "not Gaussian update",
+            "not observations",
+            "not building-safe",
+            "not physical heat",
+            "not state admission",
+            "JSPT owns sensitivity"
+          ]
+        },
+        "uncertainty": {
+          "prior_std": null,
+          "total_mass_variance_kg2": null,
+          "constraint_b_var": null,
+          "threshold": null,
+          "trust_scope": "retained_runtime_report_requires_fresh_verification",
+          "upstream_status": "binaries-absent-or-unavailable"
+        },
+        "expected_outcome_class": [
+          {
+            "id": "teaching-statement-binaries-absent",
+            "status": "UNAVAILABLE",
+            "verdict": "UNAVAILABLE",
+            "reason": "host_binaries_absent"
+          },
+          {
+            "id": "missing-proof-refused",
+            "status": "REFUSED",
+            "verdict": "REFUSED",
+            "reason": "missing_proof"
+          },
+          {
+            "id": "missing-guest-elf-pin-refused",
+            "status": "REFUSED",
+            "verdict": "REFUSED",
+            "reason": "missing_guest_elf_pin"
+          },
+          {
+            "id": "resealed-corrupt-refused",
+            "status": "REFUSED",
+            "verdict": "REFUSED",
+            "reason": "resealed_corrupt_proof"
+          }
+        ],
+        "source_class": "HOST / synthetic"
+      }
+    },
+    {
+      "profile_id": "23e0f4100e7ba51e",
+      "family": "RESIDUAL_CUSUM",
+      "instrument_family": "RESIDUAL_CUSUM / FDIR-OIT",
+      "operation_id": "ciw.residual-monitor.v1",
+      "operation_note": "teaching windows; operation_language residual-monitor / FDIR-OIT",
+      "model_regime": "ordered residual windows; OIT-held does not advance CUSUM",
+      "input_source": "synthetic",
+      "scenario": "quiet / diagnostic-candidate / OIT-held strip",
+      "verbs": [
+        "drift-watch",
+        "residual-hold"
+      ],
+      "member_count": 753,
+      "member_slug_sample": [
+        "airport-maintenance-drift-watch",
+        "airport-maintenance-residual-hold",
+        "airport-operations-drift-watch",
+        "airport-operations-residual-hold",
+        "airport-planning-drift-watch",
+        "airport-planning-residual-hold",
+        "airport-quality-drift-watch",
+        "airport-quality-residual-hold"
+      ],
+      "fingerprint_core": {
+        "family": "RESIDUAL_CUSUM",
+        "operation": "ciw.residual-monitor.v1",
+        "schema": "ciw.host-residual-cusum-teach-render.v1",
+        "kind_core": "RESIDUAL_CUSUM",
+        "model": {
+          "threshold": 5.0,
+          "series_len": 24
+        },
+        "uncertainty": {
+          "prior_std": null,
+          "total_mass_variance_kg2": null,
+          "constraint_b_var": null,
+          "threshold": 5.0,
+          "trust_scope": null,
+          "upstream_status": "HOST_TEACHING_RESIDUAL_MONITOR"
+        },
+        "expected_outcome_class": [
+          {
+            "id": null,
+            "status": "LIVE",
+            "verdict": null,
+            "reason": null
+          },
+          {
+            "id": null,
+            "status": "REQUEST_EVIDENCE",
+            "verdict": null,
+            "reason": null
+          },
+          {
+            "id": null,
+            "status": "HELD",
+            "verdict": null,
+            "reason": null
+          },
+          {
+            "id": "quiet-no-cross",
+            "status": "LIVE",
+            "verdict": null,
+            "reason": null
+          },
+          {
+            "id": "diagnostic-candidate-cross",
+            "status": "REQUEST_EVIDENCE",
+            "verdict": null,
+            "reason": null
+          },
+          {
+            "id": "oit-held-no-advance",
+            "status": "HELD",
+            "verdict": null,
+            "reason": null
+          }
+        ],
+        "source_class": "HOST / synthetic ordered windows"
+      }
+    },
+    {
+      "profile_id": "3a74d4435cc207f4",
+      "family": "VFE",
+      "instrument_family": "VFE variational free energy",
+      "operation_id": "ciw.variational-free-energy.v1",
+      "operation_note": "sensor-bias teaching contrast",
+      "model_regime": "synthetic constant-curvature / unmodelled generator bias",
+      "input_source": "synthetic",
+      "scenario": "free-energy numerics without physical calibration claim",
+      "verbs": [
+        "bias-review",
+        "free-energy"
+      ],
+      "member_count": 752,
+      "member_slug_sample": [
+        "airport-maintenance-bias-review",
+        "airport-maintenance-free-energy",
+        "airport-operations-bias-review",
+        "airport-operations-free-energy",
+        "airport-planning-bias-review",
+        "airport-planning-free-energy",
+        "airport-quality-bias-review",
+        "airport-quality-free-energy"
+      ],
+      "fingerprint_core": {
+        "family": "VFE",
+        "operation": "ciw.variational-free-energy.v1",
+        "schema": "ciw.host-vfe-sensor-bias-teach-render.v1",
+        "kind_core": "VFE",
+        "model": null,
+        "uncertainty": {
+          "prior_std": null,
+          "total_mass_variance_kg2": null,
+          "constraint_b_var": null,
+          "threshold": null,
+          "trust_scope": null,
+          "upstream_status": "HOST_FROM_PUBLISHED_FIXTURES"
+        },
+        "expected_outcome_class": [
+          {
+            "id": "sensor-bias",
+            "status": "REQUEST_EVIDENCE",
+            "verdict": "teaching_contrast",
+            "reason": "unmodelled_generator_bias"
+          },
+          {
+            "id": "ignored-correlation",
+            "status": "HELD",
+            "verdict": "teaching_contrast",
+            "reason": "omitted_noise_correlation"
+          },
+          {
+            "id": "wrong-curvature",
+            "status": "REFUSED",
+            "verdict": "teaching_contrast",
+            "reason": "curvature_mismatch"
+          },
+          {
+            "id": null,
+            "status": "REQUEST_EVIDENCE",
+            "verdict": null,
+            "reason": "unmodelled_generator_bias"
+          },
+          {
+            "id": null,
+            "status": "HELD",
+            "verdict": null,
+            "reason": "omitted_noise_correlation"
+          },
+          {
+            "id": null,
+            "status": "REFUSED",
+            "verdict": null,
+            "reason": "curvature_mismatch"
+          }
+        ],
+        "source_class": "HOST_FROM_PUBLISHED_FIXTURES"
+      }
+    }
+  ]
+}
