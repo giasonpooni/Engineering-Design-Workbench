@@ -1,0 +1,5 @@
+{
+  "path_class": "HOST_SYNTHETIC_schematic_stages",
+  "stage_ids": ["raw", "calibrated", "estimate", "reconcile"],
+  "native_verified": false
+}

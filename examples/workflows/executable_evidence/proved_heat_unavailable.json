@@ -1,0 +1,9 @@
+{
+  "scientific_execution": "unavailable",
+  "reason": "host_binaries_absent_or_unbound",
+  "sp1_cli": false,
+  "guest_elf_hits": [],
+  "case_ids": ["teaching-statement-binaries-absent", "missing-proof-refused", "missing-guest-elf-pin-refused", "resealed-corrupt-refused"],
+  "verified_present": false,
+  "check_proved_heat_help_rc": 0
+}

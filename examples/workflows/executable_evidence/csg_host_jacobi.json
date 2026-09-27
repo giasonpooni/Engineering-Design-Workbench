@@ -1,0 +1,10 @@
+{
+  "path_class": "HOST_SYNTHETIC_Jacobi_strip",
+  "points": 17,
+  "path_length": 2.0,
+  "curvature": 0.25,
+  "declared_residual": 0.0004649072120688465,
+  "strip_points": 17,
+  "peak_norm": 0.0035350927879311536,
+  "replay_identical": true
+}

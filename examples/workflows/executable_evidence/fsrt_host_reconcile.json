@@ -1,0 +1,53 @@
+{
+  "path_class": "HOST_hard_reconcile_P=I",
+  "threshold": 10.8275661707,
+  "cases": [
+    {
+      "label": "agree",
+      "stat": 0.0,
+      "hold": false,
+      "result": {
+        "x": [49.0, 51.0],
+        "x_unprojected": [49.0, 51.0],
+        "residual_pre": [0.0],
+        "residual_post": [0.0],
+        "held": false,
+        "consistency_stat": 0.0,
+        "consistency_threshold": 10.8275661707,
+        "status": "reconciled"
+      }
+    },
+    {
+      "label": "small",
+      "stat": 0.4444444444444444,
+      "hold": false,
+      "result": {
+        "x": [48.44444444444444, 51.44444444444444],
+        "x_unprojected": [48.0, 51.0],
+        "residual_pre": [-1.0],
+        "residual_post": [-0.11111111111111427],
+        "held": false,
+        "consistency_stat": 0.4444444444444444,
+        "consistency_threshold": 10.8275661707,
+        "status": "reconciled"
+      }
+    },
+    {
+      "label": "large-disagreement-held",
+      "stat": 711.1111111111111,
+      "hold": true,
+      "result": {
+        "x": [30.0, 30.0],
+        "x_unprojected": [30.0, 30.0],
+        "residual_pre": [-40.0],
+        "residual_post": null,
+        "held": true,
+        "consistency_stat": 711.1111111111111,
+        "consistency_threshold": 10.8275661707,
+        "status": "held"
+      }
+    }
+  ],
+  "replay_identical": true,
+  "fluid_volume_minted": false
+}

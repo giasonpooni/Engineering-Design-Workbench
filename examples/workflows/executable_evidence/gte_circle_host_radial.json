@@ -1,0 +1,9 @@
+{
+  "path_class": "HOST_teaching_radial_residuals",
+  "eligible_residuals": [0.010000000000000009, -0.010000000000000009],
+  "recomputed": [0.010000000000000009, -0.010000000000000009],
+  "match": true,
+  "held_id": "held-correction-limit",
+  "refused_id": "refused-singular-center",
+  "refused_has_singular": true
+}

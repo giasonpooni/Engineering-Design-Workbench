@@ -1,0 +1,13 @@
+{
+  "path_class": "HOST_synthetic_CUSUM",
+  "quiet_id": "quiet-no-cross",
+  "crossing_id": "diagnostic-candidate-cross",
+  "oit_held_id": "oit-held-no-advance",
+  "recomputed_series": [0.25, 0.9, 1.95, 3.3, 4.25, 5.0, 6.15, 7.6],
+  "emit_series": [0.25, 0.9, 1.95, 3.3, 4.25, 5.0, 6.15, 7.6],
+  "series_match": true,
+  "independent_peak": 7.6,
+  "crossed_threshold": true,
+  "oit_held_frozen": true,
+  "threshold": 5.0
+}

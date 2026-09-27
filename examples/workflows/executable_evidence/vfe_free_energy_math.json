@@ -1,0 +1,10 @@
+{
+  "path_class": "provider_free_free_energy_math",
+  "reference_log_evidence": -3.7810242469692907,
+  "reference_mean": [1.0, -0.5],
+  "fit_status": "converged",
+  "fit_converged": true,
+  "fit_iterations": 90,
+  "fit_mean": [0.9999999999999999, -0.49999999999999994],
+  "mean_check_ok": true
+}

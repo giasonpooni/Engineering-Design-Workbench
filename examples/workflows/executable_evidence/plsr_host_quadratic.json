@@ -1,0 +1,10 @@
+{
+  "path_class": "HOST_ANALOG_identity_certificate",
+  "V": 2.0,
+  "documented_V": 2.0,
+  "v_ok": true,
+  "margin_ok": true,
+  "outside_verdict": "OUTSIDE_LEVEL_SET",
+  "contour_samples": 24,
+  "proof_status": "NOT_CHECKED"
+}

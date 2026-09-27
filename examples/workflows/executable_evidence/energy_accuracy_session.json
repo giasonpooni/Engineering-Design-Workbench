@@ -1,0 +1,22 @@
+{
+  "operation_id": "ciw.energy-accuracy.v1",
+  "bundle_digest": "sha256:8c1aa2628b728805181e5e17453dfe263900bb3e1792ff07e47a2163c07b9719",
+  "numerical_result_id": "sha256:a928a6f8a5b5c1318e61b0a716ce4887c4d2d0fe5e86ec451a148efd023a8199",
+  "measurement": {
+    "batch_count": 1,
+    "total_solves": 4,
+    "qualified_solves": 4,
+    "target_kl_nats": 1e-08,
+    "target_met": true,
+    "max_kl_nats": 6.187876734451435e-32,
+    "max_mean_abs_error": 2.220446049250313e-16,
+    "max_covariance_abs_error": 3.469446951953614e-18,
+    "minimum_duration_met": true,
+    "gross_energy_j": 0.2,
+    "amortized_domain_energy_j_per_qualified_solve": 0.05
+  },
+  "origin": "synthetic_fixture",
+  "physical_measurement": "not_performed",
+  "replay_bundle_digest": "sha256:246fcea1db678a6f17e06e81d65f8beb4422806869fc29a0eb678a2b5cadc0b4",
+  "numerical_stable_across_replay": true
+}
