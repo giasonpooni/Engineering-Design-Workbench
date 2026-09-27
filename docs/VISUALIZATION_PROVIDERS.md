@@ -96,3 +96,4 @@ Real-world use-case samples wrap **owned** adapters/fixtures (`HOST_FROM_OWNED_C
 The Godot **Use-case catalog** tab (`godot/scripts/usecase_catalog_view.gd`) loads the generated index for all 9,074 use-case folders and projects each retained JSON as a PresentationKit card with status and verification label. Run `python3 examples/workflows/emit_all_usecases.py` to regenerate the local records. Generate/merge the exhaustive matrix with `python3 examples/workflows/generate_usecase_corpus.py` (industry/domain × mapped verb; preserved folders are skipped). The full slug/source/non-claim index is [`examples/usecase-catalog.md`](../examples/usecase-catalog.md). The original specialty scenarios remain wired to their specialty tabs; the exhaustive product rows intentionally share the catalog rather than adding thousands of tabs.
 
 Laboratory workflow for adding teaching samples: [`examples/workflows/`](../examples/workflows/).
+
