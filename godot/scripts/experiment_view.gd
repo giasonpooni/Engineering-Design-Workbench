@@ -433,10 +433,11 @@ func _select_panel(index: int) -> void:
 	if system_render.is_empty():
 		system_render = view.get("system_render", {})
 	var system_kind := str(system_render.get("kind", ""))
+	var expected_id := str(view.get("system_canvas_id", ""))
 	if panel_kind == "mesh":
-		_system.set_system(panel_render)
+		_system.set_system(panel_render, expected_id)
 	else:
-		_system.set_system(system_render if system_kind == "mesh" else {})
+		_system.set_system(system_render if system_kind == "mesh" else {}, expected_id)
 	var show_companion := system_kind in ["plane2d", "strip"] and panel_kind != system_kind
 	_system_plot.visible = show_companion
 	if _canvases != null:

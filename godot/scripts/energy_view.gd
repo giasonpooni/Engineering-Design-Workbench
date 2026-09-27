@@ -156,11 +156,14 @@ func _axis_labels(render: Dictionary, planar_z: bool = false) -> Array:
 	return [head, "1", "" if planar_z else "2"]
 
 
-func set_system(render: Dictionary) -> void:
+func set_system(render: Dictionary, expected_id: String = "") -> void:
 	## Declared mesh/path geometry. Hidden unless this panel or the view carries a mesh.
 	if _surface == null:
 		return
 	var kind := str(render.get("kind", ""))
+	var offered := str(render.get("canvas_id", ""))
+	if kind == "mesh" and not expected_id.is_empty() and not offered.is_empty() and offered != expected_id:
+		kind = ""
 	visible = kind == "mesh"
 	_marker.visible = false
 	if not visible:

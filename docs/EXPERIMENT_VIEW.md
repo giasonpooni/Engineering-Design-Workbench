@@ -128,7 +128,9 @@ and `canvas_title` on each strip and copy those strips onto `system_canvases` so
 a mixed-unit pose panel keeps a named arclength companion. That companion row
 names the retained path frame and parameter unit next to the endpoint labels. Mesh-path inspections also copy the
 same descriptor onto `system_render` so the 3D canvas remains available while a
-sibling scalar panel is selected. The mesh descriptor carries `canvas_id` and
+sibling scalar panel is selected. Mesh-path canvas_id is the panel identity;
+the coordinate frame stays on `frame`. The 3D viewport hides a mesh whose
+canvas_id disagrees with system_canvas_id. The mesh descriptor carries `canvas_id` and
 `canvas_title` from the declared coordinate frame so the 3D viewport can name
 that frame and the retained source/target vertices. Detach recomputes those
 labels from the declared indices and refuses a caption that no longer matches.
