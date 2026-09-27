@@ -1,0 +1,8 @@
+"""Shared retained sources and native instrument results for one CIW session.
+
+This catalog does not estimate state.
+"""
+from __future__ import annotations
+
+import base64
+DECLARED_KINDS = frozenset({"schematic-assessment", "project-graph"})
