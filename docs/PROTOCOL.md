@@ -62,7 +62,7 @@ Spectrum data: `{sample_count, method:"periodogram", window:"hann", detrend:"con
 
 ## Results and evidence
 
-`RESULT` is `{result_id, evidence_id, operation_id, execution_id, verification_id:null, verification_status:"not_verified", run_id, selection_revision, channel, interval_s, created_at, data}`. Operation IDs are `statistics.v1` and `spectrum.periodogram.v1`. Verification stays explicit and unclaimed. Results are persisted by the server and headless CLI in a chosen output directory. Source recordings are separate from derived results.
+`RESULT` is `{result_id, evidence_id, operation_id, execution_id, verification_id:null, verification_status:"not_verified", run_id, selection_revision, channel, interval_s, created_at, data}`. Operation IDs are `statistics.v1` and `spectrum.periodogram.v1`. Verification stays explicit and unclaimed. Results are persisted by the server and headless CLI in a chosen output directory. Source recordings are separate from derived results. A failed `analysis.stats` or `analysis.spectrum` calculation does not publish a RESULT. An ordinary provider failure is retained as a refused execution with no result and returned as an error. `KeyboardInterrupt` and `SystemExit` still propagate. A failure while writing a completed result remains `storage_error`.
 
 `RESULT_SUMMARY` includes result/operation/execution IDs, channel, interval, creation time and verification status, without numerical arrays. Snapshots and `result.list` expose these so fresh clients can discover analyses restored from a workspace. New analyses do not yet produce an event; refresh the list to discover results created by another client.
 
