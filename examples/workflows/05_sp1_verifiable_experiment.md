@@ -214,7 +214,7 @@ admitted ESM schema — treat capture as:
 1. Fresh inspect (`esm.inspect-candidate.v1`) — no evidence-store write.
 2. Explicit capture (`esm.capture-candidate.v1`) only when the binding and
    policy name this bundle — retained status **`UNADMITTED`**.
-3. Binding / policy refuse → **`REFUSED`** or **`UNAVAILABLE`**; never paint
+3. Binding / policy refuse → **REFUSED** or **UNAVAILABLE**; never paint
    green; never claim qualified admission from a proof alone.
 
 Workbench candidate retention never establishes canonical-state admission
