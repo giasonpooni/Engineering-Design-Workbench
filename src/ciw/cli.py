@@ -207,6 +207,8 @@ async def watch_remote(url: str) -> None:
 def parser() -> argparse.ArgumentParser:
     root = argparse.ArgumentParser(prog="ciw", description="Computational Instrumentation Workbench")
     commands = root.add_subparsers(dest="command", required=True)
+    from .learning import register_commands
+    register_commands(commands)
     demo = commands.add_parser("demo", help="Save deterministic synthetic oscillator evidence")
     demo.add_argument("--output", type=Path, default=Path("recordings/demo.json"))
     analyze = commands.add_parser("analyze", help="Run headless analysis and save a reopenable workspace")
@@ -458,6 +460,9 @@ def parser() -> argparse.ArgumentParser:
 def main(argv: list[str] | None = None) -> int:
     args = parser().parse_args(argv)
     try:
+        if args.command == "math":
+            from .learning import run_cli
+            return run_cli(args)
         if args.command == "energy":
             if args.energy_command == "probe":
                 from .energy_bench import probe

@@ -28,7 +28,23 @@ def main() -> None:
         workspace = call("inspect", str(root / "results" / "workspace.json"), cwd=root)
         assert workspace["results"][0] == result
         assert workspace["run"]["evidence_id"] == demo["evidence_id"]
-    print("PASS: installed distribution generates, analyzes and reopens retained evidence")
+        lesson = call("math", "work", "oscillator-rms", "--output-dir", str(root / "lesson"), cwd=root)
+        assert lesson["status"] == "completed"
+        lesson_path = lesson["workspace_file"]
+        lesson_result = lesson["result"]
+        arguments = (lesson_path, "--result-id", lesson_result["result_id"])
+        before = Path(lesson_path).read_bytes()
+        inspected = call("math", "inspect", *arguments, cwd=root)
+        assert inspected["result"] == lesson_result
+        checked = call("math", "verify", *arguments, cwd=root)
+        assert checked["status"] == "matched" and checked["verification_status"] == "not_verified"
+        replay = call("math", "replay", *arguments, "--output-dir", str(root / "lesson-replay"), cwd=root)
+        assert replay["status"] == "matched"
+        assert replay["result"]["execution_id"] != lesson_result["execution_id"]
+        assert replay["result"]["result_id"] != lesson_result["result_id"]
+        assert replay["result"]["evidence_id"] == lesson_result["evidence_id"]
+        assert Path(lesson_path).read_bytes() == before
+    print("PASS: installed distribution generates, analyzes, teaches and replays retained evidence")
 
 
 if __name__ == "__main__":
