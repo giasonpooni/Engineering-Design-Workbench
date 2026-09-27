@@ -97,7 +97,7 @@ Commands below ran locally without private providers. SP1/proved-heat scientific
 - profile_id: `9eccaafa8bc49a47`
 - layers: `catalog=pass`, `export=pass`, `executable=not_run`, `numerical=not_run`, `checking=pass`, `replay=not_run`, `ESM=cite_only`
 - command: `python3 -c usecase_templates.EMIT_FUNCTIONS['CSE'](...)` → **pass** (rc=0)
-  - stdout: wrote /tmp/cov-CSE-vbj22xfc/cse_rep_render.json bytes=8611
+  - stdout: wrote /tmp/cov-CSE-vbj22xfw/cse_rep_render.json bytes=8611
 - command: `python3 -c structural_checks(emitted_json)` → **pass** (rc=0)
   - stdout: checks_ok=True issues=[]
 - command: `ciw operation.execute ciw.bim-quantity.v1` → **not_run** (rc=None)
