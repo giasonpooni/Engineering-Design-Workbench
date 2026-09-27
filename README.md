@@ -1,69 +1,221 @@
 <div align="center">
 
-# ⬡ Payload Terminal V0
+# Payload Terminal V0
 
-### Payload Supply Chain Management — the physical-commerce operating system
+### Notation Systems — data, modelling, and visualization for physical systems.
+
+**State · Variation · Invariance**
 
 [![Next.js](https://img.shields.io/badge/Next.js-16-black?style=for-the-badge&logo=next.js)](https://nextjs.org)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://typescriptlang.org)
 [![MapLibre](https://img.shields.io/badge/MapLibre_GL-GPU_Rendered-396CB2?style=for-the-badge)](https://maplibre.org)
 [![License](https://img.shields.io/badge/License-GPLv3-D4AF37?style=for-the-badge)](LICENSE)
 
-**A freight and physical-commerce instrument: a provenance-preserving world
-state for loads, lanes, carriers and commitments, with every claim carrying
-where it came from, when it was known, and what it refuses to say.**
-
-**Payload Terminal** is the operator surface.
+Explore observations, compare results, and inspect how they were produced.
 
 </div>
 
----
-
 ## Overview
 
-Payload holds the physical economy as a record rather than a dashboard. Its
-core is a canonical world state — entities, observations, flows, capacities,
-dependencies, events — in which **every figure carries its provenance, its
-basis, and the date it became knowable**, and in which a question the data
-cannot answer returns a typed refusal with a remedy instead of a zero.
+Payload Terminal is the browser-interface foundation for **Notation Systems**,
+part of its computational instrumentation and evidence infrastructure for
+industrial and cyber-physical systems. It currently contains a map-led
+physical-economy application with commodity analytics and freight workflows.
 
-That discipline is the product. A mean computed over a partition that does
-not exist, a residual that silently drops the half of the book with no
-settlement, an index whose coverage is unstated — each is a wrong number
-that looks exactly like a right one. Payload is built so those cannot be
-produced silently.
+The development direction is a **separately maintained Notation Systems
+homepage and read-only explorer**, connected to existing evidence services,
+visualization clients, and the computational workbench through explicit
+interfaces. Freight remains a worked application, not the definition of the
+whole company. Scientific methods and specialist domain models stay with their
+respective instruments.
 
-Two verticals run on the same substrate:
+**Status:** the existing Next.js application is implemented. The company
+homepage separation, ESM projection adapter, Geospatial State Visualization
+integration, and workbench handoff described below are **planned integrations**,
+not capabilities delivered by this README update. The running interface and
+application metadata have not been rebranded by this documentation change.
 
-- **Commodities** — copper and aluminium: live acquisition from USGS, UN
-  Comtrade, COMEX and CFTC behind a snapshot degradation ladder, a directed
-  flow-dependency graph, concentration and bottleneck analytics, and temporal
-  playback that re-evaluates the world at any past knowledge state.
-- **Freight** — loads, lanes, carriers, commitments and outcomes: an
-  append-only book, lane residuals with a minimum-trials floor, three-state
-  carrier vetting, and an exception queue where two claims about one movement
-  disagree.
+## What is already in this repository
 
-See [`docs/PHYSICAL_ECONOMY.md`](docs/PHYSICAL_ECONOMY.md) and
+| Area | Existing application |
+| --- | --- |
+| Browser interface | Next.js, MapLibre maps, search, panels, layer controls, and temporal inspection. |
+| Physical-economy records | Entities, observations, flows, capacities, dependencies, provenance, and source-known time. |
+| Commodity analytics | Copper and aluminium examples; concentration, flow dependencies, candidate bottlenecks, source disagreements, and acquisition/snapshot fallback. |
+| Freight records | Append-only entries, lane residuals with minimum-trial requirements, carrier vetting, and exceptions. |
+| Freight operations | Persistent intake, alternatives, authorization, assignment, dispatch evidence, tracking, and settlement; an exception-first `/operations` workspace. |
+| Supporting sources | Routing, maritime reference, weather, market data, and conditional organisational-infrastructure attribution. Availability depends on the source and configuration. |
+| Checks | Vitest tests, source and route policy checks, and checks over outward-facing product descriptions. |
+
+The existing application includes local domain state, analytics, and
+write-capable freight APIs. **The proposed read-only boundary applies to the
+new homepage/explorer; it is not a claim that every existing route is read-only.**
+Those workflows must remain explicitly separated from any public demonstration.
+This document neither removes them nor migrates their records into ESM.
+
+Implementation details remain in
+[`docs/PHYSICAL_ECONOMY.md`](docs/PHYSICAL_ECONOMY.md) and
 [`docs/ARCHITECTURE_LEDGER.md`](docs/ARCHITECTURE_LEDGER.md).
 
-### Key Capabilities
+## The Notation Systems experience
 
-| Domain | What it holds | Sources |
-|--------|---------------|---------|
-| **Physical economy** | Entities, observations, flows, capacities, dependencies | USGS MCS, UN Comtrade, curated topology |
-| **Markets** | Benchmark price, positioning, warehouse stocks | COMEX (Yahoo), CFTC COT, LME via Westmetall |
-| **Freight book** | Loads, quotes, invoices, transit, appointments | Operator entry, append-only ledger |
-| **Lane memory** | Residuals by carrier, lane and season, with a trials floor | Derived, admissibility-stamped |
-| **Carrier vetting** | Three-state verdicts: cleared, blocked, undetermined | Regulator records, insurer confirmation |
-| **Routing** | Truck-legal mileage, geocoding, basemap | Valhalla / OSRM profiles, Nominatim |
-| **Maritime** | Ports, chokepoints, the ocean leg | Static naval reference |
-| **Weather & air quality** | Transit risk, seasonal detention | NASA EONET, open air-quality feeds |
-| **Infrastructure attribution** | Whose domain, whose network, whose ASN | RDAP, DoH, RIPE Stat, crt.sh |
-| **Sanctions screening** | Counterparty organisations, vessels, aircraft | OpenSanctions (US OFAC SDN mirror) |
-| **Disruption events** | News and wire signals against lanes | Broadcast and wire feeds |
+The organizing object should be an **investigation**: a question connected to
+specific data, assumptions, model configurations, runs, and results.
 
----
+```text
+Inspect data → Understand the model and assumptions
+             → Open a recorded result or continue in the workbench
+             → Compare cases → Trace the supporting evidence
+```
+
+The browser presents this context; it should not recreate the existing
+workbench's experiment editor, execution history, or instrument implementations.
+
+| Principle | Intended user action |
+| --- | --- |
+| **State** | Inspect a record, field, or estimate at a declared time, with its units, source, and observed/computed status. |
+| **Variation** | Compare a baseline with a changed input, parameter, model version, or sensor configuration. |
+| **Invariance** | Inspect model-specific constraints, conservation checks, frame consistency, tolerances, and failures supplied by the instrument. |
+
+These are design targets, not a claim that a general scientific comparison
+workspace already exists here. Controls must distinguish **changing a view**,
+**selecting a precomputed result**, and **requesting a new computation**.
+
+Data, model descriptions, recorded experiments, views, comparisons, and evidence
+should be navigable parts of the same investigation. A table, plot, map, globe,
+graph, or local 3D scene is a different way to inspect a result—not a different
+source of truth. Geography is one view, not the universal container for every
+scientific or industrial problem.
+
+## Responsibility in the stack
+
+**Separate application, integrated information and workflow.** Keep this
+frontend outside ESM and connect it through narrow interfaces rather than
+merging repositories or offering only a generic homepage link.
+
+| Component | Responsibility |
+| --- | --- |
+| **Payload Terminal / Notation Systems web application** | Company presentation, navigation, local selection, view configuration, and inspection of explicitly supplied records and results. |
+| [Evidence and State Management (ESM)](https://github.com/giasonpooni/Evidence-and-State-Management) | Retain and govern evidence, versioned state, admission, and release. |
+| [Computational Instrumentation Workbench](https://github.com/giasonpooni/Computational-Instrumentation-Workbench) | Instrument sessions, adapters, configuration, inspection, and replay. |
+| [Scientific Computation Runtime](https://github.com/giasonpooni/Scientific-Computation-Runtime) and specialist instruments | Declared computation, numerical methods, result contracts, and diagnostics. |
+| [Geospatial State Visualization (GSV)](https://github.com/giasonpooni/Geospatial-State-Visualization) | Read-only geographic inspection of provider-supplied entities, routes, flows, and temporal state. |
+
+The following is the **target integration**, not the current deployment:
+
+```text
+Explicitly published demonstration artifacts
+                     │
+                     ▼
+           NOTATION SYSTEMS WEB APPLICATION
+              Homepage · Explorer · Inspectors
+                     │
+          ┌──────────┴───────────────────┐
+          │                              │
+   Read/projection adapter       Contextual links first;
+          │                      authenticated adapter later
+          ▼                              ▼
+         ESM                     Existing workbench
+ Evidence and released state     Sessions, runs, replay
+                                         │
+                                         ▼
+                                Runtime and instruments
+
+       Maps, GSV, plots, and tables present returned data.
+       Displaying a result does not admit it or authorize execution.
+```
+
+ESM is not the route for camera movements or a general solver-dispatch service.
+The web application should retain references and replaceable view caches, not
+create a second canonical corpus or competing execution ledger.
+
+GSV is a separate client whose documented implementation uses a deterministic
+synthetic provider. Its presence elsewhere in the stack does not mean it is
+embedded here or connected to live data. Integration must explicitly map
+supported records to its provider contract; an ESM response is not automatically
+a GSV `WorldSnapshot`. Do not copy private implementation code or datasets into
+this public repository as an integration shortcut.
+
+## Homepage, explorer, and workbench
+
+| Experience | Intended boundary |
+| --- | --- |
+| **Public homepage** | Explain Notation Systems and demonstrate one investigation using deliberately published artifacts. No credentials for private stores or workbench execution; explanatory content must not require a running scientific backend. |
+| **Read-only explorer** | Inspect exact permitted releases and results, preserve identity and time selection, and open their supporting records. Public access is limited to deliberately published material. |
+| **Private workbench** | Continue investigations, configure supported instruments, execute, and replay through the existing workbench rather than a duplicate application built here. |
+
+Retention, admission, release, and public publication are different decisions.
+A record held in ESM is not automatically suitable for the homepage. Recorded
+instrument results and candidate evidence must not be presented as admitted
+state; candidate review must retain its `UNADMITTED` status where applicable.
+
+Contextual links should open an exact supporting record, release, recorded run,
+or workbench session where the destination supports it. Carry only necessary
+identifiers and view context—not credentials or embedded private records. The
+destination must still authorize access. A link is navigation, not permission.
+
+## Integration sequence
+
+### 1. One released dataset, two synchronized views
+
+Extract reusable navigation, panels, selection, and temporal controls from the
+existing application. Preserve the freight experience separately while adding
+the company homepage and explorer. Update company-level metadata alongside the
+future interface work, rather than changing only visible branding.
+
+Build one read-only ESM adapter around the existing projection contract:
+
+```text
+Exact release → Explicit record and time selection → Validated projection
+                                                    ├── Table
+                                                    └── Geographic view
+```
+
+Preserve release and snapshot bindings, source references, units, coordinate
+basis, event-time window, and knowledge cutoff. Keep fixture or synthetic
+responses labelled as such. Unsupported records remain unsupported; missing
+geometry must not become invented coordinates.
+
+For GSV, establish provider injection, container-relative sizing, selection and
+time synchronization, and a complete mount/resize/dispose lifecycle before
+embedding it as a panel. Begin with bounded snapshots and recorded outputs;
+streaming is a later requirement, not a prerequisite for the first integration.
+
+### 2. Recorded results, comparisons, and workbench handoff
+
+Open supported recorded results through the workbench's result/session boundary.
+Keep that adapter separate from ESM's released-record projection and any
+candidate-evidence review path.
+
+A comparison should state what changed, what stayed fixed, which outputs differ,
+and what limits the comparison. Preserve exact dataset, model, run, baseline,
+record, and time references when switching views. Covariance, residuals,
+sensitivity, and constraint diagnostics come from the relevant instrument;
+the viewer must not invent uncertainty propagation or infer independence.
+
+Start with contextual links into existing sessions and runs. Do not duplicate
+session management or replay machinery simply to make the frontend look complete.
+
+### 3. Authenticated operations only when required
+
+Add a workbench adapter only for a demonstrated workflow. The browser may request
+a supported operation; the existing backend remains responsible for permitting,
+executing, and recording it. Keep view commands and computation commands distinct.
+Public demonstrations remain on released data and recorded results unless a
+separately bounded public computation is deliberately provided.
+
+### First integration acceptance criteria
+
+- Switching views preserves the selected record, release, run, and time context; an unsupported view says so.
+- Invalid source or snapshot bindings are rejected; missing values, geometry, and unavailable results remain explicit rather than becoming zeros or fabricated data.
+- Comparisons declare their baseline, changed inputs, units, frames, and limitations; unsupported conversions and uncertainty calculations are refused.
+- Public requests cannot obtain internal records or invoke private operations, and publication is never inferred from retention alone.
+- Synthetic data, recorded runs, connected adapters, and validation evidence are labelled separately. A generated template is not an executed or validated experiment.
+
+Initial demonstration targets are **geographic state replay**, **state estimation
+and uncertainty**, and **geometry and sensitivity**. These are proposed
+end-to-end integrations, not a list of finished capabilities. Complete the first
+inspectable path before adding more feeds, industries, or renderers.
 
 <!-- collection-policy:begin -->
 ## Collection policy
@@ -107,134 +259,73 @@ Three checks hold this in place, and they run in CI:
 Registration was never the only door.
 <!-- collection-policy:end -->
 
----
+## Run the existing application
 
-## Architecture
-
-```
-┌─────────────────────────────────────────────────┐
-│                 PAYLOAD TERMINAL                 │
-│  ┌──────────┐  ┌──────────┐  ┌───────────────┐ │
-│  │ MapLibre  │  │ Evidence │  │ Operations    │ │
-│  │  GL (GPU) │  │ Panels   │  │ Queue         │ │
-│  │  WebGL    │  │ Refusals │  │ Exceptions    │ │
-│  │  Render   │  │ Vintages │  │ Vetting       │ │
-│  └──────────┘  └──────────┘  └───────────────┘ │
-├─────────────────────────────────────────────────┤
-│               NEXT.JS API ROUTES                 │
-│  /api/economy/*   state, search, table, guards, │
-│                   refusals, scenario, validate  │
-│  /api/directions  /api/geo      /api/geosearch  │
-│  /api/maritime    /api/weather  /api/markets    │
-│  /api/infrastructure            /api/news       │
-│  /api/osint/*  (whois, dns, ip, certs, bgp,     │
-│                 mac, threats, sanctions)        │
-│                 — organisational attribution     │
-├─────────────────────────────────────────────────┤
-│              EXTERNAL DATA SOURCES               │
-│  USGS · UN Comtrade · CFTC · COMEX · LME        │
-│  NASA EONET · OpenSanctions · RDAP · RIPE Stat  │
-└─────────────────────────────────────────────────┘
-```
-
----
-
-## Features
-
-### The record, not the dashboard
-- **Provenance on every claim** — source, method, and `knownAt` distinct from
-  the period the figure describes
-- **Typed refusals with remedies** — an unanswerable question returns what is
-  missing and who would know, never a zero
-- **Null, not zero** — in every cell, every colour ramp, every empty collection
-- **Coverage annotation travels with every index** — an unstated population is
-  an unusable number
-- **Temporal playback** — re-evaluate the world at any past knowledge state:
-  *what did we know when we priced it* is the bid post-mortem
-
-### Freight operations
-- **Append-only book** — a mistake is superseded by a later entry naming what
-  it replaces; both stay readable
-- **Lane residuals** with a minimum-trials floor — below it, `n` is reported
-  and no estimate is offered
-- **Seasonal partition** — a lane running long in winter and on time in summer
-  has an annual mean that describes neither mode
-- **Three-state carrier vetting** — cleared, blocked, and *undetermined*,
-  which is not a pass and not a failure
-- **Exception queue** — loads where the tender and the bill of lading name
-  different carriers, with uncaptured bills of lading surfaced rather than
-  counted clean
-- **Persistent operating loop** — opportunity intake, carrier alternatives,
-  authorization, assignment, dispatch delivery, acknowledgement, tracking,
-  settlement, and outcome capture remain replayable after restart
-- **Control-tower workspace** — `/operations` joins those durable records into
-  an exception-first desk queue with exact load/carrier/lane identity,
-  deadlines, evidence counts, and explicit operator remedies
-
-### Commodity analytics
-- Concentration (HHI with remainder and effective groups), flow centrality,
-  candidate bottlenecks, anomaly signals and event propagation
-- Divergence records where two sources disagree about one quantity
-- A degradation ladder from live acquisition down to committed snapshots,
-  visible in provenance and never silent
-
-### Infrastructure attribution
-- **DNS** (DoH), **WHOIS/RDAP**, **certificate transparency**, **IP + ASN**,
-  **BGP**, **MAC OUI** — all scoped to organisational attribution
-- WHOIS and IP-intel cross-check registrant and ASN-owner names against the
-  OFAC SDN list and surface an inline alert
-
----
-
-## Quick Start
+These commands start the current Payload application, not the proposed
+Notation Systems homepage or an integrated scientific workbench. Use Node.js 22
+for consistency with the repository's container build.
 
 ```bash
-git clone https://github.com/notationsystems/notations-osiris-overwatch-engine.git
-cd notations-osiris-overwatch-engine
+git clone https://github.com/giasonpooni/Payload-Terminal-V0.git
+cd Payload-Terminal-V0
 npm install
 npm run dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000)
-
-Run the checks:
+Open [http://localhost:3000](http://localhost:3000).
 
 ```bash
-npm test          # vitest, including the policy gates
-npx tsc --noEmit  # types
+npm test          # Vitest, including the policy gates
+npx tsc --noEmit  # Type checking
+npm run build    # Production build
 ```
 
-### Docker / Self-Hosting
+For a README-only change, the relevant shipped-description checks are in:
 
 ```bash
-cp .env.template .env     # optional — configure keys / port
-docker compose up -d
+npm test -- src/lib/economy/routeSurfacePolicy.test.ts
 ```
 
-The image is a multi-stage `node:22-alpine` standalone build (non-root). See
-**[DOCKER.md](DOCKER.md)** for the full guide.
+### Docker / self-hosting
 
-**Custom port** — the container always listens on `3000`; set `PAYLOAD_PORT`
-in `.env` to change the published host port.
+Create an optional `.env` with the supported settings below. The current Compose
+file expects an external network named `umami_default`; provision it first if
+it does not already exist.
 
-### Environment Variables
+```bash
+docker network inspect umami_default >/dev/null 2>&1 || docker network create umami_default
+docker compose up -d --build
+```
 
-Payload works **partially without any API keys** — the core feeds use public,
-keyless sources. Copy [`.env.template`](.env.template) to `.env` and set only
-what you need:
+The image uses a multi-stage `node:22-alpine` standalone build and a non-root
+application user. The container listens on `3000`; `PAYLOAD_PORT` controls the
+published host port. Compose provisions a persistent freight-journal volume.
+See [DOCKER.md](DOCKER.md) for additional deployment details; some inherited
+naming and setup references there still need alignment with this repository.
+
+### Environment and freight operations
+
+Some existing data paths use public, keyless sources; others need credentials
+or return unavailable results. Keyless does not guarantee live availability.
+Private freight commands require their own configuration and are not part of
+the proposed public explorer.
+
+Use the following settings as needed in `.env`. The checked-in
+[`.env.example`](.env.example) also contains legacy entries and comments; it is
+not a declaration that all of those inherited capabilities are supported.
 
 ```env
-# Published host port (container always listens on 3000). Default: 3000
+# Published host port; container always listens on 3000
 PAYLOAD_PORT=3000
 
-# Force every source to its snapshot rung (visible in provenance, never silent)
+# Force source snapshot fallback, visible in provenance
 PAYLOAD_DISABLE_LIVE=
 
-# Authorize persistent freight-operation commands; leave empty to disable the API
+# Leave the operations token empty to disable the private operations API
 PAYLOAD_OPERATIONS_TOKEN=
 PAYLOAD_OPERATIONS_LOG=
 
-# Pull carrier authority/status and the weekly diesel benchmark
+# Carrier authority/status and weekly diesel benchmark
 FMCSA_WEB_KEY=
 EIA_API_KEY=
 PAYLOAD_FREIGHT_SOURCE_TIMEOUT_MS=10000
@@ -246,32 +337,25 @@ PAYLOAD_CARRIER_DISPATCH_PROVIDER=carrier-webhook
 PAYLOAD_CARRIER_DISPATCH_TIMEOUT_MS=10000
 PAYLOAD_CARRIER_WEBHOOK_SECRET=
 PAYLOAD_CARRIER_COMMUNICATIONS_LOG=
-
-# Optional, for higher rate limits (see DOCKER.md for signup links)
-FIRMS_API_KEY=                # NASA FIRMS
-OPENSKY_CLIENT_ID=            # OpenSky OAuth2
-OPENSKY_CLIENT_SECRET=
-N2YO_API_KEY=                 # N2YO satellites
-AIS_API_KEY=                  # aisstream.io maritime
 ```
 
-`GET /api/freight/operations` reads the current load-operation projections;
-`POST /api/freight/operations` advances opportunity intake, alternatives,
-authorization, assignment, dispatch evidence, and settlement outcome capture.
-`GET /api/freight/control-tower` joins those projections to tender delivery,
-carrier acknowledgements, tracking freshness, delivery windows, and settlement
-state. The `/operations` workspace refreshes that private view every 30 seconds
-and keeps its bearer credential only in the active browser tab's memory.
+`GET /api/freight/operations` reads current load-operation projections;
+`POST /api/freight/operations` advances intake, alternatives, authorization,
+assignment, dispatch evidence, and settlement outcome capture.
+`GET /api/freight/control-tower` joins these records to tender delivery,
+acknowledgements, tracking freshness, delivery windows, and settlement state.
+The `/operations` workspace refreshes that private view every 30 seconds and
+keeps its bearer credential only in the active browser tab's memory.
+
 `GET /api/freight/sources?usdot=<number>&carrierId=<internal-id>&includeDiesel=1`
-pulls current FMCSA identity/authority/out-of-service evidence and the fixed EIA
-weekly U.S. diesel benchmark. It returns a gate-ready `authorizationCarrier`
-object, but deliberately leaves cargo insurance expiry and limit null: the
-public registry is not a certificate of insurance, and missing coverage never
-becomes clearance.
+pulls FMCSA identity/authority/out-of-service evidence and the EIA weekly U.S.
+diesel benchmark. It returns an `authorizationCarrier` object but leaves cargo
+insurance expiry and limit null: missing coverage never becomes clearance.
+
 `POST /api/freight/communications` delivers the journal-derived tender to the
 configured carrier adapter with a stable `Idempotency-Key`; its corresponding
-`GET` exposes delivery and carrier-event projections. These routes require
-`Authorization: Bearer <PAYLOAD_OPERATIONS_TOKEN>`.
+`GET` exposes delivery and carrier-event projections. These private routes
+require `Authorization: Bearer <PAYLOAD_OPERATIONS_TOKEN>`.
 
 The carrier adapter must return JSON containing `receiptId` and optionally
 `acceptedAt`. It receives only the selected carrier rate and sanitized load
@@ -279,53 +363,46 @@ facts—not the shipper target rate or source-message identity. Carriers post
 acknowledgements and tracking updates to `/api/freight/carrier-events`, signed
 as `HMAC-SHA256(timestamp + "." + rawBody)` using
 `PAYLOAD_CARRIER_WEBHOOK_SECRET` (at least 32 random bytes). Run both journals
-on persistent, backed-up storage with one application writer; Compose
-provisions that volume by default.
+on persistent, backed-up storage with one application writer.
 
-FMCSA and EIA keys stay server-side and are never returned, logged in source
-errors, or included in evidence identifiers. A partial upstream failure is
-reported as a typed source refusal; the API never substitutes a zero, a stale
-snapshot, or an inferred compliance pass.
+FMCSA and EIA keys stay server-side and are not included in evidence identifiers
+or source errors. Partial upstream failure returns a typed source refusal, not
+an inferred compliance pass. Do not expose operational credentials in public
+site configuration, demonstration artifacts, or navigation links.
 
-> **Renamed from `OSIRIS_*`.** The old spellings are still read for one
-> release and log a deprecation warning naming the replacement, so a running
-> deployment does not break on the rename. They stop being read after
-> `v0.2.0`.
+> **Compatibility:** existing `PAYLOAD_*` settings and Payload identifiers
+> remain in use. The documented `OSIRIS_*` migration aliases are temporary;
+> the existing compatibility window ends after `v0.2.0`. This README change
+> does not rename packages, environment variables, routes, or retained records.
+>
+> `SCANNER_URL` and `SCANNER_KEY` refer to a removed backend. Do not configure
+> them even where inherited setup examples still contain those entries.
 
-> `SCANNER_URL` / `SCANNER_KEY` are **gone**. They configured a port-scanning
-> backend that has been removed; if they are set in your `.env`, delete them.
-
----
-
-## Tech Stack
+## Technology and implementation references
 
 | Layer | Technology |
-|-------|-----------|
-| Framework | Next.js 16 (App Router, Turbopack) |
-| Language | TypeScript 5 |
-| Map Engine | MapLibre GL JS (WebGL) |
-| Animations | Framer Motion |
-| Icons | Lucide React |
-| Testing | Vitest |
+| --- | --- |
+| Application | Next.js 16 App Router, React, TypeScript 5 |
+| Map | MapLibre GL JS / WebGL |
+| Interface | Framer Motion, Lucide React |
+| Tests | Vitest |
 
----
+See the [physical-economy design](docs/PHYSICAL_ECONOMY.md),
+[architecture ledger](docs/ARCHITECTURE_LEDGER.md),
+[deployment guide](DOCKER.md), and [security policy](SECURITY.md).
+Cross-repository links above describe component responsibilities; they do not
+establish that an adapter is connected or a service is publicly deployed.
 
-## Provenance
+## Origin and license
 
 This project began as a fork of
-[simplifaisoul/osiris](https://github.com/simplifaisoul/osiris), an
-open-source situational-awareness dashboard, and retains its map and
-rendering foundation. It has since been rebuilt around a
-provenance-preserving physical-economy substrate, and the reconnaissance
-capabilities that defined the upstream project have been removed under the
-collection policy above.
+[simplifaisoul/osiris](https://github.com/simplifaisoul/osiris), an open-source
+situational-awareness dashboard, and retains its map and rendering foundation.
+It was subsequently developed around provenance-preserving physical-economy
+records and freight workflows. Those remain the starting application as the
+repository is repositioned within Notation Systems.
 
-The upstream project is MIT-licensed; that permissive grant remains on the
-code inherited from it, and its notice is retained. This project as a whole
-is distributed under the GNU GPL v3 — see [LICENSE](LICENSE).
-
----
-
-## License
-
-GNU General Public License v3.0 — see [LICENSE](LICENSE) for details.
+The upstream project is MIT-licensed; its permissive grant and retained notice
+continue to apply to inherited code. This project as a whole is distributed
+under the **GNU General Public License v3.0**—see [LICENSE](LICENSE).
+This documentation update does not change the license.
