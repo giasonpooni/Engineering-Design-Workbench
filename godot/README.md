@@ -15,7 +15,9 @@ results, and marks disconnected data stale. Coordinate, mesh and declared-parame
 panels that include a presentation `render` descriptor are drawn in the declared
 plane, as a declared wireframe, or on the retained parameter axis. Mesh-path
 views also reuse the oscillator 3D canvas for the declared vertices; the numeric
-table remains authoritative. See the [experiment view guide](../docs/EXPERIMENT_VIEW.md)
+table remains authoritative. `canvas_id` is the canvas entry; `frame` is the
+declared coordinate or path frame. The plot corner and numeric table keep those
+names distinct. See the [experiment view guide](../docs/EXPERIMENT_VIEW.md)
 for provider setup, protocol, scientific boundaries and testing. The existing
 oscillator viewport is available in the **Oscillator** tab.
 
