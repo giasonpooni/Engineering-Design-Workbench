@@ -3,6 +3,7 @@ from copy import deepcopy
 from fractions import Fraction
 
 from .experiment_view import SCHEMA, _panel
+from .view_render import declared_mesh
 
 
 def project(record, source, declaration, revision):
@@ -42,6 +43,9 @@ def project(record, source, declaration, revision):
         panels.append(_panel("vertex-distances", "Shortest distances along mesh edges", ["vertex-" + str(i) for i,v in selected],
             [v for i,v in selected], [mesh["units"]] * len(selected), None, provenance,
             metric="edge_length_graph", uncertainty="not_estimated"))
+        panels[0]["render"] = declared_mesh(mesh, path=solution.get("target_path") or (),
+                                           source_vertex=request.get("source_vertex"),
+                                           target_vertex=request.get("target_vertex"))
         if solution["reachable"]:
             panels.append(_panel("target-bounds", "Target path and Euclidean lower bound",
                 ["edge_path", "euclidean_lower_bound"], [solution["target_distance"], data["bounds"]["target_lower_bound"]],

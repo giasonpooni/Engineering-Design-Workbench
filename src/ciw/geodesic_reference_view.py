@@ -2,6 +2,7 @@
 from copy import deepcopy
 
 from .experiment_view import SCHEMA, _panel
+from .view_render import attach_plane
 
 
 def project(record, source, declaration, revision):
@@ -29,6 +30,7 @@ def project(record, source, declaration, revision):
             panels.append(_panel(field, title, labels, values, ["normalized_length"] * len(values), None, provenance,
                 path_parameter=trajectory["times"], coordinate_representation=field, covariance_status="not_applicable",
                 topology="identified_flat_parallelogram", physical_embedding="not_established"))
+            attach_plane(panels[-1], frame="area-one-flat-quotient")
     else:
         transfer = data["record"]
         length_unit = transfer["units"]["length"]
