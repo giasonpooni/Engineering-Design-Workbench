@@ -20,7 +20,10 @@ docs/adr/
 .decisions/
 
 # Local provider/tool installations and package depots
-/tools/
+/tools/*
+!/tools/bevy-render-view/
+!/tools/bevy-render-view/**
+
 /.julia-depot/
 /.julia-depot2/
 /.julia-depot3/
@@ -33,3 +36,6 @@ docs/adr/
 /docs/coordination.md
 /.internal/
 /docs/internal/
+
+# Local Bevy engine checkout — do not vendor
+/bevy/

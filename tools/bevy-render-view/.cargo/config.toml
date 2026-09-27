@@ -1,0 +1,7 @@
+# Optional local engine checkout for offline cargo check.
+# Copy to config.toml.local (gitignored) if you clone giasonpooni/bevy at the pin.
+# Do not commit a path patch into the published tree.
+#
+# Example:
+# [patch."https://github.com/giasonpooni/bevy.git"]
+# bevy = { path = "../bevy" }

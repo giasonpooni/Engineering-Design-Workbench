@@ -21,7 +21,49 @@ names distinct. See the [experiment view guide](../docs/EXPERIMENT_VIEW.md)
 for provider setup, protocol, scientific boundaries and testing. The existing
 oscillator viewport is available in the **Oscillator** tab.
 
-The phase view plots retained position and velocity samples. Click within 20 pixels of a trajectory point to move the shared playback cursor to that retained sample time. The timeline and Play button also update this cursor. Channel and half-open `[start,end)` interval are shared with terminal clients; playback never changes the interval or recomputes analyses. The 3D view displays Python-supplied energy-surface and trajectory meshes using the declared visual transform. Drag to orbit and use the mouse wheel to zoom. All three numeric cards are `sample.get` results, never values reconstructed from displayed geometry.
+The optional **Analog** tab reads a local `analog_render.json` from the pyramid-method-gap sample (default `../examples/pyramid-method-gap/results/analog_render.json`, or a path after `--`). It is file-driven presentation only: no websocket protocol and no recomputation of A or P. Cards show host JSON numerics; meshes are presentation.
+
+The optional **Fluid balance** tab reads HOST / synthetic FSRT presentation JSON (default `../examples/fsrt-two-reservoir/results/fsrt_render.json`, or an `fsrt_render.json` path after `--`). Two-node tank schematic and guard/residual cards only; no fluid-volume operation. Caption: disagreement is not unique fault attribution. Missing file → STALE.
+
+
+The optional **BIM quantity** tab reads HOST CSE quantity JSON (default `../examples/cse-bim-quantity/results/cse_bim_render.json`). Quantity cards only; no building/Revit mesh. Missing file → STALE.
+
+The optional **Proof** tab reads HOST proved-heat JSON (default `../examples/proved-heat/results/proved_heat_render.json`). Identity/pins cards only; never draws proof bytes; Godot does not reverify. Missing file → STALE.
+
+The optional **Geodesic path** tab reads HOST / synthetic CSG presentation JSON (default `../examples/csg-path-sensitivity/results/csg_render.json`, or a `csg_render.json` path after `--`). Path polyline + sensitivity strip attached conceptually to `ciw.curved-path-transfer.v1`; no second curved-path op. Not surveyed BIM. Missing file → STALE.
+
+
+
+## Shared presentation kit
+
+Provider-neutral helpers in `scripts/presentation_kit.gd` (also projected by Bevy — see
+[`docs/VISUALIZATION_PROVIDERS.md`](../docs/VISUALIZATION_PROVIDERS.md)):
+
+- Colors, unshaded `StandardMaterial3D`, panel/card/label builders
+- Status vocab: `LIVE`, `STALE`, `UNAVAILABLE`, `REFUSED`, `HELD`, `RECONCILED`, `SATISFIED`, `VIOLATED`, `REQUEST_EVIDENCE`, `HISTORICAL`
+- `HISTORICAL` → display `retained_runtime_report_requires_fresh_verification`
+- `resolve_render_path` / `load_json` / `apply_stale` / caption constant
+- **VERIFIED** only when JSON has `fresh_verifier_occurrence: true`
+
+Tabs sharing the kit: **Analog**, **Fluid balance**, **Geodesic path**, **BIM quantity**, **Proof**.
+
+Optional: `presentation_strip.gd` (theta vs y series), `presentation_schematic.gd` (2-node bars + residual).
+
+### BIM quantity / Proof
+
+- BIM: `../examples/cse-bim-quantity/results/cse_bim_render.json` — prior/posterior/disposition/ledger; ACCEPT is recommendation; STALE if missing; no building mesh
+- Proof: `../examples/proved-heat/results/proved_heat_render.json` — execution/result/verification identities + pins; never draws proof bytes; HISTORICAL/UNAVAILABLE/REFUSED; STALE if missing
+
+### Presentation smoke (Godot may be off PATH)
+
+```text
+godot --headless --path godot --script res://tests/presentation_smoke.gd
+```
+
+If `godot` is not installed, the script still lands under `godot/tests/` for CI or local use.
+
+
+The phase view plots retained position and velocity samples. Click within 20 pixels of a trajectory point to move the shared playback cursor to that retained sample time. The timeline and Play button also update this cursor. The 3D view displays Python-supplied energy-surface and trajectory meshes using the declared visual transform. Drag to orbit and use the mouse wheel to zoom. All three numeric cards are `sample.get` results, never values reconstructed from displayed geometry.
 
 Selection updates carry the observed revision, coalesce at no more than 10 requests per second, and permit only one outstanding update. Responses are matched by request ID. On a revision conflict the client discards pending selection intent and refreshes authoritative state. Sample requests are also coalesced, and an obsolete response cannot replace the latest requested sample. A fresh snapshot is checked every five seconds; unanswered requests time out after eight seconds. Disconnects retain the last view with a visible STALE indication and disable shared interaction. Use Reconnect after restarting the service.
 
