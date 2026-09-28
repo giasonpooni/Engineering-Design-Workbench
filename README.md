@@ -1,4 +1,28 @@
-# Experiment Design and Sensor Placement Testbed
+# Sensor Placement
+
+**Compare proposed measurements by information gain, uncertainty reduction and declared cost.**
+
+| NET micro-tool | Identity and scope |
+| --- | --- |
+| User-facing name | **Sensor Placement** |
+| Proposed NET operation | `design.sensor_placement` |
+| Implementation repository | `Experiment-Design-Sensor-Placement-Testbed` |
+| Existing provider and import | Experiment Design and Sensor Placement Testbed / EDSPT; `edspt` |
+| Existing operation | `finite-candidate-information.v1`, with a separate additive budgeted operation |
+| Current boundary | Advisory ranking of a finite caller-supplied candidate set; no automatic generation of spatial locations |
+
+`design.sensor_placement` is the agreed friendly NET operation target, **not a
+newly installed command, a continuous placement optimizer or a camera-rig plugin**.
+Use the existing functions below. Callers supply candidates, Jacobians, noise,
+coordinates and any budget. A selected candidate does not command equipment,
+reserve funds or start acquisition.
+
+NET owns session composition and dispatch; this provider owns information
+calculation and advisory ranking. **Observability Check** supplies complementary
+model diagnostics, and **Sensitivity** supplies derivative operations. Evidence,
+operation specifications, execution attempts and verification records remain
+distinct. Repository URLs, imports, operation IDs, contracts and licence terms
+are unchanged.
 
 [Notations Engineering Terminal (CIW)](https://github.com/giasonpooni/Notations-Engineering-Terminal) · [Stack placement and ownership](docs/STACK.md) · [License](LICENSE)
 
