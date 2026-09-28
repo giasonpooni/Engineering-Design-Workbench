@@ -34,6 +34,8 @@ func run() -> void:
 	root.add_child(view)
 	await process_frame
 	if not require(view.load_error.is_empty(), "consumer load: " + view.load_error): return
+	await process_frame
+	if not require(view.status_label.get_global_rect().end.y <= root.size.y, "status footer stays inside viewport"): return
 	var count := 0
 	var bindings: Array = []
 	for i in range(view.data.positions_xyz_m.size()):

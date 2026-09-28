@@ -208,9 +208,14 @@ func build_view() -> void:
 	viewport.add_child(camera)
 	camera.current = true
 	update_camera()
+	var sidebar := ScrollContainer.new()
+	sidebar.custom_minimum_size.x = 360
+	sidebar.horizontal_scroll_mode = ScrollContainer.SCROLL_MODE_DISABLED
+	row.add_child(sidebar)
 	var side := VBoxContainer.new()
 	side.custom_minimum_size.x = 340
-	row.add_child(side)
+	side.size_flags_horizontal = Control.SIZE_EXPAND_FILL
+	sidebar.add_child(side)
 	side.add_child(label("SAMPLE INSPECTOR", 20))
 	picker = OptionButton.new()
 	for i in range(positions.size()):
