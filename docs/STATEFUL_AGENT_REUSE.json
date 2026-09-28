@@ -1,0 +1,25 @@
+{
+  "source_commit": "009144f6f951d5999df07294965db221d0817b05",
+  "source_pr": 60,
+  "files": {
+    "src/ciw/agent_api.py": "6ccfae785d8c5a853d0f89f54a5c87896bfa405e0678fc471b8bad79f6afece7",
+    "src/ciw/agent_tools.py": "6b89b1694b8edcf211e17ff127d32f6604f0537d56d1fe2bcf52d9e357717249",
+    "src/ciw/agent_mcp.py": "0a6c46aab30618d7383cb6d323a50d70858ba87bab986694518c43b7c0d2ea29",
+    "src/ciw/computational_objects.py": "34b42060b12f69f7cd0459a5c4de6c95c1f529e35614665952969dde8d60dcab",
+    "src/ciw/computational_source.py": "ab1d8c47ab9c7f09a2c8490d58af47527f88adf0c5de3ec0deecda3212f04293",
+    "tests/test_agent_protocol.py": "11879815c1e26efa2969b5cdc1e060c6084368d4f92d131a81afaaf0a8c96457",
+    "tests/test_computational_source.py": "a8106f9b168f6e095487a1e293a9eba07f43ade93c1855c21f644ef28038ff15",
+    "tests/test_computational_objects.py": "e6946006e0d64a02b2f7b142f9285c63de382fe0ceb6d1765fe4b27245345f9b",
+    "docs/NET_AGENT_PROTOCOL.md": "1a2871ca3e954e747d6ca337b8b77466a86edcaf5550a8a9962aa84242817dbe",
+    "docs/COMPUTATIONAL_OBJECTS.md": "6962aa5821da243d927770f4c368f7f055a2f8e03404dd00d7fea884f479d0c9",
+    "examples/agents/grok-net-task.md": "3c9e1c5a7070e4b26665441a393b0b4d94d8e0d379754837f50549b75a5f16f5",
+    "scripts/check_agent_mcp.py": "e5403de2b5d19b7da291d91f051f4ea4d3758a172840849b7873766f13f4b726",
+    "src/ciw/computational_view.py": "00d21ed736b2b248e6f04b587997b96627d3da87fd3a87525a45564a807c36fa",
+    "src/ciw/computational_cli.py": "d893092bde6ab11dfa405fa7d5e829a6853bebebc16ec40b241915c3605c2c5a",
+    "examples/computational-objects/statistics.json": "21c0c43b40028c8c8b6e34c55bd71b3ce75ba9bc105d830de2006fe551f28447",
+    "validation/source_selection_browser.py": "1ac5ee722abca50371ab08f7988b7821952ac474e66d6611f97be5df86d9644f",
+    ".github/workflows/net-agent-mcp.yml": "1922ddb71699a5bdeb6117f960bd35ce8497d89d173e81e338c4b0de86f27982",
+    ".github/workflows/net-computational-objects.yml": "9cc8a7bbe74d7a09176c8ca962017528c3c562e6b1f0a3d49953e1160acce7fe"
+  },
+  "note": "agent_mcp.py receives additive installed-host extension hooks in this integration; remaining reused files are unchanged."
+}
