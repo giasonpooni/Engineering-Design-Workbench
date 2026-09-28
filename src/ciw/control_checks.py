@@ -209,6 +209,17 @@ def inspect_record(value: dict) -> dict:
                   "ciw.verification.v1": validate_verification}
     if schema in validators:
         validators[schema](value)
+    elif schema == "ciw.check-report.v1":
+        from .check_suite import validate_report
+        validate_report(value)
+    elif schema == "ciw.check-plan.v1":
+        from .check_suite import validate_plan
+        from .core.identities import content_identity
+        validate_plan(value)
+        return {"schema": schema, "plan_id": content_identity(value),
+                "integrity": "validated_declaration", "outcome": {"status": "not_evaluated"},
+                "physical_validation": "not_performed", "state_admission": "not_performed",
+                "record": detached(value)}
     elif schema == "ciw.thermal-observation-view.v1":
         from .scientific_observations import validate_view
         validate_view(value)
@@ -234,7 +245,8 @@ def inspect_record(value: dict) -> dict:
     else:
         raise ValueError("Unsupported NET control record schema")
     return {"schema": schema, "record_digest": value["record_digest"], "integrity": "checked",
-            "outcome": value.get("outcome", {"status": value.get("status", "not_evaluated")}),
+            "outcome": ({"status": value["summary"]["status"]} if schema == "ciw.check-report.v1"
+                        else value.get("outcome", {"status": value.get("status", "not_evaluated")})),
             "physical_validation": "not_performed", "state_admission": "not_performed",
             "reproducibility": "not_established_by_inspection", "record": detached(value)}
 

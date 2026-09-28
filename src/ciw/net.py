@@ -100,6 +100,10 @@ def _show(value: dict, as_json: bool) -> None:
         print(f"Observations: {len(original['stream']['observations'])}; units: K")
         print("Source: synthetic; covariance: per-tick marginals, not joint across ticks")
         print("Workspace binding: " + original["binding"]["workspace_sha256"])
+    if original.get("schema") == "ciw.check-report.v1":
+        print(f"Check suite: {original['plan']['suite_id']} / {original['summary']['status']}")
+        for check in original["checks"]:
+            print(f"  {check['status']}: {check['name']}")
     if "session" in value:
         print(f"Session: {value['session']['session_id']}; executions: {len(value['executions'])}; results: {len(value['results'])}")
     print("Physical validation: not performed; reproducibility is not established by inspection.")
@@ -112,11 +116,15 @@ def _node(name: str, operation: str, dependencies: list[str] | None = None) -> d
 
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
+    if argv and argv[0] == "check":
+        from .check_suite import main as check_main
+        return check_main(argv[1:])
     if argv and argv[0] == "science":
         from .scientific_cli import main as science_main
         return science_main(argv[1:])
     parser = argparse.ArgumentParser(prog="net", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
+    commands.add_parser("check", help="Apply a declared numerical check plan to retained evidence")
     commands.add_parser("science", help="Existing scientific workflows: catalog, run, replay, inspect, state, observations, study, replay-study")
     for name in ("providers", "capabilities"):
         command = commands.add_parser(name)

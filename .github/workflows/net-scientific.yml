@@ -29,7 +29,7 @@ jobs:
               faulthandler.dump_traceback_later(300, file=trace, exit=True)
               try:
                   result = pytest.main(['-vv', '-s', 'tests/test_scientific.py', 'tests/test_control_plane.py',
-                      'tests/test_thermal_workflow.py', 'tests/test_scientific_observations.py', 'tests/test_covariance_records.py',
+                      'tests/test_thermal_workflow.py', 'tests/test_scientific_observations.py', 'tests/test_check_suite.py', 'tests/test_covariance_records.py',
                       'tests/test_covariance_artifacts.py', '-o', 'addopts=', '--junitxml=scientific-contracts.xml'])
               finally:
                   faulthandler.cancel_dump_traceback_later()
@@ -61,6 +61,10 @@ jobs:
                               '--source', str(root / 'examples/thermal-observations/source.json'),
                               '--output-dir', str(root / 'thermal-observation-evidence')],
                              cwd=tmp, env=env, check=True, timeout=120)
+              subprocess.run([sys.executable, '-I', str(root / 'scripts/run_thermal_check_demo.py'),
+                              '--evidence-dir', str(root / 'thermal-observation-evidence'),
+                              '--output-dir', str(root / 'thermal-check-evidence')],
+                             cwd=tmp, env=env, check=True, timeout=120)
           PY
       - name: Refuse incomplete qualification
         shell: bash
@@ -71,7 +75,9 @@ jobs:
           assert report['checks']['replay-comparison']['status'] == 'PASS'
           assert report['checks']['measurement-comparison']['status'] == 'INDETERMINATE'
           assert report['checks']['prediction-comparison']['status'] == 'FAIL'
-          for path, expected in [('scientific-contracts.xml', 258), ('scientific-native.xml', 11)]:
+          checks = json.loads(pathlib.Path('thermal-check-evidence/demo-check-summary.json').read_text())
+          assert {k: v['status'] for k, v in checks['outcomes'].items()} == {'accepted': 'PASS', 'incomplete': 'INDETERMINATE', 'different': 'FAIL'}
+          for path, expected in [('scientific-contracts.xml', 307), ('scientific-native.xml', 11)]:
               suites = list(ET.parse(path).getroot().iter('testsuite'))
               assert sum(int(s.attrib['tests']) for s in suites) == expected, path
               assert all(int(s.attrib[k]) == 0 for s in suites for k in ('failures', 'errors', 'skipped')), path
@@ -90,5 +96,6 @@ jobs:
             scientific-native.xml
             scientific-native-evidence
             thermal-observation-evidence
+            thermal-check-evidence
             net-scientific-source.zip
             dist/*.whl

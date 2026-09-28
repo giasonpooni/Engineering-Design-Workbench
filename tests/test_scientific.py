@@ -63,7 +63,8 @@ def test_source_exact_bytes_and_provider_free_preflight():
     assert base64.b64decode(payload["bytes_b64"]) == raw
 
 
-@pytest.mark.parametrize("raw", [b"", b"{}", b'{"schema":1,"schema":2}', b'{"a":NaN}', b"x" * (2 * 1024 * 1024 + 1)])
+@pytest.mark.parametrize("raw", [b"", b"{}", b'{"schema":1,"schema":2}', b'{"a":NaN}', b"x" * (2 * 1024 * 1024 + 1)],
+    ids=["empty", "missing-schema", "duplicate-key", "nonfinite", "oversized-source"])
 def test_invalid_source_refuses_before_bind_or_state_change(tmp_path, monkeypatch, raw):
     session = fresh(tmp_path)
     before = session.workbench.serialize()
