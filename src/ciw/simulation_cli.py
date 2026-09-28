@@ -86,11 +86,15 @@ def inspect_workspace(path: Path) -> dict:
 
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
+    if argv and argv[0] == "timeline":
+        from .simulation_timeline_cli import main as timeline_main
+        return timeline_main(argv[1:])
     if argv and argv[0] == "godot":
         from .godot_simulation_cli import main as native_main
         return native_main(argv[1:])
     parser = argparse.ArgumentParser(prog="net simulation", description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
+    sub.add_parser("timeline", help="Link retained commands, observations, branches and captures offline")
     sub.add_parser("godot", help="Explicit pinned native point-provider demo and campaigns")
     command = sub.add_parser("demo", help="Execute the synthetic Python reference workload")
     command.add_argument("--output-dir", type=Path, required=True)

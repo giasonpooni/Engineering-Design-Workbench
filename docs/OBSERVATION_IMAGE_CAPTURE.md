@@ -119,3 +119,9 @@ Python-generated substitute.
 - https://docs.godotengine.org/en/4.5/classes/class_renderingserver.html
 - https://docs.godotengine.org/en/4.5/classes/class_image.html
 - https://docs.godotengine.org/en/4.5/tutorials/editor/command_line_tutorial.html
+
+## Link captures into a shared evidence timeline
+
+The [offline evidence timeline](SIMULATION_EVIDENCE_TIMELINE.md) combines selected
+capture bundles with existing commands, observer samples, refusals and branch
+checks. It deduplicates shared history and creates no new execution or observation.
