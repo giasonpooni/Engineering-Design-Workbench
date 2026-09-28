@@ -24,8 +24,8 @@ Testbed**. These are historical project titles, not new operation, execution,
 result or verification identities.
 
 [notations.io](https://notations.io) · [Quickstart](#quickstart) · [What works today](#current-scope) ·
-[How it works](#how-an-investigation-works) · [Development priorities](#next-gates) ·
-[Documentation](docs/README.md)
+[How it works](#how-an-investigation-works) · [Interactive simulation](#interactive-simulation-and-authoring) ·
+[Development priorities](#next-gates) · [Documentation](docs/README.md)
 
 <a id="current-scope"></a>
 ## What works today
@@ -175,6 +175,41 @@ that a project can be found, not that its integration has been exercised.
 [Provider availability](docs/PROVIDER_AVAILABILITY.md) documents setup;
 the [stack map](docs/STACK.md) records the detailed division of responsibilities.
 
+## Interactive simulation and authoring
+
+**Godot, Bevy and Blender are first-class optional integration targets, not
+NET dependencies or internal subsystems.** Interactive simulation and digital
+content creation extend the scientific-computation and engineering-simulation
+workloads; they do not replace them. NET is the development workbench around
+the tools, not another game engine or authoring editor.
+
+| Target | Intended workload | Current boundary |
+| --- | --- | --- |
+| **Godot** | Interactive applications, gameplay and simulation instrumentation. | Existing inspection client and retained-view paths; general game launch, tick capture and reproduction remain separately qualified extension targets. |
+| **Bevy** | Rust/ECS simulation and selected state projections. | Existing `tools/bevy-render-view` projector over retained JSON; not a qualified general simulation adapter. |
+| **Blender** | Procedural geometry, scene authoring, baking and artifact export. | Authoring adapter and end-to-end asset pipeline are pending. |
+
+The target development loop is:
+
+```text
+author scenario/assets -> run selected runtime -> capture observations
+        -> inspect -> change parameters -> compare -> check
+```
+
+NET retains the investigation; the selected runtime or scientific provider owns
+its evolving state. GSC representation, CSE/BIM estimation, CSR geometry and
+FSRT fluid operations are optional specialist capabilities, with mathematics
+and implementations remaining in their own repositories. They are not compulsory
+stages in a game loop, and CSE is not a universal game-state estimator.
+
+The [interactive simulation guide](docs/INTERACTIVE_SIMULATION.md) defines the
+capability matrix, state/clock ownership, asset-versus-physics boundary, retained
+identities and a minimal Blender -> Godot/Bevy -> NET acceptance case. It
+separates current source from intended capability and keeps playback distinct
+from fresh reproduction. No new CLI, registered schema or completed engine
+qualification is claimed by this documentation. Finish and verify assigned
+pilot/persistent-instance work before expanding the implementation.
+
 ## The design language
 
 **State. Variation. Invariance.** These are questions about a calculation, not
@@ -294,6 +329,7 @@ constitute a new numerical validation result.
 | Supported operations and exact commands | [Instruments](docs/INSTRUMENTS.md) |
 | Exercised integrations and remaining gaps | [Integration coverage](docs/INTEGRATION_COVERAGE.md) |
 | Scientific providers and responsibilities | [Systems catalogue](docs/SYSTEMS_CATALOG.md) and [stack map](docs/STACK.md) |
+| Godot, Bevy and Blender workload targets | [Interactive simulation and authoring](docs/INTERACTIVE_SIMULATION.md) |
 | Shared session and deployment | [Workbench assembly](docs/WORKBENCH_ASSEMBLY.md) and [deployment](deploy/README.md) |
 | Runtime architecture and record formats | [Architecture](docs/ARCHITECTURE.md) and [protocol](docs/PROTOCOL.md) |
 | Typed inputs, models and machine configuration | [Contract foundations](docs/CONTRACT_FOUNDATIONS.md) |

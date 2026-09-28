@@ -10,6 +10,30 @@ The [execution responsibility map](EXECUTION_RESPONSIBILITIES.md) relates the
 implemented Python host to Julia, native providers and selected proof paths,
 and distinguishes future execution and equipment boundaries.
 
+## Interactive simulation and authoring targets
+
+Godot, Bevy and Blender are first-class optional integration targets for
+interactive simulation and computational authoring. This is a workload extension,
+not a requirement to install the engines, a new control plane or a replacement
+for existing scientific computation and engineering simulation workflows.
+The [interactive simulation guide](INTERACTIVE_SIMULATION.md) separates the
+current inspection/projector source from planned authoring and runtime adapters,
+and specifies the first all-three acceptance case.
+
+NET retains investigation and execution history. Each engine-owned simulation
+retains its own world and clock; provider-owned scientific simulations preserve
+the existing CIW/provider state-commit boundary. A new adapter must declare which
+mode it supports rather than silently transferring state ownership. Blender
+produces separately retained authoring artifacts, not implicit physical truth.
+Existing Godot and Bevy retained-record projectors remain projectors; they do not
+acquire game-state mutation or simulation authority through this extension.
+
+GSC representation, CSE/BIM estimation, CSR geometry and FSRT fluid operations
+are optional specialist capabilities, not compulsory stages in an engine tick.
+Their mathematics and implementations remain in their own repositories.
+The proposed adapters reuse the session, operation and execution boundaries below;
+no new operation, schema, CLI or engine qualification is established by this page.
+
 ## Components
 
 | Component | Implemented responsibility |
