@@ -1,13 +1,13 @@
-name: FSRT retained-result view
+name: FSRT view public input boundary
 on:
   pull_request:
   workflow_dispatch:
 permissions:
   contents: read
 jobs:
-  retained-view:
+  input-boundary:
     runs-on: ubuntu-latest
-    timeout-minutes: 15
+    timeout-minutes: 10
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
@@ -16,31 +16,9 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install -e . pytest build
-      - name: Provision existing public provider pins
-        shell: bash
-        run: |
-          python - <<'PY'
-          import json, os, pathlib, subprocess
-          pins = json.loads(pathlib.Path('src/ciw/adapter-runtimes.json').read_text())
-          for name in ('rci', 'fsrt'):
-              spec = pins[name]
-              target = pathlib.Path(os.environ['RUNNER_TEMP']) / ('fsrt-view-' + name)
-              subprocess.run(['git', 'clone', '--no-checkout', spec['repository'], str(target)], check=True)
-              subprocess.run(['git', '-C', str(target), 'checkout', '--detach', spec['revision']], check=True)
-              with open(os.environ['GITHUB_ENV'], 'a') as out:
-                  out.write('CIW_' + name.upper() + '_REPO=' + str(target) + '\n')
-          PY
-      - name: Real execution and provider-free export
-        env:
-          CIW_FSRT_VIEW_OUT: ${{ runner.temp }}/fsrt-view-evidence
-        run: python -m pytest -q tests/test_fsrt_view.py -o addopts= --junitxml=fsrt-view-junit.xml
-      - name: Build exporter wheel
-        run: python -m build --wheel
-      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
-        with:
-          name: fsrt-retained-view-evidence
-          if-no-files-found: error
-          path: |
-            ${{ runner.temp }}/fsrt-view-evidence
-            fsrt-view-junit.xml
-            dist/*.whl
+      - name: Input boundary only, not real-provider qualification
+        run: python -m pytest -q tests/test_fsrt_view.py -k public_ -o addopts=
+      - run: python -m compileall -q src/ciw/fsrt_view.py
+      - run: python -m build --wheel
+# Full unchanged provider tests require private RCI and run in RCI PR #2.
+# No private credentials, source, or calibration provider is mounted here.

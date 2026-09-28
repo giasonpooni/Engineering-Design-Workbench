@@ -2,8 +2,8 @@
 
 `python -m ciw.fsrt_view` exports one explicitly selected retained FSRT snapshot
 execution, including a refusal. It uses the existing `Session.from_workspace`
-reader in scratch space. No provider is registered, imported or launched, no
-source workspace is modified and no execution/verification identity is created.
+reader in scratch space. No domain provider is registered, imported or launched,
+no source workspace is modified and no execution/verification identity is created.
 
 ```sh
 python -m ciw.fsrt_view path/to/workspace.json \
@@ -44,16 +44,27 @@ calibration records not independently authenticated by this view.
 
 ## Qualification
 
-`tests/test_fsrt_view.py` executes the existing approved RCI/FSRT pins on public
-synthetic examples: ordinary v2, held correction, a refused model and legacy v1.
-It then checks provider-free export, exact record identity, all covariance stages,
-rehashed incompatible records, input budgets, duplicate JSON, digest/selection
-mismatch and CLI non-overwrite. Provider paths are required; no missing-provider
-skip qualifies this gate. The dedicated read-only workflow retains the resulting
-workspaces, exported views, digest index, JUnit and wheel.
+`validation/fsrt_view_integration.py` executes the existing approved RCI/FSRT pins
+on public synthetic examples: ordinary v2, held correction, a refused model and
+legacy v1. It then checks provider-free export, exact record identity, all
+covariance stages, rehashed incompatible records, input budgets, duplicate JSON,
+digest/selection mismatch and CLI non-overwrite. Provider paths are required;
+no missing-provider skip qualifies this gate. The dedicated private RCI
+own-repository read-only workflow retains the resulting workspaces, exported
+views, digest index, JUnit and wheel.
 
 For provider-free reruns against a checksum-verified downloaded evidence bundle,
 set `CIW_FSRT_VIEW_FIXTURES` to its index directory. Such a rerun is not fresh
 provider qualification. Existing numerical thresholds, runtime pins and wider
 pilot gates are unchanged. The GSC companion extends its existing `/numerics`
 viewer; it never calls the FSRT worker. Nothing here deploys a service.
+
+The first public workflow attempt could not fetch the private RCI dependency.
+Public CI now explicitly checks eight provider-free input/non-overwrite tests
+and builds the exporter; it does not claim pipeline qualification. The unchanged
+19-case real-provider suite is explicitly invoked from `validation/` inside
+private RCI PR #2, with exact public NET/FSRT revisions and RCI's own approved
+checkout. It requires both providers and zero skips/errors/failures. Keeping
+that required integration suite outside ordinary discovery avoids introducing
+a new unavailable-private-provider failure into the generic unit suite. No
+test or numerical threshold was removed or relaxed.
