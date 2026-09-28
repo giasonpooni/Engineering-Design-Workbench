@@ -157,7 +157,9 @@ def test_real_worker():
 
 @pytest.mark.parametrize("raw", [b'{"schema":1,"schema":2}', b'{"x":NaN}',
     b'{"x":1e-999}', b'{"x":1e999}', b'not json', b'\xff', b' '*65537,
-    b'{"schema":"ciw.adapter-request.v1","operation_id":"unknown.v1","inputs":{}}'])
+    b'{"schema":"ciw.adapter-request.v1","operation_id":"unknown.v1","inputs":{}}'],
+    ids=["duplicate", "nan", "underflow", "overflow", "invalid-json", "utf8",
+         "oversize", "unknown-operation"])
 def test_worker_refusal_has_no_numerical_result(raw):
     result = worker(raw)
     assert result["status"] == "refused" and "data" not in result

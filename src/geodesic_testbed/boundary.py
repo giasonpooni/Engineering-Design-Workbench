@@ -164,6 +164,7 @@ CONSUMERS: tuple[str, ...] = (
     "geodesic_testbed.applications",
     "geodesic_testbed.tolerances",
     "geodesic_testbed.reports",
+    "geodesic_testbed.microtools",
 )
 
 #: The harness: the experiment stages, the figures, the entry points, and this
