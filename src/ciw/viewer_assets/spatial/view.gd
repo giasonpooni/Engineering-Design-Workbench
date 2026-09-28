@@ -29,8 +29,17 @@ static func triple(v: Variant) -> bool:
 static func validate(payload: Variant) -> String:
 	if not payload is Dictionary or payload.get("schema") != SCHEMA:
 		return "Unsupported display schema"
-	if payload.get("basis_enu_to_xyz") != [[1, 0, 0], [0, 0, 1], [0, -1, 0]]:
+	# JSON numbers are floats; compare finite scalar values, not Array variants.
+	var basis: Variant = payload.get("basis_enu_to_xyz")
+	var expected_basis := [[1, 0, 0], [0, 0, 1], [0, -1, 0]]
+	if not basis is Array or basis.size() != 3:
 		return "Unsupported frame mapping"
+	for row in range(3):
+		if not triple(basis[row]):
+			return "Unsupported frame mapping"
+		for col in range(3):
+			if float(basis[row][col]) != float(expected_basis[row][col]):
+				return "Unsupported frame mapping"
 	if payload.get("interpolation") != "none" or payload.get("physics") != "not_declared":
 		return "Unsupported interpolation or physics"
 	if not number(payload.get("marker_radius_m")) or payload.marker_radius_m < 0.001 or payload.marker_radius_m > 100:
@@ -211,7 +220,7 @@ func build_view() -> void:
 	details = label("", 17)
 	details.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	side.add_child(details)
-	var provenance := label("Entity\n%s\n\nResult\n%s\n\nSource execution\n%s\n\nFrame\nX = east · Y = up · Z = -north\n1 unit = 1 metre\n\nMarker radius: %g m (display only)\nGrid spacing: %g m (display only)\n\nCovariance: unavailable\nInterpolation: none\nPhysics: not declared" % [data.source.entity_id, data.source.result_id, data.source.execution_id, data.marker_radius_m, span / 10.0], 15)
+	var provenance := label("Entity\n%s\n\nResult\n%s\n\nSource execution\n%s\n\nFrame\nX = east · Y = up · Z = -north\n1 unit = 1 metre\n\nMarker radius: %.3f m (display only)\nGrid spacing: %.3f m (display only)\n\nCovariance: unavailable\nInterpolation: none\nPhysics: not declared" % [data.source.entity_id, data.source.result_id, data.source.execution_id, data.marker_radius_m, span / 10.0], 15)
 	provenance.autowrap_mode = TextServer.AUTOWRAP_WORD_SMART
 	side.add_child(provenance)
 	status_label = label("", 15)
