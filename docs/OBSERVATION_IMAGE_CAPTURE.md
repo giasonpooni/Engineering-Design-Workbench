@@ -67,7 +67,7 @@ in the evidence unchanged. Capture size is fixed at 1280 x 800 pixels.
 Every successful output contains the exact `source-workspace.json`, a continued
 `workspace.json` preserving previous records and adding one capture occurrence,
 `capture.json` containing the existing operation-result envelope, `render.log`,
-`native.json`, and a content-addressed `images/SHA256.png`. Completion is written
+`native.json`, raw diagnostic `native-image.png`, and a content-addressed `images/SHA256.png`. Completion is written
 only after the Session workspace is saved. A failed render retains its failed
 execution and diagnostic output, without a successful capture result.
 
@@ -77,8 +77,12 @@ snapshot, world configuration, velocity, queued events or executable instruction
 from saved data. The full operation result and original workspaces are privileged
 evidence, not a redacted export. Observer labels are not access control.
 
+Raw diagnostic image bytes may be retained after a validation failure; their
+filename does not establish a valid image or successful capture.
+
 PNG bytes are checked for bounded size, dimensions, format, chunk CRCs, complete
-compressed data and valid scanlines. The original artifact's SHA256 binds those
+compressed data and valid scanlines. The standard one-byte `sRGB` declaration
+written by Godot/libpng is supported; arbitrary metadata remains outside this profile. The original artifact's SHA256 binds those
 bytes. The receipt also binds the installed render script, host adapter,
 operator-selected executable, native process, selected view and camera request.
 These are consistency and provenance bindings, **not signatures, transitive binary

@@ -91,6 +91,7 @@ class RendererContractDouble:
     calls = 0
     last_log = b"Contract renderer double; not a Godot execution.\n"
     last_native = None
+    last_png = None
     runtime = RUNTIME
     def __init__(self, *args, **kwargs):
         pass
@@ -99,6 +100,7 @@ class RendererContractDouble:
         self.request = render_request(view, camera, "a" * 32)
         value = native_for(self.request)
         self.last_native = encode(value)
+        self.last_png = PNG
         return value, PNG
 
 
@@ -358,3 +360,38 @@ def test_cli_route_preserves_original_help():
     with patch("ciw.godot_capture.main", return_value=17) as capture_main:
         assert main(["capture", "inspect", "selected-directory"]) == 17
         capture_main.assert_called_once_with(["inspect", "selected-directory"])
+
+
+@pytest.mark.parametrize("intent", [0, 1, 2, 3])
+def test_png_accepts_standard_srgb_declaration(intent):
+    image = PNG[:33] + chunk(b"sRGB", bytes([intent])) + PNG[33:]
+    assert png_info(image) == png_info(PNG)
+
+
+@pytest.mark.parametrize("mode", ["duplicate", "invalid-intent", "empty", "too-long", "after-data"])
+def test_png_rejects_malformed_srgb(mode):
+    declaration = chunk(b"sRGB", b"\0")
+    if mode == "duplicate": declaration *= 2
+    elif mode == "invalid-intent": declaration = chunk(b"sRGB", b"\4")
+    elif mode == "empty": declaration = chunk(b"sRGB", b"")
+    elif mode == "too-long": declaration = chunk(b"sRGB", b"\0\0")
+    image = PNG[:33] + declaration + PNG[33:]
+    if mode == "after-data": image = PNG[:-12] + declaration + PNG[-12:]
+    with pytest.raises(ValueError): png_info(image)
+
+
+def test_rejected_native_image_is_retained_only_as_diagnostic(lab, tmp_path):
+    def bad_render(self, view, camera):
+        self.request = render_request(view, camera, "c" * 32)
+        self.last_png = b"bounded invalid native image bytes"
+        native = native_for(self.request, self.last_png)
+        self.last_native = encode(native)
+        return native, self.last_png
+    dest = tmp_path / "invalid-native-image"
+    with patch.object(RendererContractDouble, "render", bad_render), pytest.raises(ValueError):
+        call_capture(lab, dest)
+    assert (dest / "native-image.png").read_bytes() == b"bounded invalid native image bytes"
+    assert not (dest / "capture.json").exists()
+    retained = json.loads((dest / "workspace.json").read_text())
+    attempts = [e for e in retained["executions"] if e["operation_id"] == OPERATION]
+    assert len(attempts) == 1 and attempts[0]["status"] == "refused"

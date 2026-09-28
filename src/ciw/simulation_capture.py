@@ -137,6 +137,11 @@ def png_info(raw: bytes) -> dict:
             width, height, depth, color, compression, filtering, interlace = struct.unpack(">IIBBBBB", data)
             require((width, height) == (WIDTH, HEIGHT) and depth == 8 and color in {2, 6}
                     and (compression, filtering, interlace) == (0, 0, 0), "Unsupported PNG dimensions/format")
+        elif kind == b"sRGB":
+            # Godot 4.5.2 uses libpng's simplified writer, which emits this
+            # standard one-byte colour-space declaration for RGB8 images.
+            require(b"sRGB" not in chunks and b"IDAT" not in chunks
+                    and size == 1 and data[0] <= 3, "Invalid PNG sRGB declaration")
         elif kind == b"IDAT":
             require(not idat_ended, "Noncontiguous PNG data chunks")
             compressed.extend(data)
@@ -145,7 +150,7 @@ def png_info(raw: bytes) -> dict:
             ended = True
         else:
             # The installed renderer emits plain image PNGs. Do not accept scripts,
-            # animation, metadata or another critical image type as this artifact.
+            # animation, arbitrary metadata or another image type as this artifact.
             raise ValueError("Unexpected PNG chunk for the capture profile")
         if b"IDAT" in chunks and kind != b"IDAT":
             idat_ended = True

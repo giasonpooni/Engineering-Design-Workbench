@@ -128,9 +128,10 @@ class GodotObservationRenderer:
                         "adapter_sha256": bytes_ref(Path(__file__).read_bytes())}
         self.last_log = b""
         self.last_native = None
+        self.last_png = None
 
     def render(self, view: dict, camera: str) -> tuple[dict, bytes]:
-        self.last_log, self.last_native = b"", None
+        self.last_log, self.last_native, self.last_png = b"", None, None
         # Recheck a changed operator path; this is not a transitive binary attestation
         # or protection against an adversarial same-user filesystem race.
         with self.executable.open("rb") as stream:
@@ -156,10 +157,13 @@ class GodotObservationRenderer:
             from .session import loads_json
             native_raw = read_bounded(root / "observed.json", 65536)
             self.last_native = native_raw
+            # Retain bounded native bytes even if their PNG/native contract is
+            # refused. Diagnostics are not a completed or admitted image artifact.
+            image = read_bounded(root / "image.png", MAX_IMAGE)
+            self.last_png = image
             native = loads_json(native_raw.decode("utf-8"))
             validate_native(native, request)
             require(native["pid"] == pid, "Render process identity mismatch")
-            image = read_bounded(root / "image.png", MAX_IMAGE)
             require(native["image_sha256"] == bytes_ref(image), "Rendered image hash mismatch")
             for name, payload in inputs.items():
                 require(read_bounded(root / name) == payload, "Renderer mutated its selected inputs or installed code")
@@ -235,6 +239,8 @@ def capture(workspace: Path, *, expected_workspace_sha256: str, result_id: str, 
         (output_dir / "render.log").write_bytes(renderer.last_log)
         if renderer.last_native is not None:
             (output_dir / "native.json").write_bytes(renderer.last_native)
+        if renderer.last_png is not None:
+            (output_dir / "native-image.png").write_bytes(renderer.last_png)
     # Completion is last, after the original Session workspace is saved.
     save_new(output_dir / "capture.json", result)
     return result
