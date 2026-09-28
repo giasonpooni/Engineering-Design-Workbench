@@ -1,4 +1,28 @@
-# State Estimation Evaluation Testbed
+# Estimator Bench
+
+**Evaluate supplied estimator results against declared references and inspect exchange and replay bindings.**
+
+| NET micro-tool | Identity and scope |
+| --- | --- |
+| User-facing name | **Estimator Bench** |
+| Proposed NET operation family | `bench.estimator` |
+| Implementation repository | `State-Estimation-Evaluation-Testbed` |
+| Existing provider and import | State Estimation Evaluation Testbed / SET; `state_estimation_testbed` |
+| Existing APIs | `evaluate_samples`, `verify_replay_bundle`, and instrument exchange validators |
+| Current boundary | Bounded declared-reference metrics, exchange validation and native-session replay binding; no estimator or simulation/fault-injection runner |
+
+`bench.estimator` is the agreed NET-facing target, **not a newly registered
+command or a completed universal benchmark suite**. Use the existing APIs and
+test instructions below. Callers supply model references, result artifacts and
+any reference truth or innovations. Unsupported normalized metrics remain
+unavailable; the tool does not invent truth or an uncertainty matrix.
+
+NET owns session composition and provider execution; this repository owns its
+evaluation and validation contracts. **Replay Test** adds separate profile-bound
+session conformance and comparison. Evidence, operation specifications, execution
+attempts, results and verification records retain separate identities.
+Repository URLs, imports, schemas, historical evidence/pins and existing licence
+terms are unchanged by this documentation update.
 
 Part of **Notation Systems' computational instrumentation and evidence infrastructure** for industrial and cyber-physical systems.
 
@@ -188,9 +212,9 @@ integrations in this early-stage repository.
 
 | Component | Responsibility |
 | --- | --- |
-| **State Estimation Evaluation Testbed** | Evaluation of reconstruction under declared observation degradation. |
-| [Provenance-Preserving Data Acquisition](https://github.com/giasonpooni/Provenance-Preserving-Data-Acquisition) | Source acquisition, observations, extraction lineage, and explicit missingness. |
-| [Evidence and State Management](https://github.com/giasonpooni/Evidence-and-State-Management) | Evidence retention, versioned state, admission, and release management. |
+| **Estimator Bench / State Estimation Evaluation Testbed** | Evaluation of reconstruction under declared observation degradation. |
+| [Data Intake / Provenance-Preserving Data Acquisition](https://github.com/giasonpooni/Provenance-Preserving-Data-Acquisition) | Source acquisition, observations, extraction lineage, and explicit missingness. |
+| [State Ledger / Evidence and State Management](https://github.com/giasonpooni/Evidence-and-State-Management) | Evidence retention, versioned state, admission, and release management. |
 | [Scientific Computation Runtime](https://github.com/giasonpooni/Scientific-Computation-Runtime) | Declared scientific computations and provenance-bearing execution. |
 | [Constraint-Based State Reconciliation](https://github.com/giasonpooni/Constraint-Based-State-Reconciliation) | Reconciliation against declared physical or structural constraints. |
 | [Geospatial State Visualization](https://github.com/giasonpooni/Geospatial-State-Visualization) | Read-only presentation of geographic and temporal state. |
