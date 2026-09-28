@@ -1,10 +1,27 @@
-# Geospatial Systems Compiler (GSC)
+# Frame Mapper
 
-**Spatial, temporal and relational representations of supplied physical-system state.**
+**Map supplied system state into explicit spatial, temporal and relational representations.**
 
 [Portfolio](https://notation.systems) · [Run the application](#run-the-existing-application) ·
 [Technical reference](TECHNICAL_REFERENCE.md) · [Security policy](SECURITY.md) ·
 [Copyright and licence](#copyright-and-attribution)
+
+## NET micro-tool
+
+| Identity | Value |
+| --- | --- |
+| User-facing name | **Frame Mapper** |
+| Proposed NET operation | `spatial.map` |
+| Implementation repository | `Geospatial-Systems-Compiler` |
+| Existing project identity | Geospatial Systems Compiler / GSC |
+| Current scope | Existing browser inspection application; broader representation compilation and coordinate/frame adapters remain explicitly scoped integration work |
+
+The friendly name describes the representation capability to expose through
+[Notations Engineering Terminal (NET)](https://github.com/giasonpooni/Notations-Engineering-Terminal).
+`spatial.map` is an interface target, **not a newly implemented terminal command
+or a claim that arbitrary coordinate, Blender, Godot, Bevy or GIS conversions
+already work**. Existing application routes and configuration remain unchanged.
+The micro-tool does not replace GSC's broader representation responsibilities.
 
 GSC is the representation and inspection project in Notation Systems. Its
 existing browser application grew from Payload Terminal V0; the broader
@@ -25,7 +42,7 @@ does not imply that a hosted demo or released game exists.
 
 | Field | This project |
 | --- | --- |
-| Role | Representation compilation and browser inspection; portfolio category: **Tools**, with simulation applications. |
+| Role | Frame/state representation tool backed by GSC's representation compilation and browser inspection work; portfolio category: **Tools**, with simulation applications. |
 | Author's work | System design, application development, provenance-aware records, integration and inspection workflows built on credited foundations. |
 | Technology | TypeScript, Next.js, React and MapLibre. |
 | Status | Existing map-led physical-economy application; broader compiler, GSV/ESM and workbench integrations are not implied complete. |
@@ -60,10 +77,10 @@ not a new parallel project.
 ## Technical reference
 
 [TECHNICAL_REFERENCE.md](TECHNICAL_REFERENCE.md) preserves the complete previous
-README verbatim, including configuration, route boundaries, collection policy,
-origin, licensing and acceptance criteria. It stays at the repository root to
-preserve relative link bases. This overview supersedes the older **portfolio
-positioning**, not the implementation limitations or operational policies.
+technical README verbatim, including configuration, route boundaries, collection
+policy, origin, licensing and acceptance criteria. It stays at the repository
+root to preserve relative link bases. This overview supersedes older user-facing
+positioning, not implementation limitations or operational policies.
 
 See also the [physical-economy design](docs/PHYSICAL_ECONOMY.md),
 [architecture ledger](docs/ARCHITECTURE_LEDGER.md) and [deployment guide](DOCKER.md).
