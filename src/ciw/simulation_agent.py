@@ -70,10 +70,13 @@ class SimulationAgentHost:
     does not execute providers. Only explicit create/branch actions call factories.
     """
     def __init__(self, host: AgentHost, *, source: str, bindings: dict[str, Binding],
-                 max_attempts: int = 64, max_instances: int = 8):
+                 max_attempts: int = 64, max_instances: int = 8, replay_policy: dict | None = None):
         require(type(max_attempts) is int and 1 <= max_attempts <= 128, "Attempt budget must be 1..128")
         require(type(max_instances) is int and 1 <= max_instances <= 16, "Instance budget must be 1..16")
         require(type(bindings) is dict and 1 <= len(bindings) <= 8, "Require 1..8 explicit model bindings")
+        from .simulation_agent_replay import validate_grant
+        self._replay_policy = validate_grant(replay_policy)
+        self._replay_reserved = 0
         models = {}
         for name, binding in bindings.items():
             identifier(name)
@@ -91,6 +94,8 @@ class SimulationAgentHost:
         self._policy = {"schema": "ciw.simulation-agent-grants.v1", "source": host._binding(source),
             "models": {k: {"provider_id": b.provider_id, "policy": b.policy} for k, b in models.items()},
             "max_attempts": max_attempts, "max_instances": max_instances}
+        if self._replay_policy is not None:
+            self._policy["replay"] = deepcopy(self._replay_policy)
         self._policy = parse(encode(self._policy))
         self._policy_ref = bytes_ref(encode(self._policy))
         self._root = host._check_output() / "stateful"
@@ -112,7 +117,15 @@ class SimulationAgentHost:
             "instances": {key: self.inspect(key) for key in self._instances},
             "attempts_used": len(self._attempts), "blocked": self._blocked, "closed": self._closed,
             "semantics": "on-demand commands; no background clock; retries are process-local"}
+        if self.replay_enabled:
+            value["stateful"]["replay"] = {"grants": deepcopy(self._replay_policy),
+                "reserved_executions": self._replay_reserved,
+                "budget_semantics": "restore plus selected commands reserved before factory; failures do not refund"}
         return value
+
+    @property
+    def replay_enabled(self) -> bool:
+        return self._replay_policy is not None
 
     def inspect(self, instance: str) -> dict:
         identifier(instance)
@@ -196,16 +209,24 @@ class SimulationAgentHost:
             key = "c-" + uuid.uuid4().hex
             self._checkpoints[key] = (model, detached(result))
             out["checkpoint"] = key
-        if event["observations"] is not None:
-            # Only observations reach the existing agent artifact store. Native
-            # snapshot bytes and full operation records remain operator evidence.
-            out["observations"] = {}
-            for channel in event["observations"]["observer"]["channels"]:
-                samples = projected_samples(result, quantity=channel)
-                stream = record("observation-stream", observations=samples)
-                out["observations"][channel] = self.host._retain(stream)
-            out["available_at"] = event["observations"]["available_at"]
+        out.update(self._observation_artifacts(result))
         return out
+
+    def _observation_artifacts(self, result: dict) -> dict:
+        """Expose only original typed observation projections, never snapshots."""
+        event = result["data"]
+        if event["observations"] is None:
+            return {}
+        out = {"observations": {}, "available_at": event["observations"]["available_at"]}
+        for channel in event["observations"]["observer"]["channels"]:
+            samples = projected_samples(result, quantity=channel)
+            stream = record("observation-stream", observations=samples)
+            out["observations"][channel] = self.host._retain(stream)
+        return out
+
+    def replay(self, checkpoint: str, instance: str, expected: dict, attempt: str) -> dict:
+        from .simulation_agent_replay import request_replay
+        return request_replay(self, checkpoint, instance, expected, attempt)
 
     def command(self, instance: str, attempt: str, expected: dict, action: str, preset: str | None) -> dict:
         identifier(instance)
@@ -250,7 +271,7 @@ class SimulationAgentHost:
                 original_validate(name, arguments)
                 result = self.capabilities()
             elif name in TOOLS:
-                validate_arguments(name, arguments)
+                validate_arguments(name, arguments, include_replay=self.replay_enabled)
                 result = getattr(self, TOOLS[name]["method"])(**detached(arguments))
             else:
                 result = self.host.call(name, arguments)
@@ -306,7 +327,7 @@ def from_profile(host: AgentHost, path: Path) -> SimulationAgentHost:
     from .agent_mcp import _read
     path = Path(path).resolve(strict=True)
     profile = parse(_read(path))
-    keys(profile, {"schema", "source", "models", "max_attempts", "max_instances"})
+    keys(profile, {"schema", "source", "models", "max_attempts", "max_instances"} | ({"replay"} if "replay" in profile else set()))
     require(profile["schema"] == "ciw.simulation-agent-profile.v1", "Unsupported simulation agent profile")
     bindings = {}
     require(type(profile["models"]) is dict, "Model bindings must be an object")
@@ -339,10 +360,10 @@ def from_profile(host: AgentHost, path: Path) -> SimulationAgentHost:
             raise ValueError("Only installed reference and godot-point startup routes are supported")
         bindings[name] = Binding(PROVIDER_ID, factory, item["policy"])
     return SimulationAgentHost(host, source=profile["source"], bindings=bindings,
-        max_attempts=profile["max_attempts"], max_instances=profile["max_instances"])
+        max_attempts=profile["max_attempts"], max_instances=profile["max_instances"], replay_policy=profile.get("replay"))
 
 
-def demo_profiles(destination: Path) -> tuple[Path, Path]:
+def demo_profiles(destination: Path, *, replay: bool = False) -> tuple[Path, Path]:
     from .agent_mcp import demo_config
     from .simulation_records import observer
     base = demo_config(destination)
@@ -354,6 +375,8 @@ def demo_profiles(destination: Path) -> tuple[Path, Path]:
     value = {"schema": "ciw.simulation-agent-profile.v1", "source": "source",
         "models": {"motion": {"provider": "reference", "configuration": {"seed": 7, "simulation_id": "agent-motion"}, "policy": policy}},
         "max_attempts": 64, "max_instances": 8}
+    if replay:
+        value["replay"] = {"max_commands": 32, "max_executions": 128}
     path = Path(destination) / "simulation-profile.json"
     save_new(path, value)
     return base, path

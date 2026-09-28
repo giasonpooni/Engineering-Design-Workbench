@@ -19,16 +19,23 @@ TOOLS = {
     "net_sim_branch": tool("branch", "Restore an opaque checkpoint captured by this host into a fresh instance from the same bound factory. Never changes the parent. Same attempt retries; no snapshot, runtime or factory is selected from agent data.",
         {"checkpoint": STRING, "attempt": STRING}, ("checkpoint", "attempt"), read=False, external=True),
 }
+REPLAY_TOOL = "net_sim_replay"
+TOOLS[REPLAY_TOOL] = tool("replay",
+    "Explicitly reproduce the contiguous accepted history from a host-captured paused checkpoint to the inspected paused/stopped source boundary, on a fresh owner. Supply the source instance fence and a new attempt for new execution. Same attempt/request returns its earlier receipt. Requires an operator replay grant; no supplied commands, paths, snapshots or tolerance edits. Returns bounded original replay outcome and latest replay observation streams, not raw checkpoints or full reports. PASS applies only to these executed commands; it is not physical verification. net_replay remains the separate analysis-graph tool.",
+    {"checkpoint": STRING, "instance": STRING, "expected": EXPECTED, "attempt": STRING},
+    ("checkpoint", "instance", "expected", "attempt"), read=False, external=True)
 
 
-def descriptions():
+def descriptions(*, include_replay=False):
     return [{"name": name, **deepcopy({k: v for k, v in item.items() if k != "method"})}
-            for name, item in TOOLS.items()]
+            for name, item in TOOLS.items() if include_replay or name != REPLAY_TOOL]
 
 
-def validate_arguments(name, arguments):
+def validate_arguments(name, arguments, *, include_replay=False):
     if type(name) is not str or name not in TOOLS:
         raise ValueError("Unknown stateful tool")
+    if name == REPLAY_TOOL and not include_replay:
+        raise ValueError("Simulation replay was not granted by the operator")
     # The existing shape guard supports its original subset, without null.
     # Validate the one nullable field here and use the original guard unchanged.
     spec = deepcopy(TOOLS[name]["inputSchema"])

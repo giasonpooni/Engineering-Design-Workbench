@@ -210,12 +210,15 @@ def main(argv: list[str] | None = None) -> int:
     command = subs.add_parser("demo-config", help="Create an explicitly synthetic builtin-only operator profile")
     command.add_argument("--output-dir", type=Path, required=True)
     command.add_argument("--stateful", action="store_true", help="Also create an optional bounded reference-simulation profile")
+    command.add_argument("--stateful-replay", action="store_true", help="Opt in to bounded native/reference suffix replay; requires --stateful")
     args = parser.parse_args(argv)
+    if args.command == "demo-config" and args.stateful_replay and not args.stateful:
+        parser.error("--stateful-replay requires --stateful")
     try:
         if args.command == "demo-config":
             if args.stateful:
                 from .simulation_agent import demo_profiles
-                base, simulation = demo_profiles(args.output_dir)
+                base, simulation = demo_profiles(args.output_dir, replay=args.stateful_replay)
                 print(json.dumps({"profile": str(base), "simulation_profile": str(simulation)}))
             else:
                 print(demo_config(args.output_dir))
@@ -230,7 +233,7 @@ def main(argv: list[str] | None = None) -> int:
             from .simulation_agent import from_profile as bind_simulation
             from .simulation_agent_tools import descriptions as simulation_tools
             with bind_simulation(host, args.simulation_profile) as extended:
-                return serve(extended, sys.stdin.buffer, wire, extra_tools=simulation_tools())
+                return serve(extended, sys.stdin.buffer, wire, extra_tools=simulation_tools(include_replay=extended.replay_enabled))
     except (OSError, ValueError, TypeError, KeyError) as exc:
         print(f"NET agent startup refused: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 1

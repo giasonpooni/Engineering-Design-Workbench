@@ -73,7 +73,7 @@ An example task for a coding agent:
 > Do not change policies or treat an expected differing branch as a failed run.
 
 The original `net_replay` remains analysis-graph replay, not native checkpoint
-replay. Existing native replay/campaign/capture APIs are unchanged and are not
+replay. Existing native campaign/capture APIs are unchanged and are not
 newly exposed as agent tools in this increment.
 
 The new observation results expose ordinary retained observation-stream artifact
@@ -170,3 +170,10 @@ physical validation, baseline acceptance, state admission, merge or publish tool
 Protocol references (not claims of external host installation):
 - https://modelcontextprotocol.io/specification/2025-11-25/basic/transports
 - https://modelcontextprotocol.io/specification/2025-11-25/server/tools
+
+## Optional stateful reproduction
+
+The separate [stateful replay grant](STATEFUL_AGENT_REPLAY.md) adds
+`net_sim_replay` to reproduce a retained accepted command suffix on a fresh
+owner. Enable it with `demo-config --stateful --stateful-replay` or an explicit
+operator `replay` policy. Existing eleven/fifteen-tool profiles remain unchanged.
