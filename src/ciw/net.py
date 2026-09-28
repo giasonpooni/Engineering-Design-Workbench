@@ -106,8 +106,13 @@ def _node(name: str, operation: str, dependencies: list[str] | None = None) -> d
 
 
 def main(argv: list[str] | None = None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if argv and argv[0] == "science":
+        from .scientific_cli import main as science_main
+        return science_main(argv[1:])
     parser = argparse.ArgumentParser(prog="net", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
+    commands.add_parser("science", help="Existing scientific workflows: catalog, run, replay, inspect, state, study")
     for name in ("providers", "capabilities"):
         command = commands.add_parser(name)
         command.add_argument("--catalog", type=Path)
