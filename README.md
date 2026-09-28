@@ -1,24 +1,30 @@
 # Notations Engineering Terminal
 
-**Develop scientific and interactive simulations as reproducible investigations.**
+**A programmable workbench for scientific computing and game/simulation development.**
 
-**Notations Engineering Terminal** is a terminal-first scientific computing and
-cyber-physical design workbench from **Notation Systems**. It runs supported
-models and analysis operations, saves their inputs and results, and lets you
-inspect or reopen a study without running it again. Supported sensing and
-apparatus integrations extend the same investigation into physical experiments.
-For supported workflows, you can vary model parameters, compare the responses,
-and inspect uncertainty, residuals and other checks. The same investigation model
-is being extended toward interactive simulation development: author a declared
-scenario, run it in a specialist runtime, capture selected state and events,
-compare candidate changes, and keep runtime and artifact identities attached to
-the result.
+**Notations Engineering Terminal (NET)** is the terminal-first workbench from
+**Notation Systems**. It runs supported models and analysis operations, retains
+their inputs and results, and lets you inspect, compare and reopen an
+investigation without silently running it again. Supported measurement and
+apparatus integrations connect the same workflow to physical experiments.
 
-An **investigation** is the question together with the models, observations,
-settings, calculations and checks used to answer it. Notations keeps these connected
-rather than saving only a final number or plot. Engineering design is the main
-use: change a permitted input, calculate the response, check the result and
-compare candidates.
+The development direction is a practical **game and simulation development tool
+around Blender, Godot and Bevy**: author a scenario or asset, run a selected
+implementation, inspect its behaviour, change a parameter, and compare the result.
+Blender remains the authoring application; Godot and Bevy remain independent
+application/simulation runtimes. NET manages the investigation around them rather
+than replacing their editors or owning their live worlds.
+
+**Available now:** the scientific workflows and retained-result inspectors listed
+below. **Integration targets:** broader Blender authoring, Godot gameplay capture
+and Bevy simulation workflows. An existing Godot inspector is not evidence that
+general game-runtime control is implemented. Scientific computation, measurement,
+estimation and engineering design remain part of the workbench; this direction
+extends them rather than replacing them.
+
+An **investigation** connects a question to its models, observations, parameters,
+assets, executions, results and checks. The goal is to retain why a change was
+made and what it did, not just the latest project files or a final plot.
 
 Notations Engineering Terminal extends the existing **Computational Instrumentation Workbench (CIW)**.
 The Python package and terminal command remain `ciw`; this is not a second
@@ -28,7 +34,8 @@ Testbed**. These are historical project titles, not new operation, execution,
 result or verification identities.
 
 [notations.io](https://notations.io) · [Quickstart](#quickstart) · [What works today](#current-scope) ·
-[How it works](#how-an-investigation-works) · [Development priorities](#next-gates) ·
+[Game and simulation workflow](#interactive-simulation-development-direction) ·
+[Architecture](#architecture) · [Development priorities](#next-gates) ·
 [Documentation](docs/README.md)
 
 <a id="current-scope"></a>
@@ -126,7 +133,7 @@ observed quantity. An uncertainty estimate describes what the selected model
 and assumptions support. Neither is silently supplied when unavailable, and a
 small residual alone is not proof that a model is correct.
 
-The existing workflows remain in place:
+The existing scientific workflows remain in place:
 
 | Workflow | What it does |
 | --- | --- |
@@ -134,8 +141,6 @@ The existing workflows remain in place:
 | Design studies | Declare a model and allowed changes, run candidate configurations, compare responses and checks, and retain the basis for revising the design. |
 | Numerical geometry | Evaluate supported paths, coordinate descriptions and sensitivities without treating a displayed shape as a measurement. |
 | Inspection and replay | Read retained records, inspect dependencies and repeat an operation explicitly while preserving its original history. |
-| Interactive simulation development | Target workflow for declared scenarios executed in independent Godot or Bevy runtimes, with selected telemetry returned for inspection, comparison and regression work. This is an integration direction, not a claim of general engine control today. |
-| Computational authoring | Target workflow for parameterized Blender geometry/scene generation whose exported artifacts retain source parameters and identity before use by a runtime. Blender remains the authoring authority. |
 
 A failed or refused operation remains part of the investigation. Original
 observations remain distinct from predictions, estimates and corrected values.
@@ -153,18 +158,16 @@ and checks a workflow supports.
 
 | Component | Responsibility |
 | --- | --- |
-| **Notations Engineering Terminal / CIW** | Manage the investigation, selected operations, saved history, inspection and explicit replay. The existing Python session remains authoritative for these records. |
+| **Notations Engineering Terminal / CIW** | Manage the investigation, selected operations, saved history, inspection and explicit replay. The existing Python session remains authoritative for these records, not an engine's live world. |
 | **Scientific providers** | Supply domain models and calculations through adapters with explicit source/runtime versions. Each repository retains its own scientific contract, tests and licence. |
-| **Native execution / SCR** | Supply selected native execution adapters where a profile registers them. The Python session remains authoritative. |
+| **Native execution / SCR** | Supply selected native execution adapters where a profile registers them. It remains the shared execution foundation, not a new game engine or a replacement for the Python session. |
 | **Checkers / ICRH, PLSR and selected SP1 paths** | Check the numerical, contract, stability or registered-computation claims they actually support. A computation does not certify itself. |
 | **Evidence handoff / ESM** | Handle separately supported retention, review and release of evidence or candidate state. An inspect copy and a `render` descriptor are not modeling inputs and do not admit corpus state. |
-| [Geospatial Systems Compiler (GSC)](https://github.com/giasonpooni/Geospatial-Systems-Compiler) | Separately maintained browser presentation and visualization project, formerly Payload Terminal V0. Its ESM read-only projection and workbench handoff are integration targets, not a second workbench or execution authority. |
+| [Geospatial Systems Compiler (GSC)](https://github.com/giasonpooni/Geospatial-Systems-Compiler) | Separately maintained browser representation and inspection project, formerly Payload Terminal V0. Simulation projections, ESM read-only integration and workbench handoff remain targets; GSC does not execute or certify the simulation. |
+| [Curved Surface Runtime (CSR)](https://github.com/giasonpooni/Curved-Surface-Runtime) | Optional specialist for its supported curved-surface paths, sensitivities and numerical diagnostics. A Blender mesh does not automatically become a supported CSR surface or navigation model. |
+| [State Estimator for BIM](https://github.com/giasonpooni/State-Estimator-for-BIM) | BIM-specific evidence-to-decision instrument. It retains its domain semantics; general game perception or rover sensor fusion requires a separately qualified estimator, not a relabelled BIM adapter. |
 | **Inspection clients** | Display numerical, temporal, spectral, geographic or local 2D/3D views of retained inspect records. Closing a viewer does not stop the backend or change retained records. |
-| **Godot** | Interactive application and gameplay runtime target: scenes, input, animation, UI, audio and engine-owned simulation state. NET may request declared runs and consume selected observations; it does not own the SceneTree or silently rewrite game state. |
-| **Bevy** | Rust/ECS simulation-runtime target for systems-heavy, procedural and headless workloads. A Bevy adapter may project selected ECS state into NET records; NET does not impose a universal component model on the Bevy World. |
-| **Blender** | Computational-authoring target for geometry, assets, animation, procedural generation, baking and scene export. Generated artifacts may be bound to investigations, but NET does not replace Blender's editing or artistic workflows. |
-| [Curved Surface Runtime (CSR)](https://github.com/giasonpooni/Curved-Surface-Runtime) | Specialist authority for its supported curved-surface path and sensitivity calculations; useful to interactive simulations through explicit provider operations rather than copied mathematics. |
-| [State Estimator for BIM](https://github.com/giasonpooni/State-Estimator-for-BIM) | BIM-specific evidence-to-decision instrument. Its state-estimation patterns can inform simulation work, but BIM semantics remain with that repository; any general simulation estimator requires its own declared provider contract. |
+| **Blender, Godot and Bevy integrations** | Optional authoring/runtime adapters described below. Their native project formats, editors and application state remain independent of NET. |
 
 The model, calculation and supporting evidence are related but separate records:
 what is being studied, what ran, and why its conclusion should be trusted.
@@ -188,111 +191,116 @@ the [stack map](docs/STACK.md) records the detailed division of responsibilities
 
 ## Interactive simulation development direction
 
-Interactive simulation is a **workload family of the existing workbench**, not a
-second NET runtime and not a replacement for an engine or DCC application. The
-target development loop is:
+**Use NET during development, not only to display the finished result.** The
+target is one repeatable loop around authoring, gameplay and scientific tools:
 
 ```text
-author -> run -> observe -> compare -> modify -> verify
-  ^                                           |
-  +-------------------------------------------+
+author -> build -> run -> observe -> fix -> compare -> verify -> continue
 ```
 
-NET should retain the investigation that connects those steps. Godot, Bevy and
-Blender retain authority over their own native state and project formats.
+This is a workload family of the existing workbench. The following architecture
+is a target integration, not a claim that these adapters are all implemented:
 
 ```text
-                         NET / CIW
-             investigation + experiment history
-                           |
-          scenario / run / trace / comparison
-                           |
-       +-------------------+-------------------+
-       |                   |                   |
-    Blender              Godot               Bevy
- authoring/DCC      interactive runtime   Rust/ECS runtime
-       |                   |                   |
- geometry/assets      gameplay/state       systems/state
-       +-------------------+-------------------+
-                           |
-                 specialist providers
-              GSC / CSR / estimators / SCR
+Blender -- versioned assets --> Godot OR Bevy
+   ^                                ^ |
+   | authoring jobs                 | | selected observations
+   |                         runs / | v
+   +-------------------------- NET / CIW
+                                  |    |
+                 declared compute |    +--> retained views --> GSC / inspectors
+                                  v
+                       specialist providers / SCR
 ```
 
-The intended integrations solve different development problems:
+Blender supplies authored/generated assets; it is not underneath either engine
+in a shared runtime. Godot and Bevy are alternatives or separate implementations,
+not a mandatory engine-to-engine chain. A project need not use all three.
 
-| System | NET-facing role | Native authority retained by |
+### Tool roles and integration status
+
+| Tool | Work it should make easier through NET | Status and ownership boundary |
 | --- | --- | --- |
-| **Blender** | Parameterized geometry/scene generation, artifact identity and export provenance. | Blender files, objects, modifiers, rigs, animation and authoring state. |
-| **Godot** | Interactive scenarios, playtest capture, selected telemetry and explicit replay requests. | SceneTree, gameplay state, input, physics, animation, UI and presentation. |
-| **Bevy** | ECS-heavy and headless simulation, benchmark scenarios, selected component/resource projections and traces. | Bevy World, schedules, systems, resources and components. |
-| **GSC** | Spatial, temporal and relational inspection of explicitly published simulation projections. | Its representation/view configuration; it does not become simulation authority. |
-| **CSR** | Supported curved-surface paths, sensitivities and numerical diagnostics. | Its mathematical contracts, solver scope and tests. |
-| **State-estimation providers** | Estimate latent state from declared observations where a workload explicitly registers such a model. | The provider's domain semantics, assumptions and uncertainty contract. |
+| **Blender** | Generate parameterized geometry, bake/export assets, and retain source parameters, export settings and artifact identities. | Authoring-adapter target. Existing USDA inspect export does not establish a Blender integration. Blender owns its files, objects, modifiers, rigs and authoring state. |
+| **Godot** | Launch declared scenarios, capture playtests, inspect telemetry, and request supported pause/step or re-simulation operations. | Retained-result inspection is documented above; gameplay/runtime control is a target. Godot owns its SceneTree, input, game state, physics, animation, audio and UI. |
+| **Bevy** | Run ECS-based simulations interactively or headlessly, perform parameter studies, and expose selected component/resource observations. | Simulation-adapter target; no Bevy execution is demonstrated by the current quickstart. Bevy owns its World, schedules, systems, resources and components. |
 
-A shared interface should describe **experiments and observations**, not pretend
-that a Blender object, Godot node and Bevy entity are the same object. Candidate
-record families include `simulation-scenario`, `simulation-run`, `simulation-input`,
-`simulation-observation`, `simulation-event`, `simulation-trace`,
-`simulation-comparison`, `geometry-artifact` and `scene-artifact`. These names
-remain design targets until they are registered in the protocol and exercised by
-tests; documentation alone does not create a supported record type.
+Each adapter must declare its actual capabilities and pinned versions. Launch,
+observe, pause, step, restore and re-simulate are separate capabilities, not a
+universal promise. The existing Godot inspector remains a detached, read-only
+scientific view; a future game-runtime adapter is a separate explicit control
+path and must not turn inspection records into writable game state.
 
-The useful boundary is:
+### What changes in the development workflow
 
-```text
-engine/DCC-native state
-        |
-        | explicit adapter / projection
-        v
-NET observation or artifact record
-        |
-        +--> inspect
-        +--> compare
-        +--> parameter study
-        +--> regression check
-        +--> explicit replay request
-```
+These are intended outcomes to qualify with working integrations:
 
-A replay is always a new execution. A retained trace remains an observation of
-the original execution. Reopening either must not silently rerun an engine.
+| Development task | Intended workflow | What the investigation retains |
+| --- | --- | --- |
+| **Asset iteration** | Change a Blender parameter, export a candidate, load it in one runtime and rerun the affected scenario. | Source/build identity, parameters, export settings, artifact digest, unit/frame conversion and import configuration. |
+| **Physics tuning** | Run a declared parameter sweep, compare responses, then playtest useful candidates in the chosen engine. | Initial conditions, input sequence, runtime/solver settings, trajectories, metrics and the selected change. |
+| **Bug reproduction** | Capture a failure, replay recorded observations for inspection, then attempt a new execution against a candidate fix. | Original build, assets, seeds or RNG state where supported, timing, inputs, events and any missing reproduction state. |
+| **Regression testing** | Run the same bounded scenarios after a code, model or asset change. | Baseline/candidate executions, numerical tolerances, invariant checks and measured performance conditions. |
+| **Procedural content** | Generate candidate worlds, check declared geometric/playability constraints, and playtest the survivors. | Generator configuration, rejected cases, evaluation results and human feedback. |
 
-### Intended game and simulation workflow
+A concrete first case is a **suspended-payload mechanic**. Author a simple trolley
+and load in Blender, run the mechanic in Godot **or** Bevy, retain its control
+inputs and motion, then compare two damping settings in NET. Measure swing angle,
+settling behaviour and runtime cost; use playtesting to assess control feel.
+This is a proposed end-to-end case, not an additional runnable quickstart.
 
-For an interactive physical system, NET should make it possible to bind a
-scenario, runtime/build identity, parameter set, asset identities, initial state,
-seed where applicable and declared input stream. The runtime then executes the
-system and emits only the observations it has agreed to expose.
+Only add a second engine after the first path works. Reuse the declared scenario
+where its semantics apply, but keep each engine, physics implementation and
+execution distinct. Agreement or disagreement is something to investigate, not
+an equivalence guaranteed by sharing an asset or configuration file.
 
-This enables workflows such as:
+### Contracts that make the workflow reliable
 
-- reproduce a gameplay or simulation failure from a retained scenario and input trace;
-- run headless Bevy parameter sweeps before selecting candidates for human playtesting;
-- capture Godot playtest telemetry without making NET the game-state authority;
-- generate parameterized Blender artifacts and bind their exact source parameters to downstream runs;
-- compare trajectories, events, performance and declared invariants across candidate implementations;
-- compare a runtime trajectory with an independent Julia/Python/native reference where a provider explicitly supports that comparison;
-- publish selected spatial or temporal projections to GSC without promoting a visualization into canonical simulation state.
+**Reuse the current session and records.** Bind scenario, model, asset, parameter,
+implementation and runtime identities to existing operation/execution/result
+records. Add versioned payloads through the existing protocol only when a concrete
+integration needs them; do not create a parallel simulation runtime or evidence
+store. A Blender object, Godot node and Bevy entity need not share a universal
+object model. Adapters expose declared observations and stable project-level
+identifiers without assuming engine-local IDs survive another execution.
 
-Quantitative experiments narrow and explain the design space; they do not decide
-whether a mechanic is enjoyable. Human playtesting and artistic judgement remain
-first-class inputs to game development.
+**Keep assets separate from physics.** An exported visual mesh does not by itself
+define collision geometry, mass, joints, friction or a material model. Retain those
+choices separately, together with unit/frame conventions and import settings.
+CSR calculations require a supported surface/chart and an explicit relationship
+to displayed geometry; an arbitrary mesh export is not a numerical validation.
 
-### Integration invariant
+**Distinguish playback from re-simulation.** Reopening or playing back retained
+observations must not execute a provider. Re-simulation is a new execution with
+its own identity, linked to the original inputs and observations. A seed and
+input log alone do not establish reproducibility: record the state, timing,
+build and environment required by the profile, and report missing information.
+Declare whether comparison expects exact equality, numerical tolerance or only
+specified behavioural checks. Do not promise cross-engine determinism.
 
-```text
-integration != ownership
-model != runtime representation
-artifact != simulation state
-recorded replay input != original execution
-visual agreement != numerical equivalence
-numerical agreement != gameplay quality
-```
+**Do not put NET on the frame-critical path.** Runtime adapters should buffer or
+sample observations within declared budgets and report dropped data. Simulation
+time, physics ticks and wall-clock performance measurements stay distinguishable.
+Loss of an inspection client must not silently stop or mutate the running world;
+any pause, parameter change or restart uses an explicit supported control request.
 
-Godot, Bevy and Blender therefore remain independently usable. A project may use
-Blender + Godot, Blender + Bevy, Bevy headless, Godot alone, or another registered
-composition. No workload is required to traverse every tool merely because the
-integration exists.
+### Python, Julia, Rust and C++
+
+The language stack serves these workflows; it is not a requirement that every
+project execute every language.
+
+| Layer | Role |
+| --- | --- |
+| **Python / `ciw`** | Existing investigation/session authority, operation dispatch, retained records, analysis and comparisons. |
+| **Julia** | Registered numerical providers and reference experiments within their documented scope; further comparisons require their own qualification. |
+| **Rust / Bevy** | Target ECS application/simulation runtime and native systems components where selected. |
+| **C++ / native providers** | Specialist geometry, physics or numerical kernels where a supported library or measured bottleneck justifies them. |
+
+SCR remains the shared execution foundation for its registered native profiles;
+specialist repositories keep their mathematics. A reference must be independently
+justified and scoped: using another language alone does not make it an independent
+check. Human playtesting and artistic judgement are also retained inputs, not
+quantities automatically replaced by an optimization score.
 
 ## The design language
 
@@ -373,7 +381,7 @@ These are acceptance requirements, not gates claimed passed by this README:
 | Inspect and hand off | Keep headless use working; test each inspect client against retained `ciw.experiment-view.v1` records. |
 | Physical apparatus | For each supported device, bind configuration and authorization; test disconnects, duplicate requests, stale plans and uncertain outcomes. |
 | Qualify claims | Retain actual evidence for each numerical, proof or physical claim. Report startup, transfer, computation and checking costs separately. |
-| Interactive simulation slice | Exercise one small scenario end to end: parameterized Blender artifact where useful -> Godot or Bevy execution -> selected trace/event capture -> NET inspection -> explicit comparison/replay, with runtime and artifact identities retained. A later cross-runtime case may compare Godot and Bevy without assuming numerical equivalence. |
+| Interactive simulation slice | Exercise one small mechanic in one engine: optional parameterized Blender artifact -> declared run -> input/event/state capture -> NET inspection -> candidate comparison -> explicit re-simulation. Test missing assets, incompatible frames, incomplete traces and disconnection; retain every outcome without overwriting the original run. Add a second engine only after this path works. |
 
 The next physical-claim milestone remains a held-out reference measurement with
 a replayable evidence bundle and explicit limitations. Pilot completion does not
@@ -393,6 +401,10 @@ formats rather than introduce a parallel runtime or evidence store.
 finish assigned work -> run -> observe -> fix -> verify -> audit -> extend
 ```
 
+Build and audit each increment together: exercise the working path and its
+failure cases before expanding it. Documentation changes do not implement an
+adapter, create a record type or pass an integration gate.
+
 The normal local checks are:
 
 ```sh
@@ -411,6 +423,7 @@ constitute a new numerical validation result.
 | Need | Guide |
 | --- | --- |
 | Installation and the first run | [Quickstart](docs/quickstart.md) |
+| Game/simulation tool roles, target workflows and boundaries | [Interactive simulation development](#interactive-simulation-development-direction) |
 | Model exploration and equation cards | [Model exploration](docs/MODEL_EXPLORATION.md) |
 | Oscillator commands and reopening | [Oscillator operator guide](docs/OSCILLATOR_OPERATOR.md) |
 | Investigation scope and evidence classes | [Workbench overview](docs/WORKBENCH_OVERVIEW.md) |
