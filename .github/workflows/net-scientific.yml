@@ -21,7 +21,20 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install -e '.[dev]' build
       - name: New routing and existing control/workflow regressions
-        run: python -m pytest -q tests/test_scientific.py tests/test_control_plane.py tests/test_thermal_workflow.py tests/test_covariance_records.py tests/test_covariance_artifacts.py -o addopts= --junitxml=scientific-contracts.xml
+        shell: bash
+        run: |
+          python -u - <<'PYTEST'
+          import faulthandler, pytest
+          with open('scientific-watchdog.log', 'w') as trace:
+              faulthandler.dump_traceback_later(300, file=trace, exit=True)
+              try:
+                  result = pytest.main(['-vv', '-s', 'tests/test_scientific.py', 'tests/test_control_plane.py',
+                      'tests/test_thermal_workflow.py', 'tests/test_covariance_records.py',
+                      'tests/test_covariance_artifacts.py', '-o', 'addopts=', '--junitxml=scientific-contracts.xml'])
+              finally:
+                  faulthandler.cancel_dump_traceback_later()
+          raise SystemExit(result)
+          PYTEST
       - name: Build candidate wheel
         run: python -m build --wheel
       - name: Exact public CSR source and installed NET qualification
@@ -65,6 +78,7 @@ jobs:
           if-no-files-found: error
           path: |
             scientific-contracts.xml
+            scientific-watchdog.log
             scientific-native.xml
             scientific-native-evidence
             net-scientific-source.zip
