@@ -256,12 +256,16 @@ def specification_id(*, model: str, artifacts: list[str], parameters: dict,
                                          initial_state=initial_state, runtime=runtime, seed=seed)))
 
 
-def load(path: Path) -> Any:
+def load(path: Path, *, expected_sha256: str | None = None) -> Any:
     from .session import loads_json
     with Path(path).open("rb") as stream:
         raw = stream.read(MAX_BYTES + 1)
     if not raw or len(raw) > MAX_BYTES:
         raise ValueError("Control document exceeds byte budget or is empty")
+    if expected_sha256 is not None:
+        content_ref(expected_sha256)
+        if bytes_ref(raw) != expected_sha256:
+            raise ValueError("Selected source bytes differ from the expected SHA256")
     value = loads_json(raw.decode("utf-8"))
     json_tree(value)
     return value

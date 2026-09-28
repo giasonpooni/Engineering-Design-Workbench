@@ -39,11 +39,19 @@ def main(argv: list[str] | None = None) -> int:
     command = commands.add_parser("catalog")
     command.add_argument("capability", nargs="?")
     command.add_argument("--json", action="store_true")
-    for action in ("run", "replay", "inspect", "state", "study"):
+    command = commands.add_parser("observations")
+    command.add_argument("--workspace", type=Path, required=True)
+    command.add_argument("--workspace-sha256", required=True)
+    command.add_argument("--bundle", required=True)
+    command.add_argument("--stage", choices=["predicted", "posterior", "measurement"], required=True)
+    command.add_argument("--entity", required=True)
+    command.add_argument("--output", type=Path, required=True)
+    command.add_argument("--json", action="store_true")
+    for action in ("run", "replay", "inspect", "state", "study", "replay-study"):
         command = commands.add_parser(action)
         command.add_argument("--workspace", type=Path, required=True)
         command.add_argument("--json", action="store_true")
-        if action in {"run", "replay", "study"}:
+        if action in {"run", "replay", "study", "replay-study"}:
             command.add_argument("--binding", action="append", default=[], metavar="ROLE=ABSOLUTE_PATH")
             command.add_argument("--output-dir", type=Path, required=True)
         if action == "run":
@@ -57,6 +65,8 @@ def main(argv: list[str] | None = None) -> int:
         if action == "inspect":
             command.add_argument("--instrument")
             command.add_argument("--study", type=Path, help="Inspect an existing retained curved-path study against this workspace")
+        if action == "replay-study":
+            command.add_argument("--study", type=Path, required=True)
         if action == "study":
             command.add_argument("--headings", type=float, nargs="+", required=True)
             command.add_argument("--sample-index", type=int, required=True)
@@ -73,7 +83,17 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "catalog":
             _show(scientific.catalog(args.capability), args.json)
             return 0
-        bindings = scientific.parse_bindings(args.binding) if args.command in {"run", "replay", "study"} else None
+        if args.command == "observations":
+            from .scientific_observations import export_observations
+            from .control_contracts import save_new
+            value = export_observations(args.workspace, expected_sha256=args.workspace_sha256,
+                bundle_id=args.bundle, stage=args.stage, entity_id=args.entity)
+            save_new(args.output, value)
+            _show(value if args.json else {"schema": value["schema"], "stage": value["stage"],
+                "samples": len(value["stream"]["observations"]), "output": str(args.output),
+                "record_digest": value["record_digest"], "authority": value["authority"]}, args.json)
+            return 0
+        bindings = scientific.parse_bindings(args.binding) if args.command in {"run", "replay", "study", "replay-study"} else None
         # Source preflight and exact bytes are frozen before output or provider setup.
         if args.command == "run":
             raw = scientific.read_source(args.source)
@@ -92,6 +112,12 @@ def main(argv: list[str] | None = None) -> int:
                                            upstream_bundle_id=args.upstream_bundle, configuration=config)
             elif args.command == "replay":
                 value = scientific.replay(session, args.bundle, repositories=bindings)
+            elif args.command == "replay-study":
+                from .curved_path_study import load_study, replay_study, save_study
+                original = load_study(args.study, session.workbench)
+                scientific.bind(session, "curved-path-transfer", bindings)
+                value = replay_study(session.workbench, original)
+                save_study(args.output_dir / "study.json", session.workbench, value)
             elif args.command == "study":
                 from .curved_path_study import save_study
                 value = scientific.heading_study(session, study_request, repositories=bindings)

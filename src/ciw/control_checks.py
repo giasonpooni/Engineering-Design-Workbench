@@ -209,6 +209,9 @@ def inspect_record(value: dict) -> dict:
                   "ciw.verification.v1": validate_verification}
     if schema in validators:
         validators[schema](value)
+    elif schema == "ciw.thermal-observation-view.v1":
+        from .scientific_observations import validate_view
+        validate_view(value)
     elif schema == "ciw.observation-stream.v1":
         from .control_plane import ObservationBus
         _base(value, "observation-stream", {"observations"})

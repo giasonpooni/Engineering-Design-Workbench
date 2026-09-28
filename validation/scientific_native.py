@@ -138,3 +138,56 @@ def test_installed_cli_reads_study_and_original_context_unchanged(campaign):
         assert original.run == result.run
         assert not original.workbench.list_bundles()
         assert not result.executions  # preserve native records without duplicate ordinary wrappers
+
+
+@pytest.fixture(scope="module")
+def replayed_study(campaign):
+    root, _, _, _, _, _, original, cli = campaign
+    result = cli("replay-study", "--workspace", root / "study/workspace.json",
+        "--study", root / "study/study.json", "--binding", "csg=" + str(campaign[1]["csg"]),
+        "--output-dir", root / "study-replayed")
+    return result
+
+
+def test_whole_study_replay_uses_original_native_occurrences(campaign, replayed_study):
+    root, _, _, _, _, _, original, _ = campaign
+    assert replayed_study["replay_of"] == original["study_digest"]
+    assert replayed_study["authority"] == original["authority"]
+    with scientific.open_workspace(root / "study-replayed/workspace.json") as session:
+        for old, new in zip([original["baseline"], *original["candidates"]],
+                            [replayed_study["baseline"], *replayed_study["candidates"]]):
+            for field in ("bundle_id", "execution_id", "result_id", "verification_id"):
+                assert old["references"][field] != new["references"][field]
+            assert old["references"]["numerical_result_id"] == new["references"]["numerical_result_id"]
+            native = session.workbench.get_bundle(new["references"]["bundle_id"])
+            assert len(native["replay_receipts"]) == 1
+            _assert_curved_oracle(native["steps"][0]["request"], native["steps"][0]["result"]["data"])
+        assert len(session.workbench.list_bundles()) == 6
+
+
+def test_whole_study_replay_reopens_without_provider(campaign, replayed_study, monkeypatch):
+    root = campaign[0]
+    monkeypatch.setattr(GeodesicReferenceWorkflow, "_adapters", forbidden)
+    monkeypatch.setattr(GeodesicReferenceWorkflow, "create_session", forbidden)
+    monkeypatch.setattr(GeodesicReferenceWorkflow, "replay_session", forbidden)
+    with scientific.open_workspace(root / "study-replayed/workspace.json") as session:
+        assert study.load_study(root / "study-replayed/study.json", session.workbench) == replayed_study
+    # Its original source is not extended in place.
+    with scientific.open_workspace(root / "study/workspace.json") as original:
+        assert len(original.workbench.list_bundles()) == 3
+
+
+def test_replay_study_corruption_is_refused_before_binding(campaign, monkeypatch, capsys):
+    from ciw.scientific_cli import main
+    root = campaign[0]
+    bad = root / "corrupt-study.json"
+    raw = json.loads((root / "study/study.json").read_bytes())
+    raw["request"]["sample_index"] = 127
+    from ciw.telemetry import canonical, digest
+    raw["study_digest"] = digest({k: v for k, v in raw.items() if k != "study_digest"})
+    bad.write_bytes(canonical(raw))
+    monkeypatch.setattr(GeodesicReferenceWorkflow, "_adapters", forbidden)
+    assert main(["replay-study", "--workspace", str(root / "study/workspace.json"), "--study", str(bad),
+        "--binding", "csg=" + str(root / "not-a-provider"), "--output-dir", str(root / "refused-study"), "--json"]) == 1
+    assert not (root / "refused-study/study.json").exists()
+    assert json.loads(capsys.readouterr().err)["status"] == "refused"

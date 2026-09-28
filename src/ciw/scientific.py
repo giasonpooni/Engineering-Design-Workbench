@@ -148,14 +148,14 @@ def inspect(session, *, bundle_id: str | None = None, instrument: str | None = N
 
 
 @contextmanager
-def open_workspace(path: Path, output_dir: Path | None = None):
+def open_workspace(path: Path, output_dir: Path | None = None, *, expected_sha256: str | None = None):
     """Freeze one bounded source read, validate offline, optionally copy for execution.
 
     A caller can inspect in scratch or extend a new output directory. The original
     is never written. Execution failures still save the existing Session's history.
     """
     from .session import Session
-    value = load(path)
+    value = load(path, expected_sha256=expected_sha256)
     with tempfile.TemporaryDirectory(prefix="net-science-") as temporary:
         root = Path(temporary)
         frozen = root / "workspace.json"

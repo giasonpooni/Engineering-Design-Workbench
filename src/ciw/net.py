@@ -95,6 +95,11 @@ def _show(value: dict, as_json: bool) -> None:
         print("Full covariance: " + json.dumps(original["uncertainty"], allow_nan=False))
     if "observations" in original:
         print(f"Observations: {len(original['observations'])}")
+    if original.get("schema") == "ciw.thermal-observation-view.v1":
+        print(f"Stage: {original['stage']}; coordinates: {', '.join(original['coordinate_order'])}")
+        print(f"Observations: {len(original['stream']['observations'])}; units: K")
+        print("Source: synthetic; covariance: per-tick marginals, not joint across ticks")
+        print("Workspace binding: " + original["binding"]["workspace_sha256"])
     if "session" in value:
         print(f"Session: {value['session']['session_id']}; executions: {len(value['executions'])}; results: {len(value['results'])}")
     print("Physical validation: not performed; reproducibility is not established by inspection.")
@@ -112,7 +117,7 @@ def main(argv: list[str] | None = None) -> int:
         return science_main(argv[1:])
     parser = argparse.ArgumentParser(prog="net", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
-    commands.add_parser("science", help="Existing scientific workflows: catalog, run, replay, inspect, state, study")
+    commands.add_parser("science", help="Existing scientific workflows: catalog, run, replay, inspect, state, observations, study, replay-study")
     for name in ("providers", "capabilities"):
         command = commands.add_parser(name)
         command.add_argument("--catalog", type=Path)
@@ -156,11 +161,16 @@ def main(argv: list[str] | None = None) -> int:
             _show(result, args.json)
         elif args.command == "compare":
             left, right = load(args.left), load(args.right)
+            streams = []
             for value in (left, right):
                 inspect_record(value)
-                if value["schema"] != "ciw.observation-stream.v1":
-                    raise ValueError("Comparison CLI requires two explicit observation-stream records")
-            result = compare(left["observations"], right["observations"], atol=args.atol, rtol=args.rtol)
+                if value["schema"] == "ciw.thermal-observation-view.v1":
+                    streams.append(value["stream"])
+                elif value["schema"] == "ciw.observation-stream.v1":
+                    streams.append(value)
+                else:
+                    raise ValueError("Comparison requires observation streams or supported native observation views")
+            result = compare(streams[0]["observations"], streams[1]["observations"], atol=args.atol, rtol=args.rtol)
             if args.output:
                 save_new(args.output, result)
             _show(result, args.json)
