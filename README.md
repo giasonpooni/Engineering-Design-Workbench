@@ -1,4 +1,27 @@
-# Schematics Retrieval Agent
+# System Graph
+
+**Inspect typed system graphs, retrieve connected subgraphs and check eligibility for declared numerical calls.**
+
+| NET micro-tool | Identity and scope |
+| --- | --- |
+| User-facing name | **System Graph** |
+| Proposed NET operation family | `system.graph` |
+| Implementation repository | `Schematics-Retrieval-Agent` |
+| Existing provider | Schematics Retrieval Agent / SRA |
+| Existing library and CLI | `schematics`; `sra` |
+| Current boundary | Authored typed function/factor graphs, subgraph retrieval, eligibility checks and explicit companion calls |
+
+`system.graph` is the agreed NET-facing name, **not a newly installed command,
+a schematic-image OCR service or an implemented Blender/Godot node-editor plugin**.
+Use the existing library and CLI below. Graph eligibility is not an executed
+kernel result, and a graph projection is not an authoritative physical model.
+
+NET owns session composition and dispatch; this provider owns typed graph
+representation, retrieval and eligibility annotations. Evidence, operation
+specifications, execution attempts and verification records remain distinct.
+Repository URLs, imports, CLI flags, historical companion pins, contracts and
+licence terms are unchanged. Retained pins below intentionally keep their
+historical repository references rather than being relabelled as new evidence.
 
 Part of **Notation Systems' computational instrumentation and evidence infrastructure** for industrial and cyber-physical systems.
 
