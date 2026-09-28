@@ -4,7 +4,7 @@
   const report = JSON.parse(new TextDecoder("utf-8", {fatal: true}).decode(bytes));
   const freeze = value => { if (value && typeof value === "object") { Object.values(value).forEach(freeze); Object.freeze(value); } return value; };
   freeze(report);
-  const R = report.retained, D = report.derived, N = R.trace.length;
+  const R = report.retained, D = report.derived, N = R.trace.length, I = report.information ?? null;
   const $ = id => document.getElementById(id);
   const text = (id, value) => { $(id).textContent = value; };
   const fmt = (x, digits = 4) => x === null || x === undefined ? "not available" : Number(x).toLocaleString("en-US", {maximumFractionDigits: digits, useGrouping: false});
@@ -46,7 +46,7 @@
     const el = node("circle", {cx: x, cy: y, r, class: "point " + (axis ? "shell-fill" : "core-fill"), "data-tick": index}, svg);
     tip(el, title); el.addEventListener("click", () => setTick(index)); return el;
   }
-  const state = {index: 0, stage: "posterior", radius: 2, matrix: "covariance"};
+  const state = {index: 0, stage: "posterior", radius: 2, matrix: "covariance", infoContext: "tick", infoMask: R.selection.selected_mask ?? 0, infoDirection: 0};
   function timeChart() {
     const svg = clear("time-chart"), vals = [];
     R.trace.forEach((row, i) => row[state.stage + "_mean"].forEach((v, a) => {
@@ -120,11 +120,81 @@
     const b=$('bindings');for(const [name,v] of [['Estimator execution',R.execution_id],['Native result',R.result_id],['Input file SHA-256',report.source.sha256],['Original workspace SHA-256',R.binding.workspace_sha256],['Source clock',R.clock_id],['Frame / ordered coordinates',R.frame],['Display profile',report.producer.profile],['Matrix scope','Per-tick conditional marginals; no cross-tick covariance'],['Noise assumption',R.noise_assumption]])addDefinition(b,name,v);
     designChart();
   }
-  function render(){const row=R.trace[state.index],cov=row[state.stage+'_covariance'];text('tick-label',`${state.index+1} / ${N}  ·  t = ${fmt(R.time_s[state.index])} s`);$('tick').setAttribute('aria-valuetext',`Tick ${state.index+1}, ${R.time_s[state.index]} seconds`);$('prev').disabled=state.index===0;$('next').disabled=state.index===N-1;text('metric-mean',row[state.stage+'_mean'].map(v=>fmt(v,3)).join(' / '));text('metric-trace',fmt(cov[0][0]+cov[1][1],5));text('metric-nis',row.nis===null?'MISSING':fmt(row.nis,5));text('metric-dimension',`${row.innovation.length} active measurement coordinates`);text('metric-gain',fmt(D[state.index].conditioning_gain_nats,5));timeChart();phaseChart();matrixTable();innovation();text('raw-tick',JSON.stringify({retained:row,measurements:R.measurements[state.index],derived:D[state.index],authority:report.authority},null,2));document.body.dataset.tick=String(state.index);document.body.dataset.stage=state.stage;}
+  function informationPanel() {
+    if (!I) return;
+    const forecast = state.infoContext === 'forecast';
+    const candidate = R.selection.candidates.find(c => c.mask === state.infoMask);
+    const geometry = forecast ? I.forecast.find(c => c.mask === state.infoMask).geometry : I.rows[state.index];
+    $('information-candidates').classList.toggle('hide', !forecast);
+    $('information-context').value = state.infoContext;
+    text('information-context-label', forecast
+      ? `Fixed final next-step forecast · inspecting ${candidate.sensors.join(' + ') || 'no sensors'} · ${candidate.feasible ? 'feasible under original policy' : 'INFEASIBLE under original policy'}`
+      : `Tick ${state.index + 1} · t = ${fmt(R.time_s[state.index])} s · prediction → posterior · ${R.trace[state.index].innovation.length} active measurements`);
+    const selected = R.selection.candidates.find(c => c.mask === R.selection.selected_mask);
+    text('information-provider', `Original status: ${R.selection.status}. Selected: ${selected ? selected.sensors.join(' + ') || 'no sensors' : 'none'}. Budget: ${fmt(R.selection_policy.budget)}. Inspection does not change this decision.`);
+    document.querySelectorAll('#information-candidates [data-information-mask]').forEach(el => {
+      const active = Number(el.dataset.informationMask) === state.infoMask;
+      el.setAttribute('aria-pressed', String(active));
+    });
+    const detail = $('information-candidate-detail'); detail.replaceChildren();
+    if (forecast) {
+      const title = document.createElement('h3'), pre = document.createElement('pre');
+      title.textContent = `Mask ${candidate.mask}: original covariance (K²)`;
+      pre.textContent = JSON.stringify(candidate.posterior_covariance, null, 2);
+      detail.append(title, pre);
+    } else {
+      const p = document.createElement('p');
+      p.textContent = 'This pair is the selected tick’s original prediction and posterior. Changing the State selector above does not alter this comparison.';
+      p.className = 'note'; detail.append(p);
+    }
+    const svg = clear('information-chart'), spectrum = clear('information-spectrum');
+    if (geometry.status !== 'available') {
+      label(svg, 210, 130, 'Geometry unavailable', 'middle', {class: 'empty'});
+      label(svg, 210, 155, geometry.reason, 'middle', {'font-size': 9});
+      for (const id of ['ratio','sigma','area','gain']) text('information-'+id, 'unavailable');
+      text('information-relation', geometry.reason); text('information-exact', JSON.stringify(geometry,null,2));
+      $('information-direction').disabled = true;
+      return;
+    }
+    $('information-direction').disabled = false;
+    const probe = geometry.directions[state.infoDirection], k = state.radius;
+    // Identical scales on both dimensions; never recenter on a hypothetical mean.
+    const extent = Math.max(1,...geometry.unit_contour.flat().map(Math.abs)) * k * 1.22;
+    const {x,y} = axes(svg,[83,35,235,235],[-extent,extent],[-extent,extent],'Prior-whitened coordinate 1','Prior-whitened coordinate 2');
+    node('circle',{cx:x(0),cy:y(0),r:x(k)-x(0),fill:'none',stroke:'#9baec5','stroke-dasharray':'5 4','stroke-width':1.4,'data-prior-circle':'true'},svg);
+    node('polyline',{points:geometry.unit_contour.map(p=>`${x(k*p[0])},${y(k*p[1])}`).join(' '),fill:'#68ddd015',stroke:'#68ddd0','stroke-width':2,'data-information-contour':'true'},svg);
+    const n = probe.unit_direction, q = probe.support_point, v = probe.projection_point;
+    line(svg,x(-k*n[0]),y(-k*n[1]),x(k*n[0]),y(k*n[1]),'cursor');
+    line(svg,x(0),y(0),x(k*v[0]),y(k*v[1]),'shell-stroke',{'stroke-width':3,'data-direction-projection':'true'});
+    line(svg,x(k*v[0]),y(k*v[1]),x(k*q[0]),y(k*q[1]),'cursor');
+    node('circle',{cx:x(k*q[0]),cy:y(k*q[1]),r:4,fill:'#e6b473','data-direction-support':'true'},svg);
+    const ratios = geometry.variance_ratios, maxRatio = Math.max(1,...ratios)*1.12, sx=scaler(0,maxRatio,65,350);
+    line(spectrum,sx(1),10,sx(1),113,'cursor');
+    ratios.forEach((v,i)=>{const yy=35+i*47;label(spectrum,10,yy+4,'λ'+(i+1));node('rect',{x:sx(0),y:yy-10,width:Math.max(.5,sx(v)-sx(0)),height:20,fill:i?'#94b8ef':'#68ddd0','data-information-eigenvalue':i},spectrum);label(spectrum,360,yy+5,fmt(v,5),'end');});
+    label(spectrum,200,137,'Reference variance = 1 · no eigenvalue clipping','middle',{'font-size':10});
+    text('information-angle', `${probe.angle_degrees}°`);
+    $('information-direction').setAttribute('aria-valuetext', `${probe.angle_degrees} degrees in the prior Cholesky basis`);
+    text('information-ratio',fmt(probe.variance_ratio,6));text('information-sigma',fmt(probe.standard_deviation_ratio,6));
+    text('information-area',fmt(geometry.area_ratio,6));text('information-gain',fmt(geometry.information_gain_nats,6)+' nats');
+    text('information-relation',geometry.relation.replaceAll('_',' '));
+    text('information-exact',JSON.stringify({normalized_covariance:geometry.normalized_covariance,variance_ratios:ratios,probe,relation_tolerance:I.relation_tolerance},null,2));
+    document.body.dataset.informationContext=state.infoContext;document.body.dataset.informationMask=String(state.infoMask);document.body.dataset.informationDirection=String(state.infoDirection);
+  }
+  function selectInformationMask(mask) { state.infoMask=mask;state.infoContext='forecast';informationPanel(); }
+  function initializeInformation() {
+    if(!I) return;
+    $('information-panel').classList.remove('hide');
+    for(const c of R.selection.candidates){const b=document.createElement('button');b.type='button';b.dataset.informationMask=String(c.mask);b.textContent=(c.sensors.join(' + ')||'No sensors')+(c.feasible?'':' · infeasible');b.setAttribute('aria-pressed',String(c.mask===state.infoMask));b.addEventListener('click',()=>selectInformationMask(c.mask));$('information-candidates').appendChild(b);}
+    $('information-context').addEventListener('change',e=>{state.infoContext=e.target.value;informationPanel();});
+    $('information-direction').addEventListener('input',e=>{state.infoDirection=Number(e.target.value);informationPanel();});
+    document.querySelectorAll('#design-chart [data-candidate]').forEach(el=>{el.setAttribute('tabindex','0');el.setAttribute('role','button');el.setAttribute('aria-label','Inspect retained sensor subset '+el.dataset.candidate);el.addEventListener('click',()=>{selectInformationMask(Number(el.dataset.candidate));$('information-panel').scrollIntoView({block:'start'});});el.addEventListener('keydown',e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();selectInformationMask(Number(el.dataset.candidate));$('information-panel').scrollIntoView({block:'start'});}});});
+  }
+
+  function render(){const row=R.trace[state.index],cov=row[state.stage+'_covariance'];text('tick-label',`${state.index+1} / ${N}  ·  t = ${fmt(R.time_s[state.index])} s`);$('tick').setAttribute('aria-valuetext',`Tick ${state.index+1}, ${R.time_s[state.index]} seconds`);$('prev').disabled=state.index===0;$('next').disabled=state.index===N-1;text('metric-mean',row[state.stage+'_mean'].map(v=>fmt(v,3)).join(' / '));text('metric-trace',fmt(cov[0][0]+cov[1][1],5));text('metric-nis',row.nis===null?'MISSING':fmt(row.nis,5));text('metric-dimension',`${row.innovation.length} active measurement coordinates`);text('metric-gain',fmt(D[state.index].conditioning_gain_nats,5));timeChart();phaseChart();matrixTable();innovation();informationPanel();text('raw-tick',JSON.stringify({retained:row,measurements:R.measurements[state.index],derived:D[state.index],authority:report.authority},null,2));document.body.dataset.tick=String(state.index);document.body.dataset.stage=state.stage;}
   function setTick(i){state.index=Math.max(0,Math.min(N-1,i));$('tick').value=String(state.index);render();}
   $('tick').addEventListener('input',e=>setTick(Number(e.target.value)));$('prev').addEventListener('click',()=>setTick(state.index-1));$('next').addEventListener('click',()=>setTick(state.index+1));$('stage').addEventListener('change',e=>{state.stage=e.target.value;render();});$('radius').addEventListener('change',e=>{state.radius=Number(e.target.value);render();});$('matrix-mode').addEventListener('change',e=>{state.matrix=e.target.value;matrixTable();});
   $('download-report').addEventListener('click',()=>{const blob=new Blob([new TextDecoder('utf-8',{fatal:true}).decode(bytes)],{type:'application/json'}),url=URL.createObjectURL(blob),a=document.createElement('a');a.href=url;a.download='thermal-math-inspection.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);});
   let resizeFrame = null;
   window.addEventListener('resize',()=>{cancelAnimationFrame(resizeFrame);resizeFrame=requestAnimationFrame(render);});
-  initial();render();document.body.dataset.ready='true';
+  initial();initializeInformation();render();document.body.dataset.ready='true';
 })();

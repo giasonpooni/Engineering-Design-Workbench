@@ -22,6 +22,7 @@ from .session import loads_json
 from .telemetry import canonical
 
 SCHEMA = "ciw.thermal-math-inspection.v1"
+INFORMATION_SCHEMA = "ciw.thermal-math-inspection.v2"
 MAX_SOURCE_BYTES = 65536
 POLICY = {"profile": algebra.PROFILE, "contour_segments": algebra.CONTOUR_SEGMENTS,
           "condition_limit": algebra.CONDITION_LIMIT, "radius_options": [1, 2, 3],
@@ -118,6 +119,9 @@ def _derived_equal(actual, expected) -> None:
 
 
 def validate_report(value: dict) -> None:
+    if type(value) is dict and value.get("schema") == INFORMATION_SCHEMA:
+        _validate_information_report(value)
+        return
     _base(value, "thermal-math-inspection", {"source", "policy", "retained", "derived", "producer", "authority"})
     if canonical(value["authority"]) != canonical(AUTHORITY) or canonical(value["policy"]) != canonical(POLICY):
         raise ValueError("Display policy or authority cannot be changed")
@@ -141,10 +145,64 @@ def validate_report(value: dict) -> None:
     _derived_equal(value["derived"], derived)
 
 
-def analyze_file(path: Path, *, expected_sha256: str) -> dict:
+
+def _information(retained: dict) -> dict:
+    from . import information_display as info
+    rows = [info.contraction_geometry(row["predicted_covariance"], row["posterior_covariance"])
+            for row in retained["trace"]]
+    forecast = []
+    for candidate in retained["selection"]["candidates"]:
+        geometry = info.contraction_geometry(retained["selection"]["prior_covariance"],
+                                             candidate["posterior_covariance"])
+        if geometry["status"] == "available" and not math.isclose(
+                geometry["information_gain_nats"], number(candidate["information_gain_nats"]),
+                rel_tol=1e-9, abs_tol=1e-12):
+            raise ValueError("Covariance contraction contradicts the native sensor information score")
+        forecast.append({"mask": candidate["mask"], "geometry": geometry})
+    return {"profile": info.PROFILE, "basis": "prior_lower_Cholesky_coordinates_not_sensor_axes",
+        "direction_samples": info.DIRECTION_SAMPLES, "relation_tolerance": info.RELATION_TOLERANCE,
+        "scope": "retained_covariance_pairs_only; no_new_inference_or_selection",
+        "rows": rows, "forecast": forecast}
+
+
+def analyze_information(raw: bytes, *, expected_sha256: str) -> dict:
+    """Opt-in v2 superset. The default v1 report and its reader remain supported."""
+    value = analyze(raw, expected_sha256=expected_sha256)
+    value["schema"] = INFORMATION_SCHEMA
+    value["information"] = _information(value["retained"])
+    from . import information_display as info
+    value["information"]["producer"] = {
+        "kernel_sha256": bytes_ref(Path(info.__file__).read_bytes().replace(b'\r\n', b'\n')),
+        "numpy_version": np.__version__}
+    return seal(value)
+
+
+def _validate_information_report(value: dict) -> None:
+    from .operations.runner import check_seal
+    json_tree(value)
+    keys(value, {"schema", "source", "policy", "retained", "derived", "producer", "authority",
+                 "information", "record_digest"})
+    check_seal(value)
+    # Validate every v1 field through the unchanged reader, never through a relaxed subset.
+    base = deepcopy(value)
+    base.pop("information")
+    base["schema"] = SCHEMA
+    seal(base)
+    validate_report(base)
+    expected = _information(value["retained"])
+    keys(value["information"], set(expected) | {"producer"})
+    producer = value["information"]["producer"]
+    keys(producer, {"kernel_sha256", "numpy_version"})
+    content_ref(producer["kernel_sha256"])
+    text(producer["numpy_version"])
+    _derived_equal({k: v for k, v in value["information"].items() if k != "producer"}, expected)
+
+
+def analyze_file(path: Path, *, expected_sha256: str, information_geometry: bool = False) -> dict:
     with Path(path).open("rb") as stream:
         raw = stream.read(MAX_SOURCE_BYTES + 1)
-    return analyze(raw, expected_sha256=expected_sha256)
+    operation = analyze_information if information_geometry else analyze
+    return operation(raw, expected_sha256=expected_sha256)
 
 
 def main(argv: list[str] | None = None) -> int:
@@ -152,11 +210,12 @@ def main(argv: list[str] | None = None) -> int:
     parser.add_argument("source", type=Path)
     parser.add_argument("--expected-sha256", required=True)
     parser.add_argument("--output", type=Path, required=True)
+    parser.add_argument("--information-geometry", action="store_true", help="Add prior-normalized conditioning and sensor-candidate geometry (v2)")
     args = parser.parse_args(argv)
     try:
-        value = analyze_file(args.source, expected_sha256=args.expected_sha256)
+        value = analyze_file(args.source, expected_sha256=args.expected_sha256, information_geometry=args.information_geometry)
         save_new(args.output, value)
-        print(json.dumps({"schema": SCHEMA, "output": str(args.output), "samples": len(value["derived"]),
+        print(json.dumps({"schema": value["schema"], "output": str(args.output), "samples": len(value["derived"]),
                           "record_digest": value["record_digest"], "authority": value["authority"]}))
         return 0
     except (OSError, ValueError, TypeError, KeyError, OverflowError) as exc:
