@@ -1,4 +1,24 @@
-# Fluid State Reconstruction Testbed (FSRT)
+# Flow Reconstructor
+
+**Estimate measured fluid-network state and retain disagreements with declared conservation balances.**
+
+| NET micro-tool | Identity and scope |
+| --- | --- |
+| User-facing name | **Flow Reconstructor** |
+| Proposed NET operation | `flow.reconstruct` |
+| Implementation repository | `Fluid-State-Reconstruction-Testbed` |
+| Existing provider and import | Fluid State Reconstruction Testbed / FSRT; `set_lcm` |
+| Current boundary | Measurement-based fluid-network estimation and guarded balance reconciliation; the existing CIW adapter is a narrower two-reservoir snapshot operation |
+
+`flow.reconstruct` is the agreed friendly operation target. It does not rename
+the existing CIW operation IDs or establish a newly registered alias. Use the
+runnable examples and adapter contract below. This is **not a CFD solver,
+volumetric reconstruction tool or game-fluid renderer**.
+
+NET retains session composition and dispatch; FSRT retains its estimation,
+conservation and covariance mathematics. Evidence, operation specifications,
+execution attempts and verification records remain distinct. The repository URL,
+package imports, recorded evidence, numerical contracts and licence are unchanged.
 
 Part of **Notation Systems' computational instrumentation and evidence infrastructure** for industrial and cyber-physical systems.
 
@@ -10,7 +30,8 @@ This is **not** visual reconstruction of a fluid volume. It is not a 3DGS / NeRF
 
 | Surface | Name |
 |---|---|
-| Public name | FSRT (Fluid State Reconstruction Testbed) |
+| User-facing micro-tool | Flow Reconstructor |
+| Scientific provider | FSRT (Fluid State Reconstruction Testbed) |
 | GitHub repository | `giasonpooni/Fluid-State-Reconstruction-Testbed` |
 | Installable project | `fluid-state-reconstruction-testbed` |
 | Import | `set_lcm` (historical: state estimate + linear constraint matching) |
@@ -19,10 +40,10 @@ FSRT is a Python research toolkit for water levels, flow gauges and storage meas
 
 The aim is to help investigate degrading measurements: **when did the readings stop agreeing, what could explain the difference, and what can this sensor arrangement actually detect?**
 
-The upstream acquisition component is now named
-[Provenance-Preserving Data Acquisition](https://github.com/giasonpooni/Provenance-Preserving-Data-Acquisition).
+The upstream acquisition component is now presented as
+[Data Intake / Provenance-Preserving Data Acquisition](https://github.com/giasonpooni/Provenance-Preserving-Data-Acquisition).
 The `daf` package, `set_lcm.bridge.daf` interface, recorded source URLs, and
-acquisition commit pins retain their historical identities. The new repository
+acquisition commit pins retain their historical identities. The new tool
 name does not change the evidence or imply that these experiments were rerun
 against its current revision.
 
