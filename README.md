@@ -1,4 +1,27 @@
-# Metrological Calibration and Uncertainty Runtime
+# Calibration
+
+**Apply declared measurement calibration and retain the full first-order uncertainty budget.**
+
+| NET micro-tool | Identity and scope |
+| --- | --- |
+| User-facing name | **Calibration** |
+| Proposed NET operation | `measure.calibrate` |
+| Implementation repository | `Metrological-Calibration-Uncertainty-Runtime` |
+| Existing provider and import | Metrological Calibration and Uncertainty Runtime / MCUR; `mcur` |
+| Existing operation | `mcur.affine-first-order.v1` |
+| Current boundary | Apply a declared affine calibration and propagate joint uncertainty; no calibration-fitting or certificate-issuing service |
+
+`measure.calibrate` is the agreed NET-facing operation target, **not a newly
+installed command or an implemented hardware adapter**. Use the existing `mcur`
+API and examples below. Raw, indicated and corrected values remain separate;
+reference IDs do not by themselves establish metrological traceability.
+
+NET owns session composition and dispatch; this provider owns calibration
+applicability and measurement-specific uncertainty propagation. **Sensor Adapter**
+retains the measurement-chain boundary and **Sensitivity** retains general
+Jacobian operations. Evidence, operation specifications, execution attempts and
+verification records remain distinct. Repository URLs, imports, operation IDs,
+contracts, historical pins and licence terms are unchanged.
 
 [Notations Engineering Terminal (CIW)](https://github.com/giasonpooni/Notations-Engineering-Terminal) · [Stack placement and ownership](docs/STACK.md) · [Diagram atlas](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/main/docs/DIAGRAMS.md) · [License](LICENSE)
 
@@ -80,12 +103,12 @@ The complete examples demonstrate concrete record construction. The optional `mc
 
 | Neighbor | Relationship |
 | --- | --- |
-| Provenance-Preserving Data Acquisition (PPDA) | Retains source bytes and extraction lineage. MCUR consumes a referenced observation and never rewrites that evidence. |
-| RCI measurement adapter | Retains its acquisition and measurement boundary. MCUR provides reusable calibration profile and propagation math; no RCI replacement or native adapter is implemented here. |
-| Jacobian Sensitivity Propagation Testbed (JSPT) | Generalized sensitivity and uncertainty propagation remain separate from this measurement-specific calibration operation. |
+| Data Intake / Provenance-Preserving Data Acquisition (PPDA) | Retains source bytes and extraction lineage. MCUR consumes a referenced observation and never rewrites that evidence. |
+| Sensor Adapter / RCI | Retains its acquisition and measurement boundary. MCUR provides reusable calibration profile and propagation math; no RCI replacement or native adapter is implemented here. |
+| Sensitivity / Jacobian Sensitivity Propagation Testbed (JSPT) | Generalized sensitivity and uncertainty propagation remain separate from this measurement-specific calibration operation. |
 | Geometric State Inference Engine (GSIE) | May consume the corrected measurement and candidate uncertainty through an explicit mapping. MCUR does not infer plant state or certify estimator adequacy. |
-| SET | Owns the existing exchange contract and external conformance validation. |
-| [Notations Engineering Terminal (CIW)](https://github.com/giasonpooni/Notations-Engineering-Terminal) / ESM | Bind evidence, executions, results, verification, and admission under their own authority. This repository has no native CIW adapter and grants no admission or actuation authority. |
+| Estimator Bench / SET | Owns the existing exchange contract and external conformance validation. |
+| [Notations Engineering Terminal (CIW)](https://github.com/giasonpooni/Notations-Engineering-Terminal) / State Ledger (ESM) | Bind evidence, executions, results, verification, and admission under their own authority. This repository has no native CIW adapter and grants no admission or actuation authority. |
 
 See [the contract](docs/CONTRACT.md), [numerical semantics](docs/NUMERICS.md), and [stack role](docs/STACK_ROLE.md).
 
