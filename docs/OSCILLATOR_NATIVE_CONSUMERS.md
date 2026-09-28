@@ -97,12 +97,68 @@ parent-report linkage, native/extension digests, NET records and an independent
 consumer-gate occurrence ID are retained in the output. Hashes check integrity
 and compatibility, not authenticity of arbitrary supplied reports.
 
-## Status and limits
+## Qualified Linux execution
 
-Initial local development: 18 Python/C++ boundary tests passed. Their compiled C
-fixture is explicitly hand-lowered and does not count as Julia or Godot execution.
-Real native consumer qualification must be established by the dedicated workflow;
-results are recorded against the measured code commit, not inferred from source.
+The dedicated workflow passed for code commit
+`375ec716759b4e1f2c87499595d3b8a3b0c5c565` in
+[run 36391016858](https://github.com/giasonpooni/Notations-Engineering-Terminal/actions/runs/36391016858),
+job `108826618324`, on 2026-09-28. The measured profile used Godot
+`4.5.2.stable.official.6ce3de25a`, G++/GCC 13.3.0, CMake 3.31.6, Julia
+1.10.12, Rust 1.90.0 and Python 3.12 on Ubuntu 24.04 x86-64.
+
+| Check | Measured result |
+| --- | --- |
+| Installed-wheel focused suite | 76 passed, 0 failures/errors/skips, including genuine Julia execution. The 18 new local tests and old 58 tests are subsets of this total. |
+| Original Julia/C/Python/Rust/Tsit5 gate | All six original gates passed again, without a fixture fallback or changed tolerance. |
+| C++ against direct Julia | 1,024 rows; maximum absolute derivative differences `[0.0, 0.0]`. The C++ wrapper self-test passed all 11 checks. |
+| Actual Godot GDExtension against Julia | 1,024 rows; maximum differences `1.1368683772161603e-13 m/s` and `1.1641532182693481e-10 m/s^2`, within the unchanged componentwise absolute-plus-relative policy. |
+| Godot repeat | A new Godot process reproduced all 1,024 sampled derivatives exactly in this environment. |
+| Godot-owned RK4 against analytical references | Default, mixed, undamped and high-frequency cases all passed. |
+| Godot-owned RK4 against retained Tsit5 | 129 samples passed; max q/v/energy differences `1.9215962154817134e-11 m`, `9.940448464362817e-11 m/s`, `3.596349884560368e-10 J`. |
+| Refusals and relocation | Wrong source, invalid input, failed rebind and missing library were rejected; the relocated project loaded its origin-relative native dependency. |
+| NET retention | Actual Godot observations entered existing run/execution/result records; offline validation passed with native loading forbidden. Results remained `not_verified`. |
+
+The parent and Godot consumers used identical native library bytes:
+`sha256:7ba2306c2c1ebcf9eb586d27a1e0a8d875b3e9633f59faa54d996ee4e9b50f7e`.
+The consumer report digest is
+`sha256:cf1c2fb6c2d33a45125cac09f1bc37949a223eb8db63b2adbb27dc0b910de9d9`.
+Sampled agreement does not establish universal or cross-platform determinism.
+
+### Failures found during qualification
+
+The first run (`36389489829`) passed C++/Julia comparisons but failed compiling
+the trimmed godot-cpp profile: its core logging code requires the generated
+`OS` binding. Commit `fed1f149db7685e7fb41aeab28b16b2f07a878eb` added that
+binding; the numerical kernel was unchanged.
+
+The second run (`36390133623`) compiled the extension but crashed during
+cold-cache headless editor import. Its shutdown trace is consistent with the
+[documented GDExtension documentation-generation race](https://github.com/godotengine/godot/issues/111048).
+The acceptance recipe now checks an empty-editor control and applies the
+upstream-described workaround: `--frame-delay 1000` during extension import only.
+Both startup checks passed in the measured run. The subsequent numerical Godot
+processes receive no added frame delay. This is a scoped startup workaround,
+not a fix to Godot itself or qualification of zero-delay cold-cache import.
+No numerical tolerance or existing parent gate was relaxed. Unexpected command
+failures retain their full logs and a bounded diagnostic tail in the report.
+
+### Retained evidence
+
+[Artifact 10955808387](https://github.com/giasonpooni/Notations-Engineering-Terminal/actions/runs/36391016858/artifacts/10955808387)
+contains 132 files, 4,691,355 ZIP bytes: the candidate wheel, original/replayed
+Tsit5 sessions, parent and consumer reports, generated C, native and extension
+libraries, C++/Rust probes, Godot inputs/outputs, NET records and command logs.
+ZIP SHA-256:
+`8cb89d92c1f844ddb549c87b8a7a222ba8b9e4630544350e6f418f10fae161d8`.
+GitHub reports expiry on 2026-10-28 under the configured 30-day retention policy.
+
+A local read-only audit verified the downloaded ZIP digest, all 124 file hashes
+listed in the two reports, report digests, parent linkage, six existing record
+seals and the 76-test JUnit totals. Recomputing differences from retained output
+bytes reproduced the reported C++/Godot and trajectory maxima. These are
+post-run integrity/comparison checks, not additional Godot executions.
+
+## Remaining limits
 
 This is a headless numerical/GDExtension increment, not a completed game,
 interactive UI, graphics/GPU qualification, live NET control path, performance
