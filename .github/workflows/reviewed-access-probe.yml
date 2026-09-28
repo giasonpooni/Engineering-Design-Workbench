@@ -1,0 +1,45 @@
+name: Reviewed qualification dispatch probe
+on:
+  push:
+    branches: ['qualify/manual-access-probe-20260928']
+    paths: ['.github/workflows/reviewed-access-probe.yml']
+permissions:
+  contents: read
+jobs:
+  dispatch-reviewed-gate:
+    if: github.repository == 'giasonpooni/Notations-Engineering-Terminal'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 3
+    permissions:
+      contents: read
+      actions: write
+    steps:
+      - name: Dispatch one existing qualification, never read secrets or alter access policy
+        env:
+          DISPATCH_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json, os, pathlib, urllib.request
+          root='https://api.github.com/repos/giasonpooni/Notations-Engineering-Terminal'
+          branch='qualify/net-integration-20260928'
+          expected='f11a5f96685f6965d878641f30066e58774660da'
+          headers={'Authorization':'Bearer '+os.environ['DISPATCH_TOKEN'],'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2026-03-10'}
+          req=urllib.request.Request(root+'/branches/'+branch,headers=headers)
+          with urllib.request.urlopen(req,timeout=30) as stream: current=json.load(stream)
+          assert current['commit']['sha']==expected, 'Reviewed branch moved; refuse dispatch'
+          # Existing Calibrated adapter integration workflow. Its unchanged
+          # workflow_dispatch policy decides credential availability; this job
+          # neither receives that credential nor weakens its refusal behavior.
+          req=urllib.request.Request(root+'/actions/workflows/362863480/dispatches',data=json.dumps({'ref':branch}).encode(),headers={**headers,'Content-Type':'application/json'},method='POST')
+          with urllib.request.urlopen(req,timeout=30) as stream:
+              payload=stream.read(); status=stream.status
+          report={'expected_head':expected,'workflow_id':362863480,'event':'workflow_dispatch','http_status':status,'response':json.loads(payload) if payload else None,'claim':'dispatch only, not qualification'}
+          pathlib.Path('dispatch-receipt.json').write_text(json.dumps(report,indent=2)+'\n')
+          print(json.dumps(report,indent=2))
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: reviewed-dispatch-receipt
+          path: dispatch-receipt.json
+          if-no-files-found: error
+          retention-days: 7
