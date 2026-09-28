@@ -1,4 +1,26 @@
-# Translation-Surface Dynamics Explorer
+# Polygon Dynamics
+
+**Follow trajectories across connected polygonal spaces while retaining crossings, topology and stopping conditions.**
+
+| NET micro-tool | Identity and scope |
+| --- | --- |
+| User-facing name | **Polygon Dynamics** |
+| Proposed NET operation | `geometry.polygon_dynamics` |
+| Implementation repository | `Translation-Surface-Dynamics-Explorer` |
+| Existing import and CLI module | `translation_surface_dynamics` |
+| Current boundary | Bounded rational straight-line flow on connected square-tiled translation surfaces |
+
+`geometry.polygon_dynamics` is the agreed NET-facing target, not a newly
+registered command. The current provider supports square-tile permutation
+gluings, **not arbitrary polygon gluings or vertex continuation**. Use its
+existing CLI and Python API below. The broader tool label does not widen the
+implemented request contract.
+
+NET owns installation, revision binding, session composition and dispatch;
+this provider owns topology validation and trajectory computation. Evidence,
+operation specifications, execution attempts and verification records remain
+distinct. Repository URLs, imports, schemas, digests and licence terms are
+unchanged by this documentation update.
 
 Part of **Notation Systems' computational instrumentation and evidence infrastructure**.
 
