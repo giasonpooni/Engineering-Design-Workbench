@@ -18,7 +18,8 @@ def validate_role(operation_id: str, role: str) -> None:
                 "fsrt.tank-reconstruct.v1": "state_estimator",
                 "fsrt.tank-reconstruct.v2": "state_estimator",
                 "jspt.covariance-propagate.v1": "backend",
-                "gte.project-circle.v1": "backend"}.get(operation_id)
+                "gte.project-circle.v1": "backend",
+                "oscillator.rhs-native.v1": "backend"}.get(operation_id)
     if expected is not None and role != expected:
         raise ValueError("Operation role contradicts the declared payload contract")
 
@@ -28,7 +29,8 @@ def register_payload_validator(operation_id: str, validator: Callable) -> None:
         raise ValueError("A payload schema requires a versioned operation and callable validator")
     if operation_id in _VALIDATORS or operation_id in {
         "statistics.v1", "spectrum.periodogram.v1", "fsrt.tank-reconstruct.v1",
-        "fsrt.tank-reconstruct.v2", "jspt.covariance-propagate.v1", "gte.project-circle.v1"
+        "fsrt.tank-reconstruct.v2", "jspt.covariance-propagate.v1", "gte.project-circle.v1",
+        "oscillator.rhs-native.v1"
     }:
         raise ValueError("Payload schema already registered")
     _VALIDATORS[operation_id] = validator
@@ -48,6 +50,8 @@ def validate_payload(operation_id: str, data: dict, run: dict, parameters: dict,
         from ..adapters.covariance_records import validate_jspt_payload as validator
     elif operation_id == "gte.project-circle.v1":
         from ..adapters.gte_records import validate_payload as validator
+    elif operation_id == "oscillator.rhs-native.v1":
+        from ..adapters.oscillator_kernel import validate_payload as validator
     else:
         validator = _VALIDATORS.get(operation_id)
         if validator is None:
