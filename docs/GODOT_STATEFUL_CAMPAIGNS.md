@@ -126,3 +126,9 @@ Upstream interface references (Godot 4.5 documentation):
 - OS `read_buffer_from_stdin`: https://docs.godotengine.org/en/4.5/classes/class_os.html
 - `--headless`/`--script`: https://docs.godotengine.org/en/4.5/tutorials/editor/command_line_tutorial.html
 - `var_to_bytes`/`bytes_to_var` (without objects): https://docs.godotengine.org/en/4.5/classes/class_@globalscope.html
+
+## Retained image evidence
+
+[Capture selected XYZ observations as PNG evidence](OBSERVATION_IMAGE_CAPTURE.md)
+without advancing or restoring the simulation. Images retain a separate capture
+execution and the original observation binding.

@@ -120,8 +120,13 @@ def campaign(executable: Path, expected_sha256: str, workspace: Path, plan_path:
 
 
 def main(argv: list[str] | None = None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if argv and argv[0] == "capture":
+        from .godot_capture import main as capture_main
+        return capture_main(argv[1:])
     parser = argparse.ArgumentParser(prog="net simulation godot", description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
+    sub.add_parser("capture", help="Render or inspect image evidence from selected retained observations")
     for name in ("demo", "campaign"):
         cmd = sub.add_parser(name)
         cmd.add_argument("--godot", type=Path, required=True)
