@@ -239,14 +239,18 @@ def compare_results(session, candidate: dict, reference: dict, output: Path, *, 
 
 
 def open_saved(path: str | Path, output: str | Path):
+    """Check core and game dependencies in scratch before destination publication."""
     from .session import Session
     register_schemas()
     value = load(Path(path))
     with tempfile.TemporaryDirectory(prefix="net-game-reopen-") as directory:
         frozen = Path(directory) / "workspace.json"
         save_new(frozen, value)
-        session = Session.from_workspace(frozen, Path(output))
-    return validate_session(session)
+        candidate = Session.from_workspace(frozen, Path(directory) / "validation")
+        validate_session(candidate)
+        # Reuse the exact frozen input. The original source may change while
+        # validation runs, but cannot substitute unchecked destination records.
+        return Session.from_workspace(frozen, Path(output))
 
 
 def inspect(path: str | Path) -> dict:
@@ -276,16 +280,29 @@ def run_case(scenario: dict, binding, output: str | Path, *, fault: str = "none"
 
 
 def extend_case(path: str | Path, binding, output: str | Path, *, source_execution_id: str, reproduce: bool, fault: str = "none"):
-    output = Path(output); output.mkdir(parents=True, exist_ok=False)
-    session = open_saved(path, output)
-    source = session.executions.get(source_execution_id)
-    c.require(source is not None and source["operation_id"] == CAPTURE_OP and source["status"] == "completed", "Select a completed native capture execution")
-    reference = session.results[source["result_id"]]
-    if reproduce:
-        c.require(fault == "none", "Reproduction cannot substitute a diagnostic fault")
-        c.require(binding.runtime_identity() == source["runtime"], "Reproduction requires the original runtime identity")
-        fault = source["parameters"]["diagnostic_fault"]
-    c.require(fault in c.FAULTS, "Unknown diagnostic fault")
+    from .session import Session
+    register_schemas()
+    output = Path(output)
+    if output.exists() or output.is_symlink():
+        raise FileExistsError(f"Output already exists: {output}")
+    value = load(Path(path))
+    with tempfile.TemporaryDirectory(prefix="net-game-candidate-") as directory:
+        frozen = Path(directory) / "workspace.json"
+        save_new(frozen, value)
+        candidate = Session.from_workspace(frozen, Path(directory) / "validation")
+        validate_session(candidate)
+        source = candidate.executions.get(source_execution_id)
+        c.require(source is not None and source["operation_id"] == CAPTURE_OP and source["status"] == "completed", "Select a completed native capture execution")
+        reference = candidate.results[source["result_id"]]
+        if reproduce:
+            c.require(fault == "none", "Reproduction cannot substitute a diagnostic fault")
+            c.require(binding.runtime_identity() == source["runtime"], "Reproduction requires the original runtime identity")
+            fault = source["parameters"]["diagnostic_fault"]
+        c.require(fault in c.FAULTS, "Unknown diagnostic fault")
+        # Invalid data, source selections and reproduction bindings must not
+        # create the requested output or rewrite a previous investigation.
+        output.mkdir(parents=True, exist_ok=False)
+        session = Session.from_workspace(frozen, output)
     bind(session, binding)
     result = execute(session, CAPTURE_OP, {"nonce": uuid.uuid4().hex, "diagnostic_fault": fault}, output)
     audit_result(session, result, output)
