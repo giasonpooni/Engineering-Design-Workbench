@@ -42,6 +42,7 @@ def _integer(value, minimum, maximum):
 
 
 def _state(value):
+    value = deepcopy(value)
     contract.keys(value, {"tick", "q_m", "v_m_s"})
     _integer(value["tick"], 0, 24000)
     contract.number(value["q_m"], -10, 10)
@@ -50,6 +51,7 @@ def _state(value):
 
 
 def model(parameters):
+    parameters = deepcopy(parameters)
     contract.model(parameters)
     if parameters["mass_kg"] <= 1e-12 or parameters["omega_0_rad_s"] <= 1e-12:
         raise ValueError("The combined Julia/C++ model requires mass and frequency above 1e-12")
@@ -156,6 +158,7 @@ def inspect_checkpoint(cp, expected_id=None):
     The external expected identity authenticates the *selection*, not the source
     physics. A consistently rehashed unauthenticated history is not a signature.
     """
+    cp = deepcopy(cp)
     if len(canonical(cp)) > MAX_CHECKPOINT_BYTES:
         raise ValueError("Checkpoint exceeds byte budget")
     contract.keys(cp, {"schema", "simulation_id", "model", "model_id", "configuration", "initial_owner_id",
@@ -228,6 +231,7 @@ def inspect_checkpoint(cp, expected_id=None):
 class Simulation:
     """Serialized state mutations, non-blocking observation, explicit restart."""
     def __init__(self, parameters, initial, binding, directory, *, checkpoint=None, expected_id=None):
+        checkpoint = deepcopy(checkpoint)
         self._operation = threading.Lock()
         self._read = threading.Lock()
         self._status = "initializing"
@@ -301,6 +305,9 @@ class Simulation:
         steps = []
         executing = False
         try:
+            if type(payload) is not dict:
+                raise ValueError("Simulation commands require a plain data object")
+            payload = deepcopy(payload)
             request_digest = digest({"action": action, "payload": payload})
             cid = payload.get("command_id")
             if type(cid) is str and cid in self._receipts:
