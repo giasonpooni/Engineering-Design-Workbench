@@ -11,24 +11,29 @@ store. Specialist repositories retain their mathematics and implementations.
 ## Ownership
 
 ```text
-                 Notations Engineering Terminal / ciw
-          question -> plan -> execute -> compare -> inspect -> replay
-                                |
-          +---------------------+----------------------+
-          |                     |                      |
-          v                     v                      v
- Geospatial Systems       State Estimator       Curved Surface
- Compiler (GSC)           for BIM (CSE/gat)      Runtime (CSR)
- representation           BIM belief and        geodesic/Jacobi,
- compilation and          domain disposition    sensitivity, tolerance
- inspection                                     and covariance
+Notations Engineering Terminal / ciw
+question -> plan -> execute -> compare -> inspect -> replay
+    |
+    +-- Geospatial Systems Compiler (GSC)
+    |      representation compilation and inspection
+    |
+    +-- State Estimator for BIM (CSE/gat)
+    |      BIM belief and domain disposition
+    |
+    +-- Curved Surface Runtime (CSR/geodesic_testbed)
+    |      geodesic/Jacobi, sensitivity, tolerance and covariance
+    |
+    +-- Fluid State Reconstruction Testbed (FSRT/set_lcm)
+           fluid-state estimation, balance residuals,
+           guarded reconciliation and covariance
 
- ESM: separate evidence/state admission and release authority where integrated.
+ESM: separate evidence/state admission and release authority where integrated.
 ```
 
 The diagram shows control and ownership, not deployment topology or an already
 qualified end-to-end workflow. GSC also supports provider-free inspection.
-CSE and CSR remain usable standalone.
+CSE, CSR and FSRT remain usable standalone. These named integrations extend,
+not replace, the existing provider catalogue, including RCI and JSPT.
 
 | Owner | Responsibility | Not delegated to it |
 | --- | --- | --- |
@@ -36,6 +41,7 @@ CSE and CSR remain usable standalone.
 | GSC | Compile supplied source/result material into spatial, temporal, relational and visual representations; emit selection and variation intents. | Running scientific providers directly, changing posterior state, inventing covariance, admitting evidence or granting execution permission. |
 | CSE / `gat` | Supported IFC interpretation, world/model identity, evidence conditioning, Gaussian belief, domain criteria, geometry authority and scoped disposition. | General solid reconstruction, machine control or construction approval inferred from `ACCEPT`. |
 | CSR / `geodesic_testbed` | Supported surface/path computations, geodesic and Jacobi integration, transfer maps, validity diagnostics, tolerance and covariance propagation. | BIM interpretation, scan registration, arbitrary mesh solving or physical motion authorization. |
+| FSRT / `set_lcm` | Supported fluid models, state estimation, balance residuals, guarded reconciliation, covariance and fault-distinguishability analysis where the selected operation supports it. | General CFD/PDE solving, automatic sensor-fault attribution, canonical state admission or direct pump/valve control. |
 | ESM | Separately supported evidence retention, candidate-state review, admission and release. | Camera control or general numerical dispatch. |
 
 **NET controls; specialist repositories compute; GSC represents; ESM governs
@@ -185,6 +191,80 @@ the determinant with one or generalize this invariant to arbitrary Jacobians.
 Deterministic tolerance boxes, first-order covariance, integration error and
 physical model validity remain different objects.
 
+## FSRT: extend the existing fluid instrument, not a second estimator
+
+FSRT already has the registered operations `fsrt.tank-reconstruct.v1` and
+`fsrt.tank-reconstruct.v2`. [ADAPTERS.md](ADAPTERS.md) and
+[COVARIANCE.md](COVARIANCE.md) document NET's existing RCI -> FSRT -> JSPT
+path. The [FSRT adapter contract](https://github.com/giasonpooni/Fluid-State-Reconstruction-Testbed/blob/3144e3e694419b0c8579938e8d28523174e36abd/docs/CIW_ADAPTER.md)
+is pinned here for the reviewed semantics, not as a new approved runtime pin.
+The existing trusted runtime manifests remain controlling.
+
+```text
+Existing bounded path, subject to its documented runtime requirements:
+retained calibrated mass observations + declared prior/total
+    -> NET/ciw registered fsrt.tank-reconstruct.v1 or .v2
+    -> pinned FSRT python -m set_lcm.bridge.ciw
+    -> estimate + residuals + covariance + correction/model status
+    -> NET retained execution/result and explicit replay
+
+Existing optional covariance continuation:
+named retained v2 covariance -> registered JSPT propagation
+
+Separate integration target:
+permitted retained FSRT result -> explicit GSC adapter -> supported views
+```
+
+The snapshot supports two reservoir masses in kg at one simultaneous physical
+sample time. It does not perform temporal prediction or general fluid-network
+reconstruction. FSRT's broader standalone experiments and measurement-design
+studies are not automatically exposed by registering this snapshot operation.
+Keep their models, balance equations, inference and distinguishability analysis
+in FSRT; add bounded adapters only when a real workflow requires them.
+
+NET owns input construction, calibration/source bindings, trusted provider
+resolution, retained investigation dependencies and replay. FSRT receives
+calibrated observations; it does not repeat RCI calibration. It owns the
+Gaussian update, balance statistic, guarded reconciliation and numerical/model
+refusals. Preserve `set_lcm`, existing schemas, operation IDs and historical
+pins. FSRT is not the general State Estimation Evaluation Testbed, a central
+inference replacement, or a CFD/PDE engine.
+
+The complete v2 observation covariance is retained in its declared order.
+The operation assumes independence between prior, observations and declared
+total, requires those declarations, and refuses unsupported dependence. It
+supports correlation inside the two-channel observation, not cross-covariance
+between those three sources or across timestamps. NET must not manufacture an
+independence declaration or diagonalize shared uncertainty to fit this contract.
+Preserve the observation, prior, declared-total, innovation, posterior and
+reconciled covariance artifacts, their named axes and upstream dependencies.
+Singular observation covariance is refused; a rank-deficient reconciled PSD
+output can be valid. The receiving operation's rules remain authoritative.
+
+A valid computation can report `physical_model_disagreement` and hold the
+correction. Retain its unprojected estimate, covariance and diagnostic status;
+never turn `status: ok` into physical acceptance. On a hold, posterior and
+reconciled numbers can coincide while their stage identities remain different.
+Missing observations stay missing, and `confounded_or_unidentifiable` does not
+become a named faulty sensor. Do not reinterpret the existing balance gate as
+NIS/NEES qualification, coverage, metrological traceability or a verification
+receipt. Malformed inputs, numerical refusal and physical disagreement remain
+distinct outcomes.
+
+For the proposed algebra, `S` binds the selected fluid model/prior and retained
+observations, `Delta` describes a supported candidate variation, `T` resolves
+to an actual registered FSRT operation, and `C/I/E/Q/R` retain its balance,
+assumptions, evidence, uncertainty and requested view. A changed topology or
+sensor layout is a different model/configuration, not an implicit perturbation
+accepted by the current two-mass contract. This mapping adds no parser.
+
+FSRT-to-BIM association needs a typed asset/model mapping; it does not convert
+an estimate into BIM evidence or an accepted as-built disposition. FSRT-to-CSR
+composition needs a separately supported physical/geometry model; a fluid
+covariance is not a starting-pose covariance. GSC must preserve quantity/time
+meaning and supplied geography, never invent location, continuous flow fields
+or uncertainty. Public release and equipment authorization remain separate.
+
 ## GSC -> NET: intent, not scientific execution
 
 ```text
@@ -235,7 +315,7 @@ Retain admitted execution failures according to the existing runner contract;
 malformed requests rejected before execution do not acquire fake execution IDs.
 
 GSC cannot choose executable paths, register providers, change source pins or
-call CSE/CSR/SCR directly. A public portfolio uses deliberately published
+call CSE/CSR/FSRT/SCR directly. A public portfolio uses deliberately published
 artifacts; sharing a UX does not grant access to a private session. Existing
 write-capable freight routes in GSC are legacy application surfaces and are
 not reclassified as read-only by this architecture decision.
@@ -245,8 +325,9 @@ not reclassified as read-only by this architecture decision.
 Python/`ciw` remains the scientific controller and owner of investigation
 records. Selected native operations can use the existing SCR/Rust supervision
 path with explicitly bound Julia **or** C++ providers. This is not a mandatory
-four-language pipeline and does not imply that the complete CSE or CSR solver
-has been ported. GSC remains a TypeScript representation client. Language
+four-language pipeline and does not imply that the complete CSE, CSR or FSRT
+solver has been ported. FSRT's existing pinned Python subprocess remains a
+valid provider path. GSC remains a TypeScript representation client. Language
 bindings never transfer domain or evidence authority.
 
 The independently developed bounded linear-map and BIM/CSR inspection slices
@@ -268,6 +349,7 @@ registration/session path in bounded increments:
 | View intents | Selection/preview causes no scientific execution; stale/duplicate/tampered requests are tested; only the NET execution boundary can launch providers. |
 | Inspection and replay | Provider-free reopen; explicit replay with fresh execution IDs; old history retained; unavailable historical runtime is not replaced by latest. |
 | End-to-end | One qualified BIM -> supported surface/path -> CSR -> GSC investigation, including a failing candidate and traceable limitations. |
+| FSRT extension | Reuse the real pinned snapshot and existing covariance/replay paths; test correlated, missing, held and refused cases. Separately qualify the retained-result GSC adapter; broader topology or temporal operations require their own contracts and evidence. |
 
 A mock, parsed fixture, passing schema test or README diagram cannot satisfy the
 real-provider gate. Numerical checks do not establish field validation,
