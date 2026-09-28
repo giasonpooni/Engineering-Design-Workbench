@@ -363,10 +363,10 @@ def test_html_preserves_observer_scope_and_source(completed,tmp_path,monkeypatch
     root,report=completed;original=(root/'study.json').read_bytes()
     monkeypatch.setattr(sim,'ProviderPair',lambda *a,**kw:pytest.fail('launched'))
     out=tmp_path/'inspector.html';write(root,'observer:position',out)
-    text=out.read_text()
+    text=out.read_text(encoding="utf-8")
     assert '<svg' in text and '<script' not in text and 'http://' not in text and 'https://' not in text
     assert 'q_m' in text and 'v_m_s' not in text and 'energy_j' not in text and 'native_steps' not in text
-    assert out.read_text()==html(root,'observer:position')
+    assert out.read_bytes()==html(root,'observer:position').encode('utf-8')
     assert (root/'study.json').read_bytes()==original
     with pytest.raises(FileExistsError):write(root,'observer:position',out)
 

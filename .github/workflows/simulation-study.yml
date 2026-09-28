@@ -29,6 +29,7 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install -e '.[dev]' build
       - name: Study contracts and preserved numerical/control regressions
+        shell: bash
         run: |
           python -m pytest tests/test_simulation_study.py -q --junitxml=study-contracts.xml
           python -m pytest tests/test_control_plane.py tests/test_scientific.py tests/test_scientific_observations.py tests/test_check_suite.py tests/test_math_inspector.py tests/test_information_display.py -q --junitxml=study-regressions.xml
