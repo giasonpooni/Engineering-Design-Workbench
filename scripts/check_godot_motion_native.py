@@ -68,7 +68,7 @@ def main():
                                'parameters':{'at_tick':4,'delta_v':3}}
                         engine.intervene(event);reference.intervene(event)
                     engine.step(1);reference.step(1)
-                    expected=loads_json(reference.snapshot())
+                    expected=loads_json(reference.snapshot().decode("utf-8"))
                     actual=validate_snapshot(engine.snapshot(),engine.configuration())
                     check(actual==expected,f'Independent state/RNG/queue/history oracle seed={seed} tick={tick}')
                     check(engine.process_id==pid,f'Persistent native process seed={seed} tick={tick}')
@@ -110,7 +110,7 @@ def main():
         check(sum(e['status']=='refused' for e in session.executions.values())==2,'Two distinct refused executions retained')
         engine=native()
         try:
-            checkpoint=loads_json(engine.snapshot());checkpoint['state'].pop('rng')
+            checkpoint=loads_json(engine.snapshot().decode("utf-8"));checkpoint['state'].pop('rng')
             requests=engine._mailbox.sequence
             try:engine.restore(canonical(checkpoint))
             except ValueError:pass
