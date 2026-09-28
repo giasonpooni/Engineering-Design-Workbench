@@ -22,12 +22,25 @@ cross-project hierarchy and its remaining acceptance gates.
 | [Geospatial Systems Compiler](https://github.com/giasonpooni/Geospatial-Systems-Compiler) | Representation compilation and inspection; selections and variation intents return to NET rather than invoking scientific providers directly. |
 | [State Estimator for BIM](https://github.com/giasonpooni/State-Estimator-for-BIM) | Supported IFC world interpretation, evidence conditioning, posterior belief, geometry authority and scoped BIM disposition. |
 | [Curved Surface Runtime](https://github.com/giasonpooni/Curved-Surface-Runtime) | Supported geodesic/Jacobi calculations, path sensitivity, tolerance, covariance and validity diagnostics. |
+| [Fluid State Reconstruction Testbed](https://github.com/giasonpooni/Fluid-State-Reconstruction-Testbed) | Supported fluid-state estimation, balance residuals, guarded reconciliation, covariance and operation-specific fault distinguishability; `set_lcm` remains its package namespace. |
 | [Evidence and State Management](https://github.com/giasonpooni/Evidence-and-State-Management) | Separately supported evidence/state review, admission and release; NET does not supersede this authority. |
 
 **NET controls; specialist repositories compute; GSC represents; ESM governs evidence.**
 The named specialist repositories remain independent implementations, not
 modules copied wholesale into NET. Standalone use remains possible. This
 ownership map is not evidence that every cross-project path already executes.
+It extends the provider catalogue rather than replacing RCI, JSPT or other
+existing instruments.
+
+FSRT's `fsrt.tank-reconstruct.v1` and `.v2` already use the pinned Python
+subprocess path. The [adapter guide](ADAPTERS.md) and
+[covariance guide](COVARIANCE.md) describe the bounded RCI -> FSRT -> JSPT
+workflow. Its one simultaneous two-reservoir snapshot is not a generic
+fluid-network or temporal-fusion operation. Physical disagreement may hold
+correction despite successful computation; retained outcomes must preserve
+that status. The [FSRT extension](NET_CONTROLLER_BOUNDARY.md#fsrt-extend-the-existing-fluid-instrument-not-a-second-estimator)
+separates those existing capabilities from new algebra, GSC and domain-model
+handoffs that still need qualification.
 
 ## Current boundary
 
