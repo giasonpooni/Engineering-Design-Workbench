@@ -1,0 +1,7 @@
+; Optional headless state owner. No autoload, external resource or network service.
+config_version=5
+[application]
+config/name="NET bounded Godot motion provider"
+config/features=PackedStringArray("4.5", "GL Compatibility")
+[rendering]
+renderer/rendering_method="gl_compatibility"
