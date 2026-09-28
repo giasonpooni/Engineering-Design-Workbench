@@ -1,0 +1,82 @@
+name: Persistent NET simulation qualification
+on:
+  pull_request:
+    paths: ['.github/workflows/persistent-simulation.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  native:
+    if: github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    env:
+      CARGO_TARGET_DIR: ${{ github.workspace }}/../persistent-scr-target
+      JULIA_DEPOT_PATH: ${{ github.workspace }}/../persistent-julia-depot
+      JULIA_NUM_THREADS: '1'
+      JULIA_PKG_PRECOMPILE_AUTO: '0'
+    steps:
+      - name: Read the unchanged approved native provider implementation
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: fd61efb3e0e5868d0f95ba27706b64a9afca595f
+          path: scr
+          persist-credentials: false
+      - name: Read the public NET persistent implementation at its explicit commit
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: giasonpooni/Notations-Engineering-Terminal
+          ref: 055483269c3804177495b9146981244637a58e38
+          path: terminal
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - uses: julia-actions/setup-julia@4c0cb0fce8556fdb04a90347310e5db8b1f98fb9
+        with:
+          version: '1.10.12'
+          arch: x64
+      - name: Build and test the declared Rust and C++ host
+        run: |
+          rustup toolchain install 1.96.0 --profile minimal
+          rustup default 1.96.0
+          cargo build --locked --manifest-path scr/crates/execution-provider-host/Cargo.toml
+          cargo test --locked --manifest-path scr/crates/execution-provider-host/Cargo.toml
+      - name: Install NET and provision locked Julia environments before execution
+        run: |
+          python -m pip install ./terminal
+          mkdir -p "$JULIA_DEPOT_PATH"
+          julia --startup-file=no --project=terminal/runtimes/native-interop -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
+          julia --startup-file=no --project=terminal/runtimes/julia-oscillator -e 'using Pkg; Pkg.instantiate(); Pkg.precompile(["JSON3", "OrdinaryDiffEqTsit5", "SciMLBase"]); using JSON3, OrdinaryDiffEqTsit5, SciMLBase'
+      - name: Bind the approved source and actual executable without changing pins
+        run: |
+          python - <<'PY'
+          import hashlib, json, os, pathlib, shutil, subprocess
+          root = pathlib.Path.cwd()
+          scr = root / 'scr'
+          assert subprocess.check_output(['git','-C',str(scr),'rev-parse','HEAD'], text=True).strip() == 'fd61efb3e0e5868d0f95ba27706b64a9afca595f'
+          assert not subprocess.check_output(['git','-C',str(scr),'status','--porcelain','--untracked-files=all'], text=True).strip()
+          host = pathlib.Path(os.environ['CARGO_TARGET_DIR']) / 'debug/scr-provider-host'
+          binding = dict(scr=str(scr), host=str(host), host_sha256='sha256:'+hashlib.sha256(host.read_bytes()).hexdigest(),
+                         julia=shutil.which('julia'), julia_runtime=str(root/'terminal'), julia_depot=os.environ['JULIA_DEPOT_PATH'])
+          (root/'runtime.json').write_text(json.dumps(binding), encoding='utf-8')
+          PY
+      - name: Provision the existing Godot Standard target
+        run: |
+          curl --fail --location --retry 3 'https://downloads.godotengine.org/?flavor=stable&platform=linux.64&slug=linux.x86_64.zip&version=4.5.2' --output "$RUNNER_TEMP/godot.zip"
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+          chmod +x "$RUNNER_TEMP/godot/Godot_v4.5.2-stable_linux.x86_64"
+      - name: Require actual persistent providers, checkpoint restart, Godot commands and fail-closed process death
+        run: python terminal/scripts/check_persistent_simulation.py --binding runtime.json --godot "$RUNNER_TEMP/godot/Godot_v4.5.2-stable_linux.x86_64" --output-dir persistent-evidence
+      - name: Preserve the existing one-shot native reproduction contract
+        run: python terminal/scripts/check_polyglot_native.py --binding runtime.json --output-dir one-shot-evidence
+      - name: Retain completed or partial evidence privately, never checkouts or bindings
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: persistent-simulation-evidence
+          path: |
+            persistent-evidence/**
+            one-shot-evidence/**
+          if-no-files-found: warn
+          retention-days: 14
