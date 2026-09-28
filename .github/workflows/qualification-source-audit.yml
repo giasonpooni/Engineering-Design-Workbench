@@ -1,0 +1,61 @@
+name: Qualification source and failure audit
+on:
+  push:
+    branches: ['qualify/net-integration-20260928']
+  workflow_dispatch:
+permissions:
+  contents: read
+  actions: read
+jobs:
+  collect:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Retain exact public source objects for isolated integration review
+        run: |
+          mkdir -p audit
+          git bundle create audit/net-sources.bundle --all
+          sha256sum audit/net-sources.bundle > audit/net-sources.sha256
+          git show-ref > audit/source-refs.txt
+      - name: Collect first failing steps without changing check status
+        env:
+          AUDIT_TOKEN: ${{ github.token }}
+        run: |
+          python3 - <<'PY'
+          import json, os, urllib.request
+          from pathlib import Path
+          repo='giasonpooni/Notations-Engineering-Terminal'
+          sha='76075f9fa2235c109f800fd9d38a10cb6131c877'
+          def get(path):
+              req=urllib.request.Request('https://api.github.com/repos/'+repo+path,headers={'Authorization':'Bearer '+os.environ['AUDIT_TOKEN'],'Accept':'application/vnd.github+json','X-GitHub-Api-Version':'2022-11-28'})
+              with urllib.request.urlopen(req,timeout=30) as stream:
+                  return json.load(stream)
+          rows=[]
+          page=1
+          while True:
+              runs=get('/actions/runs?head_sha='+sha+'&event=pull_request&per_page=100&page='+str(page))['workflow_runs']
+              for run in runs:
+                  jobs=[]; jp=1
+                  while True:
+                      batch=get('/actions/runs/'+str(run['id'])+'/jobs?per_page=100&page='+str(jp))['jobs']
+                      for job in batch:
+                          failures=[s for s in job['steps'] if s.get('conclusion')=='failure']
+                          jobs.append({'id':job['id'],'name':job['name'],'status':job['status'],'conclusion':job['conclusion'],'first_failed_step':failures[0] if failures else None,'steps':job['steps']})
+                      if len(batch)<100: break
+                      jp+=1
+                  rows.append({'run_id':run['id'],'name':run['name'],'workflow_path':run['path'],'head_sha':run['head_sha'],'status':run['status'],'conclusion':run['conclusion'],'html_url':run['html_url'],'jobs':jobs})
+              if len(runs)<100: break
+              page+=1
+          Path('audit/qualification-status.json').write_text(json.dumps({'repository':repo,'head_sha':sha,'claim':'status collection only; no test executed or waived','runs':rows},indent=2)+'\n')
+          print('Collected',len(rows),'workflow runs. This audit does not qualify a provider.')
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: net-qualification-source-audit
+          path: audit/
+          if-no-files-found: error
+          retention-days: 7
