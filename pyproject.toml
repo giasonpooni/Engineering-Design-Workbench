@@ -19,6 +19,7 @@ plsr = ["parameterized-lyapunov-stability-runtime @ git+https://github.com/giaso
 
 [project.scripts]
 ciw = "ciw.cli:main"
+net = "ciw.net:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
