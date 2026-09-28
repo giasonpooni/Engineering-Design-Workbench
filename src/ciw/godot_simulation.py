@@ -191,7 +191,7 @@ class GodotProjectile:
         try:
             root = Path(self._temp.name)
             (root / "worker.gd").write_bytes(script)
-            self._pipe = _Pipe([str(executable), "--headless", "--quiet", "--path", str(root),
+            self._pipe = _Pipe([str(executable), "--headless", "--path", str(root),
                                 "--script", str(root / "worker.gd")], cwd=root, timeout=timeout)
             reply = self._pipe.rpc("configure", {"configuration": self._configuration,
                 "configuration_ref": digest(self._configuration), "owner_id": self._owner_id,

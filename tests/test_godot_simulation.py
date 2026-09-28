@@ -112,3 +112,23 @@ def test_request_frame_bound_and_closed_provider_refuse(tmp_path):
         connection.rpc('echo',{'payload':'x'*LIMIT})
     with pytest.raises(ValueError,match='closed'):
         connection.rpc('echo',{})
+
+
+def test_native_launch_keeps_stdout_protocol_enabled(tmp_path):
+    # Constructor contract double; actual stdout/handshake is required by native CI.
+    executable=tmp_path/'godot-placeholder'
+    executable.write_bytes(b'explicitly not a native executable')
+    commands=[]
+    class BindingDouble:
+        def __init__(self, command, **kwargs):
+            commands.append(command)
+        def rpc(self, action, args):
+            assert action=='configure'
+            return {'meta': {'owner_id':args['owner_id'],'simulation_id':args['simulation_id'],
+                'tick':0,'state_revision':0,'phase':'created'},
+                'version':[4,5,2,'stable'],'engine_version':'contract-double'}
+        def close(self): pass
+    with patch('ciw.godot_simulation._Pipe', BindingDouble):
+        with GodotProjectile(executable,expected_sha256=bytes_ref(executable.read_bytes())):
+            assert '--quiet' not in commands[0] and '-q' not in commands[0]
+            assert '--headless' in commands[0]
