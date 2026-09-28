@@ -220,6 +220,9 @@ def inspect_record(value: dict) -> dict:
                 "integrity": "validated_declaration", "outcome": {"status": "not_evaluated"},
                 "physical_validation": "not_performed", "state_admission": "not_performed",
                 "record": detached(value)}
+    elif schema == "ciw.thermal-math-inspection.v1":
+        from .math_inspector import validate_report
+        validate_report(value)
     elif schema == "ciw.thermal-observation-view.v1":
         from .scientific_observations import validate_view
         validate_view(value)
