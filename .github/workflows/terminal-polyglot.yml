@@ -26,7 +26,7 @@ jobs:
         uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4.4.0
         with:
           repository: giasonpooni/Notations-Engineering-Terminal
-          ref: a607122cb90507f98e7bcff39a3f488de4576bff
+          ref: 8782bee2a83087cf66d325e0b4b42a4fe5b04cdb
           path: terminal
           persist-credentials: false
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
@@ -47,7 +47,7 @@ jobs:
           python -m pip install ./terminal
           mkdir -p "$JULIA_DEPOT_PATH"
           julia --startup-file=no --project=terminal/runtimes/native-interop -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
-          julia --startup-file=no --project=terminal/runtimes/julia-oscillator -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
+          julia --startup-file=no --project=terminal/runtimes/julia-oscillator -e 'using Pkg; Pkg.instantiate(); Pkg.precompile(["JSON3", "OrdinaryDiffEqTsit5", "SciMLBase"]); using JSON3, OrdinaryDiffEqTsit5, SciMLBase'
       - name: Bind the built executable without modifying approved source or pins
         run: |
           python - <<'PY'
@@ -63,10 +63,14 @@ jobs:
           PY
       - name: Require real C++ AND Julia, reproduction and fresh replay
         run: python terminal/scripts/check_polyglot_native.py --binding runtime.json --output-dir native-evidence
+      - name: Require full correlated covariance and common-mode cancellation
+        run: python terminal/scripts/check_polyglot_uncertainty_native.py --binding runtime.json --output-dir uncertainty-evidence
       - name: Retain evidence privately; never include source checkouts or bindings
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         with:
           name: terminal-polyglot-native-evidence
-          path: native-evidence/*.json
+          path: |
+            native-evidence/*.json
+            uncertainty-evidence/*.json
           if-no-files-found: error
           retention-days: 14
