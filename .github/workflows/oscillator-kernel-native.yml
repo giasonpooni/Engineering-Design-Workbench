@@ -52,7 +52,7 @@ jobs:
           echo "KERNEL_EVIDENCE=$RUNNER_TEMP/oscillator-kernel-evidence" >> "$GITHUB_ENV"
           mkdir "$RUNNER_TEMP/oscillator-kernel-evidence"
           git rev-parse HEAD > "$RUNNER_TEMP/oscillator-kernel-evidence/candidate-commit.txt"
-      - name: Install candidate wheel and run focused tests against it
+      - name: Install candidate wheel and run kernel fixture tests against it
         shell: bash
         run: |
           set -euo pipefail
@@ -70,8 +70,7 @@ jobs:
           PY
           python -m pytest -o pythonpath= -q \
             "$GITHUB_WORKSPACE/tests/test_oscillator_kernel.py" \
-            "$GITHUB_WORKSPACE/tests/test_julia_oscillator.py" \
-            --junitxml="$KERNEL_EVIDENCE/focused-tests.xml"
+            --junitxml="$KERNEL_EVIDENCE/kernel-fixture-tests.xml"
       - name: Exercise real native stages before provisioning Tsit5
         shell: bash
         run: |
@@ -113,6 +112,26 @@ jobs:
           cp "$runtime/runtimes/julia-oscillator/Manifest.toml" "$KERNEL_EVIDENCE/Tsit5.Manifest.toml"
           cp "$runtime/runtimes/julia-oscillator/Project.toml" "$KERNEL_EVIDENCE/Tsit5.Project.toml"
           echo "TSIT5_RUNTIME=$runtime" >> "$GITHUB_ENV"
+      - name: Run installed-wheel tests with the genuine Julia provider enabled
+        shell: bash
+        run: |
+          set -euo pipefail
+          export CIW_TEST_JULIA="$KERNEL_JULIA"
+          export CIW_TEST_JULIA_DEPOT="$HOME/.julia"
+          cd "$RUNNER_TEMP"
+          python -m pytest -o pythonpath= -o "cache_dir=$RUNNER_TEMP/kernel-pytest-cache" -q \
+            "$TSIT5_RUNTIME/tests/test_oscillator_kernel.py" \
+            "$TSIT5_RUNTIME/tests/test_julia_oscillator.py" \
+            --junitxml="$KERNEL_EVIDENCE/focused-tests.xml"
+          python - <<'PY'
+          import os, xml.etree.ElementTree as ET
+          from pathlib import Path
+          root = ET.parse(Path(os.environ['KERNEL_EVIDENCE'], 'focused-tests.xml')).getroot()
+          suites = list(root.iter('testsuite'))
+          assert suites and sum(int(s.get('tests', '0')) for s in suites) > 0
+          assert all(int(s.get(k, '0')) == 0 for s in suites for k in ('failures', 'errors', 'skipped'))
+          print('Genuine-provider suite: no failures, errors or skips.')
+          PY
       - name: Execute and retain genuine original Julia sessions
         shell: bash
         run: |
