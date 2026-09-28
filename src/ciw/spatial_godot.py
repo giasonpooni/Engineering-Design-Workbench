@@ -160,6 +160,8 @@ def check(directory: Path, executable: Path, expected_sha256: str, output_dir: P
             if completed.returncode != 0 or ERROR_LINE.search(log_bytes.decode("utf-8", errors="replace")):
                 raise ValueError("Godot process failed; inspect godot.log")
             observed_raw = read_bounded(engine_report)
+            # Retain native output even when host-side validation rejects it.
+            (output / "observed.json").write_bytes(observed_raw)
             observed = loads_json(observed_raw.decode("utf-8"))
             display = loads_json(snapshot["display.json"].decode("utf-8"))
             count = sum(p is not None for p in display["positions_xyz_m"])
@@ -171,8 +173,8 @@ def check(directory: Path, executable: Path, expected_sha256: str, output_dir: P
                     or observed.get("negative_checks") != 7
                     or observed.get("display_sha256") != digest(snapshot["display.json"])
                     or observed.get("rendered") is not render
-                    or not str(observed.get("godot_version", "")).startswith("4.5.2.")):
-                raise ValueError("Godot observation does not satisfy the consumer contract")
+                    or not re.match(r"^4\.5\.2(?:[.\-\s]|$)", str(observed.get("godot_version", "")))):
+                raise ValueError("Godot observation does not satisfy the consumer contract; inspect observed.json")
             bindings = observed.get("runtime_bindings")
             expected_points = [(i, p) for i, p in zip(display["source"]["sample_indices"], display["positions_xyz_m"]) if p is not None]
             if not isinstance(bindings, list) or len(bindings) != len(expected_points):
