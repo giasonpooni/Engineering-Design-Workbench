@@ -1,4 +1,25 @@
-# Retrofitted Computational Instrumentation
+# Sensor Adapter
+
+**Turn declared sensor observations into measurement records with explicit quality, calibration and uncertainty.**
+
+| NET micro-tool | Identity and scope |
+| --- | --- |
+| User-facing name | **Sensor Adapter** |
+| Proposed NET operation family | `measure.sensor` |
+| Implementation repository | `Retrofitted-Computational-Instrumentation` |
+| Existing provider | Retrofitted Computational Instrumentation / RCI |
+| Current boundary | Python host-side measurement records and simulated acquisition; no deployable acquisition firmware |
+
+`measure.sensor` is the agreed NET-facing name, not a newly installed command or
+proof that an arbitrary sensor, engine or telemetry source is supported. Use the
+existing examples below. **Calibration** (`measure.calibrate`) remains the
+separate tool for calibration and uncertainty-budget operations; this adapter
+preserves the declared measurement chain and raw observations.
+
+Repository URLs, packages, record schemas and evidence identities are unchanged.
+NET owns session composition and dispatch; this provider retains its measurement
+semantics. Evidence, operation specifications, execution attempts and verification
+records remain distinct. Existing notices and licensing terms are unchanged.
 
 Part of **Notation Systems' computational instrumentation and evidence infrastructure** for industrial and cyber-physical systems.
 
