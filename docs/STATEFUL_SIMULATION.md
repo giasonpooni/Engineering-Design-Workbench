@@ -205,3 +205,9 @@ Local test results and environment are recorded in the pull request. A workflow
 file is not evidence that CI has passed. Native engines, physical validation,
 repository-wide green CI and Windows/macOS runtime acceptance are not implied by
 these reference tests. Existing qualification gates are unchanged.
+
+## Intervention campaigns
+
+[Run declared intervention campaigns](SIMULATION_CAMPAIGNS.md) from one paused
+checkpoint with independent owners, typed baseline comparisons and an offline
+observation-only inspector. This extends the same controller and Session.

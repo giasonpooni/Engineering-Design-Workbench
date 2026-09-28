@@ -354,7 +354,8 @@ def test_gaps_and_running_checkpoints_not_replayable(lab):
         validate_source(running, [ok(instance, "step", dt=1)])
 
 
-@pytest.mark.parametrize("payload", [b"x" * (MAX_SNAPSHOT + 1), "text-not-bytes", bytearray(b"x")])
+@pytest.mark.parametrize("payload", [b"x" * (MAX_SNAPSHOT + 1), "text-not-bytes", bytearray(b"x")],
+                         ids=["over-budget", "not-bytes", "mutable-bytes"])
 def test_snapshot_budget_and_bytes_type(payload):
     with pytest.raises(ValueError): encode_snapshot(payload)
 

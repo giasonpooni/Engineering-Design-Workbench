@@ -93,9 +93,35 @@ def main(argv: list[str] | None = None) -> int:
     command.add_argument("workspace", type=Path)
     command = sub.add_parser("check-replay", help="Recheck a retained report; does not execute a replay")
     command.add_argument("report", type=Path)
+    command = sub.add_parser("campaign-demo", help="Run four independent reference intervention variants")
+    command.add_argument("--output-dir", type=Path, required=True)
+    command = sub.add_parser("campaign-reference", help="Run an explicit plan using the built-in reference provider")
+    command.add_argument("workspace", type=Path)
+    command.add_argument("--plan", type=Path, required=True)
+    command.add_argument("--output-dir", type=Path, required=True)
+    command = sub.add_parser("campaign-check", help="Recompute retained campaign comparisons without providers")
+    command.add_argument("report", type=Path)
+    command.add_argument("--expected-sha256")
+    command = sub.add_parser("campaign-view", help="Create an observation-only offline campaign inspector")
+    command.add_argument("report", type=Path)
+    command.add_argument("--expected-sha256", required=True)
+    command.add_argument("--output", type=Path, required=True)
     args = parser.parse_args(argv)
     try:
-        if args.command == "demo":
+        if args.command == "campaign-demo":
+            from .simulation_campaign import reference_demo
+            result = reference_demo(args.output_dir)
+        elif args.command == "campaign-reference":
+            from .simulation_campaign import run_reference
+            result = run_reference(args.workspace, args.plan, args.output_dir)
+        elif args.command in {"campaign-check", "campaign-view"}:
+            from .simulation_campaign import read_campaign
+            report = read_campaign(args.report, expected_sha256=args.expected_sha256)
+            if args.command == "campaign-view":
+                from .simulation_campaign_view import save_view
+                save_view(report, args.output)
+            result = report["summary"]
+        elif args.command == "demo":
             result = demo(args.output_dir)
         elif args.command == "inspect":
             result = inspect_workspace(args.workspace)
