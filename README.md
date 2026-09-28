@@ -1,4 +1,27 @@
-# Time-Base Reconciliation Runtime
+# Time Sync
+
+**Map device timestamps into a declared reference clock while retaining timing uncertainty and original observations.**
+
+| NET micro-tool | Identity and scope |
+| --- | --- |
+| User-facing name | **Time Sync** |
+| Proposed NET operation | `time.sync` |
+| Implementation repository | `Time-Base-Reconciliation-Runtime` |
+| Existing provider and import | Time-Base Reconciliation Runtime / TBRT; `tbrt` |
+| Existing API | `reconcile_time` |
+| Current boundary | Supplied positive-skew affine clock mapping with first-order joint-covariance propagation |
+
+`time.sync` is the agreed NET-facing target, **not a newly installed command,
+network clock-synchronization protocol or multiplayer synchronization service**.
+Use the existing `tbrt` API and examples below. The tool maps timestamps using a
+caller-supplied model; it does not fit clocks, change device clocks, resample
+streams or implement UTC/TAI/GNSS conversion.
+
+NET owns session composition and dispatch; this provider owns declared clock
+mapping and timing uncertainty. Evidence, operation specifications, execution
+attempts and verification records remain distinct. Source event time, receipt
+time and knowledge time are not collapsed into one timestamp. Repository URLs,
+imports, contracts, historical pins and licence terms are unchanged.
 
 [Notations Engineering Terminal (CIW)](https://github.com/giasonpooni/Notations-Engineering-Terminal) · [Stack placement and ownership](docs/STACK.md) · [Diagram atlas](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/main/docs/DIAGRAMS.md) · [License](LICENSE)
 
