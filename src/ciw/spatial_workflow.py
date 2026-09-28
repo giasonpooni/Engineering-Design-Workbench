@@ -2,6 +2,7 @@
 from __future__ import annotations
 from pathlib import Path
 import sys
+import subprocess
 import tempfile
 import uuid
 from .session import Session, envelope
@@ -55,6 +56,8 @@ def register_commands(commands):
 
 def _register_actions(spatial):
     actions=spatial.add_subparsers(dest="spatial_command", required=True)
+    from .spatial_godot import register_actions
+    register_actions(actions.add_parser("godot", help="Detached Godot consumer; explicit checks only"))
     actions.add_parser("catalog", help="Read-only provider roadmap; never installs or executes")
     for name in ("demo", "run", "replay"):
         p=actions.add_parser(name)
@@ -77,6 +80,9 @@ def _register_actions(spatial):
 
 def dispatch(args):
     command=args.spatial_command
+    if command == "godot":
+        from .spatial_godot import dispatch as godot_dispatch
+        return godot_dispatch(args)
     if command == "catalog":
         from .provider_catalog import catalog
         return catalog()
@@ -118,7 +124,7 @@ def main(argv=None):
     args=parser.parse_args(argv)
     try:
         result=dispatch(args)
-    except (ValueError, OSError, RuntimeError) as exc:
+    except (ValueError, OSError, RuntimeError, subprocess.SubprocessError) as exc:
         print(json.dumps({"status":"refused", "message":str(exc)},allow_nan=False))
         return 2
     print(json.dumps(result,indent=2,allow_nan=False))

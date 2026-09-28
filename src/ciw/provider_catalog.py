@@ -11,6 +11,7 @@ _TARGETS = (
     ("ciw.oscillator", "science", "NET", "builtin", "statistics.v1", "ciw.adapters.oscillator"),
     ("openusd", "representation", "NET/GSC", "optional_export", None, "ciw.spatial_scene"),
     ("blender", "authoring", "Blender", "planned", None, None),
+    ("godot.spatial-inspector", "inspection", "Godot/NET", "optional_inspection", None, "ciw.spatial_godot"),
     ("godot", "runtime", "Godot", "planned", None, None),
     ("bevy", "runtime", "Bevy", "planned", None, None),
     ("gdal", "world", "GSC", "planned", None, None),
