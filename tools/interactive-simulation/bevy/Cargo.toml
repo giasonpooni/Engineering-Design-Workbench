@@ -6,8 +6,8 @@ license = "AGPL-3.0-or-later"
 publish = false
 
 [dependencies]
-# Preserve NET's existing Bevy source pin; do not modify the engine repository.
-bevy_ecs = { git = "https://github.com/giasonpooni/bevy.git", rev = "0f38358f573a7dc6ea961076f6151be662142010" }
+# Same reviewed commit, fetched from public upstream rather than an inaccessible fork.
+bevy_ecs = { git = "https://github.com/bevyengine/bevy.git", rev = "0f38358f573a7dc6ea961076f6151be662142010" }
 gltf = { version = "=1.4.1", default-features = false, features = ["utils", "names"] }
 serde = { version = "=1.0.228", features = ["derive"] }
 serde_json = "=1.0.145"

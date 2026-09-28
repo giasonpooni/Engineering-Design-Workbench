@@ -196,7 +196,15 @@ def _validate_payload(operation, data, run, parameters, selection):
                 value = data[side][metric]
                 c.require(value is None if status == "INCOMPLETE" else c.number(value) >= 0, "invalid metric availability")
             tick = data[side]["first_out_of_policy_tick"]
-            c.require((type(tick) is int and tick >= 0) if status == "FAIL" else tick is None, "invalid policy crossing")
+            c.require((type(tick) is int and 1 <= tick <= 2000) if status == "FAIL" else tick is None, "invalid policy crossing")
+            if status != "INCOMPLETE":
+                within = (data[side]["max_position_error_m"] <= c.POLICY["position_m"]
+                          and data[side]["max_velocity_error_m_s"] <= c.POLICY["velocity_m_s"])
+                c.require((status == "PASS") == within, "status contradicts retained error bounds")
+        complete = all(data[side]["status"] != "INCOMPLETE" for side in ("left", "right"))
+        delta = data["cross_runtime_max_position_m"]
+        c.require(c.number(delta) >= 0 if complete else delta is None, "invalid cross-runtime metric availability")
+        c.require(data["claim"] == "numerical comparison only; not physical validation or verification", "comparison claim changed")
 
 
 def register_schemas():

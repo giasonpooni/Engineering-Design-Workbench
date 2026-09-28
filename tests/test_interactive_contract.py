@@ -165,3 +165,22 @@ def test_actual_child_failure(tmp_path):
 def test_actual_child_timeout(tmp_path):
     with pytest.raises(RuntimeError,match="timeout"):
         run_process([sys.executable,"-c","import time; time.sleep(60)"],tmp_path,timeout=.05)
+
+
+@pytest.mark.parametrize("change", [
+    lambda d: d["left"].update(max_position_error_m=10),
+    lambda d: d["left"].update(status="FAIL", first_out_of_policy_tick=1),
+    lambda d: d.update(cross_runtime_max_position_m=None),
+    lambda d: d.update(cross_runtime_max_position_m=-1),
+    lambda d: d.update(claim="verified physics"),
+])
+def test_retained_comparison_consistency_without_recomputing(change):
+    from ciw.interactive_simulation import _validate_payload, COMPARE_OP
+    from unittest.mock import patch
+    d=c.comparison(synthetic_trace(),synthetic_trace())
+    p={"left_result_id":"left", "right_result_id":"right", "left_record_digest":"a", "right_record_digest":"b"}
+    d["bindings"]=p.copy()
+    _validate_payload(COMPARE_OP,d,{"metadata":{"projectile_scenario":scenario()}},p,{})
+    change(d)
+    with patch.object(c,"reference",side_effect=AssertionError("reader ran reference")), pytest.raises(ValueError):
+        _validate_payload(COMPARE_OP,d,{"metadata":{"projectile_scenario":scenario()}},p,{})
