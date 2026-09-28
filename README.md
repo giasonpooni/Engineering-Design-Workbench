@@ -1,16 +1,33 @@
-# Curved Surface Runtime
+# Surface Path
 
-**Numerical experiments in curved-surface paths, sensitivity and uncertainty propagation.**
+**Explore paths on curved surfaces and how small changes alter their trajectories.**
 
 [Portfolio](https://notation.systems) · [Technical reference](TECHNICAL_REFERENCE.md) ·
 [Documentation](docs) · [Contribution guide](CONTRIBUTING.md) ·
 [Copyright and licence](#copyright-and-attribution)
 
+## NET micro-tool
+
+| Identity | Value |
+| --- | --- |
+| User-facing name | **Surface Path** |
+| Proposed NET operation | `geometry.surface_path` |
+| Implementation repository | `Curved-Surface-Runtime` |
+| Existing runtime | Curved Surface Runtime / CSR; `geodesic_testbed` |
+| Current scope | Numerical trajectories, first-order variation and uncertainty experiments on supported surface models |
+
+The friendly name describes the geometry capability to expose through
+[Notations Engineering Terminal (NET)](https://github.com/giasonpooni/Notations-Engineering-Terminal).
+The operation name is an interface target, **not a newly implemented command or
+proof of an installed adapter**. Existing documented interfaces remain the
+runnable entry points. Surface Path handles the declared curved-surface models;
+**Mesh Path** is the separate tool name for intrinsic paths on supported meshes.
+
 How does a small change in a path's initial position or heading propagate as
 the path moves along a curved surface? CSR studies that question using declared
 surface models, numerical trajectories and first-order variation.
 
-![Curved Surface Runtime parametric-surface testbed](figures/surfaces-testbed-v1.png)
+![Surface Path: Curved Surface Runtime parametric-surface testbed](figures/surfaces-testbed-v1.png)
 
 *Repository experiment figure; not gameplay footage or a physical measurement.*
 
@@ -29,10 +46,10 @@ does not imply that a hosted demo or released game exists.
 
 | Field | This project |
 | --- | --- |
-| Role | Specialist geometry and path-sensitivity instrument; portfolio categories: **Research** and **Simulation**. |
+| Role | Specialist geometry and path-sensitivity tool; portfolio categories: **Research** and **Simulation**. |
 | Author's work | Mathematical formulation, computational implementation, transfer-map and covariance experiments, reference comparisons and diagnostics. |
-| Runtime identity | Existing **`geodesic_testbed`** package and interfaces; portfolio branding does not rename them. |
-| Status | Research software with bounded supported surface models and explicitly documented numerical limits. |
+| Runtime identity | Existing **`geodesic_testbed`** package and interfaces; the micro-tool name does not rename them. |
+| Status | Research software with bounded supported surface models and explicitly documented numerical limits; NET alias registration is separate implementation work. |
 
 ## What this contributes
 
@@ -45,6 +62,10 @@ In the wider workflow, NET can compose supported geometry operations while a
 Godot or Bevy project owns its interactive state and Blender owns authored assets.
 These are integration applications, not a claim that CSR already accepts any
 Blender mesh or provides a universal game-navigation solver.
+
+Evidence, operation specifications, execution attempts and verification records
+remain distinct. This naming update changes no numerical contract, integration
+availability, evidence-admission rule or release authority.
 
 ## Quickstart and technical reference
 
