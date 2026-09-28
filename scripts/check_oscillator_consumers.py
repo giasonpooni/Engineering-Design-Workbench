@@ -136,7 +136,8 @@ def run(command, out: Path, report: dict, *, stdin=None, expected=0, timeout=120
             entry[suffix] = {"file": path.name, "sha256": file_digest(path)}
         entry["exit_code"] = completed.returncode
         if completed.returncode != expected:
-            raise RuntimeError(f"command {index} exited {completed.returncode}, expected {expected}; see retained logs")
+            diagnostic = (completed.stderr or completed.stdout)[-8192:].decode("utf-8", "replace")
+            raise RuntimeError(f"command {index} exited {completed.returncode}, expected {expected}; retained log tail:\n{diagnostic}")
         entry["status"] = "completed"
         return completed.stdout
     finally:
@@ -209,7 +210,19 @@ def qualify(args, out, report):
     project = relocated
     library = project / "bin/libciw_oscillator_kernel.so"
     extension = project / "bin/libciw_oscillator_godot.so"
-    run([tools["godot"], "--headless", "--editor", "--path", project, "--import"], out, report)
+    # An empty-project control distinguishes basic editor startup from extension
+    # startup. Godot issue #111048 documents a cold-cache documentation shutdown
+    # race. Its import-only frame delay is explicit, bounded by the process
+    # timeout, and never applied to the subsequent numerical runtime commands.
+    control = out / "empty-editor-control"
+    control.mkdir()
+    (control / "project.godot").write_text("config_version=5\n")
+    run([tools["godot"], "--headless", "--editor", "--path", control, "--import"], out, report)
+    run([tools["godot"], "--headless", "--editor", "--path", project,
+         "--import", "--frame-delay", "1000"], out, report)
+    report["editor_startup"] = {"empty_project": "passed", "extension_import": "passed",
+        "import_frame_delay_ms": 1000, "runtime_frame_delay_ms": 0,
+        "workaround_reference": "godotengine/godot#111048"}
     command = [tools["godot"], "--headless", "--path", project, "--script", "res://probe.gd", "--"]
     for name in ("godot", "godot-repeat"):
         run(command + ["probe", source_sha, native / "cases.tsv", out / (name + ".json")], out, report)
