@@ -108,8 +108,8 @@ def test_independent_rational_posterior_reference(cases):
     residual=[F(1),F(-3)]
     mean=[F(50)+p*sum(inv[i][j]*residual[j] for j in range(2)) for i in range(2)]
     cov=[[p*(i==j)-p*p*inv[i][j] for j in range(2)] for i in range(2)]
-    assert data['unprojected_estimate']['values']==pytest.approx([float(x) for x in mean],abs=1e-12)
-    for i in range(2):assert data['unprojected_estimate']['covariance'][i]==pytest.approx([float(x) for x in cov[i]],abs=1e-12)
+    assert data['unprojected_estimate']['values']==pytest.approx([float(x) for x in mean],rel=0.0,abs=1e-12)
+    for i in range(2):assert data['unprojected_estimate']['covariance'][i]==pytest.approx([float(x) for x in cov[i]],rel=0.0,abs=1e-12)
     assert data['covariance_artifacts']['observation']['matrix'][0][1]==0.1
 
 

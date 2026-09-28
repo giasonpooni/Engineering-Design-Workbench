@@ -51,8 +51,8 @@ def validate_payload(operation_id: str, data: dict, run: dict, parameters: dict,
         from ..adapters.covariance_records import validate_jspt_payload as validator
     elif operation_id == "gte.project-circle.v1":
         from ..adapters.gte_records import validate_payload as validator
-    elif operation_id in _VALIDATORS:
-        validator = _VALIDATORS[operation_id]
     else:
-        raise ValueError("No trusted saved-payload schema is registered for this operation")
+        validator = _VALIDATORS.get(operation_id)
+        if validator is None:
+            raise ValueError(f"No trusted saved-payload schema for {operation_id}")
     validator(operation_id, data, run, parameters, selection)
