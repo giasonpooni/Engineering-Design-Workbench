@@ -1,4 +1,27 @@
-# Observability and Identifiability Testbed
+# Observability Check
+
+**Inspect which state or parameter directions a declared model can distinguish.**
+
+| NET micro-tool | Identity and scope |
+| --- | --- |
+| User-facing name | **Observability Check** |
+| Proposed NET operation family | `diagnostics.observability` |
+| Implementation repository | `Observability-Identifiability-Testbed` |
+| Existing provider and import | Observability and Identifiability Testbed / OIT; `oit` |
+| Existing APIs | `lti_observability`, `local_identifiability`, `rank_diagnostics` |
+| Current boundary | Finite-horizon discrete-time linear observability and local parameter-sensitivity diagnostics |
+
+`diagnostics.observability` is the agreed NET-facing target, **not a newly
+registered command or a global identifiability certificate**. Use the existing
+`oit` functions and examples below. Rank and conditioning depend on the supplied
+model, coordinate scales, horizon, evaluation point and numerical tolerances.
+A full-rank matrix alone does not establish practical sensor adequacy.
+
+NET owns session composition and dispatch; this provider owns observability and
+local information diagnostics. **Sensor Placement** ranks supplied alternatives;
+this tool does not choose or install sensors. Evidence, operation specifications,
+execution attempts and verification records remain distinct. Repository URLs,
+imports, schemas, historical pins and licence terms are unchanged.
 
 [Notations Engineering Terminal (CIW)](https://github.com/giasonpooni/Notations-Engineering-Terminal) · [Stack placement and ownership](docs/STACK.md) · [Diagram atlas](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/main/docs/DIAGRAMS.md) · [License](LICENSE)
 
