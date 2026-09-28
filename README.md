@@ -1,4 +1,26 @@
-# Fault Detection and Isolation Runtime
+# Fault Monitor
+
+**Monitor residuals and changes while retaining thresholds, uncertainty and diagnostic state.**
+
+| NET micro-tool | Identity and scope |
+| --- | --- |
+| User-facing name | **Fault Monitor** |
+| Proposed NET operation family | `diagnostics.faults` |
+| Implementation repository | `Fault-Detection-Isolation-Runtime` |
+| Existing provider and import | Fault Detection and Isolation Runtime / FDIR; `fdir` |
+| Existing operations | `evaluate_residual` and `cusum_step` |
+| Current boundary | Statistical anomaly detection; physical fault confirmation and cause isolation are not implemented |
+
+`diagnostics.faults` is the agreed NET-facing target, **not a newly installed
+command, automatic diagnosis service or live equipment-control adapter**. Use
+the standalone functions and examples below. A threshold crossing is an anomaly,
+not proof of a broken component; a nominal result is not proof of correct operation.
+
+NET owns session composition and dispatch; this provider owns residual statistics
+and explicit CUSUM transitions. Callers own the chosen scalar stream and prior
+monitor state. Evidence, operation specifications, execution attempts and
+verification records remain distinct. Repository URLs, imports, contracts,
+existing status codes and licence terms are unchanged.
 
 [Notations Engineering Terminal (CIW)](https://github.com/giasonpooni/Notations-Engineering-Terminal) · [Stack placement and ownership](docs/STACK.md) · [License](LICENSE)
 
