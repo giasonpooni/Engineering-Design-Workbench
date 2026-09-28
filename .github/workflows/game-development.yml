@@ -33,7 +33,7 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install -e '.[dev]' build
       - name: New contracts and existing controls/projectile Session regressions
-        run: python -m pytest -q tests/test_game_trace.py tests/test_game_session.py tests/test_control_plane.py tests/test_interactive_contract.py tests/test_interactive_session.py -o addopts= --junitxml=game-tests.xml
+        run: python -m pytest -q tests/test_game_trace.py tests/test_game_session.py tests/test_game_retention.py tests/test_control_plane.py tests/test_interactive_contract.py tests/test_interactive_session.py -o addopts= --junitxml=game-tests.xml
       - name: Require nonempty, unskipped qualification
         shell: bash
         run: |
@@ -54,7 +54,7 @@ jobs:
           subprocess.run([sys.executable, '-m', 'pip', 'install', '--force-reinstall', '--no-deps', str(wheel)], check=True)
           with tempfile.TemporaryDirectory() as tmp:
               root = pathlib.Path(tmp)
-              for name in ('test_game_trace.py', 'test_game_session.py'):
+              for name in ('test_game_trace.py', 'test_game_session.py', 'test_game_retention.py'):
                   shutil.copy2(pathlib.Path('tests') / name, root / name)
               env = {k:v for k,v in os.environ.items() if k != 'PYTHONPATH'}
               subprocess.run([sys.executable, '-m', 'pytest', '-q', str(root), '-o', 'addopts=', '--junitxml=' + str(pathlib.Path('game-installed.xml').resolve())], cwd=root, env=env, check=True)
