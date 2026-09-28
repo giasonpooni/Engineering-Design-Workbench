@@ -11,8 +11,8 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 35
     env:
-      CARGO_TARGET_DIR: ${{ runner.temp }}/scr-target
-      JULIA_DEPOT_PATH: ${{ runner.temp }}/julia-depot
+      CARGO_TARGET_DIR: ${{ github.workspace }}/../scr-target
+      JULIA_DEPOT_PATH: ${{ github.workspace }}/../julia-depot
       JULIA_NUM_THREADS: '1'
       JULIA_PKG_PRECOMPILE_AUTO: '0'
     steps:
