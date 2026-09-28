@@ -1,4 +1,28 @@
-# Jacobian and Sensitivity Propagation Testbed
+# Sensitivity
+
+**Measure how input changes affect model outputs, derivatives and propagated uncertainty.**
+
+| NET micro-tool | Identity and scope |
+| --- | --- |
+| User-facing name | **Sensitivity** |
+| Proposed NET operation family | `math.sensitivity` |
+| Implementation repository | `Jacobian-Sensitivity-Testbed` |
+| Existing provider and import | Jacobian and Sensitivity Propagation Testbed / JSPT; `sensitivity` |
+| Existing covariance operation | `jspt.covariance-propagate.v1` via `sensitivity.ciw_adapter` |
+| Current boundary | Local first-order derivatives, explicit compositions, coordinate consistency and covariance propagation |
+
+`math.sensitivity` is the friendly discovery/operation-family target. It does
+**not** rename the versioned covariance endpoint or establish a new installed
+alias. Use the library APIs and runnable subprocess example below. The covariance
+endpoint accepts a supplied Jacobian; accepting that matrix is not derivative
+verification. Local sensitivity is not a global nonlinear guarantee.
+
+NET owns session composition and dispatch; this provider owns derivative and
+covariance mathematics. Evidence, operation specifications, execution attempts
+and verification records remain distinct. Package imports, versioned contracts,
+retained artifacts and licence terms are unchanged. The older repository URL
+`Jacobian-Sensitivity-Propagation-Testbed` is historical; the checkout commands
+below use the current repository name.
 
 Part of **Notation Systems' computational instrumentation and evidence infrastructure** for industrial and cyber-physical systems.
 
@@ -71,8 +95,8 @@ Python 3.12 or 3.13 and NumPy are required. [uv](https://docs.astral.sh/uv/)
 is the supported runner; a plain virtual environment also works.
 
 ```bash
-git clone https://github.com/giasonpooni/Jacobian-Sensitivity-Propagation-Testbed.git
-cd Jacobian-Sensitivity-Propagation-Testbed
+git clone https://github.com/giasonpooni/Jacobian-Sensitivity-Testbed.git
+cd Jacobian-Sensitivity-Testbed
 uv run --python 3.13 python examples/quickstart.py
 uv run --python 3.13 --with pytest pytest -q
 ```
