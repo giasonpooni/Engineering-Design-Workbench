@@ -54,8 +54,16 @@ def main():
             check(name + ": failed attempt retained", load(directory / "attempt-0001.json")["status"] == "rejected")
             check(name + ": corrected attempt retained", load(directory / "attempt-0002.json")["status"] == "accepted")
         campaigns[name] = {k: report[k] for k in ("status", "attempt_count", "execution_count", "result_count")}
-        if workspace["results"]:
-            captures[name] = workspace["results"][-1]
+        # Select this work order's final candidate by its retained receipt, not
+        # the last Session result (which may be the downstream regression).
+        candidate_ref = report["jobs"]["courier-candidate"]["attempts"][-1]
+        candidate_receipt = load(directory / candidate_ref["name"])
+        candidate_graph = load(directory / candidate_receipt["graph"]["name"])
+        candidate_payload = candidate_graph["nodes"]["candidate"]
+        if candidate_payload["status"] == "completed":
+            captures[name] = candidate_payload["result"]
+            check(name + ": comparison selects primary candidate", captures[name]["parameters"]["nonce"] ==
+                  specification["jobs"][0]["attempts"][candidate_receipt["attempt_index"]]["nodes"][0]["parameters"]["nonce"])
         return report
     campaign("baseline", "none", True, "accepted", 2)
     campaign("early-knowledge-repair", "early-knowledge", True, "accepted", 3)
