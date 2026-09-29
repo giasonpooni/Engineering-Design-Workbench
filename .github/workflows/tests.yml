@@ -68,6 +68,7 @@ jobs:
       - run: python -m build
       - run: python -m twine check --strict dist/*
       - run: python scripts/check_release.py
+      - run: python scripts/verify_built_bundle.py
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
           name: clocksync-release-bundle
