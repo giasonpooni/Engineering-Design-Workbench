@@ -1,0 +1,26 @@
+{
+  "offset": {
+    "source_frame": {"clock_id": "synthetic:device", "time_scale": "device-monotonic", "unit": "s"},
+    "reference_frame": {"clock_id": "synthetic:reference", "time_scale": "reference-monotonic", "unit": "s"},
+    "observation": {"device_time": 1003.0, "evidence_id": "synthetic:offset-observation"},
+    "model": {"model_id": "synthetic:offset-model", "device_origin": 1000.0, "reference_origin": 200.0, "skew": 1.0, "offset": 0.25, "valid_device_interval": [1000.0, 1010.0], "synchronization_evidence_ids": ["synthetic:sync-evidence"]},
+    "joint_covariance": [[0.000001, 0, 0], [0, 0, 0], [0, 0, 0.000004]],
+    "require_synchronization_evidence": true
+  },
+  "drift": {
+    "source_frame": {"clock_id": "synthetic:device", "time_scale": "device-monotonic", "unit": "s"},
+    "reference_frame": {"clock_id": "synthetic:reference", "time_scale": "reference-monotonic", "unit": "s"},
+    "observation": {"device_time": 1500.0, "evidence_id": "synthetic:drift-observation"},
+    "model": {"model_id": "synthetic:drift-model", "device_origin": 1000.0, "reference_origin": 200.0, "skew": 1.00002, "offset": 0, "valid_device_interval": [1000.0, 2000.0], "synchronization_evidence_ids": ["synthetic:sync-evidence"]},
+    "joint_covariance": [[0.000001, 0, 0], [0, 0.0000000001, 0], [0, 0, 0]],
+    "require_synchronization_evidence": true
+  },
+  "correlated": {
+    "source_frame": {"clock_id": "synthetic:device", "time_scale": "device-monotonic", "unit": "s"},
+    "reference_frame": {"clock_id": "synthetic:reference", "time_scale": "reference-monotonic", "unit": "s"},
+    "observation": {"device_time": 1003.0, "evidence_id": "synthetic:correlated-observation", "received_at": {"value": 203.5, "frame": {"clock_id": "synthetic:reference", "time_scale": "reference-monotonic"}}, "known_at": {"value": 204.0, "frame": {"clock_id": "synthetic:reference", "time_scale": "reference-monotonic"}}},
+    "model": {"model_id": "synthetic:correlated-model", "device_origin": 1000.0, "reference_origin": 200.0, "skew": 1.00002, "offset": 0.0003, "valid_device_interval": [1000.0, 1010.0], "synchronization_evidence_ids": ["synthetic:sync-evidence"]},
+    "joint_covariance": [[0.000001, 0.000000002, 0], [0.000000002, 0.0000000001, -0.000000005], [0, -0.000000005, 0.000004]],
+    "require_synchronization_evidence": true
+  }
+}

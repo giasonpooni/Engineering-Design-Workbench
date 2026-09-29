@@ -1,20 +1,78 @@
 name: tests
-on: [push, pull_request]
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+  workflow_call:
 permissions:
   contents: read
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ${{ matrix.os }}
     strategy:
+      fail-fast: false
       matrix:
-        python: ["3.11", "3.12"]
+        include:
+          - {os: ubuntu-latest, python: '3.11'}
+          - {os: ubuntu-latest, python: '3.12'}
+          - {os: ubuntu-latest, python: '3.13'}
+          - {os: windows-latest, python: '3.12'}
+          - {os: macos-latest, python: '3.12'}
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
         with:
           python-version: ${{ matrix.python }}
-      - run: python -m pip install -e '.[dev,exchange]'
-      - run: python -m pytest
+      - run: python -m pip install '.[dev]'
+      - run: python -m pytest -o pythonpath= --junitxml=test-results.xml
       - run: python examples/replay.py
-      - run: python examples/exchange.py
       - run: clocksync examples/clocksync.json --compact
+      - run: python -m tbrt --version
+  minimum-numpy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.11'
+      - run: python -m pip install numpy==1.24.0 '.[dev]'
+      - run: python -m pytest -o pythonpath=
+  exchange:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - run: python -m pip install '.[dev]' -r requirements-exchange.txt
+      - run: python -c "import state_estimation_testbed.contracts"
+      - run: python -m pytest -o pythonpath=
+      - run: python examples/exchange.py
+  distributions:
+    needs: [test, minimum-numpy, exchange]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - run: python -m pip install '.[release]'
+      - run: python -m build
+      - run: python -m twine check --strict dist/*
+      - run: python scripts/check_release.py
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        with:
+          name: clocksync-release-bundle
+          path: |
+            dist/
+            release-evidence.json
+          if-no-files-found: error
+          retention-days: 30

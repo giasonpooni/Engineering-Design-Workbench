@@ -1,25 +1,48 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "notations-clocksync"
 version = "0.1.0"
-description = "Bounded affine clock reconciliation with covariance propagation and retained source timestamps."
+description = "Affine clock reconciliation with joint uncertainty propagation and retained source timestamps."
 readme = "README.md"
 requires-python = ">=3.11"
-license = {text = "MPL-2.0"}
+license = "MPL-2.0"
+license-files = ["LICENSE", "NOTICE.md"]
+authors = [{name = "Bespoke Polymer Inc."}]
+keywords = ["clock", "timestamp", "uncertainty", "metrology", "telemetry"]
+classifiers = [
+  "Development Status :: 4 - Beta",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Programming Language :: Python :: 3.13",
+  "Topic :: Scientific/Engineering",
+]
 dependencies = ["numpy>=1.24"]
+
+[project.urls]
+Homepage = "https://github.com/giasonpooni/Notations-ClockSync"
+Documentation = "https://github.com/giasonpooni/Notations-ClockSync/blob/main/README.md"
+Repository = "https://github.com/giasonpooni/Notations-ClockSync"
+Issues = "https://github.com/giasonpooni/Notations-ClockSync/issues"
+Changelog = "https://github.com/giasonpooni/Notations-ClockSync/blob/main/CHANGELOG.md"
 
 [project.scripts]
 clocksync = "tbrt.cli:main"
 
 [project.optional-dependencies]
-dev = ["pytest>=7"]
-exchange = ["state-estimation-testbed @ git+https://github.com/giasonpooni/State-Estimation-Evaluation-Testbed.git@bd261a765281a95312f7c91a3857233476294c5b"]
+dev = ["pytest>=8"]
+release = ["build>=1.2", "twine>=6", "packaging>=24"]
+# Compatibility marker only. Install the audited source pin separately; see README.
+exchange = []
 
 [tool.setuptools.packages.find]
 where = ["src"]
+
+[tool.setuptools.package-data]
+tbrt = ["examples.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
