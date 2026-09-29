@@ -21,7 +21,8 @@ MAX_SAMPLES = 65536
 SCHEMAS = {f"ciw.{name}.v1" for name in (
     "state", "observation", "artifact", "experiment", "comparison", "verification",
     "checkpoint", "parameter-space", "graph-run", "observation-stream",
-    "annotation", "annotation-stream")}
+    "annotation", "annotation-stream", "investigation-efficiency",
+    "investigation-comparison")}
 
 
 def text(value: Any) -> str:
