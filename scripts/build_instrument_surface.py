@@ -10,6 +10,7 @@ from copy import deepcopy
 import hashlib
 import html
 import json
+import math
 import os
 from pathlib import Path
 import platform
@@ -76,7 +77,8 @@ def build_specimen(output: Path) -> dict:
 
     request = example_payload("offset")
     result = reconcile_payload(request)
-    if result["event_time"] != 203.25 or result["variance"] != 0.000005:
+    if result["event_time"] != 203.25 or not math.isclose(
+            result["variance"], 0.000005, rel_tol=1e-12, abs_tol=1e-15):
         raise AssertionError("canonical ClockSync specimen changed")
     if result["operation_id"] != manifest()["operation"]["id"]:
         raise AssertionError("specimen operation identity differs from manifest")
