@@ -3,13 +3,16 @@ requires = ["setuptools>=68"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "time-base-reconciliation-runtime"
+name = "notations-clocksync"
 version = "0.1.0"
 description = "Bounded affine clock reconciliation with covariance propagation and retained source timestamps."
 readme = "README.md"
 requires-python = ">=3.11"
 license = {text = "MPL-2.0"}
 dependencies = ["numpy>=1.24"]
+
+[project.scripts]
+clocksync = "tbrt.cli:main"
 
 [project.optional-dependencies]
 dev = ["pytest>=7"]
