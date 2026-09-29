@@ -12,7 +12,25 @@
     "id": "tbrt.affine-clock-reconcile.v1",
     "semantic_capability": "time.sync.v1",
     "purpose": "Apply a caller-supplied affine clock mapping while retaining the original timestamp and propagating joint timing uncertainty.",
-    "deterministic_given_inputs": true
+    "deterministic_given_inputs": true,
+    "kind": "compute",
+    "effects": ["read:timestamp-observation", "write:derived-time-coordinate"]
+  },
+  "provider": {
+    "id": "org.notationsystems.clocksync",
+    "runtime_family": "python",
+    "execution_profile": "scientific",
+    "execution_mode": "headless",
+    "resources": ["cpu"],
+    "priority": 100,
+    "ports": {
+      "inputs": {
+        "request": {"schema": "notations.clocksync.request.v1", "unit": null, "frame": null}
+      },
+      "outputs": {
+        "result": {"schema": "notations.clocksync.result.v1", "unit": null, "frame": null}
+      }
+    }
   },
   "implementation": {
     "language": "Python",
