@@ -1,82 +1,150 @@
 # Public positioning and profile copy
 
-Editorial source: 29 September 2026. This document supplies public copy; it does not change GitHub account settings, domain deployments, legal status or licences.
+Editorial source: 29 September 2026. This document supplies public copy; it does not change GitHub account settings, domain deployments, legal status, ownership or licences.
+
+## Institutional architecture
+
+The current **conceptual** structure is:
+
+```text
+Cartesian Graphics
+private ownership / commercialization layer (proposed)
+        │
+        ├── proprietary games, simulation products and project-specific IP
+        └── Notation Systems
+            public-interest scientific instrumentation commons (mission)
+```
+
+This is an institutional design direction, **not a statement that a parent company, subsidiary, nonprofit, charity, public-benefit corporation or IP transfer legally exists today**. Until those arrangements are actually executed, describe Cartesian Graphics and Notation Systems by their missions and intended boundary rather than asserting a legal parent/subsidiary relationship.
+
+The inversion changes organizational framing, not scientific architecture. Existing repositories, authorship, copyright notices, licences, contracts, historical identities and evidence remain where they are unless separately transferred.
 
 ## Notation Systems
 
-**Frontier Tooling and Instrumentation for Digital Futures.**
+**Public-Interest Computational Instrumentation.**
 
-Notation Systems develops computational instruments and operational tooling that connect scientific methods, specialized computation and human expertise. Our work spans measurement, state estimation, simulation, scientific computing and reproducible engineering workflows.
+Notation Systems develops accessible computational instruments for representing, measuring, simulating and investigating physical systems. Its public-interest programme includes scientific software, research, education, reproducible experiments, reference implementations, academic collaboration and shared technical infrastructure.
 
-We build useful tools while studying how representations, uncertainty, computation and evidence behave when those tools are composed. Our aim is to lower the practical cost of sophisticated technical work—not to claim a universal model of every domain.
+A useful operating principle is:
+
+> **Make structure operable.**
+
+More concretely: develop computational instruments that extend what people can observe, represent, calculate, simulate and verify.
 
 ### Short About
 
-Frontier tooling and instrumentation for digital futures. Computational instruments, scientific software and operational workflows connecting measurement, models, AI and specialist tools.
+Public-interest computational instrumentation: accessible scientific tools for measurement, representation, simulation, inference and verification.
 
-### Public-interest direction
+### Commons boundary
 
-Accessible tools, inspectable methods, reproducible experiments and reusable interfaces are development goals. Nonprofit incorporation and organizational structure remain decisions to be established separately. Do not publish "registered nonprofit", "charity", "foundation", donation eligibility or tax status as established facts without confirmation.
+Candidate commons include numerical primitives, state-estimation instruments, DSP, geometry/geodesy, scientific data structures, verification frameworks, interchange specifications, reference implementations, educational instruments, benchmark datasets and research publications.
 
-Free access, open source, public repository visibility, charitable status and unrestricted redistribution are different things. Each repository and artifact retains its applicable terms. This copy grants no rights and transfers no ownership.
+This is a portfolio/governance direction, not a blanket relicensing decision. Each repository, dataset and artifact retains its current terms until an explicit governance/IP decision changes them.
 
 ## Notations Terminal
 
-**Compose scientific instruments, models and simulations into inspectable engineering workflows.**
+**A programmable computational instrument for composing scientific tools, models and simulations into inspectable workflows.**
 
-Notations Terminal is the programmable workbench and coordination layer. It retains investigations and dispatches supported operations while specialist tools keep their implementations and applications keep their own state. Human intent may arrive as code, models or annotations; general natural-language and mathematical compilation remain capability-specific development work.
+NET is a boundary object between the commons and its users. Its open substrate can expose typed operation contracts, investigation/session state, retained results and checks while particular datasets, workloads, models, customer configurations, worlds, assets and services remain separately governed.
+
+NET does not become a second canonical evidence ledger, a universal source-to-source compiler or an automatic authority over machines.
 
 ### Short About
 
-A programmable workbench for composing scientific instruments, models, simulations and bounded agent workflows, with retained inputs, results and checks.
+A programmable computational instrument for composing scientific tools, models and simulations with retained inputs, results and checks.
+
+## Computational-instrument grammar
+
+The programme increasingly organizes around domain-independent operations rather than industry-specific repositories:
+
+```text
+Acquire → State
+           ├── Retrieve
+           ├── Transform
+           └── Simulate
+                 ↓
+               Verify
+                 ↓
+               Project
+          human / agent / machine
+```
+
+Energy, geospatial computation and game/simulation worlds are valuable cross-domain testbeds because they stress different properties of the same substrate: physical flow/conservation, place/reference frames, and executable worlds/ground truth respectively. Rendering is treated as a projection from state into an interrogable representation; verification remains separate from presentation.
+
+This grammar is a research architecture, not a claim that every operator or cross-domain adapter is already implemented.
 
 ## Instruments
 
 **Small scientific operations, explicit assumptions, reusable interfaces.**
 
-Each instrument should identify the problem it solves, its current numerical scope, one runnable specimen, a failure or refusal case and the evidence behind its results. Display names improve discovery; they do not rename imports, operation contracts or historical records.
+Prefer domain-independent primitives—state estimation, clock synchronization, frame transformation, signal processing, graph traversal, uncertainty, conservation, verification and projection—then compose domain-specific workloads over them.
 
-An instrument's research profile asks one bounded question about its behavior. It is not a claim that every README now has telemetry, a benchmark, a proof or an installed Terminal adapter.
+Each instrument should identify the problem it solves, current numerical scope, a runnable specimen, refusal/failure cases and evidence behind its results. Display names improve discovery; they do not rename imports, operation contracts or historical records.
 
 ## Cartesian Graphics
 
-**Interactive Worlds, Simulation Technology and Digital IP.**
+**Private Creative, Simulation and Commercial IP Programme.**
 
-Cartesian Graphics develops historically grounded games, interactive worlds and the graphics, simulation and production technology behind them. Its private creative and technology-IP direction is distinct from Notation Systems' public-interest tooling direction. Rights and licensing are established per asset, contribution and dependency—not inferred from the label.
+Cartesian Graphics develops historically grounded games, interactive worlds, simulation technology, production systems and other commercial/project-specific IP. Under the proposed institutional model it is the **intended private ownership/commercialization layer** and could eventually support the Notation Systems commons.
 
-1792 is the primary creative project. Hero of the Two Worlds is developed secondarily and gradually; Geronimo remains on hold. Projects must be evaluated for playable quality, artistic direction and their own production goals, not only as software benchmarks.
+That ownership relationship is not represented as legally completed until appropriate entities, assignments and agreements exist.
 
-Shared tools can connect the programmes without merging industrial evidence with fictional world state, public infrastructure with private assets, or authorship with legal ownership. This document does not assert a separately incorporated subsidiary, an IP holding company or a legal separation that has not been completed.
+1792 remains the primary creative project. Hero of the Two Worlds is secondary; Geronimo remains on hold. Cartesian can use public scientific instruments as a demanding production consumer while preserving game-owned state, assets, narrative, saves, creative direction and release decisions.
+
+Games/simulation also provide controllable synthetic ground truth for testing estimation, delayed information, partial observability, mapping and control. Such results remain simulation evidence until separately validated for physical systems.
 
 ### Short About
 
-Interactive worlds, simulation technology and digital IP. Historically grounded games and the graphics, assets and production tools that bring them to life.
+Private creative, simulation and commercial IP programme developing interactive worlds, digital assets and production technology.
 
-## Operational domain identities
+## Commercial/application consumers
 
-| Identity | Public description |
+PAYLOAD, Caravan, LANDSHARK, TRADEWIND and future industrial applications are best treated as **consumers of instrumentation**, not definitions of Notation Systems itself.
+
+| Identity | Application role |
 | --- | --- |
 | PAYLOAD | Physical-economy and operational context linking organizations, facilities, materials, shipments and network dependencies. |
-| Caravan | Logistics and shipment workflows, including explicitly scoped exception-monitoring and reconciliation work. |
-| LANDSHARK | Industrial land and site context: parcels, facilities, access and spatial or development constraints. |
+| Caravan | Logistics and shipment workflows, including scoped exception-monitoring and reconciliation work. |
+| LANDSHARK | Industrial land/site context: parcels, facilities, access and spatial/development constraints. |
 | TRADEWIND | Material, contract, price and exposure analysis under declared sources and assumptions. |
-| PayloadOS / State Ledger | Governed evidence and state infrastructure; not replaced by the Terminal. |
-| Dossier Services | Scoped assembly and delivery of permitted reports and evidence packages. |
+| PayloadOS / State Ledger | Governed evidence/state infrastructure; not replaced by NET. |
+| Dossier Services | Scoped assembly and delivery of permitted reports/evidence packages. |
 
-These descriptions state roles, not a claim of deployed customer services, live commercial feeds, independent verification or unrestricted publication rights.
+Whether any of these ultimately sit legally under Cartesian Graphics, another operating entity or a contractual arrangement remains unresolved.
+
+## Public/private transfer boundary
+
+A healthy target is:
+
+```text
+Notation Systems commons
+        │
+        ├── university research
+        ├── industry users
+        └── Cartesian Graphics
+                 │
+                 └── commercial products
+                         │
+                         └── support / feedback / improved commons
+```
+
+Technology transfer must be explicit. Academic collaboration requires clear treatment of background IP, foreground IP, contributor rights, publication rights, patents, trademarks, datasets and commercial-use rights.
+
+The next governance exercise should classify repositories, datasets, trademarks, workloads and future outputs as **commons**, **commercial**, **dual-use/shared** or **project-specific** before legal restructuring.
 
 ## Domain roles
 
-- `notation.systems`: public organization, research, instruments and project discovery. Preserve the read-only public shell and synthetic globe boundary.
-- `notationsystems.com`: organizational/commercial identity; not a separate organization by implication.
-- `notations.io`: intended hosted Terminal/workspace entry point. Announce availability only after the actual service, authentication and access boundaries are verified.
+- `notation.systems`: intended public organization/research/instrument discovery shell. Preserve the read-only public shell and synthetic globe boundary.
+- `notationsystems.com`: reserved organizational identity; do not infer a separate legal entity or commercial owner from the domain.
+- `notations.io`: intended hosted Terminal/workspace entry point; announce availability only after the service and access boundaries are verified.
+- Cartesian Graphics' eventual corporate/domain structure remains a separate legal and operational decision.
 
-This documentation does not deploy any site. Operational credentials, private records, execution authority and authenticated providers remain outside the public shell. PAYLOAD, LANDSHARK and TRADEWIND are identities, not new operational launchers in that bundle.
+This documentation deploys no site and grants no access to credentials, private records, providers or machine controls.
 
 ## Claim discipline
 
-Use "implemented" only for an identified source revision; distinguish default checkout, unmerged prototype, release candidate and published release. Use "measured" only with experiment conditions and retained results. Use "proof" only for a specified theorem and its assumptions; tests and hashes are not mathematical or physical proof.
+Use "implemented" only for an identified source revision; distinguish default checkout, unmerged prototype, release candidate and published release. Use "measured" only with retained experimental conditions. Use "proof" only for a specified proposition and assumptions.
 
-CUDA is an optional implementation boundary, not a property of all four languages or every instrument. Shared wrappers around one kernel provide interoperability checks, not four independent algorithms. Unknown token, time, energy and cost measurements remain unknown, not zero. No demonstrated maximum yield, minimum representation or civilization-scale effect is claimed.
+CUDA is provider-specific. Shared wrappers around one kernel are not independent algorithms. Unknown token, time, energy and cost remain unknown. No maximum yield, minimum representation, universal computational grammar theorem or simulation-to-reality validity is claimed.
 
-The primary project READMEs remain the source for runnable scope and limitations. This profile document is the common editorial vocabulary, not a new registry, runtime or evidence store.
+The project READMEs remain authoritative for runnable scope and limitations. This profile is common editorial vocabulary, not a new registry, runtime, legal entity or evidence store.
