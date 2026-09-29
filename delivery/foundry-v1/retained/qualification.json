@@ -1,0 +1,128 @@
+{
+  "schema": "ciw.foundry-native-qualification.v1",
+  "status": "PASS",
+  "godot_sha256": "sha256:db07cae7de644278a1884d4552bdf2bca3f5d30131b18faf3a0c4d730080b199",
+  "normal_source_lock": {
+    "schema": "ciw.foundry-source-lock.v1",
+    "profile": "1792.water-round.v1",
+    "files": {
+      "characters/character_names.gd": "sha256:c6f39cc8bb3eeea51bd8c6427c4be0f7af0a13a272ffb39a4891cd5545578df6",
+      "childhood/aftermath_state.gd": "sha256:88e3a0f8e51b72ca7a62bf8d0968c71da82088bc2ed0dbabd966311ff95397c5",
+      "childhood/childhood_state.gd": "sha256:141ffd2f9daed01bbea1349f90f2f7a844bc0dbeec0a803c3c3f5861f3729a05",
+      "mounts/riding_rules.gd": "sha256:ab30c0cbd899de7d97c3c6ee25b97376128feb3bb48061bd2f1451163654a79a",
+      "patrol/companion_rules.gd": "sha256:425914a00cfd836f1a3b13a3dced5cfe1c1babe57ff31c464774bc55b33f9f95",
+      "territory/gujranwala_state.gd": "sha256:1b1c4f73c6871bc48af52e1776ac26a1c7d452cb8b5663532cd0b9799f46d4f8",
+      "territory/misl_rules.gd": "sha256:3b98cbfc262963ffb38da42ce8249fc308b9d4e40b534cf2ef715b828ed9b75d",
+      "territory/water_round_rules.gd": "sha256:8fd783a36d56d8a8e9b4b2c891b0bae5a6cb66572fd145edbe6dc8a5af57db12",
+      "tests/aftermath_fixture.gd": "sha256:5f764b6aab9e3fd0d77364b9258b53b4cb9bf887f5706f9b1944eaed7787dd85",
+      "tests/gujranwala_fixture.gd": "sha256:2d53a9bf9699c8810b5021b103f4e133c770378503febb99c6e813f066ff7384",
+      "foundry/water_round.gd": "sha256:44a938ed225f240f7faadfbc8ef3d5bb13414061b9ce4fbf9fe798a33ca19cf0"
+    },
+    "project_sha256": "sha256:b6da2b7c30d4a03877ef7a3a94767e3baa060182bac3b7a2af12df494f398033",
+    "source_lock_id": "sha256:5f5043953c4d7b39fd9f13fc730c419e0e497ac5b39b65f51b030e6fb164246e"
+  },
+  "native_attempts": 8,
+  "capture_results": 7,
+  "campaigns": {
+    "baseline": {
+      "status": "completed",
+      "attempts": 2,
+      "results": 2,
+      "jobs": {
+        "water-round": "accepted",
+        "water-round-regression": "accepted"
+      }
+    },
+    "repair": {
+      "status": "completed",
+      "attempts": 3,
+      "results": 3,
+      "jobs": {
+        "water-round": "accepted",
+        "water-round-regression": "accepted"
+      }
+    },
+    "exhausted": {
+      "status": "incomplete",
+      "attempts": 1,
+      "results": 1,
+      "jobs": {
+        "water-round": "rejected",
+        "water-round-regression": "blocked"
+      }
+    },
+    "missing-output": {
+      "status": "incomplete",
+      "attempts": 1,
+      "results": 1,
+      "jobs": {
+        "water-round": "held",
+        "water-round-regression": "blocked"
+      }
+    },
+    "native-refusal": {
+      "status": "incomplete",
+      "attempts": 1,
+      "results": 0,
+      "jobs": {
+        "water-round": "refused",
+        "water-round-regression": "blocked"
+      }
+    }
+  },
+  "corrected_primary_matches_baseline": true,
+  "offline_inspection_processes": 0,
+  "original_game_source_unchanged": true,
+  "accepted_export": {
+    "schema": "ciw.foundry-export.v1",
+    "job_id": "water-round",
+    "artifact": {
+      "name": "water-round-observations.json",
+      "sha256": "sha256:47c199df4c1937cb5ea4c92f7b976b6eb6447bd8dc3b0e8577c4767e3b7b6710",
+      "bytes": 18178
+    },
+    "source_result_id": "result-02612aab96ef4b2eb5b6ed8620a43bca",
+    "source_execution_id": "execution-b270d6d48d53459ea02ee663f0ce399b",
+    "source_record_digest": "sha256:4a8b5b153a9a7e886d8b2e9a40402a557bc0244dc897a759cd3397eebbb001c7",
+    "acceptance_receipt_digest": "sha256:1f43c51a288efa9af089ac5bd94b068bc4a90cdbfe43a1d9eeb4bee3a0a136cf",
+    "source_lock_id": "sha256:5f5043953c4d7b39fd9f13fc730c419e0e497ac5b39b65f51b030e6fb164246e",
+    "verification_id": null,
+    "state_admission": "not_performed",
+    "publication": "not_performed",
+    "scope": "accepted_domain_observation_artifact_not_a_game_build_or_release",
+    "record_digest": "sha256:75c2923f276ef8f038dab7011b00a658de551bb448b51b3537d3e2fbbe91031c"
+  },
+  "metrics": {
+    "schema": "ciw.foundry-report.v1",
+    "status": "completed",
+    "integrity": "checked",
+    "accepted_jobs": 2,
+    "blocked_jobs": 0,
+    "attempts": [
+      {
+        "job_id": "water-round",
+        "status": "rejected",
+        "receipt_digest": "sha256:75a5c2d8a90861e1c91057238790776f88bb707fb31311f1676193f64d635179"
+      },
+      {
+        "job_id": "water-round",
+        "status": "accepted",
+        "receipt_digest": "sha256:1f43c51a288efa9af089ac5bd94b068bc4a90cdbfe43a1d9eeb4bee3a0a136cf"
+      },
+      {
+        "job_id": "water-round-regression",
+        "status": "accepted",
+        "receipt_digest": "sha256:96567bd69ba148e45b2187df60276dba5ffa8b5a147f2e729d384a85f844ed1f"
+      }
+    ],
+    "rejected_attempts": 1,
+    "rejection_fraction": 0.3333333333333333,
+    "captured_native_wall_s": 0.7877125030000087,
+    "human_supervisory_hours": null,
+    "model_token_cost": null,
+    "playable_minutes": null,
+    "fresh_execution": false,
+    "scope": "derived_domain_production_counters_not_studio_productivity"
+  },
+  "scope": "game-owned domain/clock/save workflow; diagnostic source copies explicitly labelled; not renderer or playability validation"
+}

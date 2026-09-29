@@ -1,5 +1,9 @@
 # Notations Engineering Terminal
 
+<!-- foundry-delivery-v1 -->
+**Foundry v1 on this branch:** [implementation and complete retained delivery](docs/NET_FOUNDRY_DELIVERY.md). Source, installable wheel, patches, and original qualification evidence are committed to Git; this is not a main-branch merge or product release.
+<!-- /foundry-delivery-v1 -->
+
 **A programmable workbench for scientific computing and game/simulation development.**
 
 **Notations Engineering Terminal (NET)** is the terminal-first workbench from
