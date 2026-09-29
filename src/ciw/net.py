@@ -122,6 +122,9 @@ def main(argv: list[str] | None = None) -> int:
     if argv and argv[0] == "object":
         from .computational_cli import main as object_main
         return object_main(argv[1:])
+    if argv and argv[0] == "semantic":
+        from .semantic_cli import main as semantic_main
+        return semantic_main(argv[1:])
     if argv and argv[0] == "workcell":
         from .workcell_cli import main as workcell_main
         return workcell_main(argv[1:])
@@ -143,6 +146,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="net", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("object", help="Inspect committed source, export bounded context, and compare retained observations")
+    commands.add_parser("semantic", help="Compile stable semantic capabilities into existing NET experiments")
     commands.add_parser("workcell", help="Operator-bound container compilation and agent work slots")
     commands.add_parser("math", help="Derive bounded covariance and innovation display diagnostics")
     commands.add_parser("view", help="Create a local interactive mathematical inspector")
