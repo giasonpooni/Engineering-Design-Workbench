@@ -1,0 +1,113 @@
+name: Single-agent smith revision measurement
+on:
+  pull_request:
+    paths:
+      - 'src/ciw/agent_experiment.py'
+      - 'scripts/run_agent_workcell_experiment.py'
+      - 'tests/test_agent_experiment.py'
+      - 'docs/SINGLE_AGENT_EXPERIMENT.md'
+      - '.github/workflows/net-single-agent.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+jobs:
+  native:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: giasonpooni/1792
+          ref: 2e1e66af5bf3fc913224a245a31478463b7b9d93
+          path: title
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[dev]' build mcp==1.26.0
+      - name: Capsule and new plus unchanged contracts
+        run: |
+          python title/tools/check_smith_workcell.py
+          python title/tools/check_project.py
+          python -m pytest -q tests/test_agent_experiment.py tests/test_workcell.py tests/test_workcell_snapshot.py tests/test_workcell_smith.py tests/test_foundry_pipeline.py tests/test_foundry.py tests/test_production.py tests/test_game_trace.py tests/test_game_session.py tests/test_game_retention.py tests/test_control_plane.py tests/test_interactive_contract.py tests/test_interactive_session.py tests/test_agent_protocol.py tests/test_computational_objects.py tests/test_computational_source.py --junitxml=agent-source.xml
+      - name: Provision immutable image before candidate execution
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/smith-image" "$RUNNER_TEMP/godot"
+          cp tools/workcell-godot/* "$RUNNER_TEMP/smith-image/"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from ciw.workcell_smith import SMITH
+          assert json.loads(Path('tools/workcell-godot/smith_recipe.json').read_text()) == {'recipe':SMITH.recipe_id,'sources':list(SMITH.source_paths),'outputs':{k:list(v) for k,v in SMITH.outputs.items()}}
+          PY
+          curl --fail --location --retry 2 --max-time 180 https://github.com/godotengine/godot-builds/releases/download/4.5.1-stable/Godot_v4.5.1-stable_linux.x86_64.zip -o "$RUNNER_TEMP/godot.zip"
+          echo "02ec53d1cc7dbb9cc6355393c61b9ab43d1244751a124f10248a4802830788cd  $RUNNER_TEMP/godot.zip" | sha256sum --check
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+          cp "$RUNNER_TEMP/godot/Godot_v4.5.1-stable_linux.x86_64" "$RUNNER_TEMP/smith-image/godot"
+          docker pull ubuntu:24.04
+          BASE=$(docker image inspect ubuntu:24.04 --format '{{index .RepoDigests 0}}')
+          echo "$BASE" > smith-base.txt
+          docker build --build-arg "BASE=$BASE" -t net-smith-qualified "$RUNNER_TEMP/smith-image"
+          docker image inspect net-smith-qualified --format '{{.Id}}' > smith-image-id.txt
+          docker image inspect net-smith-qualified > smith-image-inspect.json
+          docker version > smith-docker-version.txt
+      - run: python -m build --wheel
+      - name: Installed package and real externally authored revision through MCP
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --force-reinstall --no-deps dist/*.whl
+          export NET_WORKCELL_TEST_ROOT="$GITHUB_WORKSPACE"
+          mkdir -p "$GITHUB_WORKSPACE/results"
+          cd "$RUNNER_TEMP"
+          env -u PYTHONPATH python -c 'import ciw.workcell_smith; assert "site-packages" in ciw.workcell_smith.__file__'
+          cp "$GITHUB_WORKSPACE/tests/test_workcell"*.py .
+          cp "$GITHUB_WORKSPACE/tests/test_agent_experiment.py" .
+          env -u PYTHONPATH python -m pytest -q test_agent_experiment.py --junitxml="$GITHUB_WORKSPACE/agent-installed.xml"
+          env -u PYTHONPATH python "$GITHUB_WORKSPACE/scripts/run_agent_workcell_experiment.py" \
+            --title-root "$GITHUB_WORKSPACE/title/game" \
+            --source-profile "$GITHUB_WORKSPACE/title/tools/net/smith-workcell.profile.json" \
+            --profile-sha256 sha256:afe9f6ef3eec76126d0f56738c5ee762de6eaa8ea58b13dd5ba92b23ecd1ab8f \
+            --docker "$(command -v docker)" --image-id "$(cat "$GITHUB_WORKSPACE/smith-image-id.txt")" \
+            --response "$GITHUB_WORKSPACE/title/experiments/single-agent-smith/c01/decision.json" \
+            --response-sha256 sha256:69ad44823e778f21649e10ba66d748b2c87f7d74e8fd618fb8cf1affa35f1da2 \
+            --agent-id interactive-coding-vision-01 --output-dir "$GITHUB_WORKSPACE/results/agent"
+      - name: Require complete qualification
+        run: |
+          python - <<'PY'
+          import json,xml.etree.ElementTree as E
+          for path,n in [('agent-source.xml',643),('agent-installed.xml',20)]:
+              s=list(E.parse(path).getroot().iter('testsuite'))
+              assert sum(int(x.attrib['tests']) for x in s)>=n
+              assert all(int(x.attrib[k])==0 for x in s for k in ('failures','errors','skipped'))
+          r=json.load(open('results/agent/summary.json'))
+          assert r['experiment_status']=='measured' and r['unique_changed_candidates']==1
+          # A rejected LLM revision is a valid result; NEVER require creative success here.
+          assert r['model_cost_usd'] is None and r['accepted_revisions_per_human_hour'] is None
+          PY
+          git diff --check
+      - name: Retain exact sources and partial failures
+        if: always()
+        run: |
+          git archive --format=zip --output=smith-net-source.zip HEAD
+          git -C title archive --format=zip --output="$GITHUB_WORKSPACE/smith-title-source.zip" HEAD
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: single-agent-evidence
+          path: |
+            agent-*.xml
+            smith-*.txt
+            smith-image-inspect.json
+            smith-*-source.zip
+            dist/*.whl
+            results/agent
+          if-no-files-found: error
