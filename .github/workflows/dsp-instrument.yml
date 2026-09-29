@@ -23,6 +23,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 15
     env:
+      CIW_REQUIRE_DSP_NATIVE: '1'
       SCR_DSP_LIBRARY: ${{ github.workspace }}/build/libscr_dsp.so
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262

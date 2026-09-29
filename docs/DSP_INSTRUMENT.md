@@ -122,13 +122,15 @@ itself. Explicit numerical comparisons use the existing typed comparator.
 Run the focused native-bound NET tests:
 
 ```sh
-SCR_DSP_LIBRARY=/absolute/path/libscr_dsp.so python -m pytest -q tests/test_dsp.py
+CIW_REQUIRE_DSP_NATIVE=1 SCR_DSP_LIBRARY=/absolute/path/libscr_dsp.so python -m pytest -q tests/test_dsp.py
 ```
 
 The dedicated NET workflow compiles the pinned SCR kernel, checks regenerated
 binding identity, runs new plus unchanged game/controller/production tests, then
 repeats the new tests and real Session demo using an installed wheel outside the
-source checkout. Missing native setup fails rather than silently skipping tests.
+source checkout. Dedicated qualification sets `CIW_REQUIRE_DSP_NATIVE=1` and
+rejects missing setup and all skipped cases. Ordinary provider-free test runs
+explicitly skip optional native cases rather than requiring an installed kernel.
 Generated records, JUnit, wheel, exact NET source and native build are retained.
 
 Qualification is scoped to actual reports and revisions, not the presence of

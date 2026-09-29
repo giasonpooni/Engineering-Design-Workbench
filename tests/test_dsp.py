@@ -22,8 +22,14 @@ def source(): return make_demo_run()
 def params(): return {'channel':'q','interval_s':[0.,12.],'taps':[.25,.5,.25],'initial_history':[0.,0.],'clock_id':'oscillator-model-time'}
 @pytest.fixture
 def binding():
-    # This focused suite requires native execution. Missing setup fails, not skip.
-    path=Path(os.environ['SCR_DSP_LIBRARY'])
+    # Ordinary NET installs need no native kernel. The dedicated qualification
+    # explicitly requires it and also rejects skipped cases in its JUnit gate.
+    value=os.environ.get('SCR_DSP_LIBRARY')
+    if not value:
+        if os.environ.get('CIW_REQUIRE_DSP_NATIVE') == '1':
+            pytest.fail('Dedicated DSP qualification requires SCR_DSP_LIBRARY')
+        pytest.skip('Optional SCR DSP library not bound; dedicated DSP CI requires it')
+    path=Path(value)
     return dsp.FirBinding(path,expected_sha256='sha256:'+hashlib.sha256(path.read_bytes()).hexdigest())
 
 def call(binding,source,params):
