@@ -1,0 +1,30 @@
+{
+  "source_frame": {
+    "clock_id": "synthetic-sensor/clock-1",
+    "time_scale": "device-monotonic",
+    "unit": "s"
+  },
+  "reference_frame": {
+    "clock_id": "synthetic-reference/clock-1",
+    "time_scale": "reference-monotonic",
+    "unit": "s"
+  },
+  "observation": {
+    "device_time": 1003.0,
+    "evidence_id": "synthetic-observation-0001"
+  },
+  "model": {
+    "model_id": "synthetic-affine-map-0001",
+    "device_origin": 1000.0,
+    "reference_origin": 200.0,
+    "skew": 1.00002,
+    "offset": 0.0003,
+    "valid_device_interval": [1000.0, 1010.0],
+    "synchronization_evidence_ids": ["synthetic-sync-exchange-0001"]
+  },
+  "joint_covariance": [
+    [0.000001, 0.0, 0.0],
+    [0.0, 0.0000000001, 0.0],
+    [0.0, 0.0, 0.000004]
+  ]
+}
