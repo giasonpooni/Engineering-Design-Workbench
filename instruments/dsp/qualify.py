@@ -24,6 +24,14 @@ def module(path,name):
 
 def sha(path):return 'sha256:'+hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
+def executable_path(command):
+    # rustup and other multicall launchers dispatch using argv[0]. Preserve the
+    # selected symlink name while hashing its actual bytes for the receipt.
+    path=Path(shutil.which(str(command)) or command).absolute()
+    if not path.is_file(): raise ValueError('Missing executable: '+str(command))
+    return path
+
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--cxx',required=True)
@@ -38,9 +46,10 @@ def main():
     for name,text in bridge.compile_interface(spec).items(): (generated/name).write_text(text,encoding='utf-8',newline='\n')
     logs=root/'logs';logs.mkdir(); commands=[]
     def execute(name,argv,timeout=90):
-        executable=Path(shutil.which(argv[0]) or argv[0]).resolve(strict=True)
+        executable=executable_path(argv[0])
         argv=[str(executable),*map(str,argv[1:])]
         commands.append({'name':name,'argv':argv,'executable_sha256':sha(executable)})
+        (root/'commands.json').write_text(json.dumps(commands,indent=2))
         with (logs/(name+'.stdout')).open('wb') as out,(logs/(name+'.stderr')).open('wb') as err:
             subprocess.run(argv,cwd=root,check=True,timeout=timeout,stdout=out,stderr=err)
         return (logs/(name+'.stdout')).read_text()
@@ -58,7 +67,6 @@ def main():
                   {'taps':[1.,2.,-3.],'history':[0.,0.],'samples':[1.]+[0.]*15,'split':1}])
     corpus=root/'corpus.tsv'
     corpus.write_text('\n'.join(' '.join([str(len(c['taps'])),str(len(c['samples'])),str(c['split'])]+[format(v,'.17g') for v in c['taps']+c['history']+c['samples']]) for c in cases)+'\n')
-    api=module(generated/'scr_dsp.py','dsp_native')
     references=[];outputs={'python':[]};checks=[]
     for i,c in enumerate(cases):
         b,x,h=c['taps'],c['samples'],c['history'];k=len(b);extended=h+x

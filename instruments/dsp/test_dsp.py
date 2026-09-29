@@ -124,3 +124,12 @@ def test_nondefault_rounding_refuses_without_writing(native):
         assert process.fesetround(0x800)==0  # FE_UPWARD in qualified Linux profile.
         with pytest.raises(ValueError,match='refused: 6'):native[2].fir([1.],[1.],[])
     finally: assert process.fesetround(old)==0
+
+
+def test_qualification_preserves_multicall_launcher_name(tmp_path):
+    qualify=module(ROOT/'instruments/dsp/qualify.py','qualify')
+    target=tmp_path/'launcher';target.write_text('#!/bin/sh\nprintf "%s" "$0"\n');target.chmod(0o755)
+    alias=tmp_path/'compiler';alias.symlink_to(target)
+    selected=qualify.executable_path(alias)
+    assert selected==alias and selected!=target
+    assert subprocess.check_output([str(selected)],text=True)==str(alias)
