@@ -32,7 +32,7 @@ def test_specimen_and_failure_are_generated_from_real_package(tmp_path):
     specimen = tool.build_specimen(tmp_path / "surface")
     result = specimen["result"]
     assert result["event_time"] == 203.25
-    assert result["variance"] == 0.000005
+    assert result["variance"] == pytest.approx(0.000005, rel=1e-12, abs=1e-15)
     assert result["operation_id"] == "tbrt.affine-clock-reconcile.v1"
     assert specimen["failure"]["status"] == "refused"
     assert "expected reference" in specimen["failure"]["reason"].lower()
