@@ -67,7 +67,7 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           repository: giasonpooni/1792
-          ref: 6ce55b9d7171e0206b13fc53d631b5b0a8c2c1d0
+          ref: 939ae7ddffabbab41e7adcde532b19e889422e7f
           path: title-source
           persist-credentials: false
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
@@ -97,7 +97,7 @@ jobs:
             --godot "$RUNNER_TEMP/game-engine/Godot_v4.5.1-stable_linux.x86_64" \
             --source-root "$GITHUB_WORKSPACE/title-source/game" \
             --profile "$GITHUB_WORKSPACE/title-source/tools/net/water-round.profile.json" \
-            --profile-sha256 sha256:29854ffcb1c12de1ad9832ddc98189fcec68996419492d5995cfb1032149f16b \
+            --profile-sha256 sha256:21955a2994a55ae89c1f1ba55d9a5b50b75cc8ad54d37cb3055401f7f0ffa323 \
             --output-dir "$GITHUB_WORKSPACE/results/game-project"
       - name: Exact source archives
         if: always()
