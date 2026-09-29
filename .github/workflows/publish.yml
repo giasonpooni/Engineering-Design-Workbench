@@ -1,0 +1,82 @@
+name: publish
+on:
+  workflow_dispatch:
+    inputs:
+      index:
+        description: Registry to publish to after verification
+        type: choice
+        options: [testpypi, pypi]
+        default: testpypi
+        required: true
+      confirmation:
+        description: Enter publish-v followed by the exact package version
+        type: string
+        required: true
+permissions:
+  contents: read
+concurrency:
+  group: clocksync-publish-${{ github.ref }}-${{ inputs.index }}
+  cancel-in-progress: false
+jobs:
+  authorize:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - name: Require exact release tag and explicit confirmation
+        env:
+          CONFIRMATION: ${{ inputs.confirmation }}
+        run: python scripts/release_guard.py request
+      - name: Require protected main and an approved source ancestor
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          test "$(gh api "repos/$GITHUB_REPOSITORY/branches/main" --jq '.protected')" = true
+          git merge-base --is-ancestor "$GITHUB_SHA" refs/remotes/origin/main
+  verify:
+    needs: authorize
+    uses: ./.github/workflows/tests.yml
+    permissions:
+      contents: read
+  integrity:
+    needs: verify
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+      - uses: actions/setup-python@ece7cb06caefa5fff74198d8649806c4678c61a1 # v6
+        with:
+          python-version: '3.12'
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: clocksync-release-bundle
+          path: bundle
+      - run: python scripts/release_guard.py bundle bundle
+  publish:
+    needs: [verify, integrity]
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ inputs.index }}
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093 # v4
+        with:
+          name: clocksync-release-bundle
+          path: bundle
+      - name: Publish already-checked distributions with Trusted Publishing
+        uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33 # release/v1
+        with:
+          packages-dir: bundle/dist/
+          repository-url: ${{ inputs.index == 'testpypi' && 'https://test.pypi.org/legacy/' || 'https://upload.pypi.org/legacy/' }}
+          attestations: true
+          skip-existing: false

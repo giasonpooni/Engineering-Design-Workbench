@@ -1,205 +1,120 @@
-# Notations ClockSync
+# ClockSync
 
-**Reconcile device event timestamps into a declared reference clock while retaining source identity, model provenance, and timing uncertainty.**
+**Apply a declared clock mapping. Keep the original timestamp. Propagate timing uncertainty.**
 
-ClockSync is a small Notation Systems computational instrument. It is deliberately bounded: callers supply an affine clock model and joint covariance; ClockSync validates the declared domain, maps the timestamp, propagates first-order uncertainty, and returns a replayable result.
+A small **Notation Systems** instrument for telemetry, measurement and simulation pipelines. ClockSync turns one device event timestamp into a reference-clock coordinate using a caller-supplied affine model and joint covariance. It does not set clocks or estimate a synchronization model.
 
-| Surface | Identity |
-| --- | --- |
-| Product | **ClockSync** |
-| Installed command | `clocksync` |
-| Python distribution | `notations-clocksync` |
+**Status:** 0.1.0 release candidate. Source and distribution checks are available; this README does not assert that a PyPI release has been published. See the [publishing checklist](https://github.com/giasonpooni/Notations-ClockSync/blob/main/docs/PUBLISHING.md).
+
+| Interface | Identity |
+|---|---|
+| Distribution | `notations-clocksync` |
+| Command | `clocksync` |
+| Module command | `python -m tbrt` |
 | Stable Python import | `tbrt` |
-| NET operation | `time.sync` |
-| Core API | `reconcile_time` |
-| Numerical boundary | Positive-skew affine clock map + first-order joint-covariance propagation |
+| Numerical operation | `tbrt.affine-clock-reconcile.v1` |
+| Proposed NET discovery target | `time.sync` — not registered by this package |
+| License / copyright | MPL-2.0 / Bespoke Polymer Inc. |
 
-The historical TBRT/`tbrt` implementation identity is retained so existing imports and versioned operation IDs do not change merely because the public tool is now easier to discover.
+## Run a complete example
 
-## What it computes
+Python 3.11+ is required. From a reviewed source checkout:
 
-For an anchored affine clock model,
-
-\[
-t_\mathrm{ref}
-=
-t_{\mathrm{ref},0}
-+
-a(t_\mathrm{device}-t_\mathrm{device},0)
-+
-b,
-\]
-
-ClockSync propagates uncertainty from the ordered variables
-
-\[
-[t_\mathrm{device},a,b]
-\]
-
-using
-
-\[
-\sigma^2_{t_\mathrm{ref}} = J\Sigma J^T,
-\qquad
-J=[a,\ t_\mathrm{device}-t_\mathrm{device},0,\ 1].
-\]
-
-The implementation preserves covariance cross-terms and retains the original observation, clock model, reference origin, Jacobian, and supplied joint covariance in the result.
-
-```mermaid
-flowchart LR
-    O["Device observation"] --> V{"Validate identity + domain"}
-    M["Declared affine clock model"] --> V
-    C["Joint covariance"] --> V
-    V -->|"invalid"| R["Refuse"]
-    V -->|"valid"| P["Affine map + covariance propagation"]
-    P --> T["Reference time + uncertainty"]
-    O -->|"retained"| T
-    M -->|"retained"| T
+```sh
+python -m pip install .
+clocksync --version
+clocksync --example offset > clock-input.json
+clocksync clock-input.json
 ```
 
-## Install
+The synthetic offset example produces `event_time = 203.25` seconds and `variance = 0.000005` seconds squared. `standard_uncertainty` is the square root of the variance, **not a guaranteed error bound or a confidence interval**.
 
-Python 3.11+ and NumPy are required.
+Examples are shipped inside the wheel; a repository checkout is not needed after installation. `--example` emits a **request**, not a computed result. Three cases are included: `offset`, `drift`, and `correlated`.
 
-```bash
-python -m pip install -e '.[dev]'
-```
-
-The package installs the `clocksync` command while retaining the `tbrt` Python import.
-
-## CLI
-
-Run the supplied synthetic example:
-
-```bash
+```sh
+clocksync --example correlated | clocksync - --compact
+python -m tbrt --example drift
 clocksync examples/clocksync.json
 ```
 
-Compact machine-readable output:
+An approved wheel can also be installed directly with `python -m pip install path/to/notations_clocksync-0.1.0-py3-none-any.whl`. Use a clean virtual environment if migrating from the historical `time-base-reconciliation-runtime` distribution: both distributions own the `tbrt` import and should not be installed together.
 
-```bash
-clocksync examples/clocksync.json --compact
+## Numerical contract
+
+With fixed anchors, the supplied model is
+
+```text
+t_ref = reference_origin + skew * (t_device - device_origin) + offset
+J     = [skew, t_device - device_origin, 1]
+var   = J @ joint_covariance @ J.T
 ```
 
-Standard input is supported:
-
-```bash
-cat examples/clocksync.json | clocksync -
-```
-
-The JSON boundary uses explicit source/reference frame identities, one timestamp observation, one supplied affine model, and a 3×3 joint covariance matrix. Invalid models, mismatched frames, non-PSD covariance, extrapolation outside the declared model interval, and non-finite arithmetic fail closed.
-
-## Python API
+Covariance coordinates are **`[device_time, skew, offset]`**, with units **`[s, 1, s]`**. All cross-covariance terms are retained. The result keeps `reference_origin` and `event_time_delta` separate. `event_time` is their rounded binary64 sum; it cannot recover precision already lost in the input.
 
 ```python
 import numpy as np
-from tbrt import (
-    AffineClockModel,
-    ClockFrame,
-    TimestampObservation,
-    reconcile_time,
+from tbrt import AffineClockModel, ClockFrame, TimestampObservation, reconcile_time
+
+source = ClockFrame("sensor-1", "device-monotonic")
+reference = ClockFrame("reference-1", "reference-monotonic")
+observation = TimestampObservation(103.0, source, evidence_id="observation-17")
+model = AffineClockModel(
+    model_id="clock-map-4", source_frame=source, reference_frame=reference,
+    device_origin=100.0, reference_origin=1000.0,
+    skew=1.00002, offset=0.0003, valid_device_interval=(100.0, 110.0),
 )
-
-device = ClockFrame("sensor-1", "device-monotonic", "s")
-reference = ClockFrame("reference-1", "reference-monotonic", "s")
-
-raw = TimestampObservation(
-    device_time=103.0,
-    frame=device,
-    evidence_id="observation-17",
-)
-
-clock = AffineClockModel(
-    model_id="clock-map-4",
-    source_frame=device,
-    reference_frame=reference,
-    device_origin=100.0,
-    reference_origin=1000.0,
-    skew=1.00002,
-    offset=0.0003,
-    valid_device_interval=(100.0, 110.0),
-)
-
-covariance = np.diag([1e-6, 1e-10, 4e-6])
-
 result = reconcile_time(
-    raw,
-    clock,
-    covariance,
+    observation, model, np.diag([1e-6, 1e-10, 4e-6]),
     expected_reference=reference,
 )
-
-print(result.event_time)
-print(result.standard_uncertainty)
+assert result.observation is observation
+print(result.event_time, result.standard_uncertainty)
 ```
 
-For a JSON-compatible programmatic boundary, use:
+`from tbrt.cli import reconcile_payload` exposes the same JSON boundary as the CLI. Existing typed APIs and the numerical core are unchanged. Read the [JSON/CLI contract](https://github.com/giasonpooni/Notations-ClockSync/blob/main/docs/CLI.md) for field names, defaults, refusal behavior and exit codes.
 
-```python
-from tbrt.cli import reconcile_payload
-```
+## Retained information and refusal behavior
 
-This executes the same core reconciliation path used by the CLI.
+The result retains the observation, affine model, Jacobian, covariance and timing uncertainty. Receipt and knowledge timestamps remain separate metadata. The CLI additionally retains the requested destination and evidence-presence policy in `request_options`; it does not manufacture execution or verification identities.
 
-## Deterministic replay
+Invalid numerical input, wrong destination identity, non-PSD covariance and nominal timestamps outside the model interval are refused. The JSON transport also rejects duplicate/unknown keys, non-finite constants, malformed objects, and string/boolean coercion of scientific inputs. Validation errors emit no result JSON.
 
-```bash
-python examples/replay.py
-```
-
-`replay_reconciliation` recomputes a retained reconciliation without reading wall-clock state. The result retains the information required for deterministic numerical replay.
+`replay_reconciliation` recomputes a retained **typed** result without reading the clock. There is no CLI result-replay command: retain the request JSON alongside its output. Numerical replay and a content digest are not independent verification or authentication of source evidence.
 
 ## Optional SET exchange
 
-```bash
-python -m pip install -e '.[dev,exchange]'
+The standalone command and numerical API require only NumPy. To use the existing source-pinned SET exchange adapter from a checkout:
+
+```sh
+python -m pip install '.[dev]' -r requirements-exchange.txt
 python examples/exchange.py
 ```
 
-`tbrt.exchange.export_result` exports `notation.instrument.result-artifact.v1` against the source-pinned State Estimation Testbed contract. Export conformance is not independent verification and does not imply NET execution or evidence admission.
+The immutable SET pin remains `bd261a765281a95312f7c91a3857233476294c5b`. The Git requirement is deliberately outside published wheel metadata. The `exchange` extra is retained as an **empty compatibility marker**; `pip install '.[exchange]'` alone no longer installs SET. This migration is recorded in the changelog.
 
-## Scope
+`tbrt.exchange.export_result` produces `notation.instrument.result-artifact.v1`, with separate evidence, operation, execution and result references. SET conformance is not NET registration, evidence admission or independent verification.
 
-ClockSync **does**:
+## Verify and build
 
-- preserve clock/time-scale/unit identity;
-- retain the original event observation;
-- apply a caller-supplied anchored affine clock map;
-- enforce the supplied applicability interval;
-- propagate a full joint covariance with cross-terms;
-- expose the result through Python and JSON/CLI boundaries;
-- support deterministic replay.
-
-ClockSync **does not**:
-
-- estimate or fit clock models;
-- modify device clocks;
-- implement NTP/PTP/GNSS synchronization protocols;
-- perform UTC/TAI/GNSS leap-second conversion;
-- resample or reorder telemetry streams;
-- infer missing timestamps;
-- authenticate synchronization evidence;
-- admit evidence or authorize downstream actions.
-
-Source event time, receipt time, and knowledge time remain separate identities.
-
-## Verification
-
-```bash
-python -m pip install -e '.[dev,exchange]'
+```sh
+python -m pip install '.[dev,release]'
 python -m pytest
 python examples/replay.py
-python examples/exchange.py
-clocksync examples/clocksync.json --compact
+python -m build
+python -m twine check --strict dist/*
+python scripts/check_release.py
 ```
 
-CI executes this surface on Python 3.11 and 3.12.
+The release checker expects a clean `dist/` containing one wheel and one sdist. It checks metadata/license inclusion, installs the wheel in a fresh environment outside the checkout, rebuilds and installs the sdist, tests packaged examples/CLI, and writes `release-evidence.json` with source revision and SHA-256 digests.
 
-## Stack role
+CI tests installed packages on Linux (Python 3.11/3.12/3.13), Windows and macOS (Python 3.12), plus NumPy 1.24.0 and a separate pinned-exchange job. The distribution artifact is emitted only after these jobs pass. This is a software verification matrix, not validation of any physical synchronization system.
 
-ClockSync is a provider instrument beneath the Notations Engineering Terminal. NET owns operation composition and dispatch; ClockSync owns declared clock mapping and timing uncertainty. It can provide aligned event-time coordinates to downstream filtering, estimation, geospatial, calibration, or telemetry workloads without becoming an evidence store or control system.
+## Limits and stack ownership
 
-[Notations Engineering Terminal](https://github.com/giasonpooni/Notations-Engineering-Terminal) · [Stack placement](docs/STACK.md) · [Contract](docs/CONTRACT.md) · [Numerics](docs/NUMERICS.md) · [License](LICENSE)
+Only supplied positive-skew affine maps and seconds-valued coordinates are supported. Both anchors are fixed. Domain checks apply to the nominal timestamp, not the entire uncertainty distribution. With uncertain skew and timestamp, propagation is first order; it does not provide the exact transformed distribution or mean.
 
-License: MPL-2.0.
+ClockSync does **not** fit models, implement NTP/PTP/GNSS protocols, convert UTC/TAI/leap seconds, set device clocks, resample streams, infer missing timestamps, authenticate evidence, admit state or actuate equipment. Time-scale strings identify frames; they do not activate a conversion algorithm.
+
+NET owns composition and dispatch. ClockSync remains an independently usable numerical provider. ESM keeps evidence admission and canonical-state authority. No live workbench, acquisition or device-control adapter is installed by this release.
+
+[Operation contract](https://github.com/giasonpooni/Notations-ClockSync/blob/main/docs/CONTRACT.md) · [Numerics](https://github.com/giasonpooni/Notations-ClockSync/blob/main/docs/NUMERICS.md) · [Stack role](https://github.com/giasonpooni/Notations-ClockSync/blob/main/docs/STACK_ROLE.md) · [Changelog](https://github.com/giasonpooni/Notations-ClockSync/blob/main/CHANGELOG.md) · [License](https://github.com/giasonpooni/Notations-ClockSync/blob/main/LICENSE)
