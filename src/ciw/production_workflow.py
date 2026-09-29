@@ -86,8 +86,13 @@ def _gates(profile: str):
 
 
 def main(argv: list[str] | None = None) -> int:
+    argv = sys.argv[1:] if argv is None else argv
+    if argv and argv[0] == "reconstruction":
+        from .production_reconstruction_cli import main as reconstruction_main
+        return reconstruction_main(argv[1:])
     parser = argparse.ArgumentParser(prog="net production", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
+    commands.add_parser("reconstruction", help="bounded real-game candidate work and agent handoff")
     example = commands.add_parser("example", help="write a synthetic plan and source; no execution")
     example.add_argument("--profile", choices=("builtin", "godot-courier"), default="builtin")
     example.add_argument("--output-dir", type=Path, required=True)
