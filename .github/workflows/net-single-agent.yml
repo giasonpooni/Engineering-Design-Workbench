@@ -3,8 +3,10 @@ on:
   pull_request:
     paths:
       - 'src/ciw/agent_experiment.py'
+      - 'src/ciw/agent_transcript.py'
       - 'scripts/run_agent_workcell_experiment.py'
       - 'tests/test_agent_experiment.py'
+      - 'tests/test_agent_transcript.py'
       - 'docs/SINGLE_AGENT_EXPERIMENT.md'
       - '.github/workflows/net-single-agent.yml'
   workflow_dispatch:
@@ -35,7 +37,7 @@ jobs:
         run: |
           python title/tools/check_smith_workcell.py
           python title/tools/check_project.py
-          python -m pytest -q tests/test_agent_experiment.py tests/test_workcell.py tests/test_workcell_snapshot.py tests/test_workcell_smith.py tests/test_foundry_pipeline.py tests/test_foundry.py tests/test_production.py tests/test_game_trace.py tests/test_game_session.py tests/test_game_retention.py tests/test_control_plane.py tests/test_interactive_contract.py tests/test_interactive_session.py tests/test_agent_protocol.py tests/test_computational_objects.py tests/test_computational_source.py --junitxml=agent-source.xml
+          python -m pytest -q tests/test_agent_experiment.py tests/test_agent_transcript.py tests/test_workcell.py tests/test_workcell_snapshot.py tests/test_workcell_smith.py tests/test_foundry_pipeline.py tests/test_foundry.py tests/test_production.py tests/test_game_trace.py tests/test_game_session.py tests/test_game_retention.py tests/test_control_plane.py tests/test_interactive_contract.py tests/test_interactive_session.py tests/test_agent_protocol.py tests/test_computational_objects.py tests/test_computational_source.py --junitxml=agent-source.xml
       - name: Provision immutable image before candidate execution
         shell: bash
         run: |
@@ -71,7 +73,8 @@ jobs:
           env -u PYTHONPATH python -c 'import ciw.workcell_smith; assert "site-packages" in ciw.workcell_smith.__file__'
           cp "$GITHUB_WORKSPACE/tests/test_workcell"*.py .
           cp "$GITHUB_WORKSPACE/tests/test_agent_experiment.py" .
-          env -u PYTHONPATH python -m pytest -q test_agent_experiment.py --junitxml="$GITHUB_WORKSPACE/agent-installed.xml"
+          cp "$GITHUB_WORKSPACE/tests/test_agent_transcript.py" .
+          env -u PYTHONPATH python -m pytest -q test_agent_experiment.py test_agent_transcript.py --junitxml="$GITHUB_WORKSPACE/agent-installed.xml"
           env -u PYTHONPATH python "$GITHUB_WORKSPACE/scripts/run_agent_workcell_experiment.py" \
             --title-root "$GITHUB_WORKSPACE/title/game" \
             --source-profile "$GITHUB_WORKSPACE/title/tools/net/smith-workcell.profile.json" \
@@ -84,7 +87,7 @@ jobs:
         run: |
           python - <<'PY'
           import json,xml.etree.ElementTree as E
-          for path,n in [('agent-source.xml',643),('agent-installed.xml',20)]:
+          for path,n in [('agent-source.xml',651),('agent-installed.xml',28)]:
               s=list(E.parse(path).getroot().iter('testsuite'))
               assert sum(int(x.attrib['tests']) for x in s)>=n
               assert all(int(x.attrib[k])==0 for x in s for k in ('failures','errors','skipped'))

@@ -42,8 +42,9 @@ source. Prior-evidence references record the claimed input history; they do not
 prove that a remote provider consumed an image.
 
 `scripts/run_agent_workcell_experiment.py` freezes that response before dispatch,
-records each MCP request before sending it, retains responses and native image
-bytes, and measures the original outcomes. Rejections and holds remain recorded;
+records each MCP request before sending it, retains complete canonicalized SDK
+responses in bounded hashed byte chunks (not oversized JSON-text/image strings),
+and retains native image bytes, and measures the original outcomes. Rejections and holds remain recorded;
 there is no assertion that an LLM must pass. A failed control stops the trial
 rather than assigning blame to the candidate. A fatal relay error retains an
 interruption marker and prior calls, not a successful summary.
@@ -94,3 +95,18 @@ The next artifact after execution is a clearly labelled visual review of actual
 native output, followed by either a source revision or a stopping decision. A
 future unattended provider/usage adapter needs explicit user-selected model,
 endpoint, credential and spend policy; none is silently inferred here.
+
+
+## Relay correction before the first asset execution
+
+The initial hosted run passed643 source and20 installed tests, then stopped when
+its new transcript recorder tried to store a whole MCP response's duplicate JSON
+text as one string. The existing 65,536-character per-string contract correctly
+refused it. No baseline or candidate container had executed at this point.
+
+The recorder now preserves the complete canonicalized SDK response in hashed
+24,000-byte chunks, bounded to4MiB total. Reopening validates counts, chunk sizes
+and the total digest before parsing as data. This is not a byte-identical wire
+capture or another executable message interface. Original workcell/JSON bounds,
+candidate c01 and all acceptance criteria are unchanged. Eight regressions test
+large response/image retention and malformed/oversized transcript refusal.

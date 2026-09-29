@@ -17,6 +17,7 @@ import time
 from mcp import ClientSession, StdioServerParameters
 from mcp.client.stdio import stdio_client
 from ciw.agent_experiment import read_revision, audit_attempt, summarize
+from ciw.agent_transcript import capture_sdk_response
 from ciw.control_contracts import bytes_ref, save_new, load
 from ciw.core.identities import content_identity
 from ciw.foundry_packets import inventory, read_file
@@ -65,7 +66,7 @@ async def run(args, root):
                 save_new(root/(prefix+'-request.json'),{'tool':name,'arguments':arguments,'started_utc':now()})
                 t=time.perf_counter()
                 response=await client.call_tool(name,arguments)
-                save_new(root/(prefix+'-response.json'),{'response':response.model_dump(mode='json'),
+                save_new(root/(prefix+'-response.json'),{'response':capture_sdk_response(response.model_dump(mode='json')),
                     'elapsed_rpc_wall_s':time.perf_counter()-t,'completed_utc':now()})
                 value=response.structuredContent
                 if value is None or not response.content or json.loads(response.content[0].text)!=value:
