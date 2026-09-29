@@ -3,6 +3,9 @@ on:
   pull_request:
     paths:
       - 'src/ciw/workcell*.py'
+      - 'src/ciw/workflow_algebra.py'
+      - 'src/ciw/workflow_production.py'
+      - 'src/ciw/workflow_cli.py'
       - 'src/ciw/agent_mcp.py'
       - 'tests/test_workcell*.py'
       - 'scripts/check_smith_workcell.py'
@@ -79,6 +82,10 @@ jobs:
             --profile-sha256 sha256:afe9f6ef3eec76126d0f56738c5ee762de6eaa8ea58b13dd5ba92b23ecd1ab8f \
             --docker "$(command -v docker)" --image-id "$(cat "$GITHUB_WORKSPACE/smith-image-id.txt")" \
             --output-dir "$GITHUB_WORKSPACE/results/smith"
+      - name: Recompile receipts and verify exact native-plan correspondence
+        run: |
+          python -m ciw.workflow_cli inspect-slot results/smith/host/cell > results/smith/workflow-audit.json
+          python -m ciw.workflow_cli inspect-slot results/smith/test-only/cell > results/smith/test-only-workflow-audit.json
       - name: Require complete qualification
         run: |
           python - <<'PY'

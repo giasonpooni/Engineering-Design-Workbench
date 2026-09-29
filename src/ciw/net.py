@@ -116,6 +116,9 @@ def _node(name: str, operation: str, dependencies: list[str] | None = None) -> d
 
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
+    if argv and argv[0] == "compose":
+        from .workflow_cli import main as compose_main
+        return compose_main(argv[1:])
     if argv and argv[0] == "foundry":
         from .foundry_workflow import main as foundry_main
         return foundry_main(argv[1:])
@@ -142,6 +145,7 @@ def main(argv: list[str] | None = None) -> int:
         return science_main(argv[1:])
     parser = argparse.ArgumentParser(prog="net", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
+    commands.add_parser("compose", help="Compile typed wiring and checked stages into existing NET graphs")
     commands.add_parser("object", help="Inspect committed source, export bounded context, and compare retained observations")
     commands.add_parser("workcell", help="Operator-bound container compilation and agent work slots")
     commands.add_parser("math", help="Derive bounded covariance and innovation display diagnostics")

@@ -70,6 +70,17 @@ records exercised paths, independent checks and remaining gaps.
 Current support does **not** establish general-purpose hardware acquisition,
 equipment control or platform-wide industrial qualification.
 
+## Typed workflow composition
+
+This feature branch adds a [bounded workflow algebra](docs/WORKFLOW_ALGEBRA.md)
+that compiles typed serial/parallel wiring into the existing experiment DAG and
+checked-stage barriers into the existing production plan. `net compose demo`
+runs the installed synthetic analysis/correction example. The container workcell
+also retains a compilation receipt before executing its original build/test/package
+route. Types, declared effects, exact permission sets and qualification references
+are checked without granting new authority. Parallel syntax does not yet imply
+parallel scheduling; bounded retries are not a general feedback engine.
+
 ## Quickstart
 
 Run these commands from the repository root with **Python 3.11 or newer**.

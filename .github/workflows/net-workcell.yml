@@ -3,6 +3,9 @@ on:
   pull_request:
     paths:
       - 'src/ciw/workcell*.py'
+      - 'src/ciw/workflow_algebra.py'
+      - 'src/ciw/workflow_production.py'
+      - 'src/ciw/workflow_cli.py'
       - 'src/ciw/agent_*.py'
       - 'src/ciw/foundry_packets.py'
       - 'src/ciw/production*.py'
@@ -65,6 +68,9 @@ jobs:
           env -u PYTHONPATH python "$GITHUB_WORKSPACE/scripts/check_workcell.py" --docker "$(command -v docker)" \
             --image-id "$(cat "$GITHUB_WORKSPACE/workcell-image-id.txt")" \
             --source-root "$GITHUB_WORKSPACE/examples/workcells/godot-prop" --output-dir "$GITHUB_WORKSPACE/results/workcell"
+      - name: Recompile receipts and verify exact native-plan correspondence
+        run: |
+          python -m ciw.workflow_cli inspect-slot results/workcell/cell > results/workcell/workflow-audit.json
       - name: Require unskipped qualification
         run: |
           python - <<'PY'

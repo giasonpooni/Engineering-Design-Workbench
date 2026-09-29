@@ -297,7 +297,11 @@ class WorkcellHost:
                 [_graph(stage,self.recipe.operations[stage],{'candidate_id':cid},model=self.recipe.recipe_id)],
                 [{'check_id':stage+'-required','node_id':'candidate','gate_id':next(iter(self.recipe.gates())),'policy':deepcopy(self.recipe.policy)}],
                 stages[index-1:index]))
-        specification=plan('workcell-build',project_id=self.recipe.recipe_id,source_evidence_id=source['evidence_id'],jobs=jobs)
+        from .workflow_production import compile_workcell
+        compilation=compile_workcell(stages,jobs,registry,self.recipe.gates(),candidate_id=cid,
+            recipe_id=self.recipe.recipe_id,source_evidence_id=source['evidence_id'])
+        save_new(self.root/('compilation-'+attempt+'.json'),compilation)
+        specification=compilation['plan']
         root=self.root/'runs'/attempt
         run_production(source,specification,registry,(Worker('container-cell',tuple(self.recipe.operations[s] for s in stages)),),self.recipe.gates(),root,max_operations=len(stages))
         response=inspect_attempt(root)
