@@ -17,3 +17,4 @@ jobs:
       - run: python -m pytest
       - run: python examples/replay.py
       - run: python examples/exchange.py
+      - run: clocksync examples/clocksync.json --compact
