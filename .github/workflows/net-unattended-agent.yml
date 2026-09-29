@@ -70,15 +70,34 @@ jobs:
           timeout 600 docker exec net-agent-provision ollama pull qwen3-vl:2b-instruct
           docker rm -f net-agent-provision
           docker network create --internal net-agent-internal
-          docker run -d --name net-agent-model --network net-agent-internal -p 127.0.0.1:11434:11434 \
+          docker run -d --name net-agent-model --network net-agent-internal \
             --read-only --cap-drop=ALL --security-opt=no-new-privileges --cpus=2 --memory=4g --memory-swap=4g --pids-limit=256 \
             --tmpfs /tmp:rw,size=536870912 --tmpfs /root/.ollama:rw,size=8388608 \
             --mount type=volume,source=net-agent-models,target=/models,readonly \
             -e OLLAMA_MODELS=/models -e OLLAMA_NO_CLOUD=1 -e OLLAMA_NUM_PARALLEL=1 "$MODEL_IMAGE"
-          for i in $(seq 1 30); do curl --fail --max-time 2 http://127.0.0.1:11434/api/version && break || sleep 1; done
-          curl --fail --max-time 3 http://127.0.0.1:11434/api/version > unattended-model-version.json
           docker inspect net-agent-model > unattended-model-container.json
           docker network inspect net-agent-internal > unattended-model-network.json
+          # An internal-only bridge has no published-port gateway. A bounded
+          # host-loopback relay reaches its one fixed local address; no model egress.
+          MODEL_IP=$(docker inspect net-agent-model --format '{{(index .NetworkSettings.Networks "net-agent-internal").IPAddress}}')
+          python - "$MODEL_IP" <<'PYCODE'
+          import ipaddress,json,sys
+          address=ipaddress.ip_address(sys.argv[1])
+          assert address.version==4 and address.is_private and not address.is_loopback
+          network=json.load(open('unattended-model-network.json'))[0]
+          assert network['Internal'] is True
+          container=json.load(open('unattended-model-container.json'))[0]
+          assert set(container['NetworkSettings']['Networks'])=={'net-agent-internal'}
+          assert container['HostConfig']['ReadonlyRootfs'] is True
+          PYCODE
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends socat
+          socat -V > unattended-proxy-version.txt 2>&1
+          sha256sum "$(command -v socat)" > unattended-proxy-sha256.txt
+          timeout 1800s socat -T 650 TCP4-LISTEN:11434,bind=127.0.0.1,reuseaddr,fork,max-children=4 "TCP4:$MODEL_IP:11434,connect-timeout=3" > unattended-proxy-log.txt 2>&1 &
+          echo $! > "$RUNNER_TEMP/net-agent-proxy.pid"
+          for i in $(seq 1 30); do curl --fail --max-time 2 http://127.0.0.1:11434/api/version && break || sleep 1; done
+          curl --fail --max-time 3 http://127.0.0.1:11434/api/version > unattended-model-version.json
       - run: python -m build --wheel
       - name: Installed package and actual unattended model/image/edit/build loop
         shell: bash
@@ -117,6 +136,9 @@ jobs:
           git archive --format=zip --output=unattended-net-source.zip HEAD
           git -C title archive --format=zip --output="$GITHUB_WORKSPACE/unattended-title-source.zip" HEAD
           docker logs net-agent-model > unattended-model-log.txt 2>&1 || true
+          if [[ -f "$RUNNER_TEMP/net-agent-proxy.pid" ]]; then
+            kill "$(cat "$RUNNER_TEMP/net-agent-proxy.pid")" || true
+          fi
           docker rm -f net-agent-model net-agent-provision || true
           docker network rm net-agent-internal || true
           docker volume rm net-agent-models || true

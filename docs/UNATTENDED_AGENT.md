@@ -73,7 +73,10 @@ billing guarantee is claimed. Re-execution needs a new explicit output directory
 Provision a local Ollama installation/model separately. Pin the actual version
 and digest reported by that installation; no default model is secretly selected.
 The live CI profile provisions Ollama0.12.7 and qwen3-vl:2b-instruct, then switches to a
-read-only model volume on a Docker internal network with cloud disabled. It
+read-only model volume on a Docker internal network with cloud disabled. A bounded
+host-loopback socat relay connects to its fixed inspected private address because
+Docker does not publish ports on an internal-only gateway. The model never gains
+a second external network. Relay binary/version and isolation metadata are retained. It
 records the resolved image/model identities before the agent runs. This is a
 scoped integration test, not a recommendation or a new default dependency.
 The explicit instruct variant avoids relying on `think:false` to disable a
@@ -164,3 +167,14 @@ Qualification scope and counts are determined by actual workflow reports, not
 by the presence of this guide. Real-title high-fidelity art, physical-GPU frame
 rate, console release, human review and repeated-task productivity distributions
 remain separate requirements.
+
+### Initial deployment correction
+
+The first completed hosted attempt passed726 source tests and installed the
+selected1.9GB vision model, but failed before inference when a localhost-published
+port was not created for the internal-only Docker network. The retained model log
+showed the server was listening. The corrected provisioning explicitly relays
+one host-loopback port to the inspected internal model address. Candidate scope,
+model, numerical/visual gates and inference budgets are unchanged. The relay is
+operator infrastructure, not an agent-selected proxy or a new public listener.
+Reference: https://docs.docker.com/engine/network/port-publishing/
