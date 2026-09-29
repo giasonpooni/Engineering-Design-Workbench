@@ -188,7 +188,7 @@ def test_compile_lowers_board_through_existing_semantic_plane():
     assert compiled["claims"]["provider_execution"] is False
     assert compiled["ignored_nonexecution_edges"] == ["e-semantic"]
     assert [node["operation_id"] for node in compiled["semantic_compilation"]["experiment"]["nodes"]] == [
-        "statistics.v1", "spectrum.periodogram.v1", "statistics.v1"]
+        "statistics.v1", "statistics.v1", "spectrum.periodogram.v1"]
     assert compiled["parameter_values"]["statistics"]["channel"] == "q"
     assert set(compiled["semantic_graph"]["nodes"][1]["depends_on"]) == {"statistics"}
 
