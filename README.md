@@ -1,16 +1,18 @@
-# Notations Engineering Terminal
+# Notations Systems Terminal
 
-**A programmable workbench for scientific computing, simulation and evidence-backed game production.**
+**A programmable workbench and unified control plane for scientific computing, simulation and bounded expertise-to-artifact workflows.**
 
-[Notation Systems](https://notation.systems) · [Premise](#premise-build-the-game-and-the-production-system) ·
+[Notation Systems](#notation-systems) · [Expertise amplification](#expertise-amplification) ·
+[Domain composition](#one-control-plane-bounded-domain-workloads) ·
 [Game Foundry](#game-production-foundry) · [Engineering experiment](#engineering-experiment-and-evaluation) ·
-[Quickstart](#quickstart) ·
-[Technical reference](TECHNICAL_REFERENCE.md) · [Documentation](docs) ·
-[Copyright and licence](#copyright-and-attribution)
+[Quickstart](#quickstart) · [Technical reference](TECHNICAL_REFERENCE.md) ·
+[Documentation](docs) · [Copyright and licence](#copyright-and-attribution)
 
 NET connects models, declared runs, observations and comparisons in a retained
 investigation. It supports the development loop around a system without
-replacing the application that owns that system's live state.
+replacing the application that owns that system's live state. The repository is
+**Notations-Systems-Terminal**; existing **NET**, **`net`** and **`ciw`** identities
+are retained. The firm is **Notation Systems**.
 
 ```text
 author → run → observe → compare → modify → check
@@ -19,16 +21,34 @@ author → run → observe → compare → modify → check
 
 ## Notation Systems
 
-[**Notation Systems**](https://notation.systems) is the parent organization,
-focused on **industrial tooling, computational instrumentation and scientific
-computing**. **Cartesian Graphics** is its games, graphics and simulation
-studio/label, developing historically grounded biographical interactive worlds
-and the technology needed to support them.
+[**Notation Systems**](https://notation.systems) develops evidence-backed
+industrial intelligence, computational instrumentation and tooling for physical
+systems. Its purpose is to connect domain expertise, observations and declared
+models to inspectable computation, justified decisions and bounded production
+work. The service direction remains **verify → refresh → reconstruct** for a
+defined scope, not generic AI output or an assumed universal digital twin.
+
+| Identity | Responsibility |
+| --- | --- |
+| **PAYLOAD** | Physical-economy and operational context: organizations, facilities, materials, shipments, custody and network dependencies. Existing **Caravan** movement/logistics interfaces retain their identity. |
+| **LANDSHARK** | Parcels, sites, ownership/use, access, development and spatial constraints. |
+| **TRADEWIND** | Contracts, prices, commitments, exposure and physical-economic/market analysis. |
+| **PayloadOS** | The governed industrial evidence/state and service substrate; not replaced by this workbench. |
+| **Dossier Services** | Scoped service delivery and compilation of permitted dossiers, reports and other customer-facing releases. |
+| **NET** | The shared programmable workbench/control plane for investigations, typed operations, execution history and comparisons. It is not a second canonical industrial ledger. |
+| **Cartesian Graphics** | Notation Systems' games, graphics, physics and simulation studio/label. This organizational description does not assert a separately incorporated subsidiary. |
+
+Manufacturing, robotics, materials/chemistry, GIS/remote sensing, DSP, scientific
+computing and analytics are **engineering workload families** that can extend
+this shared architecture. They are not extra public product rooms, nor claims
+that every corresponding adapter or industrial service is deployed. PAYLOAD,
+LANDSHARK and TRADEWIND retain their distinct domain identities.
 
 ```text
 Notation Systems
-├── Industrial tooling and instrumentation
-├── Shared computational R&D and the NET workbench
+├── Industrial intelligence: PAYLOAD / LANDSHARK / TRADEWIND
+├── PayloadOS and governed service delivery through Dossier Services
+├── Shared computational instrumentation and the NET workbench
 └── Cartesian Graphics
     ├── Physics, simulation, graphics and world systems
     ├── 1792 — primary historical-biographical game
@@ -52,17 +72,120 @@ or simulation does not make its output admitted industrial evidence.
 The work is by **[Giason Pooni](https://github.com/giasonpooni)**, with contributor
 and upstream attribution retained. The public website presents organization and
 project information; each repository retains its own scope, status and licence.
-Website publication and repository availability are separate: a project link
-does not imply that a hosted demo or released game exists.
+The public organization shell remains read-only, with GSV's interactive globe
+explicitly labelled **synthetic:demo**; GSC is a repository link, not a compiler
+server exposed through that shell. Credentials, NET execution, industrial state
+writes and live-provider access do not belong in that public bundle. Website
+publication and repository availability are separate: a project link does not
+imply that a hosted operational service or released game exists.
 
 ## Role, contribution and status
 
 | Field | This project |
 | --- | --- |
-| Role | Scientific, simulation and game-production workbench; portfolio category: **Tools**, with a coupled engineering experiment. |
+| Role | Scientific, simulation and production workbench; a shared control plane, not a universal domain model or replacement engine. |
 | Author's work | Architecture, implementation, runtime interfaces, investigation workflows, instrumentation and tests. |
-| Core identity | Python package and CLI **`ciw`**; existing session and record contracts remain unchanged. |
-| Status | Active development; bounded scientific workflows and separately tracked native/production prototypes. Industrial-scale agentic production remains an experimental goal. |
+| Core identity | Existing **NET / `net` / `ciw`** interfaces; session and record contracts remain unchanged by this documentation. |
+| Status | Active development; bounded scientific workflows and separately tracked native/production prototypes. Cross-domain expertise compilation and industrial-scale agentic production remain experimental goals. |
+
+## Expertise amplification
+
+The general problem is **expertise amplification rather than expertise
+substitution**: help a domain expert turn knowledge, corrections and decisions
+into inspectable production work. A historian, mechanic, chemist, architect or
+game designer may know what matters without having a complete formal
+specification. Capture must retain that distinction instead of manufacturing
+certainty or treating fluency as evidence.
+
+```text
+expert statement + sources + constraints
+                 ↓
+retained capture: claims / observations / heuristics / variants / questions
+                 ↓
+reviewed, domain-scoped specification — not automatic evidence admission
+                 ↓
+typed dependency graph and bounded work orders
+                 ↓
+registered tools / solvers / agents in explicitly provisioned workspaces
+                 ↓
+candidate artifacts + execution observations
+                 ↓
+independent checks + required expert review
+                 ↓
+accepted work → separately authorized integration / release
+                 ↑
+      retained failures and bounded repairs
+```
+
+**This is the target workflow, not a newly installed universal compiler.** The
+`expertise.capture`, `expertise.formalize` and similar names discussed during
+design are proposed vocabulary, not commands advertised as available in this
+checkout. Existing commands are documented in their implementation-specific
+guides and branch snapshots.
+
+Capture should distinguish observations, attributed claims, interpretations,
+procedures, heuristics, preferences, exceptions, conflicting accounts and open
+questions. Preserve raw input and its provenance; a reviewed specification can
+select an interpretation for a game without asserting it as historical fact.
+Industrial canonical admission remains a separate authorized decision under its
+own evidence policy. One expert's correction does not automatically overwrite
+another domain's accepted state.
+
+The design objective is for recurring human work to concentrate on **novel,
+consequential decisions**, rather than manual repetition across artifacts.
+This does not eliminate elicitation, research, review, measurement or integration
+cost. The workbench should first attempt authorized machine-resolvable work,
+then present unresolved decisions with supporting evidence, alternatives,
+uncertainty and the affected scope. Mandatory human gates remain mandatory even
+when a model reports high confidence.
+
+## One control plane, bounded domain workloads
+
+NET owns the reusable coordination machinery. A domain owns its models, evidence
+policy, state semantics, specialist operations and release criteria. A workload
+binds those responsibilities for one declared task. New workloads extend the
+existing Session, registries and retained record contracts rather than starting
+another control plane, monorepo, canonical store or game engine.
+
+| Proposed workload contract | Required distinction |
+| --- | --- |
+| Typed inputs and outputs | Schema/version, units, frames, clocks, provenance and uncertainty must be explicit where relevant. Compatible filenames or language bindings are not sufficient. |
+| State and evidence references | Raw observations, estimates, simulations, source claims and accepted domain state remain distinguishable. |
+| Operations and executors | Operation identity is separate from the selected agent/tool, invocation, environment and execution attempt. |
+| Capability envelope | Explicit readable inputs, writable candidate paths, permitted tools/network access, budgets and stop conditions; never permissions inferred from a plan. |
+| Observation and verification | Keep measured traces, computed results, checks, unresolved conditions and verifier identity. Workers cannot silently redefine their acceptance criteria or approve their own release. |
+| Promotion and repair | Acceptance, evidence admission, integration, release, dispatch and reconciliation retain separate authorization and records. Preserve rejected attempts. |
+
+A **domain container** first means a bounded semantic/authority contract. It is
+**not, by itself, an OS security sandbox**. Running untrusted workers requires
+separately implemented and tested process/container isolation, credential and
+network restrictions, resource limits and an appropriate threat model. An MCP
+connection exposes a tool interface; it does not automatically supply isolation,
+trust, permission to actuate equipment or independent verification.
+
+The categorical direction is **typed composition**: operations compose when
+their input/output contracts and domain conditions agree. This is not a claim of
+a proved category-theoretic implementation, a universal ontology, or automatic
+translation of arbitrary Python, Julia, Rust and C++ programs. Specialist
+repositories remain usable independently, with explicit adapters where supported.
+
+### Change propagation and transfer: validation targets
+
+A changed claim, parameter or accepted specification should identify the affected
+dependency closure, mark derived candidates stale, and schedule only the
+necessary rebuilds and checks. This is a **development target**: sound incremental
+rebuilds require declared dependencies, versioned tools, external inputs and
+cache semantics. An undeclared dependency can invalidate any minimal-rebuild
+claim. Existing released artifacts remain immutable and separately superseded;
+they are not silently rewritten or republished.
+
+The first generalization experiment is one actual 1792 episode/work package,
+followed by a bounded sensor/DSP or materials task using the same control-plane
+contracts. Domain schemas and validators may differ. Success requires accepted,
+integrated output on the second task with measured adaptation cost and unchanged
+protected session/authority semantics—not merely two similar diagrams or more
+generated files. Physical conclusions additionally need appropriate empirical
+validation; game simulation and software tests cannot supply it by analogy.
 
 ## Premise: build the game and the production system
 
@@ -150,7 +273,6 @@ The [Geospatial Systems Compiler](https://github.com/giasonpooni/Geospatial-Syst
 [State Estimator for BIM](https://github.com/giasonpooni/State-Estimator-for-BIM)
 remain independently scoped projects, not capabilities absorbed into NET.
 
-
 The shared **C++–Rust–Python–Julia** direction is a set of optional, explicitly
 bound execution paths, not a requirement that every project run four runtimes.
 Game repositories retain their story, art direction, gameplay rules, saves and
@@ -166,34 +288,35 @@ historical truth; content hashes establish byte integrity, not authenticity.
 
 ## Current implementation and next boundary
 
-**Status snapshot: September 29, 2026.** Scope and implementation are separate.
-The existing workbench remains the foundation; development increments on other
-branches must not be assumed present in this checkout.
+**Documentation status snapshot: September 29, 2026.** Scope and implementation
+are separate. The existing workbench remains the foundation; increments on
+other branches must not be assumed present in this README-only checkout.
 
 | Layer | Evidence and limit |
 | --- | --- |
 | Existing workbench | Retained investigations, declared operations and scoped scientific workflows; see the [technical reference](TECHNICAL_REFERENCE.md). |
-| Bounded production prototype | [PR #65](https://github.com/giasonpooni/Notations-Engineering-Terminal/pull/65), draft and unmerged at this snapshot, extends the PR #51/#57 controller and game-trace work with work orders, fixed acceptance checks, retained attempts and predeclared parameter repairs. |
-| Native reference workload | The cited prototype attaches a synthetic Godot courier scenario, **not 1792 or Blender asset production**. It is a local sequential controller, not autonomous source rewriting or a distributed agent farm. |
-| Next integration | One game-owned 1792 scenario or asset operation with an explicit contract and retained output, followed by a separately provisioned coding-agent worker. |
-| Larger Foundry scope | Parallel workers, durable recovery, token/currency budgets and broader content pipelines are development goals, not capabilities established by the cited prototype. |
+| Earlier bounded production prototype | [PR #65](https://github.com/giasonpooni/Notations-Systems-Terminal/pull/65), inspected at `98386f4dfa621f6340670755603abd229be4684f`, uses work orders, fixed checks, retained attempts and predeclared repairs around a synthetic Godot courier. This historical snapshot is not the whole subsequent Foundry scope. |
+| Game-owned Foundry increment | [PR #68](https://github.com/giasonpooni/Notations-Systems-Terminal/pull/68), currently draft/unmerged, separately tracks the 1792 water-round attachment with [1792 PR #30](https://github.com/giasonpooni/1792/pull/30). Its recorded qualification is revision-scoped; its changing head must not be treated as identical to the tested revision named in its body. This is not an autonomous studio or playable-build generator. |
+| Historical-perspective increment | [PR #70](https://github.com/giasonpooni/Notations-Systems-Terminal/pull/70), draft/unmerged at `e1fa85f89ff3f39db84ee9b157929133de49b72c`, separately tracks received-information boundaries and annotation audits. It does not implement free-form expertise extraction, historical authentication or live game integration. |
+| Larger cross-domain scope | General expertise capture, dependency-aware rebuilds, secured untrusted agent containers, distributed workers and broader industrial adapters remain development/qualification targets. No universal interoperability or cross-domain productivity gain is asserted. |
 
-Read the [production guide at the inspected PR #65 revision](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/98386f4dfa621f6340670755603abd229be4684f/docs/NET_PRODUCTION.md)
-for exact commands and limits. Its operation-count budget is not a money budget;
-its logical worker lanes are not running AI agents. A passing acceptance check is
-not state admission or release approval. This README neither merges that branch
-nor expands any execution permissions.
+Read the [production guide at the inspected PR #65 revision](https://github.com/giasonpooni/Notations-Systems-Terminal/blob/98386f4dfa621f6340670755603abd229be4684f/docs/NET_PRODUCTION.md)
+for that prototype's exact commands and limits. Its operation-count budget is not
+a money budget; its logical worker lanes are not running AI agents. A passing
+acceptance check is not state admission or release approval. This README does
+not merge those branches or expand any execution permissions.
 
-The first game attachment should retain both a baseline and a deliberately failing
+Game attachments should retain both a baseline and a deliberately failing
 candidate, enforce the same contract through repair, preserve original failure
 records, and make missing evidence hold dependent work. Inspection must not
-restart the engine. The accepted result must then be demonstrated in a playable
-build and reviewed for its actual gameplay or visual effect.
+restart the engine. Accepted results must then be demonstrated in a playable
+build and reviewed for their actual gameplay or visual effect; a headless
+contract check is not a substitute for that review.
 
 ## Engineering experiment and evaluation
 
 The research question is practical: **can bounded agentic workflows increase
-accepted, integrated game production per human hour without degrading quality or
+accepted, integrated production per human hour without degrading quality or
 letting coordination and rework erase the gain?** General-purpose autonomy and
 studio-scale equivalence are not assumed prerequisites or established results.
 
@@ -206,15 +329,16 @@ promise that stochastic generation is byte-for-byte reproducible.
 
 | Measure | What to record |
 | --- | --- |
-| Useful throughput | Matched-scope work accepted **and integrated** into a tested playable build; do not equate unlike artifacts or count unused generation. |
-| Human effort | Specification, tool development, supervision, review, integration and repair time; report setup investment separately from recurring work. |
-| Cost and latency | Provider/compute spend, elapsed time, retries and blocked time per accepted work package. |
-| Quality and rework | First-pass acceptance, regressions, integration conflicts, discarded work and human playtesting/visual review. |
+| Useful throughput | Matched-scope work accepted **and integrated** into a tested system; for games, a playable build. Do not equate unlike artifacts or count unused generation. |
+| Human effort | Elicitation, specification, tool development, supervision, review, integration and repair time; report setup investment separately from recurring work. |
+| Cost and latency | Provider/compute spend, elapsed time, retries and blocked time per accepted work package; report money and time separately rather than adding incompatible units. |
+| Quality and rework | First-pass acceptance, regressions, integration conflicts, discarded work and appropriate human/empirical review. |
 | Reuse and scaling | Net benefit on a new task after adaptation cost; compare sequential and bounded parallel execution before increasing worker count. |
+| Expertise amplification | Accepted, integrated matched-scope downstream work per consequential expert decision, alongside total human effort and quality. Fewer questions alone is not an improvement if errors are hidden. |
 
 Begin with bounded Gujranwala content and gameplay, then test the workflow on
 unseen task types. Later reuse in
-[Hero of the Two Worlds](https://github.com/giasonpooni/Hero-of-the-Two-Worlds)
+[Hero of the Two Worlds](https://github.com/giasonpooni/Hero-of-Two-Worlds)
 and [Geronimo](https://github.com/giasonpooni/Geronimo) is a transfer hypothesis,
 not evidence already obtained or a reason to begin their full production now.
 1792's childhood-to-Lahore development remains first; the full Ranjit Singh
@@ -230,9 +354,9 @@ by themselves establish historical accuracy, artistic coherence or enjoyable pla
 
 | Case study | Implementation and evidence |
 | --- | --- |
-| Blender-authored Godot / Bevy experiment | [PR #45](https://github.com/giasonpooni/Notations-Engineering-Terminal/pull/45): bounded, headless projectile work; not a released game. |
-| Julia-authored native oscillator | [PR #47](https://github.com/giasonpooni/Notations-Engineering-Terminal/pull/47): checked C export with Python/Rust consumers. |
-| C++ and Godot native consumers | [PR #50](https://github.com/giasonpooni/Notations-Engineering-Terminal/pull/50): native-interface and headless numerical qualification. |
+| Blender-authored Godot / Bevy experiment | [PR #45](https://github.com/giasonpooni/Notations-Systems-Terminal/pull/45): bounded, headless projectile work; not a released game. |
+| Julia-authored native oscillator | [PR #47](https://github.com/giasonpooni/Notations-Systems-Terminal/pull/47): checked C export with Python/Rust consumers. |
+| C++ and Godot native consumers | [PR #50](https://github.com/giasonpooni/Notations-Systems-Terminal/pull/50): native-interface and headless numerical qualification. |
 
 These links identify separate development increments. Consult each PR's current
 branch and status rather than assuming its implementation has been merged into
@@ -248,12 +372,13 @@ results must not silently launch a runtime or rerun an experiment.
 
 ## Technical reference
 
-The complete previous README is preserved **verbatim** in
+The complete previous technical README is preserved in
 [TECHNICAL_REFERENCE.md](TECHNICAL_REFERENCE.md), including setup, available
 workflows, assumptions, limits, compatibility notes and development gates.
-It remains in the repository root so its relative documentation and asset links
-keep the same base. This overview updates scope and organizational positioning; it does not
-promote planned integrations into implemented capabilities.
+That file is unchanged by this update and remains in the repository root so its
+relative documentation and asset links keep the same base. This overview extends
+scope and organizational positioning; it does not promote planned integrations
+into implemented capabilities.
 
 ## Copyright and attribution
 
