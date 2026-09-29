@@ -13,6 +13,7 @@ from .annotations import (
     validate_annotation_stream,
 )
 from .control_contracts import load, save_new
+from .annotation_nise import compile_annotation_query
 
 
 def main(argv=None):
@@ -32,6 +33,12 @@ def main(argv=None):
 
     timeline_inspect = commands.add_parser("inspect-timeline")
     timeline_inspect.add_argument("timeline", type=Path)
+
+    nise_query = commands.add_parser("nise-query")
+    nise_query.add_argument("annotation", type=Path)
+    nise_query.add_argument("seed", type=Path)
+    nise_query.add_argument("--query-output", type=Path, required=True)
+    nise_query.add_argument("--receipt-output", type=Path, required=True)
 
     args = parser.parse_args(argv)
     try:
@@ -57,6 +64,21 @@ def main(argv=None):
                 "schema": value["schema"],
                 "annotations": len(value["annotations"]),
                 "output": str(args.output),
+            }))
+            return 0
+        if args.command == "nise-query":
+            value = compile_annotation_query(
+                load(args.annotation), load(args.seed))
+            save_new(args.query_output, value["query"])
+            save_new(args.receipt_output, value)
+            print(json.dumps({
+                "status": "compiled",
+                "annotation_ref": value["annotation_ref"],
+                "query_id": value["query"]["query_id"],
+                "semantic_retrieval_performed": False,
+                "execution_authority": False,
+                "query_output": str(args.query_output),
+                "receipt_output": str(args.receipt_output),
             }))
             return 0
         value = validate_annotation_stream(load(args.timeline))
