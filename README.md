@@ -163,7 +163,8 @@ and checks a workflow supports.
 | **Native execution / SCR** | Supply selected native execution adapters where a profile registers them. It remains the shared execution foundation, not a new game engine or a replacement for the Python session. |
 | **Checkers / ICRH, PLSR and selected SP1 paths** | Check the numerical, contract, stability or registered-computation claims they actually support. A computation does not certify itself. |
 | **Evidence handoff / ESM** | Handle separately supported retention, review and release of evidence or candidate state. An inspect copy and a `render` descriptor are not modeling inputs and do not admit corpus state. |
-| [Geospatial Systems Compiler (GSC)](https://github.com/giasonpooni/Geospatial-Systems-Compiler) | Separately maintained browser representation and inspection project, formerly Payload Terminal V0. Simulation projections, ESM read-only integration and workbench handoff remain targets; GSC does not execute or certify the simulation. |
+| [Geospatial Systems Compiler (GSC)](https://github.com/giasonpooni/Geospatial-Systems-Compiler) | Compile admitted state into spatial, temporal and relational representations. `spatial.map` is the interface target; NET does not absorb the compiler or its specialist mathematics. |
+| **GSV** | Project released snapshots read-only. No computation, evidence admission or state release; NET does not replace or bypass this viewer. |
 | [Curved Surface Runtime (CSR)](https://github.com/giasonpooni/Curved-Surface-Runtime) | Optional specialist for its supported curved-surface paths, sensitivities and numerical diagnostics. A Blender mesh does not automatically become a supported CSR surface or navigation model. |
 | [State Estimator for BIM](https://github.com/giasonpooni/State-Estimator-for-BIM) | BIM-specific evidence-to-decision instrument. It retains its domain semantics; general game perception or rover sensor fusion requires a separately qualified estimator, not a relabelled BIM adapter. |
 | **Inspection clients** | Display numerical, temporal, spectral, geographic or local 2D/3D views of retained inspect records. Closing a viewer does not stop the backend or change retained records. |
@@ -171,6 +172,8 @@ and checks a workflow supports.
 
 The model, calculation and supporting evidence are related but separate records:
 what is being studied, what ran, and why its conclusion should be trusted.
+[GIS/remote-sensing requests](docs/GIS_RS_WORKBENCH.md) are optional workbench operations, not a fourth firm domain or an embedded GIS engine.
+
 Unimplemented handoffs must remain explicit. Supported local investigations do
 not require a proof service or an external evidence-governance service.
 

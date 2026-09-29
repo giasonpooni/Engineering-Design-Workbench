@@ -1,0 +1,10 @@
+{
+  "repository": "giasonpooni/Geospatial-Systems-Compiler",
+  "revision": "056dd42cce3131d772273aa41ad232e79ac3e729",
+  "source_root": "tools/ciw-rs",
+  "module": "worker",
+  "operations": ["rs.scene.inspect.v1", "rs.index.ndvi.v1"],
+  "binding": "operator_selected_local_checkout_only",
+  "admission": "not_performed",
+  "release": "not_performed"
+}

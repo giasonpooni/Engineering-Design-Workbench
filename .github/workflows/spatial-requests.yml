@@ -1,0 +1,79 @@
+name: GIS RS workbench request contracts
+on:
+  pull_request:
+    paths:
+      - 'src/ciw/spatial_requests.py'
+      - 'src/ciw/spatial_cli.py'
+      - 'src/ciw/net.py'
+      - 'src/ciw/control_plane.py'
+      - 'src/ciw/control_contracts.py'
+      - 'src/ciw/session.py'
+      - 'src/ciw/operations/**'
+      - 'tests/test_spatial_requests.py'
+      - 'examples/spatial/**'
+      - '.github/workflows/spatial-requests.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contracts:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[dev]' build
+      - name: Request contracts and original control agent simulation regressions
+        run: python -m pytest -q tests/test_spatial_requests.py tests/test_control_plane.py tests/test_agent_protocol.py tests/test_simulation_control.py tests/test_simulation_campaign.py -o addopts= --junitxml=spatial-source.xml
+      - run: python -m build --wheel
+      - name: Installed package outside source imports
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os, pathlib, subprocess, sys, tempfile, xml.etree.ElementTree as ET
+          root=pathlib.Path.cwd()
+          wheel=next((root/'dist').glob('*.whl'))
+          subprocess.run([sys.executable,'-m','pip','install','--force-reinstall','--no-deps',str(wheel)],check=True)
+          env={k:v for k,v in os.environ.items() if k!='PYTHONPATH'}
+          with tempfile.TemporaryDirectory() as tmp:
+              loc=subprocess.check_output([sys.executable,'-I','-c','import ciw; print(ciw.__file__)'],cwd=tmp,env=env,text=True)
+              assert not pathlib.Path(loc.strip()).resolve().is_relative_to(root)
+              subprocess.run([sys.executable,'-I','-m','pytest','-q',str(root/'tests/test_spatial_requests.py'),'-o','pythonpath=','-o','addopts=','--junitxml='+str(root/'spatial-installed.xml')],cwd=tmp,env=env,check=True)
+              for args in [['catalog'],['check',str(root/'examples/spatial/scene-request.json')],['plan',str(root/'examples/spatial/scene-request.json'),'--model-id','synthetic-site.v1','--output',str(root/'spatial-plan.json')]]:
+                  subprocess.run([sys.executable,'-I','-m','ciw.net','spatial',*args],cwd=tmp,env=env,check=True)
+          for file, count in [('spatial-source.xml',332),('spatial-installed.xml',62)]:
+              suites=list(ET.parse(file).getroot().iter('testsuite'))
+              assert sum(int(s.attrib['tests']) for s in suites)==count
+              assert all(int(s.attrib[k])==0 for s in suites for k in ('failures','errors','skipped'))
+          plan=json.loads((root/'spatial-plan.json').read_text())
+          assert plan['schema']=='ciw.experiment.v1'
+          assert plan['parameters']['spatial']['license_posture']=='synthetic'
+          assert plan['nodes'][0]['operation_id']=='rs.scene.admit.v1'
+          PY
+      - name: Retain source and environment
+        if: always()
+        shell: bash
+        run: |
+          git archive --format=zip --output=spatial-source.zip HEAD
+          python -m pip freeze > spatial-environment.txt
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: spatial-requests-${{ matrix.os }}
+          if-no-files-found: error
+          path: |
+            spatial-source.xml
+            spatial-installed.xml
+            spatial-source.zip
+            spatial-environment.txt
+            spatial-plan.json
+            dist/*.whl
