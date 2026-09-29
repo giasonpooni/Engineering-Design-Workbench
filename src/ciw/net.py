@@ -119,6 +119,12 @@ def main(argv: list[str] | None = None) -> int:
     if argv and argv[0] == "foundry":
         from .foundry_workflow import main as foundry_main
         return foundry_main(argv[1:])
+    if argv and argv[0] == "object":
+        from .computational_cli import main as object_main
+        return object_main(argv[1:])
+    if argv and argv[0] == "workcell":
+        from .workcell_cli import main as workcell_main
+        return workcell_main(argv[1:])
     if argv and argv[0] == "production":
         from .production_workflow import main as production_main
         return production_main(argv[1:])
@@ -136,6 +142,8 @@ def main(argv: list[str] | None = None) -> int:
         return science_main(argv[1:])
     parser = argparse.ArgumentParser(prog="net", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
+    commands.add_parser("object", help="Inspect committed source, export bounded context, and compare retained observations")
+    commands.add_parser("workcell", help="Operator-bound container compilation and agent work slots")
     commands.add_parser("math", help="Derive bounded covariance and innovation display diagnostics")
     commands.add_parser("view", help="Create a local interactive mathematical inspector")
     commands.add_parser("check", help="Apply a declared numerical check plan to retained evidence")

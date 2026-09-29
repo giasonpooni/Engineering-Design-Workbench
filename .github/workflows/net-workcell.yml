@@ -1,0 +1,94 @@
+name: Executable MCP production workcell
+on:
+  pull_request:
+    paths:
+      - 'src/ciw/workcell*.py'
+      - 'src/ciw/agent_*.py'
+      - 'src/ciw/foundry_packets.py'
+      - 'src/ciw/production*.py'
+      - 'src/ciw/net.py'
+      - 'tests/test_workcell*.py'
+      - 'scripts/check_workcell.py'
+      - 'tools/workcell-godot/**'
+      - 'examples/workcells/**'
+      - 'docs/EXECUTABLE_WORKCELLS.md'
+      - '.github/workflows/net-workcell.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+jobs:
+  native:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[dev]' build mcp==1.26.0
+      - name: Combined workcell and unchanged source, MCP, Foundry, production and controller contracts
+        run: python -m pytest -q tests/test_workcell.py tests/test_workcell_snapshot.py tests/test_foundry_pipeline.py tests/test_foundry.py tests/test_production.py tests/test_game_trace.py tests/test_game_session.py tests/test_game_retention.py tests/test_control_plane.py tests/test_interactive_contract.py tests/test_interactive_session.py tests/test_agent_protocol.py tests/test_computational_objects.py tests/test_computational_source.py --junitxml=workcell-source.xml
+      - name: Provision the operator tool image before any agent work
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/workcell-image"
+          cp tools/workcell-godot/* "$RUNNER_TEMP/workcell-image/"
+          curl --fail --location --retry 2 --max-time 180 https://github.com/godotengine/godot-builds/releases/download/4.5.1-stable/Godot_v4.5.1-stable_linux.x86_64.zip -o "$RUNNER_TEMP/godot.zip"
+          echo "02ec53d1cc7dbb9cc6355393c61b9ab43d1244751a124f10248a4802830788cd  $RUNNER_TEMP/godot.zip" | sha256sum --check
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+          cp "$RUNNER_TEMP/godot/Godot_v4.5.1-stable_linux.x86_64" "$RUNNER_TEMP/workcell-image/godot"
+          docker pull ubuntu:24.04
+          BASE=$(docker image inspect ubuntu:24.04 --format '{{index .RepoDigests 0}}')
+          echo "$BASE" > workcell-base-image.txt
+          docker build --build-arg "BASE=$BASE" -t net-workcell-qualified "$RUNNER_TEMP/workcell-image"
+          docker image inspect net-workcell-qualified --format '{{.Id}}' > workcell-image-id.txt
+          docker image inspect net-workcell-qualified > workcell-image-inspect.json
+          docker version > workcell-docker-version.txt
+      - run: python -m build --wheel
+      - name: Installed package, original MCP client gate and actual contained builds
+        shell: bash
+        run: |
+          python -m pip install --force-reinstall --no-deps dist/*.whl
+          export NET_WORKCELL_TEST_ROOT="$GITHUB_WORKSPACE"
+          cd "$RUNNER_TEMP"
+          env -u PYTHONPATH python -c 'import ciw.workcell; assert "site-packages" in ciw.workcell.__file__'
+          cp "$GITHUB_WORKSPACE/tests/test_workcell"*.py .
+          env -u PYTHONPATH python -m pytest -q test_workcell.py test_workcell_snapshot.py --junitxml="$GITHUB_WORKSPACE/workcell-installed.xml"
+          env -u PYTHONPATH python "$GITHUB_WORKSPACE/scripts/check_agent_mcp.py" --output-dir "$GITHUB_WORKSPACE/results/original-mcp"
+          env -u PYTHONPATH python "$GITHUB_WORKSPACE/scripts/check_workcell.py" --docker "$(command -v docker)" \
+            --image-id "$(cat "$GITHUB_WORKSPACE/workcell-image-id.txt")" \
+            --source-root "$GITHUB_WORKSPACE/examples/workcells/godot-prop" --output-dir "$GITHUB_WORKSPACE/results/workcell"
+      - name: Require unskipped qualification
+        run: |
+          python - <<'PY'
+          import json,xml.etree.ElementTree as E
+          for filename,count in [('workcell-source.xml',572),('workcell-installed.xml',44)]:
+              suites=list(E.parse(filename).getroot().iter('testsuite'))
+              assert sum(int(s.attrib['tests']) for s in suites)>=count
+              assert all(int(s.attrib[k])==0 for s in suites for k in ('failures','errors','skipped'))
+          report=json.load(open('results/workcell/qualification.json'))
+          assert report['status']=='passed' and report['native_container_attempts']>=13
+          PY
+          git diff --check
+      - name: Retain exact source on success or failure
+        if: always()
+        run: git archive --format=zip --output=workcell-source.zip HEAD
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: workcell-native-evidence
+          if-no-files-found: error
+          path: |
+            workcell-*.xml
+            workcell-*.txt
+            workcell-image-inspect.json
+            workcell-source.zip
+            dist/*.whl
+            results/workcell
+            results/original-mcp
