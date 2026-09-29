@@ -188,3 +188,20 @@ def test_tamper_model_usage_or_native_checks_is_rejected(setup):
     asyncio.run(drive(cell,ModelFixture([{'action':'stop','summary':'stop','edits':[]}]),task(),root))
     path=root/'model-001-turn.json';record=json.loads(path.read_text());record['usage']['generated_tokens']=999;path.write_text(json.dumps(record))
     with pytest.raises(ValueError):inspect(root)
+
+
+@pytest.mark.parametrize('field', ['index_boolean', 'reservation_boolean', 'usage_float', 'negative_wall'])
+def test_typed_accounting_receipts_cannot_change_representation(setup,field):
+    root,cell,_=setup
+    asyncio.run(drive(cell,ModelFixture([{'action':'stop','summary':'stop','edits':[]}]),task(),root))
+    path=root/'model-001-turn.json';record=json.loads(path.read_text())
+    if field=='index_boolean':record['index']=True
+    elif field=='reservation_boolean':record['reservation']['call']=True
+    elif field=='usage_float':record['usage']['prompt_tokens']=100.0
+    else:
+        record['generation_wall_s']=-1.0
+        report_path=root/'report.json';report=json.loads(report_path.read_text())
+        report['measured_model_http_wall_s']=-1.0
+        report_path.write_text(json.dumps(report))
+    path.write_text(json.dumps(record))
+    with pytest.raises(ValueError):inspect(root)

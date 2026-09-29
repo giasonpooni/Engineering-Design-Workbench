@@ -71,7 +71,7 @@ jobs:
           docker rm -f net-agent-provision
           docker network create --internal net-agent-internal
           docker run -d --name net-agent-model --network net-agent-internal \
-            --read-only --cap-drop=ALL --security-opt=no-new-privileges --cpus=2 --memory=4g --memory-swap=4g --pids-limit=256 \
+            --read-only --cap-drop=ALL --security-opt=no-new-privileges --cpus=2 --memory=10g --memory-swap=10g --pids-limit=256 \
             --tmpfs /tmp:rw,size=536870912 --tmpfs /root/.ollama:rw,size=8388608 \
             --mount type=volume,source=net-agent-models,target=/models,readonly \
             -e OLLAMA_MODELS=/models -e OLLAMA_NO_CLOUD=1 -e OLLAMA_NUM_PARALLEL=1 "$MODEL_IMAGE"
@@ -121,7 +121,7 @@ jobs:
         run: |
           python - <<'PY'
           import json,xml.etree.ElementTree as E
-          for path,count in [('unattended-source.xml',726),('unattended-installed.xml',75)]:
+          for path,count in [('unattended-source.xml',730),('unattended-installed.xml',79)]:
               suites=list(E.parse(path).getroot().iter('testsuite'))
               assert sum(int(s.attrib['tests']) for s in suites)>=count
               assert all(int(s.attrib[k])==0 for s in suites for k in ('failures','errors','skipped'))

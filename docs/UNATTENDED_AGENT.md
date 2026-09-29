@@ -178,3 +178,20 @@ one host-loopback port to the inspected internal model address. Candidate scope,
 model, numerical/visual gates and inference budgets are unchanged. The relay is
 operator infrastructure, not an agent-selected proxy or a new public listener.
 Reference: https://docs.docker.com/engine/network/port-publishing/
+
+### Model resource and receipt qualification
+
+The next hosted attempt reached the actual pinned model, but its declared
+weights/KV/compute requirement was7.9GiB at the selected16384-token context. The
+4GiB model-container limit killed the native runner. NET retained the one request
+with unknown usage and no candidate, did not retry it, and did not impute zero
+cost. A new explicit operator deployment raises only the model-container cap to
+10GiB; the source task, token/context limits and512MiB asset-build cells are
+unchanged. This is a bounded CPU integration profile, not a memory/performance
+recommendation for every model or machine.
+
+Four additional audit regressions reject Boolean receipt indexes/reservation
+counts, floating-point substitutions for reported integer token counts, and
+negative observation durations. Those initially reproduced false acceptances in
+the new reader; exact typed checks now reject them. The model inference and
+original game acceptance algorithms are unchanged.

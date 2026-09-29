@@ -21,7 +21,7 @@ import time
 from .agent_experiment import audit_attempt, summarize
 from .agent_local_model import Budget, LocalModel, MAX_HTTP_BYTES, integer, validate_profile, validate_identity
 from .agent_transcript import capture_sdk_response
-from .control_contracts import bytes_ref, content_ref, keys, load, save_new
+from .control_contracts import bytes_ref, content_ref, keys, load, save_new, number
 from .core.identities import content_identity
 from .foundry_packets import inventory, read_file, relative, root_dir
 from .session import loads_json
@@ -372,7 +372,10 @@ def _inspect_frozen(root: Path) -> dict:
     for index in range(1, expected_calls + 1):
         prefix = f'model-{index:03d}'
         turn = load(root/(prefix + '-turn.json')); turns.append(turn)
-        if turn['reservation'] != budget.reserve() or turn['index'] != index:
+        integer(turn['index'], index, index)
+        if turn['generation_wall_s'] is not None and number(turn['generation_wall_s']) < 0:
+            raise ValueError('Model observation duration cannot be negative')
+        if content_identity(turn['reservation']) != content_identity(budget.reserve()):
             raise ValueError('Retained model reservation/order mismatch')
         request = read_object(root, turn['request'], prefix + '-request.json')
         if (request['model'] != profile['model'] or request['stream'] is not False or
@@ -391,7 +394,7 @@ def _inspect_frozen(root: Path) -> dict:
                 if turn['usage'] is not None or turn['build_label']:
                     raise ValueError('Unknown/invalid model usage cannot qualify source dispatch')
             else:
-                if usage != turn['usage']:
+                if content_identity(usage) != content_identity(turn['usage']):
                     raise ValueError('Model accounting changed')
                 if turn['decision'] is not None:
                     if turn['decision'] != loads_json(value['message']['content']):
