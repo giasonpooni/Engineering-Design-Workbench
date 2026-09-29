@@ -128,6 +128,9 @@ def main(argv: list[str] | None = None) -> int:
     if argv and argv[0] == "instrument":
         from .instrument_cli import main as instrument_main
         return instrument_main(argv[1:])
+    if argv and argv[0] == "columnar":
+        from .columnar_cli import main as columnar_main
+        return columnar_main(argv[1:])
     if argv and argv[0] == "workcell":
         from .workcell_cli import main as workcell_main
         return workcell_main(argv[1:])
@@ -151,6 +154,7 @@ def main(argv: list[str] | None = None) -> int:
     commands.add_parser("object", help="Inspect committed source, export bounded context, and compare retained observations")
     commands.add_parser("semantic", help="Compile stable semantic capabilities into existing NET experiments")
     commands.add_parser("instrument", help="Inspect portable instrument manifests and verification reports")
+    commands.add_parser("columnar", help="Export/import bounded observation streams as Arrow IPC or Parquet")
     commands.add_parser("workcell", help="Operator-bound container compilation and agent work slots")
     commands.add_parser("math", help="Derive bounded covariance and innovation display diagnostics")
     commands.add_parser("view", help="Create a local interactive mathematical inspector")
