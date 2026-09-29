@@ -143,6 +143,9 @@ def main(argv: list[str] | None = None) -> int:
     if argv and argv[0] == "needle":
         from .needle_cli import main as needle_main
         return needle_main(argv[1:])
+    if argv and argv[0] == "board":
+        from .board_cli import main as board_main
+        return board_main(argv[1:])
     if argv and argv[0] == "workcell":
         from .workcell_cli import main as workcell_main
         return workcell_main(argv[1:])
@@ -171,6 +174,7 @@ def main(argv: list[str] | None = None) -> int:
     commands.add_parser("efficiency", help="Measure and compare representation-preserving investigation resource use")
     commands.add_parser("container", help="Define/compose computational boundaries and retain occurrence telemetry")
     commands.add_parser("needle", help="Apply an immutable local intervention and selectively recompute dependency descendants")
+    commands.add_parser("board", help="Create and compile the parameterized typed System Board")
     commands.add_parser("workcell", help="Operator-bound container compilation and agent work slots")
     commands.add_parser("math", help="Derive bounded covariance and innovation display diagnostics")
     commands.add_parser("view", help="Create a local interactive mathematical inspector")
