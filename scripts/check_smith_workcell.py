@@ -40,7 +40,7 @@ async def campaign(args,root):
                 save_new(root/f'call-{len(transcript):03d}.json',transcript[-1])
                 return response,value
             _,access=await call('net_cell_describe',{})
-            assert access['packet']['writable']==['workshops/workshop_world.gd','workshops/workshop_rules.gd']
+            assert access['packet']['writable']==['workshops/workshop_rules.gd','workshops/workshop_world.gd']
             checks.append('fixed-title-source-write-grants')
             async def run(name,changes):
                 response,c=await call('net_cell_submit',{'attempt':name,'changes':changes});assert not response.isError
