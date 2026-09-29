@@ -27,7 +27,7 @@ scene, historical authentication or complete playable build.
 ## Run
 
 Use this NET branch with 1792 PR #30, initially pinned at
-`f6a7cf5e66e368bfb1ba069b22eecb2990f24be4`. Install NET normally:
+`2bb8a16e63716d54de2d4e97daabc4671d3e07f4`. Install NET normally:
 
 ```sh
 python -m pip install -e '.[dev]'
