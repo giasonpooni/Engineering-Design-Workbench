@@ -37,7 +37,7 @@ def write_json(path: Path, value) -> None:
 
 def manifest() -> dict:
     value = json.loads((ROOT / "instrument.json").read_text(encoding="utf-8"))
-    required = {"schema", "identity", "operation", "implementation", "model", "inputs",
+    required = {"schema", "identity", "operation", "provider", "implementation", "model", "inputs",
                 "outputs", "verification", "representations", "limits"}
     if set(value) != required or value["schema"] != "notations.instrument.v1":
         raise ValueError("invalid instrument manifest")
@@ -47,6 +47,22 @@ def manifest() -> dict:
         raise ValueError("manifest numerical operation differs from package contract")
     if value["operation"]["semantic_capability"] != "time.sync.v1":
         raise ValueError("semantic capability identity mismatch")
+    provider = value["provider"]
+    if set(provider) != {"id", "runtime_family", "execution_profile", "execution_mode",
+                        "resources", "priority", "ports"}:
+        raise ValueError("invalid provider declaration")
+    if provider["id"] != "org.notationsystems.clocksync" or provider["execution_mode"] != "headless":
+        raise ValueError("provider identity/execution mode mismatch")
+    if provider["runtime_family"] != "python" or provider["execution_profile"] != "scientific":
+        raise ValueError("provider routing metadata mismatch")
+    if provider["resources"] != ["cpu"] or type(provider["priority"]) is not int:
+        raise ValueError("provider resources/priority mismatch")
+    ports = provider["ports"]
+    if set(ports) != {"inputs", "outputs"} or set(ports["inputs"]) != {"request"} or set(ports["outputs"]) != {"result"}:
+        raise ValueError("provider ports mismatch")
+    for port in (ports["inputs"]["request"], ports["outputs"]["result"]):
+        if set(port) != {"schema", "unit", "frame"}:
+            raise ValueError("invalid typed provider port")
     if value["implementation"]["network_required"] is not False or value["implementation"]["hardware_required"] is not False:
         raise ValueError("ClockSync standalone profile must remain local/headless")
     return value
