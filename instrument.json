@@ -1,0 +1,63 @@
+{
+  "schema": "notations.instrument.v1",
+  "identity": {
+    "name": "ClockSync",
+    "slug": "clocksync",
+    "version": "0.1.0",
+    "maturity": "INSTRUMENT",
+    "brand": "Notation Systems",
+    "positioning": "Frontier Tooling and Instrumentation for Digital Futures"
+  },
+  "operation": {
+    "id": "tbrt.affine-clock-reconcile.v1",
+    "semantic_capability": "time.sync.v1",
+    "purpose": "Apply a caller-supplied affine clock mapping while retaining the original timestamp and propagating joint timing uncertainty.",
+    "deterministic_given_inputs": true
+  },
+  "implementation": {
+    "language": "Python",
+    "runtime": "CPython 3.11+",
+    "distribution": "notations-clocksync",
+    "module": "tbrt",
+    "command": "clocksync",
+    "network_required": false,
+    "hardware_required": false
+  },
+  "model": {
+    "family": "anchored-affine-clock",
+    "equation": "t_ref = reference_origin + skew * (t_device - device_origin) + offset",
+    "jacobian": "[skew, t_device-device_origin, 1]",
+    "covariance_order": ["device_time", "skew", "offset"],
+    "units": ["s", "1", "s"],
+    "uncertainty_propagation": "first-order.v1"
+  },
+  "inputs": {
+    "source_timestamp": "seconds in an explicitly identified source clock frame",
+    "clock_model": "caller-supplied positive-skew affine map with applicability interval",
+    "joint_covariance": "3x3 PSD covariance ordered [device_time, skew, offset]"
+  },
+  "outputs": {
+    "reference_timestamp": "derived event coordinate in the declared reference frame",
+    "variance": "first-order propagated variance in seconds squared",
+    "retained_source": true
+  },
+  "verification": {
+    "builder": "scripts/build_instrument_surface.py",
+    "report_schema": "notations.verification.v1",
+    "canonical_specimen": "offset",
+    "release_evidence": "release-evidence.json"
+  },
+  "representations": {
+    "problem": "portfolio/problem.md",
+    "model": "portfolio/model.md",
+    "verification": "portfolio/verification.md",
+    "notebook": "notebooks/clocksync_demo.ipynb",
+    "figures": ["overview.svg", "uncertainty.svg", "refusal.svg"]
+  },
+  "limits": [
+    "Does not estimate a clock model.",
+    "Does not implement NTP, PTP, GNSS, UTC/TAI or leap-second conversion.",
+    "Does not set clocks, resample streams, authenticate evidence, admit state or actuate equipment.",
+    "First-order uncertainty propagation is not a guaranteed error bound or confidence interval."
+  ]
+}

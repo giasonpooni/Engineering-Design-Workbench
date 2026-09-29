@@ -50,7 +50,15 @@ def check():
             raise RuntimeError("wheel numerical core differs from checkout")
     with tarfile.open(sdist, "r:gz") as archive:
         names = archive.getnames()
-        for suffix in ("/LICENSE", "/NOTICE.md", "/requirements-exchange.txt", "/examples/clocksync.json", "/tests/test_clock.py", "/src/tbrt/examples.json"):
+        for suffix in (
+            "/LICENSE", "/NOTICE.md", "/CITATION.cff", "/instrument.json",
+            "/requirements-exchange.txt", "/examples/clocksync.json",
+            "/tests/test_clock.py", "/tests/test_instrument_surface.py",
+            "/src/tbrt/examples.json", "/portfolio/problem.md",
+            "/portfolio/model.md", "/portfolio/verification.md",
+            "/notebooks/clocksync_demo.ipynb", "/benchmarks/benchmark.py",
+            "/scripts/build_instrument_surface.py",
+        ):
             if not any(name.endswith(suffix) for name in names):
                 raise RuntimeError(f"missing sdist member: {suffix}")
     smoke = '''
@@ -74,7 +82,6 @@ print("installed distribution smoke passed:", tbrt.__file__)
         scripts = environment / ("Scripts" if os.name == "nt" else "bin")
         python = scripts / ("python.exe" if os.name == "nt" else "python")
         command = scripts / ("clocksync.exe" if os.name == "nt" else "clocksync")
-        # No editable install, repository cwd, PYTHONPATH, or system-site-packages.
         run([python, "-m", "pip", "install", wheel], cwd=directory)
         for distribution in (wheel, sdist):
             if distribution == sdist:

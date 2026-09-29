@@ -1,10 +1,12 @@
 # ClockSync
 
+**Notation Systems — Frontier Tooling and Instrumentation for Digital Futures.**
+
 **Apply a declared clock mapping. Keep the original timestamp. Propagate timing uncertainty.**
 
 A small **Notation Systems** instrument for telemetry, measurement and simulation pipelines. ClockSync turns one device event timestamp into a reference-clock coordinate using a caller-supplied affine model and joint covariance. It does not set clocks or estimate a synchronization model.
 
-**Status:** 0.1.0 release candidate. Source and distribution checks are available; this README does not assert that a PyPI release has been published. See the [publishing checklist](https://github.com/giasonpooni/Notations-ClockSync/blob/main/docs/PUBLISHING.md).
+**Status:** INSTRUMENT / 0.1.0 release candidate. Source and distribution checks are available; this README does not assert that a PyPI release has been published. See the [publishing checklist](https://github.com/giasonpooni/Notations-ClockSync/blob/main/docs/PUBLISHING.md).
 
 | Interface | Identity |
 |---|---|
@@ -13,8 +15,27 @@ A small **Notation Systems** instrument for telemetry, measurement and simulatio
 | Module command | `python -m tbrt` |
 | Stable Python import | `tbrt` |
 | Numerical operation | `tbrt.affine-clock-reconcile.v1` |
-| Proposed NET discovery target | `time.sync` — not registered by this package |
+| Semantic capability | `time.sync.v1` — declared in `instrument.json`, not automatically registered in NET |
 | License / copyright | MPL-2.0 / Bespoke Polymer Inc. |
+
+## Instrument surface
+
+ClockSync follows the Notation Systems instrument grammar:
+
+```text
+Problem → Inputs → Model → Computation → Output → Verification → Limits
+```
+
+The canonical machine-readable identity is [`instrument.json`](instrument.json).
+The documented scientific specimen lives under [`portfolio/`](portfolio/);
+[`notebooks/clocksync_demo.ipynb`](notebooks/clocksync_demo.ipynb) is a viewing
+surface, not a second implementation. `scripts/build_instrument_surface.py`
+regenerates the canonical input/output, refusal example, SVG diagnostics,
+instrument card and `notations.verification.v1` report from the actual installed
+package. CI retains those generated artifacts with the tested distributions.
+
+The maturity label **INSTRUMENT** means tested API + examples + verification. It
+does not claim that version 0.1.0 has been published to a package registry.
 
 ## Run a complete example
 
@@ -103,11 +124,13 @@ python examples/replay.py
 python -m build
 python -m twine check --strict dist/*
 python scripts/check_release.py
+python scripts/build_instrument_surface.py --output-dir instrument-evidence
+python benchmarks/benchmark.py --iterations 10000
 ```
 
 The release checker expects a clean `dist/` containing one wheel and one sdist. It checks metadata/license inclusion, installs the wheel in a fresh environment outside the checkout, rebuilds and installs the sdist, tests packaged examples/CLI, and writes `release-evidence.json` with source revision and SHA-256 digests.
 
-CI tests installed packages on Linux (Python 3.11/3.12/3.13), Windows and macOS (Python 3.12), plus NumPy 1.24.0 and a separate pinned-exchange job. The distribution artifact is emitted only after these jobs pass. This is a software verification matrix, not validation of any physical synchronization system.
+CI tests installed packages on Linux (Python 3.11/3.12/3.13), Windows and macOS (Python 3.12), plus NumPy 1.24.0 and a separate pinned-exchange job. The distribution artifact is emitted only after these jobs pass. CI also emits the generated instrument surface and a benchmark observation. This is a software verification matrix, not validation of any physical synchronization system.
 
 ## Limits and stack ownership
 
@@ -117,4 +140,4 @@ ClockSync does **not** fit models, implement NTP/PTP/GNSS protocols, convert UTC
 
 NET owns composition and dispatch. ClockSync remains an independently usable numerical provider. ESM keeps evidence admission and canonical-state authority. No live workbench, acquisition or device-control adapter is installed by this release.
 
-[Operation contract](https://github.com/giasonpooni/Notations-ClockSync/blob/main/docs/CONTRACT.md) · [Numerics](https://github.com/giasonpooni/Notations-ClockSync/blob/main/docs/NUMERICS.md) · [Stack role](https://github.com/giasonpooni/Notations-ClockSync/blob/main/docs/STACK_ROLE.md) · [Changelog](https://github.com/giasonpooni/Notations-ClockSync/blob/main/CHANGELOG.md) · [License](https://github.com/giasonpooni/Notations-ClockSync/blob/main/LICENSE)
+[Operation contract](https://github.com/giasonpooni/Notations-ClockSync/blob/main/docs/CONTRACT.md) · [Numerics](https://github.com/giasonpooni/Notations-ClockSync/blob/main/docs/NUMERICS.md) · [Stack role](https://github.com/giasonpooni/Notations-ClockSync/blob/main/docs/STACK_ROLE.md) · [Portfolio specimen](portfolio/problem.md) · [Changelog](https://github.com/giasonpooni/Notations-ClockSync/blob/main/CHANGELOG.md) · [License](https://github.com/giasonpooni/Notations-ClockSync/blob/main/LICENSE)
