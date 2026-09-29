@@ -101,3 +101,12 @@ tests, then actual Godot qualification from the installed wheel outside the
 checkout. It retains JUnit, the wheel, both exact repository source archives and
 all campaign evidence. A successful domain qualification is not full-game,
 rendering, performance, historical or repository-wide CI validation.
+
+## Production planning and external-agent work packets
+
+The additive [`net foundry pipeline` commands](NET_PRODUCTION_PIPELINE.md) provide a
+60-work-package dependency blueprint, content-locked agent assignments, candidate
+file-scope checking, change impact and separate operator reviews/native task evidence.
+Only the existing water-domain recipe is executable in that frontend; other automation
+classes are planning classifications, not installed providers. No automatic source
+editing, model invocation, Git merge or release is added.

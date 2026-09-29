@@ -109,6 +109,10 @@ def export_artifact(destination: Path, output_dir: Path, *, job_id="water-round"
 
 
 def main(argv=None) -> int:
+    argv = sys.argv[1:] if argv is None else argv
+    if argv and argv[0] == "pipeline":
+        from .foundry_pipeline_cli import main as pipeline_main
+        return pipeline_main(argv[1:])
     parser = argparse.ArgumentParser(prog="net foundry", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
     compile_cmd = commands.add_parser("compile", help="compile an installed recipe into locked, data-only work orders")
