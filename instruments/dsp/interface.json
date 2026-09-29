@@ -1,0 +1,18 @@
+{
+  "schema": "scr.native-buffer-interface.v1",
+  "namespace": "scr_dsp",
+  "abi_version": 1,
+  "semantics": "Causal direct-form FIR: y[n]=sum_k taps[k]*x[n-k]. History contains taps_len-1 prior samples, oldest first. No padding, resampling, zero-phase filtering, or covariance claim. Outputs unchanged on refusal.",
+  "functions": [{
+    "name": "fir",
+    "inputs": [
+      {"name": "taps", "type": "f64_buffer", "min": 1, "max": 64},
+      {"name": "samples", "type": "f64_buffer", "min": 1, "max": 4096},
+      {"name": "history", "type": "f64_buffer", "min": 0, "max": 63}
+    ],
+    "outputs": [
+      {"name": "output", "type": "f64_buffer", "length_from": "samples"},
+      {"name": "next_history", "type": "f64_buffer", "length_from": "history"}
+    ]
+  }]
+}
