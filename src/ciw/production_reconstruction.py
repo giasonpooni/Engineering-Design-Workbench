@@ -115,6 +115,12 @@ def save_new(path: Path, value: dict) -> None:
         stream.write(raw)
 
 
+def require_external_destination(game_root: Path, destination: Path) -> None:
+    game = Path(game_root).resolve(strict=True)
+    target = Path(destination).resolve(strict=False)
+    require(not target.is_relative_to(game), "Production output must be outside the game checkout")
+
+
 def new_directory(path: Path) -> Path:
     path = Path(path).absolute()
     require(all(not p.is_symlink() for p in (path, *path.parents)), "Symlink destination refused")
@@ -348,6 +354,7 @@ def make_plan(source: dict, batch: dict) -> dict:
 def run_batch(packet: dict, batch: dict, game_root: Path, output_dir: Path, *, max_operations: int = 32) -> dict:
     from .production import Worker, run_production
     validate_packet(packet)
+    require_external_destination(game_root, output_dir)
     validator = GameValidator(game_root)
     require(sha(read_regular(Path(game_root) / SOURCE_PATH)) == packet["source_sha256"], "Game baseline changed after work was prepared")
     require(validator.check(parse(packet["baseline_utf8"].encode("utf-8")))["status"] == "PASS", "Invalid baseline")
@@ -361,14 +368,17 @@ def run_batch(packet: dict, batch: dict, game_root: Path, output_dir: Path, *, m
 def inspect(output_dir: Path, game_root: Path) -> dict:
     from .production import inspect_production
     register_schemas()
-    return inspect_production(output_dir, gates(GameValidator(game_root)))
+    root = Path(output_dir).absolute()
+    require(all(not p.is_symlink() for p in (root, *root.parents)), "Symlink inspection path refused")
+    return inspect_production(root, gates(GameValidator(game_root)))
 
 
 def export_candidate(output_dir: Path, game_root: Path, job_id: str, destination: Path) -> dict:
     """Export only the exact accepted primary candidate; never merge or edit the game."""
     from .production import _read
     name(job_id)
-    report = inspect(output_dir, game_root)
+    require_external_destination(game_root, destination)
+    inspect(output_dir, game_root)
     # inspect_production returns an inspection summary; follow original records,
     # not the last Session result (which may belong to a different dependent job).
     root = Path(output_dir)

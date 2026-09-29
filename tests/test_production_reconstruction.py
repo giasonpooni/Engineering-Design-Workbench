@@ -123,7 +123,7 @@ def test_bad_packets(packet, edit):
         r.validate_packet(packet)
 
 
-@pytest.mark.parametrize("raw", [b'{"x":1,"x":2}', b'{"x":NaN}', b'[]', b'{} '*30000, b'{"x":Infinity}'])
+@pytest.mark.parametrize("raw", [b'{"x":1,"x":2}', b'{"x":NaN}', b'[]', b'{} '*30000, b'{"x":Infinity}'], ids=["duplicate-key", "nan", "nonobject", "oversized", "infinity"])
 def test_bad_json(raw):
     with pytest.raises(ValueError): r.parse(raw)
 
@@ -222,3 +222,45 @@ def test_session_cli_entrypoint(game, packet, tmp_path):
     root = tmp_path / 'cli-campaign'
     assert main(['run', '--packet', str(packet_path), '--proposal', str(proposal_path), '--game-root', str(game), '--output-dir', str(root)]) == 0
     assert main(['inspect', str(root), '--game-root', str(game)]) == 0
+
+
+@pytest.mark.parametrize("suffix", ["", "results/candidate", "game/data/new-file"])
+def test_output_must_not_enter_game_checkout(game, suffix):
+    with pytest.raises(ValueError):
+        r.require_external_destination(game, game / suffix)
+
+
+def test_forged_candidate_payload_is_recomputed(packet):
+    candidate = r.compose(packet, reply(packet))
+    data = json.loads(candidate["candidate_utf8"])
+    data["year"] = 1835
+    candidate["candidate_utf8"] = json.dumps(data)
+    candidate["candidate_sha256"] = r.sha(candidate["candidate_utf8"].encode())
+    with pytest.raises(ValueError):
+        r._validate_payload(r.OPERATION, candidate, {"metadata": {"reconstruction_packet": packet}}, {"proposal": reply(packet)}, {})
+
+
+def test_session_parent_cli_prepare_reply_and_checkout_protection(game, tmp_path):
+    from ciw.production_workflow import main
+    order = tmp_path / 'order'
+    assert main(['reconstruction', 'prepare', '--game-root', str(game), '--task-id', 'cli-task', '--allow', 'stall.size', '--output-dir', str(order)]) == 0
+    packet = r.load(order / 'packet.json')
+    r.validate_packet(packet)
+    assert (order / 'AGENT_TASK.md').is_file()
+    assert main(['reconstruction', 'prepare', '--game-root', str(game), '--task-id', 'bad-location', '--allow', 'stall.size', '--output-dir', str(game / 'forbidden')]) == 1
+    assert not (game / 'forbidden').exists()
+    edits = tmp_path / 'edits.json'
+    r.save_new(edits, {'edits': [{'feature_id': 'stall', 'field': 'size', 'value': [5, 3, 2]}]})
+    out = tmp_path / 'reply.json'
+    assert main(['reconstruction', 'reply', '--packet', str(order/'packet.json'), '--edits', str(edits), '--worker-label', 'unit-worker', '--output', str(out)]) == 0
+    r.compose(packet, r.load(out))
+
+
+def test_session_offline_inspection_uses_retained_baseline(game, packet, tmp_path):
+    root = tmp_path / 'campaign'
+    r.run_batch(packet, batch(packet), game, root)
+    (game / r.SOURCE_PATH).write_text('{}')
+    assert r.inspect(root, game)['status'] == 'completed'
+    with pytest.raises(ValueError):
+        r.export_candidate(root, game, 'primary', game / 'forbidden-export')
+    assert not (game / 'forbidden-export').exists()

@@ -52,6 +52,7 @@ def main(argv: list[str] | None = None) -> int:
             field = allowed[feature_id][0]
             feature = next(f for f in baseline["features"] if f["id"] == feature_id)
             template = r.proposal(packet, "replace-with-worker-label", [{"feature_id": feature_id, "field": field, "value": feature[field]}])
+            r.require_external_destination(args.game_root, args.output_dir)
             target = r.new_directory(args.output_dir)
             r.save_new(target / "packet.json", packet)
             r.save_new(target / "proposal.template.json", template)
