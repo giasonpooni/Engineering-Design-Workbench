@@ -39,7 +39,7 @@ acquisition or Blender asset factory is claimed.
 
 Use this NET feature branch and the companion 1792 branch
 `feat/net-water-production-v1-20260929`, initially pinned at
-`6ce55b9d7171e0206b13fc53d631b5b0a8c2c1d0`.
+`70fcc477fb3783847fea56fa0ccaa5868413226f`.
 
 ```sh
 python -m pip install -e '.[dev]'
@@ -60,12 +60,12 @@ engine digest must be for the EXTRACTED Godot 4.5.1 executable, not the ZIP.
 ```sh
 net production project grid \
   --profile /absolute/path/1792/tools/net/water-round.profile.json \
-  --profile-sha256 sha256:29854ffcb1c12de1ad9832ddc98189fcec68996419492d5995cfb1032149f16b \
+  --profile-sha256 sha256:513a3316187fc981857c2f000bf614ee87e17ee123a4be2e7a00a6d5f7bf38e9 \
   --output-dir results/water-orders
 
 net production project run \
   --profile /absolute/path/1792/tools/net/water-round.profile.json \
-  --profile-sha256 sha256:29854ffcb1c12de1ad9832ddc98189fcec68996419492d5995cfb1032149f16b \
+  --profile-sha256 sha256:513a3316187fc981857c2f000bf614ee87e17ee123a4be2e7a00a6d5f7bf38e9 \
   --plan results/water-orders/plan.json --source results/water-orders/source.json \
   --source-root /absolute/path/1792/game \
   --godot /absolute/path/godot --godot-sha256 sha256:EXTRACTED_BINARY_DIGEST \
@@ -124,7 +124,8 @@ work order, not a silent modification of old history.
 
 Feedback exposes job counts, every attempt, original execution/result IDs,
 parameter assignments, failed rule IDs/status/reasons, and refused game actions
-with original game ticks. It first freezes bounded exact bytes, then runs the
+with original game ticks, checkpoint mismatch fields, and runtime refusal reasons.
+It first freezes bounded exact bytes, then runs the
 original provider-free production inspector and recomputes acceptance. It never
 launches Godot. A coding/MCP host can use this JSON as the next agent's input;
 this increment does not claim an actual paid/model-driven agent ran.
@@ -159,3 +160,20 @@ failing native harness. The unchanged comparator compares the corrected PRIMARY
 candidate to the matching baseline. Actual source archives, runtime identity,
 checks and original records are retained. Dedicated passing results do not waive
 unrelated private-provider or repository-wide integration gates.
+
+## Native finding and game-owned correction
+
+The first actual 18-case batch retained four accepted and fourteen rejected cases,
+not the predicted eight/ten. All late checkpoints exposed one floating-point step
+of JSON reload drift in `state.game_time.hour` at original tick 274. Added native
+diagnostics retained `before=7.00126851851851839` and
+`after=7.0012685185185175`. The fixed whole-state equality check was not relaxed.
+
+The title-owned correction in companion commit `70fcc477` recomputes its derived
+day/hour on restore from the already authoritative integer tick, using the same
+mapping as `advance`, AFTER unchanged input validation. It does not advance time,
+change the clock tolerance or alter water rules. Twenty-eight added native title
+assertions cover four checkpoint ticks, next-step agreement, source non-mutation
+and atomic refusal of inconsistent clocks. The source pin above includes this
+correction; the earlier failing captures remain separate evidence. The complete
+cross-repository campaign must pass before claiming the corrected slice qualified.

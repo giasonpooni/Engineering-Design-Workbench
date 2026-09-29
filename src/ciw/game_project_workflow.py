@@ -131,13 +131,16 @@ def feedback(root: Path) -> dict:
                     if result is not None:
                         _, captured = game_trace.unpack(result['data'])
                         rejected_actions = [event for event in captured['events'] if event['payload'].get('admitted') is False]
+                        checkpoint_diagnostics = [event for event in captured['events'] if event['payload'].get('roundtrip_equal') is False]
                     else:
                         rejected_actions = []
+                        checkpoint_diagnostics = []
                     candidates.append({'node_id': node_id, 'status': outcome['status'],
                         'execution_id': outcome.get('execution', {}).get('execution_id'),
                         'result_id': None if result is None else result['result_id'],
                         'assignment': next(n['parameters']['assignment'] for n in graph['experiment']['nodes'] if n['node_id'] == node_id),
-                        'rejected_actions': rejected_actions})
+                        'rejected_actions': rejected_actions, 'checkpoint_diagnostics': checkpoint_diagnostics,
+                        'runtime_refusal': outcome.get('execution', {}).get('refusal')})
                 failed = []
                 for check in checks['checks']:
                     detail = check['detail']
