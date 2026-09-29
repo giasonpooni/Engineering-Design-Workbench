@@ -2,7 +2,7 @@
 
 **A programmable workbench for scientific computing, simulation and evidence-backed game production.**
 
-[Portfolio](https://notation.systems) · [Premise](#premise-build-the-game-and-the-production-system) ·
+[Notation Systems](https://notation.systems) · [Premise](#premise-build-the-game-and-the-production-system) ·
 [Game Foundry](#game-production-foundry) · [Engineering experiment](#engineering-experiment-and-evaluation) ·
 [Quickstart](#quickstart) ·
 [Technical reference](TECHNICAL_REFERENCE.md) · [Documentation](docs) ·
@@ -19,13 +19,40 @@ author → run → observe → compare → modify → check
 
 ## Notation Systems
 
-[notation.systems](https://notation.systems) is the portfolio umbrella for
-independent computational systems, simulation and interactive-software projects
-by **[Giason Pooni](https://github.com/giasonpooni)**. The website presents the
-work; each repository retains its own implementation, status and licence.
+[**Notation Systems**](https://notation.systems) is the parent organization,
+focused on **industrial tooling, computational instrumentation and scientific
+computing**. **Cartesian Graphics** is its games, graphics and simulation
+studio/label, developing historically grounded biographical interactive worlds
+and the technology needed to support them.
 
-Portfolio areas: **Games & Interactive · Simulation · Tools · Research · About**.
-Website publication and repository availability are separate; a project link
+```text
+Notation Systems
+├── Industrial tooling and instrumentation
+├── Shared computational R&D and the NET workbench
+└── Cartesian Graphics
+    ├── Physics, simulation, graphics and world systems
+    ├── 1792 — primary historical-biographical game
+    ├── Hero of the Two Worlds — secondary, gradual development
+    └── Geronimo — on hold
+```
+
+Cartesian Graphics' layered worlds motivate research into physics engines,
+coupled physical and multi-agent dynamics, and multirate simulation. These are
+development directions, not a claim that a general-purpose multiphysics engine
+or every planned world system is implemented. NET remains the shared workbench;
+Game Foundry is a workload on that substrate, not a new studio-specific engine.
+
+**Shared primitives; separate state authority.** Specialist repositories retain
+their mathematics, implementations and licences. ESM retains industrial evidence,
+admission and release authority; game repositories retain their live state,
+clocks, creative direction and game-release approval. Evidence, operation,
+execution and verification identities remain distinct. Reusing a numerical model
+or simulation does not make its output admitted industrial evidence.
+
+The work is by **[Giason Pooni](https://github.com/giasonpooni)**, with contributor
+and upstream attribution retained. The public website presents organization and
+project information; each repository retains its own scope, status and licence.
+Website publication and repository availability are separate: a project link
 does not imply that a hosted demo or released game exists.
 
 ## Role, contribution and status
@@ -225,14 +252,15 @@ The complete previous README is preserved **verbatim** in
 [TECHNICAL_REFERENCE.md](TECHNICAL_REFERENCE.md), including setup, available
 workflows, assumptions, limits, compatibility notes and development gates.
 It remains in the repository root so its relative documentation and asset links
-keep the same base. This overview updates scope and portfolio positioning; it does not
+keep the same base. This overview updates scope and organizational positioning; it does not
 promote planned integrations into implemented capabilities.
 
 ## Copyright and attribution
 
-**© 2026 Giason Pooni, for original contributions.** Notation Systems is the
-independent project umbrella, not a claim of ownership over third-party tools
-or inherited code. Contributor and upstream copyright notices remain in force.
+**© 2026 Giason Pooni, for original contributions.** The Notation Systems parent
+and Cartesian Graphics studio relationship does not claim ownership over
+third-party tools or inherited code. Contributor and upstream copyright notices
+remain in force.
 
 The existing [LICENSE](LICENSE), source notices and third-party terms continue
 to govern the code and included materials. This documentation update does not
