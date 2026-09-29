@@ -217,3 +217,10 @@ textures, armatures and higher-poly asset families are still separate work.
 
 Existing licensing and notices remain in force. No external art, photos, textures,
 book scans, font files or engine binaries are added to this repository increment.
+
+## Consumer physics qualification
+
+The accepted bench now has a separately scoped [Godot Physics/Jolt comparison](NET_PHYSICS_BACKENDS.md)
+against the unchanged 1792 workshop integration snapshot. It reuses the original gameplay
+checks on both explicitly configured backends. Passing that comparison does not amend
+asset acceptance, approve artwork, migrate the game or qualify the parallel movement branch.
