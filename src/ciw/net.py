@@ -116,6 +116,9 @@ def _node(name: str, operation: str, dependencies: list[str] | None = None) -> d
 
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
+    if argv and argv[0] == "dsp":
+        from .dsp_workflow import main as dsp_main
+        return dsp_main(argv[1:])
     if argv and argv[0] == "production":
         from .production_workflow import main as production_main
         return production_main(argv[1:])
@@ -133,6 +136,7 @@ def main(argv: list[str] | None = None) -> int:
         return science_main(argv[1:])
     parser = argparse.ArgumentParser(prog="net", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
+    commands.add_parser("dsp", help="Explicitly bound causal FIR instrument")
     commands.add_parser("math", help="Derive bounded covariance and innovation display diagnostics")
     commands.add_parser("view", help="Create a local interactive mathematical inspector")
     commands.add_parser("check", help="Apply a declared numerical check plan to retained evidence")
