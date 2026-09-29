@@ -1,0 +1,74 @@
+{
+  "operation": "rs.scene.admit",
+  "spatial": {
+    "investigation_id": "synthetic-yard-investigation",
+    "room": "PAYLOAD",
+    "entity": {
+      "kind": "site",
+      "id": "synthetic-yard"
+    },
+    "aoi": {
+      "geometry_ref": "sha256:6391b0cef1407a25e27f9b7e25c4fe3f783fed7da54e689101dd966125d51900"
+    },
+    "crs": {
+      "id": "SYNTHETIC:yard-grid",
+      "definition_ref": "sha256:22dbd06c6b13f625024f34785580da61b27f0a76ac8211c465069dc5a1d0e96e",
+      "datum_ref": "sha256:95fa2d65c8a2e87512c6a703544c6e505a294bcc11e11e962d4db1da46123f5f",
+      "axis_order": [
+        "x",
+        "y"
+      ],
+      "coordinate_epoch": null
+    },
+    "geometry_basis_ref": "sha256:5ae7a5bc5c33ab89d621e8582348fb38a1870e2e75ab9c390006dac9b8cf9988",
+    "scene": {
+      "scene_id": "synthetic-scene-001",
+      "sensor": "synthetic-sensor",
+      "product_family": "synthetic-surface-reflectance"
+    },
+    "time_window": {
+      "start": "2026-09-01T00:00:00Z",
+      "end": "2026-09-02T00:00:00Z"
+    },
+    "license_posture": "synthetic",
+    "license_ref": "sha256:da1b5d736cb1199635007cbad646c0198ead0584ec931b19029e864cdddc17e6",
+    "sources": [
+      {
+        "ref": "sha256:414246fd82b9826f3e232143a94319b7765699587d29b10c974e3481e7c57f26",
+        "kind": "scene",
+        "provenance": {
+          "source": "synthetic-contract-fixture"
+        },
+        "knownAt": "2026-09-03T12:00:00Z",
+        "valid_time": {
+          "start": "2026-09-01T12:00:00Z",
+          "end": "2026-09-01T12:00:00Z"
+        },
+        "crs": {
+          "id": "SYNTHETIC:yard-grid",
+          "definition_ref": "sha256:22dbd06c6b13f625024f34785580da61b27f0a76ac8211c465069dc5a1d0e96e",
+          "datum_ref": "sha256:95fa2d65c8a2e87512c6a703544c6e505a294bcc11e11e962d4db1da46123f5f",
+          "axis_order": [
+            "x",
+            "y"
+          ],
+          "coordinate_epoch": null
+        },
+        "geometry_basis_ref": "sha256:5ae7a5bc5c33ab89d621e8582348fb38a1870e2e75ab9c390006dac9b8cf9988",
+        "pixel_basis": "area",
+        "grid_ref": "sha256:d49e187d1c4cf7bb524a238ee59e1b3ca82b892d2feb13a926742698b8ff1404",
+        "yield_class": "infrastructure"
+      }
+    ],
+    "governance": {
+      "esm_admission_ref": null,
+      "admitted_state_ref": null,
+      "esm_release_ref": null,
+      "released_snapshot_ref": null
+    },
+    "collection": {
+      "subject": "infrastructure",
+      "product": "entity_observation"
+    }
+  }
+}
