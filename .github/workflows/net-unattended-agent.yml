@@ -67,7 +67,7 @@ jobs:
             sleep 1
           done
           docker exec net-agent-provision ollama list
-          timeout 600 docker exec net-agent-provision ollama pull qwen3-vl:2b
+          timeout 600 docker exec net-agent-provision ollama pull qwen3-vl:2b-instruct
           docker rm -f net-agent-provision
           docker network create --internal net-agent-internal
           docker run -d --name net-agent-model --network net-agent-internal -p 127.0.0.1:11434:11434 \
@@ -93,7 +93,7 @@ jobs:
           cp "$GITHUB_WORKSPACE/tests/test_agent_local_model.py" "$GITHUB_WORKSPACE/tests/test_agent_unattended.py" .
           env -u PYTHONPATH python -m pytest -q test_agent_local_model.py test_agent_unattended.py --junitxml="$GITHUB_WORKSPACE/unattended-installed.xml"
           env -u PYTHONPATH python "$GITHUB_WORKSPACE/scripts/check_unattended_agent.py" \
-            --endpoint http://127.0.0.1:11434 --model qwen3-vl:2b --server-version 0.12.7 \
+            --endpoint http://127.0.0.1:11434 --model qwen3-vl:2b-instruct --server-version 0.12.7 \
             --title-root "$GITHUB_WORKSPACE/title/game" --source-profile "$GITHUB_WORKSPACE/title/tools/net/smith-workcell.profile.json" \
             --profile-sha256 sha256:afe9f6ef3eec76126d0f56738c5ee762de6eaa8ea58b13dd5ba92b23ecd1ab8f \
             --docker "$(command -v docker)" --image-id "$(cat "$GITHUB_WORKSPACE/unattended-workcell-image.txt")" \

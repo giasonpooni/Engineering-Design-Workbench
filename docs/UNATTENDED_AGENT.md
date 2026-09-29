@@ -72,10 +72,12 @@ billing guarantee is claimed. Re-execution needs a new explicit output directory
 
 Provision a local Ollama installation/model separately. Pin the actual version
 and digest reported by that installation; no default model is secretly selected.
-The live CI profile provisions Ollama0.12.7 and qwen3-vl:2b, then switches to a
+The live CI profile provisions Ollama0.12.7 and qwen3-vl:2b-instruct, then switches to a
 read-only model volume on a Docker internal network with cloud disabled. It
 records the resolved image/model identities before the agent runs. This is a
 scoped integration test, not a recommendation or a new default dependency.
+The explicit instruct variant avoids relying on `think:false` to disable a
+separately trained thinking model; no fallback changes the model during a run.
 
 Prepare the existing title workcell as documented in `TITLE_WORKCELLS.md`.
 The runner copies its exact capsule into a new investigation and only narrows its
@@ -89,7 +91,7 @@ Example `model.json` (replace model/digest/version with real selected values):
 {
   "schema": "ciw.local-model-profile.v1",
   "endpoint": "http://127.0.0.1:11434",
-  "model": "qwen3-vl:2b",
+  "model": "qwen3-vl:2b-instruct",
   "model_digest": "sha256:REPLACE_WITH_FULL_LOCAL_MODEL_DIGEST",
   "server_version": "0.12.7",
   "num_ctx": 16384,
