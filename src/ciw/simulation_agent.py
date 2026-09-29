@@ -70,7 +70,7 @@ class SimulationAgentHost:
     does not execute providers. Only explicit create/branch actions call factories.
     """
     def __init__(self, host: AgentHost, *, source: str, bindings: dict[str, Binding],
-                 max_attempts: int = 64, max_instances: int = 8, replay_policy: dict | None = None, campaign_policy: dict | None = None):
+                 max_attempts: int = 64, max_instances: int = 8, replay_policy: dict | None = None, campaign_policy: dict | None = None, capture_binding=None):
         require(type(max_attempts) is int and 1 <= max_attempts <= 128, "Attempt budget must be 1..128")
         require(type(max_instances) is int and 1 <= max_instances <= 16, "Instance budget must be 1..16")
         require(type(bindings) is dict and 1 <= len(bindings) <= 8, "Require 1..8 explicit model bindings")
@@ -88,6 +88,10 @@ class SimulationAgentHost:
         from .simulation_agent_campaign import compile_grant
         self._campaign_policy = compile_grant(campaign_policy, models, host._policies)
         self._campaign_reserved = 0
+        from .simulation_agent_capture import compile_binding
+        self._capture_renderer, self._capture_policy = compile_binding(capture_binding, models)
+        self._capture_reserved, self._capture_bound = 0, False
+        self._capture_handles, self._capture_observations, self._capture_images = {}, {}, {}
         run = host._get(source)
         from .instruments import validate_run
         validate_run(run)
@@ -101,6 +105,8 @@ class SimulationAgentHost:
             self._policy["replay"] = deepcopy(self._replay_policy)
         if self._campaign_policy is not None:
             self._policy["campaigns"] = deepcopy(self._campaign_policy)
+        if self._capture_policy is not None:
+            self._policy["capture"] = deepcopy(self._capture_policy)
         self._policy = parse(encode(self._policy))
         self._policy_ref = bytes_ref(encode(self._policy))
         self._root = host._check_output() / "stateful"
@@ -130,7 +136,16 @@ class SimulationAgentHost:
             value["stateful"]["campaigns"] = {"grants": deepcopy(self._campaign_policy),
                 "reserved_executions": self._campaign_reserved,
                 "budget_semantics": "complete campaigns including restore/stop; failures do not refund"}
+        if self.capture_enabled:
+            value["stateful"]["capture"] = {"grants": deepcopy(self._capture_policy),
+                "reserved_captures": self._capture_reserved,
+                "observation_handles": len(self._capture_observations),
+                "semantics": "immutable selected observations; one separate render execution per admitted request"}
         return value
+
+    @property
+    def capture_enabled(self) -> bool:
+        return self._capture_policy is not None
 
     @property
     def campaign_enabled(self) -> bool:
@@ -146,7 +161,7 @@ class SimulationAgentHost:
         model, world = self._instances[instance]
         return {"instance": instance, "model": model, **_metadata(world), "authority": deepcopy(AUTHORITY)}
 
-    def _attempt(self, name: str, arguments: dict, execute) -> dict:
+    def _attempt(self, name: str, arguments: dict, execute, *, after_workspace=None) -> dict:
         attempt = identifier(arguments["attempt"])
         request = {"tool": name, "arguments": detached(arguments), "policy_ref": self._policy_ref}
         if attempt in self._attempts:
@@ -177,6 +192,8 @@ class SimulationAgentHost:
             self.session.save_workspace(path)
             response["workspace_sha256"] = bytes_ref(path.read_bytes())
             require(len(encode(response)) <= MAX_RESPONSE, "Stateful response exceeds bound")
+            if after_workspace is not None and response["status"] == "completed":
+                after_workspace()
             save_new(directory / "response.json", response)
         except Exception as exc:
             self._blocked = True
@@ -230,12 +247,22 @@ class SimulationAgentHost:
         event = result["data"]
         if event["observations"] is None:
             return {}
-        out = {"observations": {}, "available_at": event["observations"]["available_at"]}
+        from .simulation_agent_capture import observation_handle
+        out = {"observations": {}, "available_at": event["observations"]["available_at"],
+               **observation_handle(self, result)}
         for channel in event["observations"]["observer"]["channels"]:
             samples = projected_samples(result, quantity=channel)
             stream = record("observation-stream", observations=samples)
             out["observations"][channel] = self.host._retain(stream)
         return out
+
+    def capture(self, observation: str, camera: str, sample_index: int | None, attempt: str) -> dict:
+        from .simulation_agent_capture import request_capture
+        return request_capture(self, observation, camera, sample_index, attempt)
+
+    def image_content(self, name: str, response: dict) -> list[dict]:
+        from .simulation_agent_capture import image_content
+        return image_content(self, name, response)
 
     def replay(self, checkpoint: str, instance: str, expected: dict, attempt: str) -> dict:
         from .simulation_agent_replay import request_replay
@@ -288,7 +315,7 @@ class SimulationAgentHost:
                 original_validate(name, arguments)
                 result = self.capabilities()
             elif name in TOOLS:
-                validate_arguments(name, arguments, include_replay=self.replay_enabled, include_campaign=self.campaign_enabled)
+                validate_arguments(name, arguments, include_replay=self.replay_enabled, include_campaign=self.campaign_enabled, include_capture=self.capture_enabled)
                 result = getattr(self, TOOLS[name]["method"])(**detached(arguments))
             else:
                 result = self.host.call(name, arguments)
@@ -344,7 +371,7 @@ def from_profile(host: AgentHost, path: Path) -> SimulationAgentHost:
     from .agent_mcp import _read
     path = Path(path).resolve(strict=True)
     profile = parse(_read(path))
-    keys(profile, {"schema", "source", "models", "max_attempts", "max_instances"} | (set(profile) & {"replay", "campaigns"}))
+    keys(profile, {"schema", "source", "models", "max_attempts", "max_instances"} | (set(profile) & {"replay", "campaigns", "capture"}))
     require(profile["schema"] == "ciw.simulation-agent-profile.v1", "Unsupported simulation agent profile")
     bindings = {}
     require(type(profile["models"]) is dict, "Model bindings must be an object")
@@ -376,8 +403,10 @@ def from_profile(host: AgentHost, path: Path) -> SimulationAgentHost:
         else:
             raise ValueError("Only installed reference and godot-point startup routes are supported")
         bindings[name] = Binding(PROVIDER_ID, factory, item["policy"])
+    from .simulation_agent_capture import from_profile as capture_profile
+    capture_binding = capture_profile(profile["capture"], path.parent) if "capture" in profile else None
     return SimulationAgentHost(host, source=profile["source"], bindings=bindings,
-        max_attempts=profile["max_attempts"], max_instances=profile["max_instances"], replay_policy=profile.get("replay"), campaign_policy=profile.get("campaigns"))
+        max_attempts=profile["max_attempts"], max_instances=profile["max_instances"], replay_policy=profile.get("replay"), campaign_policy=profile.get("campaigns"), capture_binding=capture_binding)
 
 
 def demo_profiles(destination: Path, *, replay: bool = False, campaign: bool = False) -> tuple[Path, Path]:

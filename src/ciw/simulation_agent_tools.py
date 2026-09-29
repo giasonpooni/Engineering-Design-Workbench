@@ -38,18 +38,33 @@ TOOLS[CAMPAIGN_TOOL] = tool("campaign",
     ("checkpoint", "instance", "expected", "campaign", "attempt"), read=False, external=True)
 
 
-def descriptions(*, include_replay=False, include_campaign=False):
+CAPTURE_TOOL = "net_sim_capture"
+TOOLS[CAPTURE_TOOL] = tool("capture",
+    "Render an exact host-disclosed observation handle through the existing PNG capture operation. "
+    "Select a granted camera and sample_index, or null for an explicitly empty batch. "
+    "Requires recorded XYZ, never reconstructs missing axes from checkpoints. "
+    "No paths, coordinates, provider choices or renderer parameters. Source simulation is not called. "
+    "Same attempt/request retries without rendering. Small PNGs also return as MCP image content; "
+    "larger images remain original operator-bundle artifacts with explicit metadata-only delivery.",
+    {"observation": STRING, "camera": STRING, "sample_index": {"anyOf": [
+        {"type": "integer", "minimum": 0, "maximum": 255}, {"type": "null"}]}, "attempt": STRING},
+    ("observation", "camera", "sample_index", "attempt"), read=False, external=True)
+
+
+def descriptions(*, include_replay=False, include_campaign=False, include_capture=False):
     return [{"name": name, **deepcopy({k: v for k, v in item.items() if k != "method"})}
-            for name, item in TOOLS.items() if (include_replay or name != REPLAY_TOOL) and (include_campaign or name != CAMPAIGN_TOOL)]
+            for name, item in TOOLS.items() if (include_replay or name != REPLAY_TOOL) and (include_campaign or name != CAMPAIGN_TOOL) and (include_capture or name != CAPTURE_TOOL)]
 
 
-def validate_arguments(name, arguments, *, include_replay=False, include_campaign=False):
+def validate_arguments(name, arguments, *, include_replay=False, include_campaign=False, include_capture=False):
     if type(name) is not str or name not in TOOLS:
         raise ValueError("Unknown stateful tool")
     if name == REPLAY_TOOL and not include_replay:
         raise ValueError("Simulation replay was not granted by the operator")
     if name == CAMPAIGN_TOOL and not include_campaign:
         raise ValueError("Simulation campaigns were not granted by the operator")
+    if name == CAPTURE_TOOL and not include_capture:
+        raise ValueError("Image capture was not granted by the operator")
     # The existing shape guard supports its original subset, without null.
     # Validate the one nullable field here and use the original guard unchanged.
     spec = deepcopy(TOOLS[name]["inputSchema"])
@@ -62,5 +77,13 @@ def validate_arguments(name, arguments, *, include_replay=False, include_campaig
             _shape(value, STRING)
         spec["properties"].pop("preset")
         spec["required"].remove("preset")
+    if name == CAPTURE_TOOL:
+        if type(data) is not dict or "sample_index" not in data:
+            raise ValueError("An explicit sample index or null is required")
+        value = data.pop("sample_index")
+        if value is not None:
+            _shape(value, {"type": "integer", "minimum": 0, "maximum": 255})
+        spec["properties"].pop("sample_index")
+        spec["required"].remove("sample_index")
     _shape(data, spec)
     json_tree(arguments)

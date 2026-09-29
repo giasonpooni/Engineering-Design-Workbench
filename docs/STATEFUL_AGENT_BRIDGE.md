@@ -185,3 +185,9 @@ operator `replay` policy. Existing eleven/fifteen-tool profiles remain unchanged
 for named operator templates on the existing campaign runner. Enable with
 `--stateful --stateful-campaign`; add `--stateful-replay` to expose both optional
 tools. Default profiles keep their prior catalogs and no campaign permission.
+
+## Optional image observations
+
+The [capture grant](STATEFUL_AGENT_CAPTURE.md) adds `net_sim_capture` for selected
+retained XYZ observations and bounded inline PNG delivery. It reuses the original
+image operation and Session; all prior profiles remain unchanged without the grant.

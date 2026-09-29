@@ -35,8 +35,9 @@ INSTRUCTIONS = (
 
 class Server:
     """Sequential MCP tools profile; no task, sampling or resource subscriptions."""
-    def __init__(self, host: AgentHost, *, extra_tools=()):
+    def __init__(self, host: AgentHost, *, extra_tools=(), image_content=None):
         self.host = host
+        self.image_content = image_content
         self.tools = descriptions() + deepcopy(list(extra_tools))
         names = [item["name"] for item in self.tools]
         if len(names) != len(set(names)):
@@ -111,6 +112,13 @@ class Server:
                     value = self.host.call(params["name"], params.get("arguments", {}))
                 result = {"content": [{"type": "text", "text": encode(value).decode("utf-8")}],
                           "structuredContent": value, "isError": value.get("status") in {"failed", "incomplete", "refused"}}
+                if self.image_content is not None:
+                    result["content"].extend(self.image_content(params["name"], value))
+                # Binary ImageContent is transport data, not a scientific JSON
+                # string subject to the existing 64 KiB field bound. Bound the
+                # serialized wire envelope without weakening record validators.
+                if len(json.dumps(result, ensure_ascii=True, allow_nan=False, separators=(",", ":")).encode("utf-8")) > MAX_MESSAGE - 1024:
+                    raise ValueError("MCP result exceeds bounded wire budget")
             except Exception as exc:
                 value = {"status": "refused", "reason": type(exc).__name__ + ": " + str(exc)[:1000]}
                 result = {"content": [{"type": "text", "text": encode(value).decode("utf-8")}],
@@ -120,8 +128,8 @@ class Server:
         return {"jsonrpc": "2.0", "id": request_id, "result": result}
 
 
-def serve(host: AgentHost, reader: BinaryIO, writer: BinaryIO, *, extra_tools=()) -> int:
-    server = Server(host, extra_tools=extra_tools)
+def serve(host: AgentHost, reader: BinaryIO, writer: BinaryIO, *, extra_tools=(), image_content=None) -> int:
+    server = Server(host, extra_tools=extra_tools, image_content=image_content)
     for _ in range(MAX_REQUESTS * 2):
         line = reader.readline(MAX_MESSAGE + 1)
         if not line:
@@ -212,14 +220,29 @@ def main(argv: list[str] | None = None) -> int:
     command.add_argument("--stateful", action="store_true", help="Also create an optional bounded reference-simulation profile")
     command.add_argument("--stateful-replay", action="store_true", help="Opt in to bounded native/reference suffix replay; requires --stateful")
     command.add_argument("--stateful-campaign", action="store_true", help="Opt in to fixed-preset intervention campaigns; requires --stateful")
+    command.add_argument("--stateful-capture", action="store_true", help="Opt in to observation image capture; requires --stateful and pinned native Godot")
+    command.add_argument("--godot", type=Path)
+    command.add_argument("--godot-sha256")
     args = parser.parse_args(argv)
     if args.command == "demo-config" and (args.stateful_replay or args.stateful_campaign) and not args.stateful:
         parser.error("--stateful-replay and --stateful-campaign require --stateful")
+    if args.command == "demo-config" and args.stateful_capture and (not args.stateful or not args.godot or not args.godot_sha256):
+        parser.error("--stateful-capture requires --stateful, --godot and --godot-sha256")
+    if args.command == "demo-config" and not args.stateful_capture and (args.godot or args.godot_sha256):
+        parser.error("Native image arguments require --stateful-capture")
     try:
         if args.command == "demo-config":
             if args.stateful:
                 from .simulation_agent import demo_profiles
+                if args.stateful_capture:
+                    # Pin preflight before allocating the requested profile directory.
+                    from .godot_capture import GodotObservationRenderer
+                    GodotObservationRenderer(args.godot, args.godot_sha256)
                 base, simulation = demo_profiles(args.output_dir, replay=args.stateful_replay, campaign=args.stateful_campaign)
+                if args.stateful_capture:
+                    from .simulation_agent_capture import native_demo_profile
+                    value = native_demo_profile(parse(_read(simulation)), args.godot, args.godot_sha256)
+                    simulation.write_bytes(encode(value))
                 print(json.dumps({"profile": str(base), "simulation_profile": str(simulation)}))
             else:
                 print(demo_config(args.output_dir))
@@ -234,7 +257,8 @@ def main(argv: list[str] | None = None) -> int:
             from .simulation_agent import from_profile as bind_simulation
             from .simulation_agent_tools import descriptions as simulation_tools
             with bind_simulation(host, args.simulation_profile) as extended:
-                return serve(extended, sys.stdin.buffer, wire, extra_tools=simulation_tools(include_replay=extended.replay_enabled, include_campaign=extended.campaign_enabled))
+                return serve(extended, sys.stdin.buffer, wire, extra_tools=simulation_tools(include_replay=extended.replay_enabled, include_campaign=extended.campaign_enabled, include_capture=extended.capture_enabled),
+                             image_content=extended.image_content if extended.capture_enabled else None)
     except (OSError, ValueError, TypeError, KeyError) as exc:
         print(f"NET agent startup refused: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 1
