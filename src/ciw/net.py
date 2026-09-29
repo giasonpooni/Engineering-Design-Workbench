@@ -116,6 +116,12 @@ def _node(name: str, operation: str, dependencies: list[str] | None = None) -> d
 
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
+    if argv and argv[0] == "agent":
+        from .agent_mcp import main as agent_main
+        return agent_main(argv[1:])
+    if argv and argv[0] == "object":
+        from .computational_cli import main as object_main
+        return object_main(argv[1:])
     if argv and argv[0] == "simulation":
         from .simulation_cli import main as simulation_main
         return simulation_main(argv[1:])
@@ -133,6 +139,8 @@ def main(argv: list[str] | None = None) -> int:
         return science_main(argv[1:])
     parser = argparse.ArgumentParser(prog="net", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
+    commands.add_parser("agent", help="Operate explicitly granted NET tools through local MCP stdio")
+    commands.add_parser("object", help="Inspect committed source, export bounded context, and compare retained observations")
     commands.add_parser("simulation", help="Stateful reference experiment, retained inspection and replay checks")
     commands.add_parser("math", help="Derive bounded covariance and innovation display diagnostics")
     commands.add_parser("view", help="Create a local interactive mathematical inspector")

@@ -1,0 +1,160 @@
+name: Stateful agent bridge
+on:
+  pull_request:
+    paths:
+      - 'src/ciw/agent_*.py'
+      - 'src/ciw/simulation_agent*.py'
+      - 'src/ciw/simulation_control.py'
+      - 'src/ciw/simulation_records.py'
+      - 'src/ciw/net.py'
+      - 'tests/test_simulation_agent_capture.py'
+      - 'tests/test_simulation_capture.py'
+      - 'src/ciw/godot_capture.py'
+      - 'src/ciw/simulation_capture.py'
+      - 'tests/test_simulation_agent.py'
+      - 'tests/test_simulation_agent_replay.py'
+      - 'tests/test_simulation_agent_campaign.py'
+      - 'scripts/check_simulation_agent_capture.py'
+      - 'scripts/check_simulation_agent.py'
+      - 'scripts/check_simulation_agent_replay.py'
+      - 'scripts/check_simulation_agent_campaign.py'
+      - '.github/workflows/stateful-agent.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  bridge:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[dev]' build mcp==1.26.0
+      - name: New bridge and unchanged agent, source and control contracts
+        run: python -m pytest -q tests/test_simulation_agent_capture.py tests/test_simulation_capture.py tests/test_simulation_agent_campaign.py tests/test_simulation_agent_replay.py tests/test_simulation_agent.py tests/test_agent_protocol.py tests/test_computational_source.py tests/test_computational_objects.py tests/test_simulation_control.py tests/test_simulation_campaign.py tests/test_control_plane.py -o addopts= --junitxml=bridge-source.xml
+      - run: python -m build --wheel
+      - name: Installed package and independent SDK client
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import os,pathlib,subprocess,sys,tempfile,xml.etree.ElementTree as ET
+          root=pathlib.Path.cwd()
+          wheel=next((root/'dist').glob('*.whl'))
+          subprocess.run([sys.executable,'-m','pip','install','--force-reinstall','--no-deps',str(wheel)],check=True)
+          env={k:v for k,v in os.environ.items() if k!='PYTHONPATH'}
+          with tempfile.TemporaryDirectory() as tmp:
+              imported=subprocess.check_output([sys.executable,'-I','-c','import ciw;print(ciw.__file__)'],cwd=tmp,env=env,text=True)
+              assert not pathlib.Path(imported.strip()).resolve().is_relative_to(root)
+              subprocess.run([sys.executable,'-I','-m','pytest','-q',str(root/'tests/test_simulation_agent_capture.py'),str(root/'tests/test_simulation_capture.py'),str(root/'tests/test_simulation_agent_campaign.py'),str(root/'tests/test_simulation_agent_replay.py'),str(root/'tests/test_simulation_agent.py'),str(root/'tests/test_agent_protocol.py'),
+                  '-o','pythonpath=','-o','addopts=','--junitxml='+str(root/'bridge-installed.xml')],cwd=tmp,env=env,check=True)
+              for script,directory in [('check_agent_mcp.py','original-sdk'),('check_simulation_agent.py','stateful-sdk'),('check_simulation_agent_replay.py','replay-sdk'),('check_simulation_agent_campaign.py','campaign-sdk')]:
+                  subprocess.run([sys.executable,'-I',str(root/'scripts'/script),'--output-dir',str(root/directory)],cwd=tmp,env=env,check=True)
+          for file,count in [('bridge-source.xml',578),('bridge-installed.xml',307)]:
+              suites=list(ET.parse(file).getroot().iter('testsuite'))
+              assert sum(int(s.attrib['tests']) for s in suites)==count
+              assert all(int(s.attrib[k])==0 for s in suites for k in ('failures','errors','skipped'))
+          import json
+          original=json.loads((root/'original-sdk/report.json').read_text())
+          stateful=json.loads((root/'stateful-sdk/report.json').read_text())
+          assert original['status']=='passed' and original['check_count']==14
+          assert stateful['status']=='passed' and stateful['check_count']==18 and stateful['provider']=='reference'
+          replay=json.loads((root/'replay-sdk/report.json').read_text())
+          assert replay['status']=='passed' and replay['check_count']==19 and replay['provider']=='reference'
+          assert replay['stateful_execution_count']==25 and replay['replay_reservation']==12
+          campaign=json.loads((root/'campaign-sdk/report.json').read_text())
+          assert campaign['status']=='passed' and campaign['check_count']==21 and campaign['provider']=='reference'
+          assert campaign['stateful_execution_count']==50 and campaign['campaign_reservation']==44
+          assert campaign['comparison_max_abs_error']==2.0
+          PY
+      - name: Provision unchanged native point provider
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/agent-godot"
+          cd "$RUNNER_TEMP/agent-godot"
+          curl --fail --location --retry 2 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.5.2-stable/Godot_v4.5.2-stable_linux.x86_64.zip
+          echo '87f6e6be292929e363d15ed9052f277b2ba4e95ed994e1e099048097be2dfd03  godot.zip' | sha256sum --check
+          unzip -q godot.zip
+          chmod +x Godot_v4.5.2-stable_linux.x86_64
+      - name: Official SDK through MCP to actual native owner
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          GODOT="$RUNNER_TEMP/agent-godot/Godot_v4.5.2-stable_linux.x86_64"
+          SHA="sha256:$(sha256sum "$GODOT" | cut -d' ' -f1)"
+          python -I scripts/check_simulation_agent.py --godot "$GODOT" --godot-sha256 "$SHA" --output-dir native-sdk
+          python -I scripts/check_simulation_agent_replay.py --godot "$GODOT" --godot-sha256 "$SHA" --output-dir native-replay-sdk
+          python -I scripts/check_simulation_agent_campaign.py --godot "$GODOT" --godot-sha256 "$SHA" --output-dir native-campaign-sdk
+          python -I - <<'PY'
+          import json,pathlib
+          result=json.loads(pathlib.Path('native-sdk/report.json').read_text())
+          assert result['status']=='passed' and result['check_count']==18 and result['provider']=='godot-point'
+          assert result['comparison_max_abs_error']==0.03125
+          replay=json.loads(pathlib.Path('native-replay-sdk/report.json').read_text())
+          assert replay['status']=='passed' and replay['check_count']==19 and replay['provider']=='godot-point'
+          assert replay['stateful_execution_count']==25 and replay['replay_reservation']==12
+          campaign=json.loads(pathlib.Path('native-campaign-sdk/report.json').read_text())
+          assert campaign['status']=='passed' and campaign['check_count']==21 and campaign['provider']=='godot-point'
+          assert campaign['stateful_execution_count']==50 and campaign['campaign_reservation']==44
+          assert campaign['comparison_max_abs_error']==0.03125
+          PY
+      - name: Provision software-rendered capture display
+        if: runner.os == 'Linux'
+        shell: bash
+        run: |
+          set -euo pipefail
+          sudo apt-get update
+          sudo apt-get install -y xvfb libgl1-mesa-dri
+      - name: Official SDK receives actual native images
+        if: runner.os == 'Linux'
+        shell: bash
+        env:
+          LIBGL_ALWAYS_SOFTWARE: '1'
+        run: |
+          set -euo pipefail
+          GODOT="$RUNNER_TEMP/agent-godot/Godot_v4.5.2-stable_linux.x86_64"
+          SHA="sha256:$(sha256sum "$GODOT" | cut -d' ' -f1)"
+          xvfb-run -a -s '-screen 0 1600x1000x24' python -I scripts/check_simulation_agent_capture.py --godot "$GODOT" --godot-sha256 "$SHA" --output-dir native-capture-sdk
+          python -I - <<'PYTHON'
+          import json,pathlib
+          result=json.loads(pathlib.Path('native-capture-sdk/report.json').read_text())
+          assert result['status']=='passed' and result['image_count']==4
+          assert result['stateful_execution_count']==22 and result['no_llm_invoked']
+          assert result['timeline']['checked_images']==4
+          PYTHON
+      - name: Retain exact source and environment
+        if: always()
+        shell: bash
+        run: |
+          git archive --format=zip --output=bridge-source.zip HEAD
+          python -m pip freeze > bridge-environment.txt
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: stateful-agent-${{ matrix.os }}
+          if-no-files-found: error
+          path: |
+            bridge-source.xml
+            bridge-installed.xml
+            bridge-source.zip
+            bridge-environment.txt
+            original-sdk
+            stateful-sdk
+            native-sdk
+            replay-sdk
+            native-replay-sdk
+            campaign-sdk
+            native-campaign-sdk
+            native-capture-sdk
+            dist/*.whl
