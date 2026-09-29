@@ -11,8 +11,13 @@ from .spatial_requests import add_spatial_routes, make_plan, validate_request
 
 
 def main(argv=None) -> int:
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if argv and argv[0] == "raster":
+        from .rs_cli import main as raster_main
+        return raster_main(argv[1:])
     parser = argparse.ArgumentParser(prog="net spatial", description=__doc__)
     subs = parser.add_subparsers(dest="command", required=True)
+    subs.add_parser("raster", help="Explicit GSC scene/NDVI execution and provider-free result inspection")
     subs.add_parser("catalog", help="List declared, unbound provider targets; no discovery or execution")
     cmd = subs.add_parser("check", help="Check explicit request metadata; does not admit evidence")
     cmd.add_argument("request", type=Path)
@@ -25,6 +30,8 @@ def main(argv=None) -> int:
         registry = builtin_registry()
         add_spatial_routes(registry)
         if args.command == "catalog":
+            from .rs_operations import add_rs_routes
+            add_rs_routes(registry)
             value = registry.catalog("gis_rs")
         else:
             request = load(args.request)

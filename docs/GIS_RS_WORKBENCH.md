@@ -49,9 +49,9 @@ A completed request can reference an externally denied admission; completion is 
 
 Scene/footprint/cloud observations remain provider outputs. Numeric comparison,
 warp, sampling, masking, clipping, resampling, reprojection and NDVI belong to
-specialists. No such algorithms are added here. `spatial.reproject` and
-`rs.index.ndvi` remain future routes; STAC/COG/official-vintage adapters belong in
-GSC or a small specialist repository. GSV grows layers only from released snapshots.
+specialists. No such algorithms are implemented in NET. `spatial.reproject`
+remains a future route; the optional pinned GSC scene/NDVI execution slice below
+adds no authority to these three governance routes. GSV grows layers only from released snapshots.
 
 ## Refuse ambiguity; do not manufacture authority
 
@@ -69,4 +69,8 @@ collection-policy, admission and release records. NET does not classify unseen
 pixels or validate legal rights from a string. Results remain `not_verified`, with
 no verification occurrence, NET admission or NET release. Qualification covers
 request/dispatch contracts with labelled doubles, not live imagery or provider
-acceptance. GSC, GSV, ESM, PPDA, CSR and BIM-CSE remain separate and unchanged.
+acceptance. GSC, GSV, ESM, PPDA, CSR and BIM-CSE retain their separate ownership.
+
+**Executable specialist slice:** [local scene inspection and NDVI](GIS_RS_EXECUTION.md)
+use a separately pinned GSC worker; the three governance routes above remain
+unchanged. This adds candidate numerical observations, not imagery admission.
