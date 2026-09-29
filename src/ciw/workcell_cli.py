@@ -9,27 +9,38 @@ from .control_contracts import keys,load,save_new,bytes_ref,content_ref
 from .foundry_packets import inventory
 from .workcell import WorkcellHost,inspect_attempt
 from .workcell_container import DockerCell
+from .workcell_recipe import installed
 
 
 def from_profile(path:Path):
     path=path.absolute();p=load(path)
-    keys(p,{'schema','source_root','source_id','output_dir','docker','docker_sha256','image_id','socket',
+    title=p.get('schema')=='ciw.workcell-title-host.v1'
+    extra={'recipe','source_profile_sha256'} if title else set()
+    recipe=installed(p['recipe'] if title else 'godot-prop.v1')
+    keys(p,extra|{'schema','source_root','source_id','output_dir','docker','docker_sha256','image_id','socket',
             'writable','max_candidates','max_runs','allow_package'})
-    if p['schema']!='ciw.workcell-profile.v1':raise ValueError('Unsupported workcell profile')
-    backend=DockerCell(docker=Path(p['docker']),docker_sha256=p['docker_sha256'],image_id=p['image_id'],socket=p['socket'])
+    if p['schema'] not in ('ciw.workcell-profile.v1','ciw.workcell-title-host.v1'):raise ValueError('Unsupported workcell profile')
+    if title:
+        from .workcell_title import freeze
+        freeze(path.parent/p['source_root'],path.parent/'source-profile.json',p['source_profile_sha256'])
+    backend=DockerCell(docker=Path(p['docker']),docker_sha256=p['docker_sha256'],image_id=p['image_id'],socket=p['socket'],recipe=recipe)
     return WorkcellHost(path.parent/p['source_root'],path.parent/p['output_dir'],backend,expected_source_id=p['source_id'],
-        writable=tuple(p['writable']),max_candidates=p['max_candidates'],max_runs=p['max_runs'],allow_package=p['allow_package'])
+        writable=tuple(p['writable']),max_candidates=p['max_candidates'],max_runs=p['max_runs'],allow_package=p['allow_package'],recipe=recipe)
 
 
 def main(argv=None):
     parser=argparse.ArgumentParser(prog='net workcell',description=__doc__)
     sub=parser.add_subparsers(dest='command',required=True)
     p=sub.add_parser('configure');p.add_argument('--source-root',type=Path,required=True);p.add_argument('--docker',type=Path,required=True);p.add_argument('--image-id',required=True);p.add_argument('--output-dir',type=Path,required=True);p.add_argument('--allow-package',action='store_true')
+    p=sub.add_parser('title-configure');p.add_argument('--title-root',type=Path,required=True);p.add_argument('--source-profile',type=Path,required=True);p.add_argument('--profile-sha256',required=True);p.add_argument('--docker',type=Path,required=True);p.add_argument('--image-id',required=True);p.add_argument('--output-dir',type=Path,required=True);p.add_argument('--allow-package',action='store_true')
     p=sub.add_parser('serve');p.add_argument('--profile',type=Path,required=True)
     p=sub.add_parser('inspect');p.add_argument('attempt_dir',type=Path)
     p=sub.add_parser('run');p.add_argument('--profile',type=Path,required=True);p.add_argument('--changes',type=Path,required=True)
     args=parser.parse_args(argv)
     try:
+        if args.command=='title-configure':
+            from .workcell_title import configure
+            print(configure(title_root=args.title_root,profile=args.source_profile,profile_sha256=args.profile_sha256,docker=args.docker,image_id=args.image_id,output_dir=args.output_dir,allow_package=args.allow_package));return 0
         if args.command=='configure':
             content_ref(args.image_id)
             source=args.source_root.absolute();docker=args.docker.absolute()

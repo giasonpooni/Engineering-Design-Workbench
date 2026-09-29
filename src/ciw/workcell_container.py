@@ -18,6 +18,8 @@ from .control_contracts import bytes_ref, content_ref, load
 from .core.identities import content_identity
 from .interactive_simulation import run_process
 from .workcell_contracts import RECIPE, STAGES, validate_capture
+from .workcell_recipe import PROP, Recipe, installed
+from .foundry_packets import relative
 
 POLICY = {'network':'none','read_only':True,'user':'65534:65534','cap_drop':['ALL'],
           'no_new_privileges':True,'cpus':1,'memory_bytes':536870912,'pids':64,
@@ -25,7 +27,8 @@ POLICY = {'network':'none','read_only':True,'user':'65534:65534','cap_drop':['AL
           'docker_socket_in_child':False,'automatic_pull':False}
 
 
-def create_args(image_id: str, name: str, source: Path, stage: str) -> list[str]:
+def create_args(image_id: str, name: str, source: Path, stage: str, *, recipe_id=RECIPE) -> list[str]:
+    installed(recipe_id)
     content_ref(image_id)
     if stage not in STAGES or re.fullmatch('net-cell-[0-9a-f]{32}',name) is None:
         raise ValueError('Unsupported cell stage or name')
@@ -38,7 +41,7 @@ def create_args(image_id: str, name: str, source: Path, stage: str) -> list[str]
             '--log-driver=none','--tmpfs=/work:rw,exec,nosuid,nodev,size=67108864,uid=65534,gid=65534',
             '--tmpfs=/tmp:rw,noexec,nosuid,nodev,size=8388608,uid=65534,gid=65534',
             '--mount',f'type=bind,source={source},target=/input,readonly,bind-propagation=rprivate',
-            '--workdir=/work','--entrypoint=/usr/bin/python3',image_id,'-I','/recipe/runner.py',stage]
+            '--workdir=/work','--entrypoint=/usr/bin/python3',image_id,'-I','/recipe/runner.py',stage] + ([] if recipe_id==RECIPE else [recipe_id])
 
 
 def verify_config(value: dict, image: str, source: Path):
@@ -64,7 +67,8 @@ def verify_config(value: dict, image: str, source: Path):
 
 class DockerCell:
     def __init__(self, *, docker: Path, docker_sha256: str, image_id: str,
-                 socket: str='unix:///var/run/docker.sock'):
+                 socket: str='unix:///var/run/docker.sock', recipe: Recipe=PROP):
+        self.recipe=recipe
         if os.name!='posix' or not socket.startswith('unix:///') or '\n' in socket:
             raise ValueError('First workcell profile requires an explicit local Unix Docker daemon')
         self.docker=Path(docker).absolute()
@@ -72,7 +76,7 @@ class DockerCell:
         if not self.docker.is_file() or bytes_ref(self.docker.read_bytes())!=docker_sha256:
             raise ValueError('Docker executable differs from operator binding')
         self.socket=socket
-        self.identity={'provider':'net.docker-workcell','recipe':RECIPE,'docker_sha256':docker_sha256,
+        self.identity={'provider':'net.docker-workcell','recipe':recipe.recipe_id,'docker_sha256':docker_sha256,
                        'image_id':image_id,'policy_sha256':content_identity(POLICY),
                        'adapter_sha256':bytes_ref(Path(__file__).read_bytes()),'execution_mode':'docker_container'}
         self.image_id=image_id
@@ -101,7 +105,7 @@ class DockerCell:
 
     def invoke(self, stage: str, files: dict[str,bytes], candidate_id: str):
         self.runtime_identity(); content_ref(candidate_id)
-        expected = {'compiler.py','motion.gd','spec.json'} if stage=='build' else {'mesh.json','motion.gd','prop.res','main.scn'}
+        expected = self.recipe.input_paths(stage)
         if stage not in STAGES or set(files)!=expected or any(type(v) is not bytes or len(v)>512*1024 for v in files.values()):
             raise ValueError('Invalid workcell stage input set')
         start=time.monotonic(); name='net-cell-'+uuid.uuid4().hex; nonce=uuid.uuid4().hex
@@ -110,10 +114,11 @@ class DockerCell:
             root=Path(temp); root.chmod(0o755)
             source=root/'input';source.mkdir(mode=0o755)
             for path,raw in files.items():
-                p=source/path;p.write_bytes(raw);p.chmod(0o444)
+                relative(path)
+                p=source/path;p.parent.mkdir(parents=True,exist_ok=True);p.write_bytes(raw);p.chmod(0o444)
             (source/'request.json').write_text(json.dumps({'nonce':nonce}));(source/'request.json').chmod(0o444)
             try:
-                container_id=self._control(create_args(self.image_id,name,source,stage),json_output=False)
+                container_id=self._control(create_args(self.image_id,name,source,stage,recipe_id=self.recipe.recipe_id),json_output=False)
                 created=True
                 state=self._control(['inspect',name])[0]
                 verify_config(state,self.image_id,source)
@@ -135,5 +140,5 @@ class DockerCell:
                 'process':process,'elapsed_wall_s':time.monotonic()-start,
                 'isolation':{'mode':'docker_container','image_id':self.image_id,'container_id':container_id,
                              'policy_sha256':content_identity(POLICY),'checked_before_start':True,'cleanup_complete':True}}
-        validate_capture(result,stage,candidate_id)
+        self.recipe.validate(result,stage,candidate_id)
         return result

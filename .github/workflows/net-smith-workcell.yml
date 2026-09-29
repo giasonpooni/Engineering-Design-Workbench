@@ -1,0 +1,109 @@
+name: Title-owned smith MCP workcell
+on:
+  pull_request:
+    paths:
+      - 'src/ciw/workcell*.py'
+      - 'src/ciw/agent_mcp.py'
+      - 'tests/test_workcell*.py'
+      - 'scripts/check_smith_workcell.py'
+      - 'tools/workcell-godot/**'
+      - 'docs/TITLE_WORKCELLS.md'
+      - '.github/workflows/net-smith-workcell.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+jobs:
+  native:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: giasonpooni/1792
+          ref: 3b0df49770359dedbead27b55c8143a96a99a5bb
+          path: title
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[dev]' build mcp==1.26.0
+      - name: Capsule and new plus unchanged contracts
+        run: |
+          python title/tools/check_smith_workcell.py
+          python -m pytest -q tests/test_workcell.py tests/test_workcell_snapshot.py tests/test_workcell_smith.py tests/test_foundry_pipeline.py tests/test_foundry.py tests/test_production.py tests/test_game_trace.py tests/test_game_session.py tests/test_game_retention.py tests/test_control_plane.py tests/test_interactive_contract.py tests/test_interactive_session.py tests/test_agent_protocol.py tests/test_computational_objects.py tests/test_computational_source.py --junitxml=smith-source.xml
+      - name: Provision immutable image before candidate execution
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/smith-image" "$RUNNER_TEMP/godot"
+          cp tools/workcell-godot/* "$RUNNER_TEMP/smith-image/"
+          python - <<'PY'
+          import json
+          from pathlib import Path
+          from ciw.workcell_smith import SMITH
+          assert json.loads(Path('tools/workcell-godot/smith_recipe.json').read_text()) == {'recipe':SMITH.recipe_id,'sources':list(SMITH.source_paths),'outputs':{k:list(v) for k,v in SMITH.outputs.items()}}
+          PY
+          curl --fail --location --retry 2 --max-time 180 https://github.com/godotengine/godot-builds/releases/download/4.5.1-stable/Godot_v4.5.1-stable_linux.x86_64.zip -o "$RUNNER_TEMP/godot.zip"
+          echo "02ec53d1cc7dbb9cc6355393c61b9ab43d1244751a124f10248a4802830788cd  $RUNNER_TEMP/godot.zip" | sha256sum --check
+          unzip -q "$RUNNER_TEMP/godot.zip" -d "$RUNNER_TEMP/godot"
+          cp "$RUNNER_TEMP/godot/Godot_v4.5.1-stable_linux.x86_64" "$RUNNER_TEMP/smith-image/godot"
+          docker pull ubuntu:24.04
+          BASE=$(docker image inspect ubuntu:24.04 --format '{{index .RepoDigests 0}}')
+          echo "$BASE" > smith-base.txt
+          docker build --build-arg "BASE=$BASE" -t net-smith-qualified "$RUNNER_TEMP/smith-image"
+          docker image inspect net-smith-qualified --format '{{.Id}}' > smith-image-id.txt
+          docker image inspect net-smith-qualified > smith-image-inspect.json
+          docker version > smith-docker-version.txt
+      - run: python -m build --wheel
+      - name: Installed package plus real MCP native image/assembly loop
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install --force-reinstall --no-deps dist/*.whl
+          export NET_WORKCELL_TEST_ROOT="$GITHUB_WORKSPACE"
+          mkdir -p "$GITHUB_WORKSPACE/results"
+          cd "$RUNNER_TEMP"
+          env -u PYTHONPATH python -c 'import ciw.workcell_smith; assert "site-packages" in ciw.workcell_smith.__file__'
+          cp "$GITHUB_WORKSPACE/tests/test_workcell"*.py .
+          env -u PYTHONPATH python -m pytest -q test_workcell.py test_workcell_snapshot.py test_workcell_smith.py --junitxml="$GITHUB_WORKSPACE/smith-installed.xml"
+          env -u PYTHONPATH python "$GITHUB_WORKSPACE/scripts/check_smith_workcell.py" \
+            --title-root "$GITHUB_WORKSPACE/title/game" \
+            --source-profile "$GITHUB_WORKSPACE/title/tools/net/smith-workcell.profile.json" \
+            --profile-sha256 sha256:440da6fcd941a413bd90cf0d39259ab0030c277b49823588f59dbc86c3194b17 \
+            --docker "$(command -v docker)" --image-id "$(cat "$GITHUB_WORKSPACE/smith-image-id.txt")" \
+            --output-dir "$GITHUB_WORKSPACE/results/smith"
+      - name: Require complete qualification
+        run: |
+          python - <<'PY'
+          import json,xml.etree.ElementTree as E
+          for path,n in [('smith-source.xml',623),('smith-installed.xml',95)]:
+              s=list(E.parse(path).getroot().iter('testsuite'))
+              assert sum(int(x.attrib['tests']) for x in s)>=n
+              assert all(int(x.attrib[k])==0 for x in s for k in ('failures','errors','skipped'))
+          r=json.load(open('results/smith/qualification.json'))
+          assert r['status']=='passed' and r['native_container_attempts']==11
+          PY
+          git diff --check
+      - name: Retain exact sources and partial failures
+        if: always()
+        run: |
+          git archive --format=zip --output=smith-net-source.zip HEAD
+          git -C title archive --format=zip --output="$GITHUB_WORKSPACE/smith-title-source.zip" HEAD
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: smith-workcell-evidence
+          path: |
+            smith-*.xml
+            smith-*.txt
+            smith-image-inspect.json
+            smith-*-source.zip
+            dist/*.whl
+            results/smith
+          if-no-files-found: error

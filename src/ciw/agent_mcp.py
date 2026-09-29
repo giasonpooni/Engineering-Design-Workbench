@@ -104,7 +104,8 @@ class Server:
             try:
                 with contextlib.redirect_stdout(sys.stderr):
                     value = self.host.call(params["name"], params.get("arguments", {}))
-                result = {"content": [{"type": "text", "text": encode(value).decode("utf-8")}],
+                formatted = self.host.mcp_result(params["name"], value) if hasattr(self.host, "mcp_result") else None
+                result = formatted if formatted is not None else {"content": [{"type": "text", "text": encode(value).decode("utf-8")}],
                           "structuredContent": value, "isError": value.get("status") in {"failed", "incomplete"}}
             except Exception as exc:
                 value = {"status": "refused", "reason": type(exc).__name__ + ": " + str(exc)[:1000]}

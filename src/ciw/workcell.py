@@ -10,7 +10,9 @@ from pathlib import Path
 import threading
 import tempfile
 import stat
+import base64
 
+from .workcell_recipe import PROP, Recipe, installed
 from .agent_api import identifier
 from .agent_tools import _shape, tool
 from .control_contracts import bytes_ref, content_ref, detached, keys, load, save_new
@@ -31,11 +33,14 @@ TOOLS = {
 }
 
 
+PREVIEW = tool('preview','Read a retained native image for this attempt and fixed view as MCP image content. No rendering or execution. Rejected technical work remains labelled rejected; pixels are not art approval.',
+    {'attempt':TOKEN,'view':{'type':'string','enum':['daylight','evening']}},('attempt','view'))
+
 def descriptions():
     return [{'name':n,**deepcopy({k:v for k,v in spec.items() if k!='method'})} for n,spec in TOOLS.items()]
 
 
-def source_record(candidate: str, slot_id: str, files: dict[str,bytes]):
+def source_record(candidate: str, slot_id: str, files: dict[str,bytes], *, recipe=PROP):
     from .adapters.protocol import InstrumentManifest
     manifest=InstrumentManifest(instrument_id='net.workcell-declaration.v1',role='operation_provider',
         units={'declaration':'1'},frames=('workcell-declaration',),sampling={'kind':'declaration_only'},supported_operations=())
@@ -49,7 +54,8 @@ def source_record(candidate: str, slot_id: str, files: dict[str,bytes]):
 
 
 class CellOperations:
-    def __init__(self, backend, files, candidate):
+    def __init__(self, backend, files, candidate, *, recipe=PROP):
+        self.recipe=recipe
         self.backend=backend; self.files=files; self.candidate=candidate; self.captures={}
 
     def runtime_identity(self):
@@ -62,13 +68,14 @@ class CellOperations:
             raise ValueError('Wrong candidate binding')
         if stage=='build':files=self.files
         else:
-            if 'build' not in self.captures or checks_for(self.captures['build'])['status']!='PASS':
+            if 'build' not in self.captures or self.recipe.checks(self.captures['build'])['status']!='PASS':
                 raise ValueError('No accepted compiled input for next stage')
-            if stage=='package' and ('test' not in self.captures or checks_for(self.captures['test'])['status']!='PASS'):
+            if stage=='package' and ('test' not in self.captures or self.recipe.checks(self.captures['test'])['status']!='PASS'):
                 raise ValueError('Package threshold not crossed')
-            files={n:artifact_bytes(v) for n,v in self.captures['build']['process']['files'].items()}
+            files={**(self.files if self.recipe.carry_source else {}),
+                   **{n:artifact_bytes(v) for n,v in self.captures['build']['process']['files'].items()}}
         value=self.backend.invoke(stage,files,self.candidate)
-        if stage=='build' and value['process']['outcome']=='completed' and artifact_bytes(value['process']['files']['motion.gd'])!=files['motion.gd']:
+        if self.recipe.recipe_id==RECIPE and stage=='build' and value['process']['outcome']=='completed' and artifact_bytes(value['process']['files']['motion.gd'])!=files['motion.gd']:
             raise ValueError('Compiler changed the separately bound mechanic source')
         self.captures[stage]=deepcopy(value)
         return value
@@ -77,19 +84,20 @@ class CellOperations:
         from .adapters.protocol import InstrumentManifest
         from .control_plane import CapabilityRegistry
         from .operations.registry import Operation
-        register_schemas(); reg=CapabilityRegistry()
+        self.recipe.register(); reg=CapabilityRegistry()
+        operations=self.recipe.operations
         manifest=InstrumentManifest(instrument_id='net.container-workcell',version='1',role='operation_provider',
             inputs=('run.v1',),outputs=('ciw.workcell-capture.v1',),units={},frames=(),
             sampling={'mode':'bounded_stage_capture'},normalization={'none':True},
-            supported_operations=tuple(OPS[s] for s in stages),determinism={'claim':'not_from_language_or_container'},
+            supported_operations=tuple(operations[s] for s in stages),determinism={'claim':'not_from_language_or_container'},
             tolerance_policy={'policy':'installed_workcell_gates'},calibration_requirements={'status':'not_physical_measurement'})
-        reg.advertise(manifest,runtime=self.runtime_identity(),capabilities={OPS[s]:['workcell.'+s] for s in stages})
+        reg.advertise(manifest,runtime=self.runtime_identity(),capabilities={operations[s]:['workcell.'+s] for s in stages})
         for stage in stages:
-            reg.bind(Operation(OPS[stage],'backend',lambda r,p,s=stage:self.invoke(s,r,p),self.runtime_identity))
+            reg.bind(Operation(operations[stage],'backend',lambda r,p,s=stage:self.invoke(s,r,p),self.runtime_identity))
         return reg
 
 
-def inspect_attempt(root: Path):
+def inspect_attempt(root: Path, *, preview: str | None = None):
     """Freeze one bounded input set, then validate and summarize those same bytes."""
     source=root_dir(root)
     names=['plan.json','bindings.json','production.json','session/workspace.json']
@@ -97,7 +105,8 @@ def inspect_attempt(root: Path):
         for suffix in ('.json','-graph.json','-checks.json'):
             name=f'attempt-{i:04d}'+suffix
             if (source/name).exists() or (source/name).is_symlink():names.append(name)
-    if (source/'slice.pck').exists() or (source/'slice.pck').is_symlink():names.append('slice.pck')
+    for name in ('slice.pck','smith.pck','daylight.png','evening.png'):
+        if (source/name).exists() or (source/name).is_symlink():names.append(name)
     total=0
     with tempfile.TemporaryDirectory(prefix='net-workcell-inspect-') as directory:
         frozen=Path(directory)
@@ -106,22 +115,39 @@ def inspect_attempt(root: Path):
             if path.is_symlink() or path.parent.is_symlink():raise ValueError('Linked retained workcell file')
             info=path.stat(follow_symlinks=False)
             if not stat.S_ISREG(info.st_mode) or info.st_nlink!=1:raise ValueError('Not a regular retained workcell file')
-            maximum=512*1024 if name=='slice.pck' else 8*1024*1024
+            maximum=512*1024 if name.endswith(('.pck','.png')) else 8*1024*1024
             with path.open('rb') as stream:raw=stream.read(maximum+1)
             total+=len(raw)
             if len(raw)>maximum or total>32*1024*1024:raise ValueError('Retained workcell exceeds byte budget')
             target=frozen/name;target.parent.mkdir(parents=True,exist_ok=True);target.write_bytes(raw)
-        return _inspect_frozen(frozen)
+        report=_inspect_frozen(frozen)
+        if preview is None:return report
+        if preview not in ('daylight','evening'):raise ValueError('Unknown fixed preview view')
+        if load(frozen/'plan.json')['project_id']!='1792.smith.v1':raise ValueError('Recipe has no image preview operation')
+        production=load(frozen/'production.json');job=production['jobs']['test']
+        if not job['attempts']:raise ValueError('No executed visual observation')
+        receipt=load(frozen/job['attempts'][-1]['name'])
+        graph=load(frozen/receipt['graph']['name']);result=graph['nodes']['candidate'].get('result')
+        if result is None or preview+'.png' not in result['data']['process']['files']:
+            raise ValueError('No native image in this attempt')
+        item=result['data']['process']['files'][preview+'.png']
+        from .workcell_pixels import decode
+        decode(artifact_bytes(item))
+        return {'schema':'ciw.workcell-preview.v1','status':'observed','view':preview,'job_status':job['status'],
+                'execution_id':result['execution_id'],'result_id':result['result_id'],
+                'candidate_id':result['data']['candidate_id'],'image':item,
+                'fresh_execution':False,'art_review':'not_performed','release_authorized':False}
 
 
 def _inspect_frozen(root: Path):
     from .production import inspect_production
-    register_schemas()
     root=Path(root)
-    checked=inspect_production(root,gates())
+    recipe=installed(load(root/'plan.json')['project_id'])
+    recipe.register()
+    checked=inspect_production(root,recipe.gates())
     report=load(root/'production.json')
     details={}
-    expected_package=None
+    expected_exports={}
     for name,job in report['jobs'].items():
         row={'status':job['status'],'blocked_by':job['blocked_by'],'attempts':[]}
         for reference in job['attempts']:
@@ -129,8 +155,9 @@ def _inspect_frozen(root: Path):
             check=load(root/receipt['acceptance']['name'])
             node=graph['nodes']['candidate']
             result=node.get('result')
-            if name=='package' and receipt['status']=='accepted' and result is not None:
-                expected_package=artifact_bytes(result['data']['process']['files']['slice.pck'])
+            if receipt['status']=='accepted' and result is not None:
+                for exported in recipe.exports.get(name,()):
+                    expected_exports[exported]=artifact_bytes(result['data']['process']['files'][exported])
             row['attempts'].append({'status':receipt['status'],'checks':check['checks'],
                 'execution_id':node.get('execution',{}).get('execution_id'),
                 'result_id':None if result is None else result['result_id'],
@@ -138,10 +165,11 @@ def _inspect_frozen(root: Path):
                 'logs':None if result is None else result['data']['process']['logs'],
                 'artifacts':{} if result is None else {n:{'sha256':v['sha256'],'bytes':v['bytes']} for n,v in result['data']['process']['files'].items()}})
         details[name]=row
-    exported=root/'slice.pck'
-    if exported.exists():
-        if exported.is_symlink() or expected_package is None or exported.read_bytes()!=expected_package:
-            raise ValueError('Exported package differs from its accepted result')
+    for name in ('slice.pck','smith.pck','daylight.png','evening.png'):
+        exported=root/name
+        if exported.exists():
+            if exported.is_symlink() or name not in expected_exports or exported.read_bytes()!=expected_exports[name]:
+                raise ValueError('Exported artifact differs from its accepted result')
     return {'schema':'ciw.workcell-feedback.v1','status':checked['status'],'fresh_execution':False,
             'production_id':report['production_id'],'jobs':details,'execution_count':report['execution_count'],
             'result_count':report['result_count'],'release_authorized':False,
@@ -154,19 +182,21 @@ class WorkcellHost:
                     'The host automatically packages only after its fixed gates pass and only '
                     'when already granted. Do not claim historical, artistic or release approval.')
     def __init__(self, source_root:Path, output_dir:Path, backend, *, expected_source_id:str,
-                 writable=('compiler.py','motion.gd'), max_candidates=8, max_runs=8, allow_package=True):
+                 writable=None, max_candidates=8, max_runs=8, allow_package=True, recipe: Recipe=PROP):
+        self.recipe=recipe
+        writable=recipe.writable_paths if writable is None else writable
         source_root=root_dir(source_root)
         baseline=inventory(source_root); content_ref(expected_source_id)
         if baseline['inventory_id']!=expected_source_id:raise ValueError('Source lock differs from operator grant')
-        if set(baseline['files'])!={'compiler.py','motion.gd','spec.json'}:
-            raise ValueError('Installed recipe requires an explicit three-file source capsule')
-        if set(writable)-{'compiler.py','motion.gd'} or len(writable)!=len(set(writable)):
+        if set(baseline['files'])!=set(recipe.source_paths):
+            raise ValueError('Source capsule differs from the installed recipe file set')
+        if set(writable)-set(recipe.writable_paths) or len(writable)!=len(set(writable)):
             raise ValueError('Cannot grant protected recipe/specification files')
         for limit in (max_candidates,max_runs):
             if type(limit) is not int or not 1<=limit<=16:raise ValueError('Slot budget must be 1..16')
         if type(allow_package) is not bool:raise ValueError('Explicit package grant required')
-        self.project=seal({'schema':'ciw.workcell-source.v1','baseline':baseline,'recipe':RECIPE})
-        self.task={'task_id':'compile-prop-mechanic','completion':'artifact_review','acceptance':deepcopy(POLICY)}
+        self.project=seal({'schema':'ciw.workcell-source.v1','baseline':baseline,'recipe':recipe.recipe_id})
+        self.task={'task_id':'compile-prop-mechanic','completion':'artifact_review','acceptance':deepcopy(recipe.policy)}
         self.packet=make_packet(self.project,self.task,source_root,writable=list(writable),context=list(baseline['files']),assignee='external-agent',max_changed_bytes=131072)
         self.packet_id=self.packet['record_digest']  # Independently retained from agent submissions.
         self.original={n:read_file(source_root,n) for n in baseline['files']}
@@ -182,18 +212,37 @@ class WorkcellHost:
             'max_candidates':max_candidates,'max_runs':max_runs,'allow_package':allow_package,
             'rights':{'submit':bool(writable),'build':True,'package':allow_package,'merge':False,'release':False}}))
 
-    def descriptions(self):return descriptions()
+    def descriptions(self):
+        result=descriptions()
+        if self.recipe.recipe_id=='1792.smith.v1':
+            result.append({'name':'net_cell_preview',**deepcopy({k:v for k,v in PREVIEW.items() if k!='method'})})
+        return result
+
+    def mcp_result(self,name,value):
+        if name!='net_cell_preview':return None
+        from .agent_api import encode
+        raw=artifact_bytes(value['image'])
+        metadata={**value,'image':{k:value['image'][k] for k in ('sha256','bytes')}}
+        return {'structuredContent':metadata,'isError':False,
+                'content':[{'type':'text','text':encode(metadata).decode('utf-8')},
+                           {'type':'image','data':base64.b64encode(raw).decode(),'mimeType':'image/png'}]}
+
+    def preview(self,attempt,view):
+        identifier(attempt)
+        if attempt not in self.runs:raise ValueError('Unknown attempt')
+        return inspect_attempt(self.root/'runs'/attempt,preview=view)
 
     def call(self,name,args):
-        if name not in TOOLS:raise ValueError('Unknown workcell tool')
-        _shape(args,TOOLS[name]['inputSchema']);detached(args)
-        with self.lock:return getattr(self,TOOLS[name]['method'])(**args)
+        available={**TOOLS,**({'net_cell_preview':PREVIEW} if self.recipe.recipe_id=='1792.smith.v1' else {})}
+        if name not in available:raise ValueError('Unknown workcell tool')
+        _shape(args,available[name]['inputSchema']);detached(args)
+        with self.lock:return getattr(self,available[name]['method'])(**args)
 
     def describe(self):
-        return {'schema':'ciw.workcell-access.v1','packet':deepcopy(self.packet),'tools':[t['name'] for t in descriptions()],
+        return {'schema':'ciw.workcell-access.v1','packet':deepcopy(self.packet),'tools':[t['name'] for t in self.descriptions()],
                 'runtime':self.backend.runtime_identity(),'candidates_remaining':self.max_candidates-len(self.candidates),
                 'runs_remaining':self.max_runs-len(self.runs),'package_grant':self.allow_package,
-                'threshold':deepcopy(POLICY),'automatic_model_calls':False,'concurrency':'single_supervisor_sequential'}
+                'threshold':deepcopy(self.recipe.policy),'automatic_model_calls':False,'concurrency':'single_supervisor_sequential'}
 
     def submit(self,attempt,changes):
         identifier(attempt)
@@ -212,7 +261,8 @@ class WorkcellHost:
         if handle not in self.candidates:
             if len(self.candidates)>=self.max_candidates:raise ValueError('Slot candidate budget exhausted')
             root=self.root/'candidates'/handle;root.mkdir(parents=True)
-            for n,v in raw.items():(root/n).write_bytes(v)
+            for n,v in raw.items():
+                path=root/n;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(v)
             scope=check_candidate(self.packet,self.project,self.task,root,expected_packet_id=self.packet_id)
             save_new(self.root/'candidates'/(handle+'.json'),scope)
             if scope['status']!='scope_passed':raise ValueError('Candidate scope check failed')
@@ -239,23 +289,29 @@ class WorkcellHost:
         if content_identity({n:bytes_ref(v) for n,v in files.items()})!=cid:raise ValueError('Candidate memory drift')
         self.runs[attempt]=(candidate,None)
         stages=STAGES if self.allow_package else STAGES[:2]
-        binding=CellOperations(self.backend,deepcopy(files),cid)
-        registry=binding.registry(stages);source=source_record(cid,self.packet_id,files)
+        binding=CellOperations(self.backend,deepcopy(files),cid,recipe=self.recipe)
+        registry=binding.registry(stages);source=source_record(cid,self.packet_id,files,recipe=self.recipe)
         jobs=[]
         for index,stage in enumerate(stages):
             jobs.append(_job(stage,'container-cell',['workcell.'+stage],
-                [_graph(stage,OPS[stage],{'candidate_id':cid},model=RECIPE)],
-                [{'check_id':stage+'-required','node_id':'candidate','gate_id':'workcell.quality.v1','policy':deepcopy(POLICY)}],
+                [_graph(stage,self.recipe.operations[stage],{'candidate_id':cid},model=self.recipe.recipe_id)],
+                [{'check_id':stage+'-required','node_id':'candidate','gate_id':next(iter(self.recipe.gates())),'policy':deepcopy(self.recipe.policy)}],
                 stages[index-1:index]))
-        specification=plan('workcell-build',project_id=RECIPE,source_evidence_id=source['evidence_id'],jobs=jobs)
+        specification=plan('workcell-build',project_id=self.recipe.recipe_id,source_evidence_id=source['evidence_id'],jobs=jobs)
         root=self.root/'runs'/attempt
-        run_production(source,specification,registry,(Worker('container-cell',tuple(OPS[s] for s in stages)),),gates(),root,max_operations=len(stages))
+        run_production(source,specification,registry,(Worker('container-cell',tuple(self.recipe.operations[s] for s in stages)),),self.recipe.gates(),root,max_operations=len(stages))
         response=inspect_attempt(root)
-        if response['status']=='completed' and self.allow_package:
-            # Export the exact accepted package, never the last arbitrary output.
-            item=binding.captures['package']['process']['files']['slice.pck']
-            (root/'slice.pck').write_bytes(artifact_bytes(item))
-        response.update({'candidate':candidate,'reused_response':False,'package_created':(root/'slice.pck').is_file()})
+        exports={}
+        for stage,names in self.recipe.exports.items():
+            if response['jobs'].get(stage,{}).get('status')!='accepted':continue
+            for name in names:
+                item=binding.captures[stage]['process']['files'][name]
+                with (root/name).open('xb') as stream:stream.write(artifact_bytes(item))
+                exports[name]={'sha256':item['sha256'],'bytes':item['bytes']}
+        response.update({'candidate':candidate,'reused_response':False,
+            'package_created':any(name.endswith('.pck') for name in exports)})
+        if self.recipe.recipe_id!=RECIPE:
+            response.update(recipe=self.recipe.recipe_id,exports=exports,art_review='not_performed')
         save_new(root/'workcell-feedback.json',response)
         self.runs[attempt]=(candidate,deepcopy(response))
         return response

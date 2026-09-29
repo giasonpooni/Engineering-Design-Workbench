@@ -47,6 +47,11 @@ def engine(script, label):
 
 
 def main():
+    if len(sys.argv)==3:
+        if sys.argv[2]!='1792.smith.v1': raise ValueError('Unknown installed recipe')
+        import runpy
+        runpy.run_path('/recipe/title_runner.py',run_name='__main__')
+        return
     stage = sys.argv[1]
     if stage not in ('build','test','package'): raise ValueError('Unknown installed stage')
     request = json.loads(read(INPUT/'request.json'))
