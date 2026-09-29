@@ -306,3 +306,12 @@ def test_only_prescribed_asset_path_and_tasks_can_select_worker(case):
     for task,path in [('vision',c.OUTPUT),('art-target','assets/another.glb')]:
         value=packets.make_packet(p,pipeline.task_for(p,task),root,writable=[path],context=[],assignee='fixture')
         with pytest.raises(ValueError):w.assignment(p,value,value['record_digest'])
+
+
+def test_author_uses_numeric_release_not_display_suffix():
+    from types import SimpleNamespace
+    from ciw.foundry_asset_blender import release_version
+    app = SimpleNamespace(version=(4, 5, 3), version_string="4.5.3 LTS")
+    assert release_version(app) == "4.5.3"
+    app.version = (4, 5, 4)
+    assert release_version(app) == "4.5.4"  # no relabelling an unqualified build

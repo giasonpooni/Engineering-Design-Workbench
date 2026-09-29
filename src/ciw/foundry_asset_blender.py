@@ -9,6 +9,11 @@ import json
 import sys
 
 
+def release_version(app):
+    """Bind numeric release identity; a display label may include an LTS suffix."""
+    return ".".join(str(part) for part in app.version)
+
+
 def main():
     import bpy
     args = sys.argv[sys.argv.index('--') + 1:]
@@ -57,9 +62,10 @@ def main():
         export_yup=True, export_animations=False, export_extras=False,
         export_texcoords=False, export_normals=True, export_tangents=False,
         export_materials='EXPORT', export_cameras=False, export_lights=False)
+    print('BLENDER_VERSION_LABEL:', bpy.app.version_string)
     with report.open('x', encoding='utf-8') as stream:
         json.dump({'schema': 'ciw.workbench-author.v1', 'request': request,
-                   'blender_version': bpy.app.version_string}, stream)
+                   'blender_version': release_version(bpy.app)}, stream)
 
 
 if __name__ == '__main__':
