@@ -1,5 +1,37 @@
 # Notations Engineering Terminal
 
+## Historical-perspective authoring tool
+
+This branch adds **`net history`**: deterministic actor-specific information
+views and annotated-dialogue audits on the existing NET Session and registries.
+It retains delayed delivery, conflicting reports, explicit beliefs-about-others
+and source classifications without granting actors the operator's world truth.
+
+```sh
+python -m pip install -e '.[dev]'
+net history demo --output-dir results/history-001
+net history inspect results/history-001/workspace.json
+```
+
+[Install, use, export actor views and inspect limits](docs/HISTORICAL_PERSPECTIVE.md).
+This is a Python authoring tool, not a live game integration, semantic dialogue
+checker or psychological/historical truth estimator. No engine or model account
+is required. The demo deliberately retains two failed and one indeterminate
+annotation checks; those are expected diagnostics, not accepted historical claims.
+
+**Production order:** 1792 is primary; Hero of the Two Worlds / Garibaldi proceeds
+slowly as the secondary project and workflow-transfer test; Geronimo is on hold.
+The full Ranjit Singh narrative still precedes historical-character DLC production.
+Notations Game Foundry remains a workload on NET, not another engine/workbench.
+The guide preserves the historical-graph, situated-knowledge and theory-of-mind
+requirements while separating implemented operations from the longer-term design.
+
+This increment extends the original PR #65 substrate. Parallel Foundry and
+real-title production work in PR #67/#68 remains separately tracked, not silently
+merged or replaced here. The existing README below is retained unchanged.
+
+---
+
 **A programmable workbench for scientific computing and game/simulation development.**
 
 **Notations Engineering Terminal (NET)** is the terminal-first workbench from
