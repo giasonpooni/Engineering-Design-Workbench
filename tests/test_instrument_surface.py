@@ -23,6 +23,11 @@ def test_manifest_contract_is_bounded_and_versioned():
     assert value["schema"] == "notations.instrument.v1"
     assert value["identity"]["maturity"] == "INSTRUMENT"
     assert value["operation"]["semantic_capability"] == "time.sync.v1"
+    assert value["provider"]["id"] == "org.notationsystems.clocksync"
+    assert value["provider"]["execution_profile"] == "scientific"
+    assert value["provider"]["execution_mode"] == "headless"
+    assert value["provider"]["ports"]["inputs"]["request"]["schema"] == "notations.clocksync.request.v1"
+    assert value["provider"]["ports"]["outputs"]["result"]["schema"] == "notations.clocksync.result.v1"
     assert value["implementation"]["network_required"] is False
     assert value["implementation"]["hardware_required"] is False
 
