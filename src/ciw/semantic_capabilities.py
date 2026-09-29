@@ -73,7 +73,10 @@ class SemanticMorphism:
         _capability_id(self.capability_id)
         if self.kind not in KINDS:
             raise ValueError("Unknown semantic capability kind")
-        text(self.description)
+        if type(self.description) is not str or len(self.description) > 512:
+            raise ValueError("Semantic description must be bounded text")
+        if self.description and not self.description.strip():
+            raise ValueError("Semantic description cannot be whitespace-only")
         return {
             "capability_id": self.capability_id,
             "kind": self.kind,
