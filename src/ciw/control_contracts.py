@@ -20,7 +20,8 @@ MAX_BYTES = 8 * 1024 * 1024
 MAX_SAMPLES = 65536
 SCHEMAS = {f"ciw.{name}.v1" for name in (
     "state", "observation", "artifact", "experiment", "comparison", "verification",
-    "checkpoint", "parameter-space", "graph-run", "observation-stream")}
+    "checkpoint", "parameter-space", "graph-run", "observation-stream",
+    "annotation", "annotation-stream")}
 
 
 def text(value: Any) -> str:
