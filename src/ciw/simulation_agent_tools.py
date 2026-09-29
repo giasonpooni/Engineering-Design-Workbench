@@ -26,16 +26,30 @@ TOOLS[REPLAY_TOOL] = tool("replay",
     ("checkpoint", "instance", "expected", "attempt"), read=False, external=True)
 
 
-def descriptions(*, include_replay=False):
+CAMPAIGN_TOOL = "net_sim_campaign"
+TOOLS[CAMPAIGN_TOOL] = tool("campaign",
+    "Run an explicitly operator-granted intervention campaign from one host-captured paused checkpoint. "
+    "Supply source instance/fence, named campaign template and attempt. Each variant gets a fresh owner; "
+    "the existing campaign runner/comparator retain original outcomes and occurrences. "
+    "No command list, parameters, paths or tolerance edits. Same attempt/request retries without work. "
+    "Full plans/checkpoints/reports stay operator-side; responses expose outcomes and typed observation handles. "
+    "Completed campaigns may contain PASS, FAIL or INDETERMINATE; there is no ranking or physical approval.",
+    {"checkpoint": STRING, "instance": STRING, "expected": EXPECTED, "campaign": STRING, "attempt": STRING},
+    ("checkpoint", "instance", "expected", "campaign", "attempt"), read=False, external=True)
+
+
+def descriptions(*, include_replay=False, include_campaign=False):
     return [{"name": name, **deepcopy({k: v for k, v in item.items() if k != "method"})}
-            for name, item in TOOLS.items() if include_replay or name != REPLAY_TOOL]
+            for name, item in TOOLS.items() if (include_replay or name != REPLAY_TOOL) and (include_campaign or name != CAMPAIGN_TOOL)]
 
 
-def validate_arguments(name, arguments, *, include_replay=False):
+def validate_arguments(name, arguments, *, include_replay=False, include_campaign=False):
     if type(name) is not str or name not in TOOLS:
         raise ValueError("Unknown stateful tool")
     if name == REPLAY_TOOL and not include_replay:
         raise ValueError("Simulation replay was not granted by the operator")
+    if name == CAMPAIGN_TOOL and not include_campaign:
+        raise ValueError("Simulation campaigns were not granted by the operator")
     # The existing shape guard supports its original subset, without null.
     # Validate the one nullable field here and use the original guard unchanged.
     spec = deepcopy(TOOLS[name]["inputSchema"])

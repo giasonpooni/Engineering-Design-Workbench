@@ -70,7 +70,7 @@ class SimulationAgentHost:
     does not execute providers. Only explicit create/branch actions call factories.
     """
     def __init__(self, host: AgentHost, *, source: str, bindings: dict[str, Binding],
-                 max_attempts: int = 64, max_instances: int = 8, replay_policy: dict | None = None):
+                 max_attempts: int = 64, max_instances: int = 8, replay_policy: dict | None = None, campaign_policy: dict | None = None):
         require(type(max_attempts) is int and 1 <= max_attempts <= 128, "Attempt budget must be 1..128")
         require(type(max_instances) is int and 1 <= max_instances <= 16, "Instance budget must be 1..16")
         require(type(bindings) is dict and 1 <= len(bindings) <= 8, "Require 1..8 explicit model bindings")
@@ -85,6 +85,9 @@ class SimulationAgentHost:
             policy = detached(binding.policy)
             validate_policy(policy)
             models[name] = Binding(binding.provider_id, binding.factory, policy)
+        from .simulation_agent_campaign import compile_grant
+        self._campaign_policy = compile_grant(campaign_policy, models, host._policies)
+        self._campaign_reserved = 0
         run = host._get(source)
         from .instruments import validate_run
         validate_run(run)
@@ -96,6 +99,8 @@ class SimulationAgentHost:
             "max_attempts": max_attempts, "max_instances": max_instances}
         if self._replay_policy is not None:
             self._policy["replay"] = deepcopy(self._replay_policy)
+        if self._campaign_policy is not None:
+            self._policy["campaigns"] = deepcopy(self._campaign_policy)
         self._policy = parse(encode(self._policy))
         self._policy_ref = bytes_ref(encode(self._policy))
         self._root = host._check_output() / "stateful"
@@ -121,7 +126,15 @@ class SimulationAgentHost:
             value["stateful"]["replay"] = {"grants": deepcopy(self._replay_policy),
                 "reserved_executions": self._replay_reserved,
                 "budget_semantics": "restore plus selected commands reserved before factory; failures do not refund"}
+        if self.campaign_enabled:
+            value["stateful"]["campaigns"] = {"grants": deepcopy(self._campaign_policy),
+                "reserved_executions": self._campaign_reserved,
+                "budget_semantics": "complete campaigns including restore/stop; failures do not refund"}
         return value
+
+    @property
+    def campaign_enabled(self) -> bool:
+        return self._campaign_policy is not None
 
     @property
     def replay_enabled(self) -> bool:
@@ -228,6 +241,10 @@ class SimulationAgentHost:
         from .simulation_agent_replay import request_replay
         return request_replay(self, checkpoint, instance, expected, attempt)
 
+    def campaign(self, checkpoint: str, instance: str, expected: dict, campaign: str, attempt: str) -> dict:
+        from .simulation_agent_campaign import request_campaign
+        return request_campaign(self, checkpoint, instance, expected, campaign, attempt)
+
     def command(self, instance: str, attempt: str, expected: dict, action: str, preset: str | None) -> dict:
         identifier(instance)
         require(instance in self._instances, "Unknown host-bound instance")
@@ -271,7 +288,7 @@ class SimulationAgentHost:
                 original_validate(name, arguments)
                 result = self.capabilities()
             elif name in TOOLS:
-                validate_arguments(name, arguments, include_replay=self.replay_enabled)
+                validate_arguments(name, arguments, include_replay=self.replay_enabled, include_campaign=self.campaign_enabled)
                 result = getattr(self, TOOLS[name]["method"])(**detached(arguments))
             else:
                 result = self.host.call(name, arguments)
@@ -327,7 +344,7 @@ def from_profile(host: AgentHost, path: Path) -> SimulationAgentHost:
     from .agent_mcp import _read
     path = Path(path).resolve(strict=True)
     profile = parse(_read(path))
-    keys(profile, {"schema", "source", "models", "max_attempts", "max_instances"} | ({"replay"} if "replay" in profile else set()))
+    keys(profile, {"schema", "source", "models", "max_attempts", "max_instances"} | (set(profile) & {"replay", "campaigns"}))
     require(profile["schema"] == "ciw.simulation-agent-profile.v1", "Unsupported simulation agent profile")
     bindings = {}
     require(type(profile["models"]) is dict, "Model bindings must be an object")
@@ -360,10 +377,10 @@ def from_profile(host: AgentHost, path: Path) -> SimulationAgentHost:
             raise ValueError("Only installed reference and godot-point startup routes are supported")
         bindings[name] = Binding(PROVIDER_ID, factory, item["policy"])
     return SimulationAgentHost(host, source=profile["source"], bindings=bindings,
-        max_attempts=profile["max_attempts"], max_instances=profile["max_instances"], replay_policy=profile.get("replay"))
+        max_attempts=profile["max_attempts"], max_instances=profile["max_instances"], replay_policy=profile.get("replay"), campaign_policy=profile.get("campaigns"))
 
 
-def demo_profiles(destination: Path, *, replay: bool = False) -> tuple[Path, Path]:
+def demo_profiles(destination: Path, *, replay: bool = False, campaign: bool = False) -> tuple[Path, Path]:
     from .agent_mcp import demo_config
     from .simulation_records import observer
     base = demo_config(destination)
@@ -377,6 +394,13 @@ def demo_profiles(destination: Path, *, replay: bool = False) -> tuple[Path, Pat
         "max_attempts": 64, "max_instances": 8}
     if replay:
         value["replay"] = {"max_commands": 32, "max_executions": 128}
+    if campaign:
+        value["campaigns"] = {"max_executions": 128, "templates": {"impulses": {
+            "model": "motion", "steps": 2, "step": "tick", "observer": "position",
+            "quantity": "position", "comparison": "strict", "variants": [
+                {"variant_id": "baseline", "interventions": []},
+                {"variant_id": "replica", "interventions": []},
+                {"variant_id": "push", "interventions": ["push"]}]}}}
     path = Path(destination) / "simulation-profile.json"
     save_new(path, value)
     return base, path

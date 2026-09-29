@@ -177,3 +177,11 @@ The separate [stateful replay grant](STATEFUL_AGENT_REPLAY.md) adds
 `net_sim_replay` to reproduce a retained accepted command suffix on a fresh
 owner. Enable it with `demo-config --stateful --stateful-replay` or an explicit
 operator `replay` policy. Existing eleven/fifteen-tool profiles remain unchanged.
+
+
+## Optional intervention campaigns
+
+[Agent campaign grants](STATEFUL_AGENT_CAMPAIGNS.md) add `net_sim_campaign`
+for named operator templates on the existing campaign runner. Enable with
+`--stateful --stateful-campaign`; add `--stateful-replay` to expose both optional
+tools. Default profiles keep their prior catalogs and no campaign permission.

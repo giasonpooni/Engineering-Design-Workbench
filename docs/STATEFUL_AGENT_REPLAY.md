@@ -136,3 +136,10 @@ exercises both ReferenceMotion and, on Linux, the same provisioned Godot point p
 `--wire` is a separately labelled local stdlib diagnostic, not official SDK evidence.
 Observed results and exact source revisions belong in the PR, not assumptions from
 this workflow description. No LLM effectiveness or arbitrary game-world claim is made.
+
+
+## Complementary campaign grant
+
+[Agent-run campaigns](STATEFUL_AGENT_CAMPAIGNS.md) are a separate opt-in tool
+for comparing fixed intervention alternatives. They reuse the existing campaign
+runner and do not change this replay tool or its reservation budget.

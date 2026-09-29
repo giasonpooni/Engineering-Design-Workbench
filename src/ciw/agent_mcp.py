@@ -211,14 +211,15 @@ def main(argv: list[str] | None = None) -> int:
     command.add_argument("--output-dir", type=Path, required=True)
     command.add_argument("--stateful", action="store_true", help="Also create an optional bounded reference-simulation profile")
     command.add_argument("--stateful-replay", action="store_true", help="Opt in to bounded native/reference suffix replay; requires --stateful")
+    command.add_argument("--stateful-campaign", action="store_true", help="Opt in to fixed-preset intervention campaigns; requires --stateful")
     args = parser.parse_args(argv)
-    if args.command == "demo-config" and args.stateful_replay and not args.stateful:
-        parser.error("--stateful-replay requires --stateful")
+    if args.command == "demo-config" and (args.stateful_replay or args.stateful_campaign) and not args.stateful:
+        parser.error("--stateful-replay and --stateful-campaign require --stateful")
     try:
         if args.command == "demo-config":
             if args.stateful:
                 from .simulation_agent import demo_profiles
-                base, simulation = demo_profiles(args.output_dir, replay=args.stateful_replay)
+                base, simulation = demo_profiles(args.output_dir, replay=args.stateful_replay, campaign=args.stateful_campaign)
                 print(json.dumps({"profile": str(base), "simulation_profile": str(simulation)}))
             else:
                 print(demo_config(args.output_dir))
@@ -233,7 +234,7 @@ def main(argv: list[str] | None = None) -> int:
             from .simulation_agent import from_profile as bind_simulation
             from .simulation_agent_tools import descriptions as simulation_tools
             with bind_simulation(host, args.simulation_profile) as extended:
-                return serve(extended, sys.stdin.buffer, wire, extra_tools=simulation_tools(include_replay=extended.replay_enabled))
+                return serve(extended, sys.stdin.buffer, wire, extra_tools=simulation_tools(include_replay=extended.replay_enabled, include_campaign=extended.campaign_enabled))
     except (OSError, ValueError, TypeError, KeyError) as exc:
         print(f"NET agent startup refused: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 1

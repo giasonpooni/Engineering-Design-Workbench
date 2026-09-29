@@ -9,8 +9,10 @@ on:
       - 'src/ciw/net.py'
       - 'tests/test_simulation_agent.py'
       - 'tests/test_simulation_agent_replay.py'
+      - 'tests/test_simulation_agent_campaign.py'
       - 'scripts/check_simulation_agent.py'
       - 'scripts/check_simulation_agent_replay.py'
+      - 'scripts/check_simulation_agent_campaign.py'
       - '.github/workflows/stateful-agent.yml'
   workflow_dispatch:
 permissions:
@@ -32,7 +34,7 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install -e '.[dev]' build mcp==1.26.0
       - name: New bridge and unchanged agent, source and control contracts
-        run: python -m pytest -q tests/test_simulation_agent_replay.py tests/test_simulation_agent.py tests/test_agent_protocol.py tests/test_computational_source.py tests/test_computational_objects.py tests/test_simulation_control.py tests/test_simulation_campaign.py tests/test_control_plane.py -o addopts= --junitxml=bridge-source.xml
+        run: python -m pytest -q tests/test_simulation_agent_campaign.py tests/test_simulation_agent_replay.py tests/test_simulation_agent.py tests/test_agent_protocol.py tests/test_computational_source.py tests/test_computational_objects.py tests/test_simulation_control.py tests/test_simulation_campaign.py tests/test_control_plane.py -o addopts= --junitxml=bridge-source.xml
       - run: python -m build --wheel
       - name: Installed package and independent SDK client
         shell: bash
@@ -47,11 +49,11 @@ jobs:
           with tempfile.TemporaryDirectory() as tmp:
               imported=subprocess.check_output([sys.executable,'-I','-c','import ciw;print(ciw.__file__)'],cwd=tmp,env=env,text=True)
               assert not pathlib.Path(imported.strip()).resolve().is_relative_to(root)
-              subprocess.run([sys.executable,'-I','-m','pytest','-q',str(root/'tests/test_simulation_agent_replay.py'),str(root/'tests/test_simulation_agent.py'),str(root/'tests/test_agent_protocol.py'),
+              subprocess.run([sys.executable,'-I','-m','pytest','-q',str(root/'tests/test_simulation_agent_campaign.py'),str(root/'tests/test_simulation_agent_replay.py'),str(root/'tests/test_simulation_agent.py'),str(root/'tests/test_agent_protocol.py'),
                   '-o','pythonpath=','-o','addopts=','--junitxml='+str(root/'bridge-installed.xml')],cwd=tmp,env=env,check=True)
-              for script,directory in [('check_agent_mcp.py','original-sdk'),('check_simulation_agent.py','stateful-sdk'),('check_simulation_agent_replay.py','replay-sdk')]:
+              for script,directory in [('check_agent_mcp.py','original-sdk'),('check_simulation_agent.py','stateful-sdk'),('check_simulation_agent_replay.py','replay-sdk'),('check_simulation_agent_campaign.py','campaign-sdk')]:
                   subprocess.run([sys.executable,'-I',str(root/'scripts'/script),'--output-dir',str(root/directory)],cwd=tmp,env=env,check=True)
-          for file,count in [('bridge-source.xml',418),('bridge-installed.xml',147)]:
+          for file,count in [('bridge-source.xml',470),('bridge-installed.xml',199)]:
               suites=list(ET.parse(file).getroot().iter('testsuite'))
               assert sum(int(s.attrib['tests']) for s in suites)==count
               assert all(int(s.attrib[k])==0 for s in suites for k in ('failures','errors','skipped'))
@@ -63,6 +65,10 @@ jobs:
           replay=json.loads((root/'replay-sdk/report.json').read_text())
           assert replay['status']=='passed' and replay['check_count']==19 and replay['provider']=='reference'
           assert replay['stateful_execution_count']==25 and replay['replay_reservation']==12
+          campaign=json.loads((root/'campaign-sdk/report.json').read_text())
+          assert campaign['status']=='passed' and campaign['check_count']==21 and campaign['provider']=='reference'
+          assert campaign['stateful_execution_count']==50 and campaign['campaign_reservation']==44
+          assert campaign['comparison_max_abs_error']==2.0
           PY
       - name: Provision unchanged native point provider
         if: runner.os == 'Linux'
@@ -84,6 +90,7 @@ jobs:
           SHA="sha256:$(sha256sum "$GODOT" | cut -d' ' -f1)"
           python -I scripts/check_simulation_agent.py --godot "$GODOT" --godot-sha256 "$SHA" --output-dir native-sdk
           python -I scripts/check_simulation_agent_replay.py --godot "$GODOT" --godot-sha256 "$SHA" --output-dir native-replay-sdk
+          python -I scripts/check_simulation_agent_campaign.py --godot "$GODOT" --godot-sha256 "$SHA" --output-dir native-campaign-sdk
           python -I - <<'PY'
           import json,pathlib
           result=json.loads(pathlib.Path('native-sdk/report.json').read_text())
@@ -92,6 +99,10 @@ jobs:
           replay=json.loads(pathlib.Path('native-replay-sdk/report.json').read_text())
           assert replay['status']=='passed' and replay['check_count']==19 and replay['provider']=='godot-point'
           assert replay['stateful_execution_count']==25 and replay['replay_reservation']==12
+          campaign=json.loads(pathlib.Path('native-campaign-sdk/report.json').read_text())
+          assert campaign['status']=='passed' and campaign['check_count']==21 and campaign['provider']=='godot-point'
+          assert campaign['stateful_execution_count']==50 and campaign['campaign_reservation']==44
+          assert campaign['comparison_max_abs_error']==0.03125
           PY
       - name: Retain exact source and environment
         if: always()
@@ -114,4 +125,6 @@ jobs:
             native-sdk
             replay-sdk
             native-replay-sdk
+            campaign-sdk
+            native-campaign-sdk
             dist/*.whl
