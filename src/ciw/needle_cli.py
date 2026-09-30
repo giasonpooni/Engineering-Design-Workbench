@@ -1,4 +1,4 @@
-"""Needle: local intervention, dependency closure, selective rerun and delta projection."""
+"""Needle: local intervention, representation expansion, selective rerun and delta projection."""
 from __future__ import annotations
 
 import argparse
@@ -16,13 +16,35 @@ from .needle import (
     validate_needle_run,
     validate_plan,
 )
-from .session import Session
+from .representation_expansion import (
+    expansion_from_spec,
+    promote_expansion,
+    validate_expansion,
+    validate_expansion_verification,
+    validate_promotion,
+    verify_expansion,
+)
 from .representation_interventions import (
     gate_from_spec,
     inspect_gate,
     plan_represented_needle,
 )
 from .semantic_capabilities import builtin_semantic_registry
+from .session import Session
+
+
+def _expansion_context(args):
+    concrete = builtin_registry(bind=True)
+    semantic = builtin_semantic_registry(concrete)
+    return (
+        concrete,
+        semantic,
+        load(args.source_run),
+        load(args.current_execution),
+        load(args.current_result),
+        load(args.gate),
+        load(args.morphism_registry),
+    )
 
 
 def main(argv=None):
@@ -54,6 +76,23 @@ def main(argv=None):
     represented.add_argument("morphism_registry", type=Path)
     represented.add_argument("--output", type=Path, required=True)
 
+    for name in ("expand", "verify-expansion", "promote-expansion"):
+        cmd = commands.add_parser(name)
+        cmd.add_argument("source_run", type=Path)
+        cmd.add_argument("current_execution", type=Path)
+        cmd.add_argument("current_result", type=Path)
+        cmd.add_argument("gate", type=Path)
+        cmd.add_argument("morphism_registry", type=Path)
+        if name in {"verify-expansion", "promote-expansion"}:
+            cmd.add_argument("expansion", type=Path)
+        if name == "promote-expansion":
+            cmd.add_argument("verification", type=Path)
+        if name in {"expand", "promote-expansion"}:
+            cmd.add_argument("spec", type=Path)
+        if name == "verify-expansion":
+            cmd.add_argument("--session-dir", type=Path, required=True)
+        cmd.add_argument("--output", type=Path, required=True)
+
     inspect = commands.add_parser("inspect")
     inspect.add_argument("record", type=Path)
     args = parser.parse_args(argv)
@@ -63,49 +102,67 @@ def main(argv=None):
             value = plan_from_spec(load(args.baseline_graph_run), load(args.spec))
             save_new(args.output, value)
             print(json.dumps({
-                "status": "planned",
-                "needle_id": value["needle_id"],
-                "target": value["target"],
-                "execution_authority": False,
-                "output": str(args.output),
+                "status": "planned", "needle_id": value["needle_id"], "target": value["target"],
+                "execution_authority": False, "output": str(args.output),
             }))
             return 0
+
         if args.command == "gate":
             concrete = builtin_registry(bind=True)
             semantic = builtin_semantic_registry(concrete)
-            value = gate_from_spec(
-                load(args.morphism_registry), semantic, load(args.spec))
+            value = gate_from_spec(load(args.morphism_registry), semantic, load(args.spec))
             save_new(args.output, value)
             print(json.dumps({
-                "status": "assessed",
-                "decision": value["decision"],
+                "status": "assessed", "decision": value["decision"],
                 "representation_id": value["representation_id"],
                 "intervention_id": value["intervention_id"],
                 "recovery_representation_id": value["recovery_representation_id"],
                 "materialization_performed": False,
-                "execution_authority": False,
-                "output": str(args.output),
+                "execution_authority": False, "output": str(args.output),
             }))
             return 0
+
         if args.command == "plan-represented":
             concrete = builtin_registry(bind=True)
             semantic = builtin_semantic_registry(concrete)
             value = plan_represented_needle(
-                load(args.baseline_graph_run),
-                load(args.spec),
-                load(args.gate),
-                load(args.morphism_registry),
-                semantic,
-            )
+                load(args.baseline_graph_run), load(args.spec), load(args.gate),
+                load(args.morphism_registry), semantic)
             save_new(args.output, value)
             print(json.dumps({
-                "status": "planned",
-                "needle_id": value["needle_id"],
+                "status": "planned", "needle_id": value["needle_id"],
                 "representation_gate_enforced": True,
+                "execution_authority": False, "output": str(args.output),
+            }))
+            return 0
+
+        if args.command in {"expand", "verify-expansion", "promote-expansion"}:
+            _, semantic, source, execution, result, gate_value, registry = _expansion_context(args)
+            if args.command == "expand":
+                value = expansion_from_spec(
+                    source, execution, result, gate_value, registry, semantic, load(args.spec))
+                status = "resolved"
+            elif args.command == "verify-expansion":
+                value = verify_expansion(
+                    load(args.expansion), source, execution, result, gate_value, registry,
+                    semantic, args.session_dir)
+                status = value["status"]
+            else:
+                value = promote_expansion(
+                    load(args.expansion), load(args.verification), source, execution, result,
+                    gate_value, registry, semantic, load(args.spec))
+                status = value["local_gate"]["decision"]
+            save_new(args.output, value)
+            print(json.dumps({
+                "status": status, "schema": value["schema"],
+                "record_digest": value["record_digest"],
+                "canonical_state_mutated": False,
+                "state_admission": False,
                 "execution_authority": False,
                 "output": str(args.output),
             }))
-            return 0
+            return 0 if status not in {"FAIL"} else 2
+
         if args.command == "execute":
             registry = builtin_registry(bind=True)
             session = Session(load(args.source_run), args.session_dir, operations=registry.operations)
@@ -116,28 +173,28 @@ def main(argv=None):
             save_new(args.run_output, run)
             save_new(args.delta_output, delta)
             print(json.dumps({
-                "status": run["status"],
-                "dependency_closure": run["dependency_closure"],
-                "reused_nodes": run["reused_nodes"],
-                "rerun_nodes": run["rerun_nodes"],
+                "status": run["status"], "dependency_closure": run["dependency_closure"],
+                "reused_nodes": run["reused_nodes"], "rerun_nodes": run["rerun_nodes"],
                 "changed_output_nodes": delta["summary"]["changed_output_nodes"],
                 "canonical_state_mutated": False,
-                "run_output": str(args.run_output),
-                "delta_output": str(args.delta_output),
+                "run_output": str(args.run_output), "delta_output": str(args.delta_output),
             }))
             return 0
+
         value = load(args.record)
         schema = value.get("schema") if type(value) is dict else None
-        if schema == "ciw.intervention-gate.v1":
-            concrete = builtin_registry(bind=True)
-            semantic = builtin_semantic_registry(concrete)
+        if schema in {
+            "ciw.intervention-gate.v1", "ciw.representation-expansion.v1",
+            "ciw.representation-expansion-verification.v1",
+            "ciw.representation-expansion-promotion.v1",
+        }:
             raise ValueError(
-                "Use 'net needle gate' with the bound morphism registry to inspect/recompute this gate")
+                "Context-bound representation records must be inspected by recomputing "
+                "them with their registry and retained evidence")
         if schema == "ciw.needle-plan.v1":
             checked = validate_plan(value)
             result = {
-                "schema": "ciw.needle-plan-inspection.v1",
-                "needle_id": checked["needle_id"],
+                "schema": "ciw.needle-plan-inspection.v1", "needle_id": checked["needle_id"],
                 "target": checked["target"],
                 "baseline_graph_run_ref": checked["baseline_graph_run_ref"],
                 "execution_authority": False,
@@ -145,21 +202,16 @@ def main(argv=None):
         elif schema == "ciw.needle-run.v1":
             checked = validate_needle_run(value)
             result = {
-                "schema": "ciw.needle-run-inspection.v1",
-                "record_digest": checked["record_digest"],
-                "status": checked["status"],
-                "dependency_closure": checked["dependency_closure"],
-                "reused_nodes": checked["reused_nodes"],
-                "rerun_nodes": checked["rerun_nodes"],
+                "schema": "ciw.needle-run-inspection.v1", "record_digest": checked["record_digest"],
+                "status": checked["status"], "dependency_closure": checked["dependency_closure"],
+                "reused_nodes": checked["reused_nodes"], "rerun_nodes": checked["rerun_nodes"],
                 "canonical_state_mutated": False,
             }
         elif schema == "ciw.needle-delta.v1":
             checked = validate_delta(value)
             result = {
-                "schema": "ciw.needle-delta-inspection.v1",
-                "record_digest": checked["record_digest"],
-                "target_node_id": checked["target_node_id"],
-                "summary": checked["summary"],
+                "schema": "ciw.needle-delta-inspection.v1", "record_digest": checked["record_digest"],
+                "target_node_id": checked["target_node_id"], "summary": checked["summary"],
                 "causal_effects_established": False,
             }
         else:
