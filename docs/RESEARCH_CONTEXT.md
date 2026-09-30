@@ -39,6 +39,51 @@ spaces, a transformation, constraints, invariants, and evidence. It validates
 the declaration and its content identity; it does not execute the operation or
 turn a declaration into proof.
 
+## Research lineage and abstraction discipline
+
+The project separates a cited mathematical result from the architectural
+abstraction built on top of it. Detailed references and attribution rules are in
+[Research foundations and attribution](RESEARCH_FOUNDATIONS.md).
+
+Current lineages include:
+
+- **Novak and Gibbons / matroid and hybrid-network theory** — representation
+  independence, dual circuit/cutset structure, independence/exchange, and
+  topologically complete variable sets. NET's cross-domain representation
+  registry and "operationally complete coordinates" are architectural
+  adaptations, not direct restatements of those theorems.
+- **Shannon / Rissanen / universal modeling** — explicit source/model families,
+  redundancy and regret relative to comparators. NET adapts this discipline to
+  model/workflow comparison; coding regret is not asserted to be a universal
+  engineering loss.
+- **Hitzler, Gangemi, Janowicz, Krisnadhi, Presutti and the ontology-pattern
+  community** — reusable semantic patterns, competency questions and explicit
+  applicability limits. NET adapts this to typed semantic sockets and
+  domain-extensible instrument contracts.
+- **CALPHAD / Kaufman-Bernstein lineage** — evidence-informed parameterized
+  model families over declared state domains. NET uses this as a strong domain
+  pattern for ModelFamily, ParameterSpace and ValidityRegion abstractions.
+- **State-space, estimation and numerical-analysis traditions** — explicit
+  state, observation, dynamics, residuals, covariance and stability conditions.
+  NET binds those ordinary mathematical objects to provenance and execution
+  identities rather than claiming a new underlying mathematics.
+
+The documentation uses the progression:
+
+\[
+\text{source result}
+\rightarrow
+\text{architectural adaptation}
+\rightarrow
+\text{project hypothesis}
+\rightarrow
+\text{bounded implementation}
+\rightarrow
+\text{evidence}.
+\]
+
+A citation supports only the stages it actually establishes.
+
 ## Educational use
 
 The same representation gives learners a stable way to compare mathematical
