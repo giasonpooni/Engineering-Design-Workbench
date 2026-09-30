@@ -10,6 +10,7 @@ from ciw.instruments import make_demo_run
 from ciw.operations.runner import seal
 from ciw.representation_expansion import (
     expansion_from_spec,
+    plan_after_verified_expansion,
     promote_expansion,
     validate_expansion,
     validate_expansion_verification,
@@ -20,7 +21,7 @@ from ciw.representation_interventions import gate_from_spec
 from ciw.representation_morphisms import registry_from_specs
 from ciw.semantic_capabilities import builtin_semantic_registry, compile_graph
 from ciw.session import Session
-from test_representation_interventions import gate_spec, registry_specs
+from test_representation_interventions import baseline, gate_spec, needle_spec, registry_specs
 
 
 def retained_projection(tmp_path):
@@ -271,3 +272,64 @@ def test_cli_refuses_overwrite_of_retained_expansion(tmp_path):
     ]
     assert subprocess.run(command, cwd=tmp_path).returncode == 0
     assert subprocess.run(command, cwd=tmp_path, capture_output=True).returncode == 1
+
+
+def verified_chain(tmp_path):
+    source, execution, result, gate, registry, semantic = retained_projection(tmp_path)
+    expansion = expansion_from_spec(
+        source, execution, result, gate, registry, semantic, expansion_spec())
+    verification = verify_expansion(
+        expansion, source, execution, result, gate, registry, semantic,
+        tmp_path / "chain-verification")
+    promotion = promote_expansion(
+        expansion, verification, source, execution, result, gate,
+        registry, semantic, promotion_spec())
+    return source, execution, result, gate, registry, semantic, expansion, verification, promotion
+
+
+def test_verified_expansion_delegates_to_original_needle_planner(tmp_path):
+    source, execution, result, gate, registry, semantic, expansion, verification, promotion = verified_chain(tmp_path)
+    _, baseline_run = baseline(tmp_path / "needle-baseline")
+    plan = plan_after_verified_expansion(
+        baseline_run, needle_spec(), promotion, expansion, verification,
+        source, execution, result, gate, registry, semantic)
+    assert plan["needle_id"] == "q-to-v"
+    assert plan["target"]["node_id"] == "statistics"
+    assert plan["target"]["parameter"] == "channel"
+    assert plan["replacement"] == "v"
+
+
+def test_tampered_promotion_cannot_reach_needle_planner(tmp_path):
+    source, execution, result, gate, registry, semantic, expansion, verification, promotion = verified_chain(tmp_path)
+    _, baseline_run = baseline(tmp_path / "needle-baseline")
+    promotion["local_gate"]["needle_target"]["parameter"] = "wrong"
+    with pytest.raises(ValueError):
+        plan_after_verified_expansion(
+            baseline_run, needle_spec(), seal(promotion), expansion, verification,
+            source, execution, result, gate, registry, semantic)
+
+
+def test_cli_plan_expanded_closes_expand_to_local_to_plan_chain(tmp_path):
+    source, execution, result, gate, registry, semantic, expansion, verification, promotion = verified_chain(tmp_path)
+    _, baseline_run = baseline(tmp_path / "needle-baseline")
+    payloads = {
+        "source": source, "execution": execution, "result": result, "gate": gate,
+        "registry": registry, "expansion": expansion, "verification": verification,
+        "promotion": promotion, "baseline": baseline_run, "needle-spec": needle_spec(),
+    }
+    for name, value in payloads.items():
+        (tmp_path / f"{name}.json").write_text(json.dumps(value))
+    output = tmp_path / "expanded-plan.json"
+    run = subprocess.run([
+        sys.executable, "-m", "ciw.net", "needle", "plan-expanded",
+        str(tmp_path / "baseline.json"), str(tmp_path / "needle-spec.json"),
+        str(tmp_path / "source.json"), str(tmp_path / "execution.json"),
+        str(tmp_path / "result.json"), str(tmp_path / "gate.json"),
+        str(tmp_path / "registry.json"), str(tmp_path / "expansion.json"),
+        str(tmp_path / "verification.json"), str(tmp_path / "promotion.json"),
+        "--output", str(output),
+    ], cwd=tmp_path, capture_output=True, text=True)
+    assert run.returncode == 0, run.stderr
+    value = json.loads(output.read_text())
+    assert value["schema"] == "ciw.needle-plan.v1"
+    assert value["needle_id"] == "q-to-v"
