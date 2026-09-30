@@ -20,7 +20,7 @@ from .core.identities import content_identity, validate_evidence_identity
 from .instruments import validate_run
 from .operations.runner import check_seal, validate_execution
 from .operations.schemas import validate_payload, validate_role
-from .representation_interventions import gate_from_spec, validate_gate
+from .representation_interventions import gate_from_spec, plan_represented_needle, validate_gate
 from .representation_morphisms import validate_registry
 from .semantic_capabilities import SemanticRegistry, compile_graph
 from .session import Session
@@ -364,3 +364,23 @@ def validate_promotion(value: dict, expansion: dict, verification: dict,
     if value != expected:
         raise ValueError("Expansion promotion differs from exact verified recomputation")
     return detached(value)
+
+
+def plan_after_verified_expansion(
+    baseline_graph_run: dict, needle_spec: dict, promotion: dict,
+    expansion: dict, verification: dict, source_run: dict,
+    current_execution: dict, current_result: dict, gate: dict,
+    registry: dict, semantic: SemanticRegistry,
+) -> dict:
+    """Delegate to the original represented-Needle planner after full verification.
+
+    This adds no alternate Needle semantics: promotion validation reconstructs the
+    evidence chain, then the nested fresh LOCAL gate is passed unchanged into the
+    existing plan_represented_needle function.
+    """
+    promotion = validate_promotion(
+        promotion, expansion, verification, source_run, current_execution,
+        current_result, gate, registry, semantic)
+    plan = plan_represented_needle(
+        baseline_graph_run, needle_spec, promotion["local_gate"], registry, semantic)
+    return plan
