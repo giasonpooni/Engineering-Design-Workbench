@@ -224,3 +224,10 @@ extension is to project retained **representation realizations and witnesses**
 onto the same selected node: artifact realization status, morphism witness
 checks, uncertainty/provenance, and verification state should become additional
 view layers without changing intervention authority.
+
+## Evidence projection extension
+
+The stacked Visual Evidence Projection increment adds exact retained representation
+realizations and finite morphism-witness summaries to the selected node after a
+completed baseline exists. It does not alter LOCAL / EXPAND / REFUSE decisions.
+See [Visual evidence projection](VISUAL_EVIDENCE_PROJECTION.md).
