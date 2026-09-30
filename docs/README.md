@@ -38,6 +38,7 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 
 - [Finite representation preservation and Board morphism binding](FINITE_REPRESENTATION_PRESERVATION.md) (research branch increment)
 - [Evidence-bound representation expansion](EVIDENCE_BOUND_EXPANSION.md) (research branch increment)
+- [Visual representation gates](VISUAL_REPRESENTATION_GATES.md) (research branch increment)
 
 - [Protocol and record identities](PROTOCOL.md)
 - [Contract foundations and typed exchange](CONTRACT_FOUNDATIONS.md)
