@@ -5,7 +5,6 @@ import sys
 
 import pytest
 
-from ciw.control_plane import builtin_registry
 from ciw.core.identities import content_identity, evidence_id
 from ciw.operations.runner import seal
 from ciw.representation_expansion import (
@@ -17,7 +16,6 @@ from ciw.representation_expansion import (
 )
 from ciw.representation_interventions import gate_from_spec
 from ciw.representation_morphisms import witness_from_spec
-from ciw.semantic_capabilities import builtin_semantic_registry
 from test_representation_interventions import baseline, needle_spec
 from test_representation_morphisms import execute_real_periodogram
 
