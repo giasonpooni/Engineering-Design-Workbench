@@ -149,6 +149,9 @@ def main(argv: list[str] | None = None) -> int:
     if argv and argv[0] == "parameter":
         from .parameter_cli import main as parameter_main
         return parameter_main(argv[1:])
+    if argv and argv[0] == "morphism":
+        from .morphism_cli import main as morphism_main
+        return morphism_main(argv[1:])
     if argv and argv[0] == "workcell":
         from .workcell_cli import main as workcell_main
         return workcell_main(argv[1:])
@@ -179,6 +182,7 @@ def main(argv: list[str] | None = None) -> int:
     commands.add_parser("needle", help="Apply an immutable local intervention and selectively recompute dependency descendants")
     commands.add_parser("board", help="Create and compile the parameterized typed System Board")
     commands.add_parser("parameter", help="Create deterministic parameter programs and immutable candidate Boards")
+    commands.add_parser("morphism", help="Create and inspect scientific representation/morphism contracts")
     commands.add_parser("workcell", help="Operator-bound container compilation and agent work slots")
     commands.add_parser("math", help="Derive bounded covariance and innovation display diagnostics")
     commands.add_parser("view", help="Create a local interactive mathematical inspector")
