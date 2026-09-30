@@ -22,6 +22,11 @@ from .representation_interventions import (
     inspect_gate,
     plan_represented_needle,
 )
+from .representation_expansion import (
+    plan_after_expansion,
+    reconsider_after_expansion,
+    resolve_expansion,
+)
 from .semantic_capabilities import builtin_semantic_registry
 
 
@@ -53,6 +58,21 @@ def main(argv=None):
     represented.add_argument("gate", type=Path)
     represented.add_argument("morphism_registry", type=Path)
     represented.add_argument("--output", type=Path, required=True)
+
+    expand = commands.add_parser("expand")
+    for name in ("morphism_registry", "gate", "source_run", "witness", "execution", "result", "spec"):
+        expand.add_argument(name, type=Path)
+    expand.add_argument("--output", type=Path, required=True)
+
+    reconsider = commands.add_parser("reconsider")
+    for name in ("morphism_registry", "gate", "source_run", "witness", "execution", "result", "expansion", "spec"):
+        reconsider.add_argument(name, type=Path)
+    reconsider.add_argument("--output", type=Path, required=True)
+
+    expanded_plan = commands.add_parser("plan-expanded")
+    for name in ("baseline_graph_run", "spec", "morphism_registry", "gate", "source_run", "witness", "execution", "result", "expansion", "reconsideration"):
+        expanded_plan.add_argument(name, type=Path)
+    expanded_plan.add_argument("--output", type=Path, required=True)
 
     inspect = commands.add_parser("inspect")
     inspect.add_argument("record", type=Path)
@@ -102,6 +122,58 @@ def main(argv=None):
                 "status": "planned",
                 "needle_id": value["needle_id"],
                 "representation_gate_enforced": True,
+                "execution_authority": False,
+                "output": str(args.output),
+            }))
+            return 0
+        if args.command in {"expand", "reconsider", "plan-expanded"}:
+            concrete = builtin_registry(bind=True)
+            semantic = builtin_semantic_registry(concrete)
+            registry = load(args.morphism_registry)
+            gate_value = load(args.gate)
+            source_run = load(args.source_run)
+            witness = load(args.witness)
+            execution = load(args.execution)
+            result_value = load(args.result)
+            if args.command == "expand":
+                value = resolve_expansion(
+                    registry, semantic, gate_value, source_run, witness, execution,
+                    result_value, load(args.spec))
+                save_new(args.output, value)
+                print(json.dumps({
+                    "status": "resolved",
+                    "expansion_id": value["expansion_id"],
+                    "source_evidence_id": value["source_evidence_id"],
+                    "recovery_representation_id": value["recovery_representation_id"],
+                    "projection_reexecuted": False,
+                    "execution_authority": False,
+                    "output": str(args.output),
+                }))
+                return 0
+            expansion = load(args.expansion)
+            if args.command == "reconsider":
+                value = reconsider_after_expansion(
+                    registry, semantic, gate_value, expansion, source_run, witness,
+                    execution, result_value, load(args.spec))
+                save_new(args.output, value)
+                print(json.dumps({
+                    "status": "reconsidered",
+                    "decision": value["local_gate"]["decision"],
+                    "representation_id": value["local_gate"]["representation_id"],
+                    "source_evidence_id": value["source_evidence_id"],
+                    "execution_authority": False,
+                    "output": str(args.output),
+                }))
+                return 0
+            value = plan_after_expansion(
+                load(args.baseline_graph_run), load(args.spec), registry, semantic,
+                gate_value, expansion, load(args.reconsideration), source_run, witness,
+                execution, result_value)
+            save_new(args.output, value)
+            print(json.dumps({
+                "status": "planned",
+                "needle_id": value["needle_id"],
+                "evidence_bound_expansion_enforced": True,
                 "execution_authority": False,
                 "output": str(args.output),
             }))
