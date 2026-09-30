@@ -25,7 +25,8 @@ SCHEMAS = {f"ciw.{name}.v1" for name in (
     "investigation-comparison", "container-spec", "container-composition",
     "container-telemetry", "needle-plan", "needle-run", "needle-delta",
     "system-board", "board-compilation", "parameter-program", "parameter-sweep", "representation-spec",
-    "scientific-morphism", "morphism-registry", "morphism-witness")}
+    "scientific-morphism", "morphism-registry", "morphism-witness",
+    "intervention-gate")}
 
 
 def text(value: Any) -> str:
