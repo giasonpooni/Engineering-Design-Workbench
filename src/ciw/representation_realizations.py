@@ -28,6 +28,8 @@ VALIDATORS = {
     "run-channel.v1": "ciw.run-channel.v1",
     "state-record.v1": "ciw.state.v1",
     "covariance-artifact.v1": "covariance-artifact.v1",
+    "geographic-context.v1": "ciw.geographic-context.v1",
+    "mesh-edge-result.v1": "isgt.edge-geodesic-result.v1",
 }
 MAX_ADAPTERS = 128
 MAX_QUANTITIES = 64
@@ -73,8 +75,8 @@ def adapter_from_spec(spec: dict, representations: dict[str, dict]) -> dict:
     if representation["schema_id"] != VALIDATORS[validator_id]:
         raise ValueError("Representation schema is incompatible with the selected realization validator")
     binding = _binding(spec["binding"])
-    if validator_id == "run-channel.v1" and binding["uncertainty_required"]:
-        raise ValueError("Run-channel V1 does not invent channel uncertainty")
+    if validator_id in {"run-channel.v1", "geographic-context.v1", "mesh-edge-result.v1"} and binding["uncertainty_required"]:
+        raise ValueError("This realization family does not invent uncertainty")
     notes = spec["notes"]
     if type(notes) is not str or len(notes) > 4096:
         raise ValueError("Realization adapter notes must be bounded text")
@@ -122,8 +124,8 @@ def validate_adapter(value: dict, representations: dict[str, dict]) -> dict:
     if representation["schema_id"] != value["source_schema"]:
         raise ValueError("Representation schema differs from realization adapter")
     binding = _binding(value["binding"])
-    if value["validator_id"] == "run-channel.v1" and binding["uncertainty_required"]:
-        raise ValueError("Run-channel V1 does not invent channel uncertainty")
+    if value["validator_id"] in {"run-channel.v1", "geographic-context.v1", "mesh-edge-result.v1"} and binding["uncertainty_required"]:
+        raise ValueError("This realization family does not invent uncertainty")
     if type(value["notes"]) is not str or len(value["notes"]) > 4096:
         raise ValueError("Realization adapter notes must be bounded text")
     if value["claims"] != {
@@ -295,6 +297,64 @@ def _realize_covariance(artifact: dict, binding: dict, selector: dict) -> tuple[
     return view, sources
 
 
+def _realize_geographic(artifact: dict, binding: dict, selector: dict) -> tuple[dict, list[str]]:
+    from .spatial_view import project
+    projected = project(artifact)
+    frame = projected["coordinate_frame"]
+    axes = frame["axes"]
+    units = [frame["unit"]] * len(axes)
+    if axes != binding["quantity_ids"] or units != binding["units"]:
+        raise ValueError("Geographic axes/units differ from realization binding")
+    if frame["id"] != binding["frame"]:
+        raise ValueError("Geographic coordinate frame differs from realization binding")
+    view = {
+        "quantity_ids": deepcopy(axes),
+        "units": units,
+        "frame": frame["id"],
+        "uncertainty_ref": None,
+        "selector": {},
+        "source_id": artifact["source_id"],
+        "state_policy": projected["state_policy"],
+        "authority": deepcopy(projected["authority"]),
+    }
+    return view, [content_ref(artifact["evidence_id"])]
+
+
+def _realize_mesh(artifact: dict, binding: dict, selector: dict) -> tuple[dict, list[str]]:
+    from .geometry_mesh_contract import validate_result
+    if type(artifact) is not dict or "request" not in artifact:
+        raise ValueError("Mesh realization requires a retained edge-geodesic result")
+    validate_result(artifact["request"], artifact)
+    mesh = artifact["request"]["mesh"]
+    if len(binding["quantity_ids"]) != 3:
+        raise ValueError("Mesh realization requires exactly three declared coordinate axes")
+    if binding["units"] != [mesh["units"]] * 3:
+        raise ValueError("Mesh coordinate units differ from realization binding")
+    if mesh["coordinate_frame"] != binding["frame"]:
+        raise ValueError("Mesh coordinate frame differs from realization binding")
+    view = {
+        "quantity_ids": deepcopy(binding["quantity_ids"]),
+        "units": deepcopy(binding["units"]),
+        "frame": mesh["coordinate_frame"],
+        "uncertainty_ref": None,
+        "selector": {},
+        "mesh_digest": artifact["mesh_digest"],
+        "artifact_digest": artifact["artifact_digest"],
+        "vertex_count": artifact["mesh_quality"]["vertex_count"],
+        "triangle_count": artifact["mesh_quality"]["triangle_count"],
+        "component_count": artifact["mesh_quality"]["component_count"],
+        "claim_scope": artifact["claim_scope"],
+        "reachable": artifact["solution"]["reachable"],
+        "target_distance": artifact["solution"]["target_distance"],
+        "target_lower_bound": artifact["bounds"]["target_lower_bound"],
+        "target_upper_bound": artifact["bounds"]["target_upper_bound"],
+        "source_provenance": deepcopy(mesh["provenance"]),
+    }
+    # The mesh contract currently retains a human-readable source declaration,
+    # not a CIW content-addressed evidence reference. Do not manufacture one.
+    return view, []
+
+
 def realize(adapter_registry: dict, morphism_registry: dict, semantic: SemanticRegistry,
             artifact: dict, spec: dict) -> dict:
     adapter_registry = validate_adapter_registry(adapter_registry, morphism_registry, semantic)
@@ -314,6 +374,10 @@ def realize(adapter_registry: dict, morphism_registry: dict, semantic: SemanticR
         view, evidence_refs = _realize_state(artifact, adapter["binding"], selector)
     elif adapter["validator_id"] == "covariance-artifact.v1":
         view, evidence_refs = _realize_covariance(artifact, adapter["binding"], selector)
+    elif adapter["validator_id"] == "geographic-context.v1":
+        view, evidence_refs = _realize_geographic(artifact, adapter["binding"], selector)
+    elif adapter["validator_id"] == "mesh-edge-result.v1":
+        view, evidence_refs = _realize_mesh(artifact, adapter["binding"], selector)
     else:
         raise ValueError("Realization adapter validator is not implemented")
     evidence_refs = list(dict.fromkeys(evidence_refs))
