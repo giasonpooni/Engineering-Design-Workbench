@@ -1,5 +1,87 @@
 # Executable architecture
 
+This page distinguishes the **implemented workbench architecture** from the
+broader research architecture being tested around it. For intellectual lineage,
+see [Research foundations and attribution](RESEARCH_FOUNDATIONS.md); for the
+mathematical organizing vocabulary, see
+[Research context](RESEARCH_CONTEXT.md).
+
+> **Research annotation — architectural adaptation.** The distinction between
+> canonical state and any one graph representation is motivated in part by
+> representation-independent structures in graph/matroid theory, especially the
+> graph/graphoid treatment of Novak and Gibbons. NET generalizes that lesson to
+> scientific representations; the cited graph-theoretic results do not by
+> themselves prove this software architecture.
+
+## Protected architectural identities
+
+The research direction extends the existing implementation rather than
+collapsing its identities. The following remain separate:
+
+\[
+\boxed{
+\text{evidence}
+\neq
+\text{canonical state}
+\neq
+\text{representation}
+\neq
+\text{execution/result}
+\neq
+\text{verification}
+}
+\]
+
+The current code already separates operation, execution, result and
+verification identities. The additional **canonical state / representation /
+morphism / control-plane** vocabulary is a research overlay unless an
+individual contract or PR states otherwise.
+
+## Research-layer architecture
+
+The intended extension is:
+
+~~~text
+evidence
+   │ admission
+   ▼
+canonical state
+   │
+   ├── graph / relational projection
+   ├── matrix / state-space projection
+   ├── spatial / spectral projection
+   └── rendered projection
+   │
+   ▼
+typed morphisms
+   │
+   ▼
+candidate experiment / intervention
+   │
+   ▼
+existing NET execution machinery
+   │
+   ▼
+observation → compare → verify → retain
+~~~
+
+A separate **Systemic Control Plane** may choose or propose representation,
+model, parameter, workflow and execution-backend configurations. It must not
+gain evidence-admission authority merely because it can reconfigure execution.
+
+> **Research annotation — project hypothesis.** A future representation should
+> declare which queries, interventions and invariants it preserves. For a
+> projection \(\pi\) and intervention \(N\), one useful condition to test is
+> \(\pi\circ N \simeq \bar N\circ\pi\). This is a NET research contract, not a
+> theorem claimed from the cited category-theory or graph-theory literature.
+
+> **Research annotation — established-to-adapted.** Hybrid network analysis
+> provides a concrete example in which alternative independent-variable choices
+> can yield different equation counts and a minimum topologically complete set.
+> NET uses this as motivation for investigating task-specific **operationally
+> complete coordinates**; it does not call arbitrary scientific reductions
+> "hybrid rank" without the required matroid/network structure.
+
 For the current public component inventory and integration boundaries, see the
 [Notation Systems stack map](STACK.md) and [this component's role](STACK_ROLE.md).
 
