@@ -34,6 +34,8 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 
 ## Contracts and operations
 
+- [Visual System Board: identity-preserving views and real parameter runs](VISUAL_SYSTEM_BOARD.md) (research branch increment)
+
 - [Finite representation preservation and Board morphism binding](FINITE_REPRESENTATION_PRESERVATION.md) (research branch increment)
 - [Evidence-bound representation expansion](EVIDENCE_BOUND_EXPANSION.md) (research branch increment)
 
