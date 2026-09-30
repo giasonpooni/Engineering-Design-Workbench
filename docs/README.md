@@ -1,4 +1,4 @@
-# Parametric Design Terminal documentation
+# Notation Systems Terminal documentation
 
 The root [README](../README.md) is the macro entrypoint. This index points to
 the page that owns each kind of detail so status and contracts do not drift
@@ -12,6 +12,8 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 
 | Need | Page |
 | --- | --- |
+| Research proposal, thesis and current program | [Root README](../README.md) |
+| Intellectual lineage, citations and abstraction boundaries | [Research foundations](RESEARCH_FOUNDATIONS.md) |
 | Product scope, operating model and scientific workspace | [Workbench overview](WORKBENCH_OVERVIEW.md) |
 | Current provider map and loose-tool collapse rule | [Systems catalog](SYSTEMS_CATALOG.md) |
 | Shared profiles, typed composition and evidence boundaries | [Consolidation roadmap](CONSOLIDATION.md) |
@@ -38,6 +40,7 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 - [Contract foundations and typed exchange](CONTRACT_FOUNDATIONS.md)
 - [State-space transformation contract](STATE_TRANSFORMATIONS.md)
 - [Workbench research context](RESEARCH_CONTEXT.md)
+- [Research foundations, attribution and source-to-architecture map](RESEARCH_FOUNDATIONS.md)
 - [Unimplemented directions](UNIMPLEMENTED_DIRECTIONS.md)
 - [Generic adapters](ADAPTERS.md)
 - [Device and Instrument Gateway proposal](DEVICE_GATEWAY.md) and [acceptance plan](DEVICE_GATEWAY_ACCEPTANCE.md)
