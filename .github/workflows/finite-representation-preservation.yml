@@ -5,6 +5,11 @@ on:
       - 'src/ciw/board_morphisms.py'
       - 'src/ciw/finite_preservation.py'
       - 'src/ciw/control_contracts.py'
+      - 'src/ciw/board_cli.py'
+      - 'src/ciw/morphism_cli.py'
+      - 'src/ciw/system_board.py'
+      - 'src/ciw/representation_morphisms.py'
+      - 'src/ciw/representation_interventions.py'
       - 'tests/test_board_morphisms.py'
       - 'tests/test_finite_preservation.py'
       - 'docs/FINITE_REPRESENTATION_PRESERVATION.md'
@@ -32,8 +37,28 @@ jobs:
         with:
           python-version: '3.12'
       - run: python -m pip install -e '.[dev]' build
-      - name: Existing representation regressions
-        run: python -m pytest -q tests/test_representation_interventions.py tests/test_representation_morphisms.py tests/test_needle.py --junitxml=preservation-tests.xml
+      - name: Finite preservation and scientific regressions
+        run: python -m pytest -q tests/test_board_morphisms.py tests/test_finite_preservation.py tests/test_representation_interventions.py tests/test_representation_morphisms.py tests/test_needle.py tests/test_system_board.py tests/test_parameter_program.py tests/test_semantic_capabilities.py tests/test_covariance_artifacts.py tests/test_covariance_records.py tests/test_thermal_contract.py --junitxml=preservation-tests.xml
+      - name: Require complete qualification and retain environment
+        shell: bash
+        run: |
+          python - <<'PYTHON'
+          import json, platform, subprocess, sys
+          import xml.etree.ElementTree as E
+          import numpy
+          from pathlib import Path
+          suites=list(E.parse('preservation-tests.xml').getroot().iter('testsuite'))
+          count=sum(int(s.attrib['tests']) for s in suites)
+          assert count >= 184
+          assert all(int(s.attrib[k]) == 0 for s in suites for k in ('failures','errors','skipped'))
+          report={'source_commit':subprocess.check_output(['git','rev-parse','HEAD'],text=True).strip(),
+                  'python':sys.version,'platform':platform.platform(),'numpy':numpy.__version__,
+                  'tests':count,'failures':0,'errors':0,'skipped':0}
+          Path('qualification.json').write_text(json.dumps(report,indent=2),encoding='utf-8')
+          PYTHON
+          python scripts/check_ci_policy.py
+      - name: Retain positive and negative finite witnesses
+        run: python -m ciw.net morphism finite-demo --output-dir finite-demo
       - run: python -m build --wheel
       - name: Retain exact tracked source
         shell: bash
@@ -48,6 +73,8 @@ jobs:
             terminal-source.zip
             source-commit.txt
             preservation-tests.xml
+            qualification.json
+            finite-demo/*.json
             dist/*.whl
           if-no-files-found: error
           retention-days: 14

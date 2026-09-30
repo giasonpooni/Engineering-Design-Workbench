@@ -34,6 +34,8 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 
 ## Contracts and operations
 
+- [Finite representation preservation and Board morphism binding](FINITE_REPRESENTATION_PRESERVATION.md) (research branch increment)
+
 - [Protocol and record identities](PROTOCOL.md)
 - [Contract foundations and typed exchange](CONTRACT_FOUNDATIONS.md)
 - [State-space transformation contract](STATE_TRANSFORMATIONS.md)
