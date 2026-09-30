@@ -370,9 +370,14 @@ def make_server(workbench: BoardWorkbench, *, port=0) -> HTTPServer:
                         keys(value, {"request", "baseline_ref"})
                         result = workbench.qualify_expansion(value["request"], value["baseline_ref"])
                     else:
-                        keys(value, {"request", "baseline_ref", "promotion_ref"})
+                        allowed = [
+                            {"request", "baseline_ref"},
+                            {"request", "baseline_ref", "promotion_ref"},
+                        ]
+                        if type(value) is not dict or set(value) not in allowed:
+                            raise ValueError("Candidate request requires request/baseline_ref and optional promotion_ref")
                         result = workbench.run_candidate(
-                            value["request"], value["baseline_ref"], value["promotion_ref"])
+                            value["request"], value["baseline_ref"], value.get("promotion_ref"))
                 self.send(200, result)
             except (ValueError, TypeError, KeyError, OverflowError, UnicodeError, RecursionError) as exc:
                 self.send(400, {"status": "refused", "reason": str(exc)})
