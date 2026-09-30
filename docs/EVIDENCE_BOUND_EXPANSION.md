@@ -188,8 +188,12 @@ EXPAND -> resolve retained richer evidence
 This makes representation refinement an auditable evidence transition rather
 than an implicit act of reconstruction.
 
-The next extension should connect a verified promotion to a represented Needle
-plan through an explicit promotion-aware planner, while retaining all existing
-baseline-target and dependency-closure checks. That planner should consume the
-promotion record rather than weakening the original `plan_represented_needle`
-contract.
+`net needle plan-expanded` now closes this planning seam. It reconstructs and
+validates the full expansion/promotion chain, then delegates the nested fresh
+LOCAL gate to the original `plan_represented_needle` implementation. It does not
+create alternate Needle semantics or bypass baseline-target/dependency checks.
+
+The next extension should carry the resulting plan through ordinary Needle
+execution while retaining the promotion and verification identities alongside
+the run/delta evidence, rather than modifying the existing Needle execution
+record format.
