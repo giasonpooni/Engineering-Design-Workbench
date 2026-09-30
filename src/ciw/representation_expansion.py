@@ -16,7 +16,7 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import Any
 
-from .control_contracts import content_ref, detached, keys, record, text
+from .control_contracts import detached, keys, record, text
 from .core.identities import content_identity, validate_evidence_identity
 from .instruments import validate_run
 from .operations.runner import check_seal, validate_execution
