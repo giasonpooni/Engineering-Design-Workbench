@@ -8,10 +8,11 @@ from __future__ import annotations
 import argparse
 from copy import deepcopy
 import json
+import re
 from pathlib import Path
 import threading
 
-from playwright.sync_api import sync_playwright
+from playwright.sync_api import expect, sync_playwright
 
 from ciw.core.identities import content_identity
 from ciw.instruments import make_demo_run
@@ -51,7 +52,7 @@ def main():
         observe(page)
         if args.embedded_only: page.set_content(html.read_text(encoding='utf-8'))
         else: page.goto(html.as_uri())
-        page.wait_for_function("document.querySelector('#status').textContent.startsWith('Ready.')")
+        expect(page.locator('#status')).to_have_text(re.compile(r'^Ready\.'))
         check('Six original graph objects visible',page.locator('.graph-node').count()==6)
         check('Offline execution disabled',page.locator('#run-baseline').is_disabled())
         page.screenshot(path=str(root/'board-initial.png'),full_page=True)
@@ -94,7 +95,7 @@ def main():
         hostile=deepcopy(board);hostile['title']='</script><script>window.PWNED=true</script>'
         other=browser.new_page();observe(other)
         other.set_content(render_html(seal(hostile)).decode())
-        other.wait_for_function("document.querySelector('#status').textContent.startsWith('Ready.')")
+        expect(other.locator('#status')).to_have_text(re.compile(r'^Ready\.'))
         check('Hostile label remains inert text',other.evaluate('window.PWNED===undefined'))
         other.close()
         page.set_viewport_size({'width':600,'height':850})
@@ -107,19 +108,19 @@ def main():
             try:
                 page=browser.new_page(viewport={'width':1600,'height':1100});observe(page)
                 page.goto(server.board_url)
-                page.wait_for_function("document.querySelector('#status').textContent.startsWith('Ready.')")
+                expect(page.locator('#status')).to_have_text(re.compile(r'^Ready\.'))
                 check('Explicitly opted-in live baseline enabled',page.locator('#run-baseline').is_enabled())
                 check('No execution before Run click',work.session is None)
                 page.locator('#run-baseline').click()
-                page.wait_for_function("document.querySelector('#run-summary').textContent.includes('Baseline completed')")
+                expect(page.locator('#run-summary')).to_contain_text('Baseline completed')
                 check('Three baseline execution occurrences',len(work.session.executions)==3)
                 prior=deepcopy(work.baseline)
                 page.locator('#parameter-channel').select_option(label='v')
                 page.get_by_role('button',name='Compile candidate',exact=True).click()
-                page.wait_for_function("!document.querySelector('#run-candidate').disabled")
+                expect(page.locator('#run-candidate')).to_be_enabled()
                 check('Compiling preview did not execute provider',len(work.session.executions)==3)
                 page.locator('#run-candidate').click()
-                page.wait_for_function("document.querySelector('#run-summary').textContent.includes('2 rerun')")
+                expect(page.locator('#run-summary')).to_contain_text('2 rerun')
                 check('Only two new execution occurrences',len(work.session.executions)==5)
                 check('Unchanged baseline content',work.baseline==prior)
                 text=page.locator('#delta-list').inner_text()

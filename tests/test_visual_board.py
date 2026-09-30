@@ -154,7 +154,7 @@ def test_offline_html_uses_inert_data_no_remote_assets_and_no_overwrite(board, t
     write_html(out, board)
     with pytest.raises(FileExistsError):
         write_html(out, board)
-    assert out.read_text() == html
+    assert out.read_bytes() == html.encode("utf-8")
 
 
 def test_live_shell_does_not_leak_board_or_token_before_authentication(board):
