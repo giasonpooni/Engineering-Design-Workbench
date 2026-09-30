@@ -30,7 +30,8 @@ SCHEMAS = {f"ciw.{name}.v1" for name in (
     "finite-preservation", "representation-expansion",
     "representation-expansion-verification", "representation-expansion-promotion",
     "board-view", "board-edit-preview", "board-visual-run",
-    "board-intervention-binding")}
+    "board-intervention-binding", "representation-realization",
+    "board-evidence-projection")}
 
 
 def text(value: Any) -> str:
