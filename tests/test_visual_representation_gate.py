@@ -112,7 +112,9 @@ def test_scientific_context_is_exact_registry_content_not_label_inference(tmp_pa
     assert context["current_representation"] == registry["representations"]["signal.periodogram.one-sided-density.v1"]
     assert context["recovery_representation"] == registry["representations"]["signal.timeseries.uniform-scalar.v1"]
     assert context["projection_morphism"] == registry["morphisms"]["signal.periodogram.transform.v1"]
-    assert context["claims"]["browser_inference"] if "browser_inference" in context["claims"] else True
+    assert context["claims"]["inspectable_context_only"] is True
+    assert context["claims"]["provider_execution"] is False
+    assert context["claims"]["execution_authority"] is False
 
 
 def test_preview_exposes_gate_without_provider_execution(tmp_path):
