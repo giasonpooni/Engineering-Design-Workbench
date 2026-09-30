@@ -25,6 +25,7 @@ from .representation_expansion import (
     verify_expansion,
 )
 from .representation_interventions import plan_represented_needle
+from .representation_realizations import board_evidence_projection
 from .semantic_capabilities import builtin_semantic_registry
 from .session import Session, loads_json
 from .system_board import compile_board, validate_board
@@ -59,6 +60,7 @@ class BoardWorkbench:
             self.intervention_binding = validate_intervention_binding(
                 self.intervention_binding, self.board, self.morphism_registry, self.semantic)
         self.promotions = {}
+        self.evidence_projection = None
         self.compilation = None
         self.compilation_error = None
         try:
@@ -98,6 +100,7 @@ class BoardWorkbench:
                 "intervention_binding": deepcopy(self.intervention_binding),
                 "morphism_registry_ref": (
                     self.morphism_registry["record_digest"] if self.morphism_registry is not None else None),
+                "evidence_projection": deepcopy(self.evidence_projection),
                 "compilation_error": self.compilation_error,
                 "source_evidence_id": self.source["evidence_id"] if self.allow_run else None,
                 "baseline_ref": self.baseline["record_digest"] if self.baseline else None}
@@ -212,7 +215,13 @@ class BoardWorkbench:
         save_new(path / "run.json", run)
         if run["status"] == "completed":
             self.baseline = run  # handle to the retained ordinary graph-run, not a new scientific state
+            if self.intervention_binding is not None:
+                self.evidence_projection = board_evidence_projection(
+                    self.board, self.baseline, self.source, self.morphism_registry,
+                    self.intervention_binding, self.semantic)
+                save_new(path / "evidence-projection.json", self.evidence_projection)
         return {"run": run, "baseline_ref": self.baseline["record_digest"] if self.baseline else None,
+                "evidence_projection": deepcopy(self.evidence_projection),
                 "retained_directory": path.name}
 
     def run_candidate(self, request, baseline_ref, promotion_ref=None):
