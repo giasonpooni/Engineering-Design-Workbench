@@ -18,6 +18,7 @@ from .needle import (
 )
 from .representation_expansion import (
     expansion_from_spec,
+    plan_after_verified_expansion,
     promote_expansion,
     validate_expansion,
     validate_expansion_verification,
@@ -93,6 +94,19 @@ def main(argv=None):
             cmd.add_argument("--session-dir", type=Path, required=True)
         cmd.add_argument("--output", type=Path, required=True)
 
+    expanded_plan = commands.add_parser("plan-expanded")
+    expanded_plan.add_argument("baseline_graph_run", type=Path)
+    expanded_plan.add_argument("needle_spec", type=Path)
+    expanded_plan.add_argument("source_run", type=Path)
+    expanded_plan.add_argument("current_execution", type=Path)
+    expanded_plan.add_argument("current_result", type=Path)
+    expanded_plan.add_argument("gate", type=Path)
+    expanded_plan.add_argument("morphism_registry", type=Path)
+    expanded_plan.add_argument("expansion", type=Path)
+    expanded_plan.add_argument("verification", type=Path)
+    expanded_plan.add_argument("promotion", type=Path)
+    expanded_plan.add_argument("--output", type=Path, required=True)
+
     inspect = commands.add_parser("inspect")
     inspect.add_argument("record", type=Path)
     args = parser.parse_args(argv)
@@ -162,6 +176,22 @@ def main(argv=None):
                 "output": str(args.output),
             }))
             return 0 if status not in {"FAIL"} else 2
+
+        if args.command == "plan-expanded":
+            concrete = builtin_registry(bind=True)
+            semantic = builtin_semantic_registry(concrete)
+            value = plan_after_verified_expansion(
+                load(args.baseline_graph_run), load(args.needle_spec), load(args.promotion),
+                load(args.expansion), load(args.verification), load(args.source_run),
+                load(args.current_execution), load(args.current_result), load(args.gate),
+                load(args.morphism_registry), semantic)
+            save_new(args.output, value)
+            print(json.dumps({
+                "status": "planned", "needle_id": value["needle_id"],
+                "verified_expansion_enforced": True,
+                "execution_authority": False, "output": str(args.output),
+            }))
+            return 0
 
         if args.command == "execute":
             registry = builtin_registry(bind=True)
