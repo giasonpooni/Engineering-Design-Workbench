@@ -53,6 +53,8 @@ def main(argv=None):
     serve.add_argument("--output-dir", type=Path, required=True)
     serve.add_argument("--port", type=int, default=0)
     serve.add_argument("--allow-run", action="store_true")
+    serve.add_argument("--morphism-registry", type=Path)
+    serve.add_argument("--intervention-binding", type=Path)
     demo = commands.add_parser("demo")
     demo.add_argument("--output-dir", type=Path, required=True)
     args = parser.parse_args(argv)
@@ -63,11 +65,19 @@ def main(argv=None):
                 from .instruments import make_demo_run
                 args.output_dir.mkdir(parents=True, exist_ok=False)
                 board = demo_board()
+                concrete = builtin_registry(bind=True)
+                semantic = builtin_semantic_registry(concrete)
+                from .visual_representation_gate import demo_binding, demo_registry
+                morphism_registry = demo_registry(semantic)
+                intervention_binding = demo_binding(board, morphism_registry, semantic)
                 save_new(args.output_dir / "board.json", board)
                 save_new(args.output_dir / "source.json", make_demo_run())
+                save_new(args.output_dir / "morphism-registry.json", morphism_registry)
+                save_new(args.output_dir / "intervention-binding.json", intervention_binding)
                 write_html(args.output_dir / "board.html", board)
                 print(json.dumps({"status": "created", "output_dir": str(args.output_dir),
-                                  "synthetic": True, "provider_execution": False}))
+                                  "synthetic": True, "scientific_gate_fixture": True,
+                                  "provider_execution": False}))
             elif args.command == "view":
                 write_html(args.output, load(args.board))
                 print(json.dumps({"status": "created", "output": str(args.output), "provider_execution": False}))
@@ -80,8 +90,15 @@ def main(argv=None):
                                   "dependency_closure": value["dependency_closure"], "provider_execution": False}))
             else:
                 from .visual_board_server import BoardWorkbench, make_server
-                workbench = BoardWorkbench(load(args.board), args.output_dir,
-                    source=load(args.source) if args.source else None, allow_run=args.allow_run)
+                if (args.morphism_registry is None) != (args.intervention_binding is None):
+                    raise ValueError("Supply both --morphism-registry and --intervention-binding")
+                workbench = BoardWorkbench(
+                    load(args.board), args.output_dir,
+                    source=load(args.source) if args.source else None,
+                    allow_run=args.allow_run,
+                    morphism_registry=(load(args.morphism_registry) if args.morphism_registry else None),
+                    intervention_binding=(load(args.intervention_binding) if args.intervention_binding else None),
+                )
                 server = make_server(workbench, port=args.port)
                 print(json.dumps({"status": "serving", "url": server.board_url,
                                   "execution_enabled": args.allow_run, "loopback_only": True}), flush=True)
