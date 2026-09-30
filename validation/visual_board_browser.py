@@ -19,6 +19,9 @@ from ciw.instruments import make_demo_run
 from ciw.operations.runner import seal
 from ciw.visual_board import demo_board, project_scene, render_html, view_from_spec
 from ciw.visual_board_server import BoardWorkbench, make_server
+from ciw.visual_representation_gate import demo_binding, demo_registry
+from ciw.control_plane import builtin_registry
+from ciw.semantic_capabilities import builtin_semantic_registry
 
 
 def main():
@@ -103,13 +106,20 @@ def main():
         check('Narrow layout has no document horizontal overflow',page.evaluate('document.documentElement.scrollWidth<=window.innerWidth'))
         page.close()
         if not args.embedded_only:
-            work=BoardWorkbench(board,root/'live-evidence',source=make_demo_run(),allow_run=True)
+            concrete=builtin_registry(bind=True)
+            semantic=builtin_semantic_registry(concrete)
+            registry=demo_registry(semantic)
+            binding=demo_binding(board,registry,semantic)
+            work=BoardWorkbench(
+                board,root/'live-evidence',source=make_demo_run(),allow_run=True,
+                morphism_registry=registry,intervention_binding=binding)
             server=make_server(work);thread=threading.Thread(target=server.serve_forever,daemon=True);thread.start()
             try:
                 page=browser.new_page(viewport={'width':1600,'height':1100});observe(page)
                 page.goto(server.board_url)
                 expect(page.locator('#status')).to_have_text(re.compile(r'^Ready\.'))
                 check('Explicitly opted-in live baseline enabled',page.locator('#run-baseline').is_enabled())
+                check('Scientific representation gate configured','LOCAL/EXPAND/REFUSE' in page.locator('#science-status').inner_text())
                 check('No execution before Run click',work.session is None)
                 page.locator('#run-baseline').click()
                 expect(page.locator('#run-summary')).to_contain_text('Baseline completed')
@@ -117,7 +127,9 @@ def main():
                 prior=deepcopy(work.baseline)
                 page.locator('#parameter-channel').select_option(label='v')
                 page.get_by_role('button',name='Compile candidate',exact=True).click()
+                expect(page.locator('#preview-summary')).to_contain_text('Gate: LOCAL')
                 expect(page.locator('#run-candidate')).to_be_enabled()
+                check('Direct visual gate is LOCAL',page.locator('#scientific-gate-panel').inner_text().find('gate: LOCAL')>=0)
                 check('Compiling preview did not execute provider',len(work.session.executions)==3)
                 page.locator('#run-candidate').click()
                 expect(page.locator('#run-summary')).to_contain_text('2 rerun')
@@ -128,6 +140,30 @@ def main():
                 check('Unchanged rerun shown','spectrum: RERUN · unchanged' in text)
                 check('Reused independent branch shown','energy_statistics: REUSED' in text)
                 check('Actual retained numerical result inspectable','m/s' in page.locator('#node-observations').inner_text())
+
+                # The spectral output is a lossy representation for the same channel-selection
+                # intervention. The Board must refuse direct execution, replay-verify retained
+                # richer evidence, promote a fresh LOCAL gate, then delegate to ordinary Needle.
+                page.locator('[data-visual-id="node:spectrum"]').click()
+                page.locator('#parameter-channel').select_option(label='v')
+                page.get_by_role('button',name='Compile candidate',exact=True).click()
+                expect(page.locator('#preview-summary')).to_contain_text('Gate: REFUSE')
+                check('Lossy representation refuses direct visual execution',page.locator('#run-candidate').is_disabled())
+                check('Retained recovery action becomes available',page.locator('#qualify-expansion').is_enabled())
+                prior_main_executions=len(work.session.executions)
+                page.locator('#qualify-expansion').click()
+                expect(page.locator('#preview-summary')).to_contain_text('EXPAND verified (PASS)')
+                check('Expansion promoted to LOCAL','promoted gate: LOCAL' in page.locator('#scientific-gate-panel').inner_text())
+                check('Projection replay is separate from main Session',len(work.session.executions)==prior_main_executions)
+                check('Exactly one retained visual promotion',len(work.promotions)==1)
+                expect(page.locator('#run-candidate')).to_be_enabled()
+                page.locator('#run-candidate').click()
+                expect(page.locator('#run-summary')).to_contain_text('1 rerun')
+                check('Promoted spectral candidate adds one main execution',len(work.session.executions)==prior_main_executions+1)
+                check('Expansion-authorized receipt retained',any(
+                    json.loads(p.read_text())['claims']['representation_expansion_authorized']
+                    for p in (root/'live-evidence').glob('needle-*/receipt.json')
+                ))
                 page.screenshot(path=str(root/'board-executed.png'),full_page=True)
                 with page.expect_download() as info:page.locator('#download-view').click()
                 info.value.save_as(root/'validated-browser-view.json')
