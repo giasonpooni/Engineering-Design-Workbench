@@ -177,3 +177,14 @@ wheel, not the source checkout imports.
 Read the exact commit's retained reports before claiming a platform or browser
 path is qualified. No claim of a faster investigation or productivity multiplier
 follows from this interface increment.
+
+## Representation-gated extension
+
+The stacked Visual Representation Gates increment binds every exposed Board
+operation parameter to an exact representation/intervention contract and projects
+the existing LOCAL / EXPAND / REFUSE decisions into the same inspector. See
+[Visual representation gates](VISUAL_REPRESENTATION_GATES.md).
+
+This extension preserves the distinction already stated above: visual group
+expansion remains a view operation, while scientific EXPAND remains an
+evidence-bound recovery/verification transition.
