@@ -1,0 +1,346 @@
+{
+  "registry": {
+    "schema": "ciw.morphism-registry.v1",
+    "representations": {
+      "bim.scalar.source.v1": {
+        "schema": "ciw.representation-spec.v1",
+        "representation_id": "bim.scalar.source.v1",
+        "role": "STATE",
+        "source_state_type": "ciw.bim-quantity-state.v1",
+        "schema_id": "ciw.bim-quantity-state.v1",
+        "quantity_semantics": "schema-specific quantities and installed checked predicates",
+        "unit_semantics": "declared by retained source",
+        "frame_semantics": "declared scope; no inferred spatial authority",
+        "time_semantics": "same instant",
+        "scale": {
+          "length_m": null,
+          "time_s": null,
+          "energy_j": null,
+          "resolution": null,
+          "label": "exact rational"
+        },
+        "uncertainty_semantics": "native covariance and explicit numerical round-trip bounds",
+        "equivalence_contract": "TASK_SPECIFIC",
+        "preserved_queries": [],
+        "supported_interventions": [],
+        "recovery_route": null,
+        "provenance_refs": [],
+        "notes": "",
+        "claims": {
+          "representation_not_canonical_state": true,
+          "query_preservation_does_not_imply_intervention_preservation": true,
+          "execution_authority": false
+        },
+        "record_digest": "sha256:c9058d332417cffae43dacad81125f4718fc467fee7694a2b6ea62449be989e5"
+      },
+      "bim.scalar.target.v1": {
+        "schema": "ciw.representation-spec.v1",
+        "representation_id": "bim.scalar.target.v1",
+        "role": "STATE",
+        "source_state_type": "ciw.bim-quantity-state.v1",
+        "schema_id": "ciw.bim-quantity-state.v1",
+        "quantity_semantics": "schema-specific quantities and installed checked predicates",
+        "unit_semantics": "declared by retained source",
+        "frame_semantics": "declared scope; no inferred spatial authority",
+        "time_semantics": "same instant",
+        "scale": {
+          "length_m": null,
+          "time_s": null,
+          "energy_j": null,
+          "resolution": null,
+          "label": "exact rational"
+        },
+        "uncertainty_semantics": "native covariance and explicit numerical round-trip bounds",
+        "equivalence_contract": "TASK_SPECIFIC",
+        "preserved_queries": [],
+        "supported_interventions": [],
+        "recovery_route": null,
+        "provenance_refs": [],
+        "notes": "",
+        "claims": {
+          "representation_not_canonical_state": true,
+          "query_preservation_does_not_imply_intervention_preservation": true,
+          "execution_authority": false
+        },
+        "record_digest": "sha256:d6e85a6e909d6868b9044d9edcc233eff58d6b9d44e4c0d2bcaee33933337e22"
+      }
+    },
+    "morphisms": {
+      "bim.scalar.mapping.v1": {
+        "schema": "ciw.scientific-morphism.v1",
+        "morphism_id": "bim.scalar.mapping.v1",
+        "kind": "TRANSFORM",
+        "domain_representation_id": "bim.scalar.source.v1",
+        "codomain_representation_id": "bim.scalar.target.v1",
+        "semantic_capability": null,
+        "parameter_names": [],
+        "preconditions": [
+          "installed verifier obligations"
+        ],
+        "validity": {
+          "assumptions": [
+            "trusted installed experiment code; retained runtime identity"
+          ],
+          "operating_regime": [
+            "declared quantity-only scope"
+          ],
+          "failure_conditions": [
+            "any refuted obligation"
+          ]
+        },
+        "preservation": {
+          "queries": [],
+          "interventions": [],
+          "invariants": [],
+          "approximation_tolerance": null
+        },
+        "loss": {
+          "class": "TASK_SPECIFIC",
+          "description": "task-specific checked round-trip predicates",
+          "metrics": {}
+        },
+        "uncertainty": {
+          "behavior": "UNKNOWN",
+          "method": null
+        },
+        "reversibility": "UNKNOWN",
+        "authority_requirements": [],
+        "verification_requirements": [],
+        "provenance_refs": [],
+        "notes": "",
+        "claims": {
+          "typed_scientific_morphism": true,
+          "semantic_capability_is_execution_link_not_truth": true,
+          "finite_witness_required_for_empirical_claim": true,
+          "execution_authority": false
+        },
+        "record_digest": "sha256:41a7a46e5df96198e4444022a2019719307ab5699f6176aaa800bbc530db7eb3"
+      }
+    },
+    "semantic_catalog_ref": "sha256:f830a533aa3aeb0b019c5fe53764e74847c625a05bde1c7efb42b80ef5d79d8d",
+    "claims": {
+      "describes_scientific_semantics": true,
+      "selects_engine": false,
+      "authorizes_execution": false,
+      "canonical_state_authority": false
+    },
+    "record_digest": "sha256:8190082f378b9cdb267faf07f104805f6d5def0c7ce77aeaf9fce2ce24265842"
+  },
+  "contract": {
+    "schema": "ciw.preservation-contract.v1",
+    "contract_id": "bim.scalar.preservation.v1",
+    "registry_ref": "sha256:8190082f378b9cdb267faf07f104805f6d5def0c7ce77aeaf9fce2ce24265842",
+    "morphism_id": "bim.scalar.mapping.v1",
+    "morphism_ref": "sha256:41a7a46e5df96198e4444022a2019719307ab5699f6176aaa800bbc530db7eb3",
+    "domain_representation_id": "bim.scalar.source.v1",
+    "codomain_representation_id": "bim.scalar.target.v1",
+    "requires": [],
+    "effects": [
+      {
+        "property_id": "bim.scalar.source_identity.v1",
+        "effect": "PRESERVE",
+        "output_property_id": "bim.scalar.source_identity.v1",
+        "transform_id": null,
+        "bound": null,
+        "notes": ""
+      },
+      {
+        "property_id": "bim.scalar.identity_roundtrip.v1",
+        "effect": "PRESERVE",
+        "output_property_id": "bim.scalar.identity_roundtrip.v1",
+        "transform_id": null,
+        "bound": null,
+        "notes": ""
+      },
+      {
+        "property_id": "bim.scalar.mean_roundtrip.v1",
+        "effect": "PRESERVE",
+        "output_property_id": "bim.scalar.mean_roundtrip.v1",
+        "transform_id": null,
+        "bound": null,
+        "notes": ""
+      },
+      {
+        "property_id": "bim.scalar.covariance_roundtrip.v1",
+        "effect": "PRESERVE",
+        "output_property_id": "bim.scalar.covariance_roundtrip.v1",
+        "transform_id": null,
+        "bound": null,
+        "notes": ""
+      },
+      {
+        "property_id": "bim.scalar.snapshot_identity.v1",
+        "effect": "PRESERVE",
+        "output_property_id": "bim.scalar.snapshot_identity.v1",
+        "transform_id": null,
+        "bound": null,
+        "notes": ""
+      },
+      {
+        "property_id": "bim.scalar.ledger_replay.v1",
+        "effect": "PRESERVE",
+        "output_property_id": "bim.scalar.ledger_replay.v1",
+        "transform_id": null,
+        "bound": null,
+        "notes": ""
+      },
+      {
+        "property_id": "bim.scalar.gaussian_mean.v1",
+        "effect": "PRESERVE",
+        "output_property_id": "bim.scalar.gaussian_mean.v1",
+        "transform_id": null,
+        "bound": null,
+        "notes": ""
+      },
+      {
+        "property_id": "bim.scalar.gaussian_variance.v1",
+        "effect": "PRESERVE",
+        "output_property_id": "bim.scalar.gaussian_variance.v1",
+        "transform_id": null,
+        "bound": null,
+        "notes": ""
+      },
+      {
+        "property_id": "bim.scalar.native_invariants.v1",
+        "effect": "PRESERVE",
+        "output_property_id": "bim.scalar.native_invariants.v1",
+        "transform_id": null,
+        "bound": null,
+        "notes": ""
+      }
+    ],
+    "notes": "",
+    "claims": {
+      "typed_preservation_contract": true,
+      "unmentioned_properties_are_unknown": true,
+      "does_not_upgrade_textual_morphism_claims": true,
+      "physical_validity_established": false,
+      "execution_authority": false,
+      "state_admission_authority": false
+    },
+    "record_digest": "sha256:b631ef0bd7791c025d664328ac0597e6b66622f767dd7cc2153656d4526b3fe4"
+  },
+  "verification": {
+    "schema": "ciw.preservation-verification.v1",
+    "verification_id": "bim.scalar.verification.v1",
+    "contract_ref": "sha256:b631ef0bd7791c025d664328ac0597e6b66622f767dd7cc2153656d4526b3fe4",
+    "source_state_ref": "sha256:07a74adcdb653fac6f3a53ea808e6dffe7c25d2165d287afeeb77bee96d9ddaa",
+    "candidate_state_ref": "sha256:d3813737da8858e6ff03d0b7ee4bf96b5e2695ce499164f411c42e1e9a9eaf5c",
+    "checks": [
+      {
+        "kind": "PRESERVE",
+        "property_id": "bim.scalar.source_identity.v1",
+        "status": "VERIFIED",
+        "method": "NUMERICAL_BOUND",
+        "evidence_ref": "sha256:50fdb0ccc421d31c55fe4d0559f2e1500c8c35b2b591819bf7fc0bc49b849d27",
+        "notes": "Installed experiment predicate; see retained method and tolerances."
+      },
+      {
+        "kind": "PRESERVE",
+        "property_id": "bim.scalar.identity_roundtrip.v1",
+        "status": "VERIFIED",
+        "method": "NUMERICAL_BOUND",
+        "evidence_ref": "sha256:50fdb0ccc421d31c55fe4d0559f2e1500c8c35b2b591819bf7fc0bc49b849d27",
+        "notes": "Installed experiment predicate; see retained method and tolerances."
+      },
+      {
+        "kind": "PRESERVE",
+        "property_id": "bim.scalar.mean_roundtrip.v1",
+        "status": "VERIFIED",
+        "method": "NUMERICAL_BOUND",
+        "evidence_ref": "sha256:50fdb0ccc421d31c55fe4d0559f2e1500c8c35b2b591819bf7fc0bc49b849d27",
+        "notes": "Installed experiment predicate; see retained method and tolerances."
+      },
+      {
+        "kind": "PRESERVE",
+        "property_id": "bim.scalar.covariance_roundtrip.v1",
+        "status": "VERIFIED",
+        "method": "NUMERICAL_BOUND",
+        "evidence_ref": "sha256:50fdb0ccc421d31c55fe4d0559f2e1500c8c35b2b591819bf7fc0bc49b849d27",
+        "notes": "Installed experiment predicate; see retained method and tolerances."
+      },
+      {
+        "kind": "PRESERVE",
+        "property_id": "bim.scalar.snapshot_identity.v1",
+        "status": "VERIFIED",
+        "method": "NUMERICAL_BOUND",
+        "evidence_ref": "sha256:50fdb0ccc421d31c55fe4d0559f2e1500c8c35b2b591819bf7fc0bc49b849d27",
+        "notes": "Installed experiment predicate; see retained method and tolerances."
+      },
+      {
+        "kind": "PRESERVE",
+        "property_id": "bim.scalar.ledger_replay.v1",
+        "status": "VERIFIED",
+        "method": "NUMERICAL_BOUND",
+        "evidence_ref": "sha256:50fdb0ccc421d31c55fe4d0559f2e1500c8c35b2b591819bf7fc0bc49b849d27",
+        "notes": "Installed experiment predicate; see retained method and tolerances."
+      },
+      {
+        "kind": "PRESERVE",
+        "property_id": "bim.scalar.gaussian_mean.v1",
+        "status": "VERIFIED",
+        "method": "NUMERICAL_BOUND",
+        "evidence_ref": "sha256:50fdb0ccc421d31c55fe4d0559f2e1500c8c35b2b591819bf7fc0bc49b849d27",
+        "notes": "Installed experiment predicate; see retained method and tolerances."
+      },
+      {
+        "kind": "PRESERVE",
+        "property_id": "bim.scalar.gaussian_variance.v1",
+        "status": "VERIFIED",
+        "method": "NUMERICAL_BOUND",
+        "evidence_ref": "sha256:50fdb0ccc421d31c55fe4d0559f2e1500c8c35b2b591819bf7fc0bc49b849d27",
+        "notes": "Installed experiment predicate; see retained method and tolerances."
+      },
+      {
+        "kind": "PRESERVE",
+        "property_id": "bim.scalar.native_invariants.v1",
+        "status": "VERIFIED",
+        "method": "NUMERICAL_BOUND",
+        "evidence_ref": "sha256:50fdb0ccc421d31c55fe4d0559f2e1500c8c35b2b591819bf7fc0bc49b849d27",
+        "notes": "Installed experiment predicate; see retained method and tolerances."
+      }
+    ],
+    "status": "VERIFIED",
+    "notes": "Eligibility for this declared experiment only. No state admission or physical authority.",
+    "claims": {
+      "typed_verification_receipt": true,
+      "method_classes_not_interchangeable": true,
+      "verification_is_not_admission": true,
+      "canonical_state_mutated": false,
+      "execution_authority": false
+    },
+    "record_digest": "sha256:88c6b51ac6746bd8f2a9f4a78fbe700575f69f1b21df12256ee9373edc8f9e64"
+  },
+  "gate": {
+    "schema": "ciw.preservation-admission-gate.v1",
+    "gate_id": "bim.scalar.admission.v1",
+    "contract_ref": "sha256:b631ef0bd7791c025d664328ac0597e6b66622f767dd7cc2153656d4526b3fe4",
+    "verification_ref": "sha256:88c6b51ac6746bd8f2a9f4a78fbe700575f69f1b21df12256ee9373edc8f9e64",
+    "source_state_ref": "sha256:07a74adcdb653fac6f3a53ea808e6dffe7c25d2165d287afeeb77bee96d9ddaa",
+    "candidate_state_ref": "sha256:d3813737da8858e6ff03d0b7ee4bf96b5e2695ce499164f411c42e1e9a9eaf5c",
+    "forbidden_forgets": [
+      "bim.scalar.source_identity.v1",
+      "bim.scalar.identity_roundtrip.v1",
+      "bim.scalar.mean_roundtrip.v1",
+      "bim.scalar.covariance_roundtrip.v1",
+      "bim.scalar.snapshot_identity.v1",
+      "bim.scalar.ledger_replay.v1",
+      "bim.scalar.gaussian_mean.v1",
+      "bim.scalar.gaussian_variance.v1",
+      "bim.scalar.native_invariants.v1"
+    ],
+    "policy_violations": [],
+    "decision": "ELIGIBLE",
+    "reasons": [
+      "preservation_contract_verified_under_declared_loss_policy"
+    ],
+    "notes": "Downstream of the installed verifier, scoped to checked properties.",
+    "claims": {
+      "eligibility_not_admission": true,
+      "state_admission_performed": false,
+      "canonical_state_mutated": false,
+      "execution_authority": false
+    },
+    "record_digest": "sha256:ea66168c48b106da3705b5bba0ffbde04a033e1f4a45c4bfaea9d7b7bbb68d2d"
+  }
+}

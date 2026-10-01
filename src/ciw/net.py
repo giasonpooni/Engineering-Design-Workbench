@@ -116,6 +116,12 @@ def _node(name: str, operation: str, dependencies: list[str] | None = None) -> d
 
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
+    if argv and argv[0] == "lab":
+        from .preservation_experiments import main as lab_main
+        return lab_main(argv[1:])
+    if argv and argv[:2] == ["foundry", "childhood"]:
+        from .foundry_childhood import main as childhood_main
+        return childhood_main(argv[2:])
     if argv and argv[0] == "foundry":
         from .foundry_workflow import main as foundry_main
         return foundry_main(argv[1:])

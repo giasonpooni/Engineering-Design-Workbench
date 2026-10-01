@@ -1,0 +1,373 @@
+{
+  "registry": {
+    "schema": "ciw.morphism-registry.v1",
+    "representations": {
+      "bim.extraction.source.v1": {
+        "schema": "ciw.representation-spec.v1",
+        "representation_id": "bim.extraction.source.v1",
+        "role": "STATE",
+        "source_state_type": "ciw.ifc-scoped-quantity.v1",
+        "schema_id": "ciw.ifc-scoped-quantity.v1",
+        "quantity_semantics": "schema-specific quantities and installed checked predicates",
+        "unit_semantics": "declared by retained source",
+        "frame_semantics": "declared scope; no inferred spatial authority",
+        "time_semantics": "same instant",
+        "scale": {
+          "length_m": null,
+          "time_s": null,
+          "energy_j": null,
+          "resolution": null,
+          "label": "exact rational"
+        },
+        "uncertainty_semantics": "native covariance and explicit numerical round-trip bounds",
+        "equivalence_contract": "TASK_SPECIFIC",
+        "preserved_queries": [],
+        "supported_interventions": [],
+        "recovery_route": null,
+        "provenance_refs": [],
+        "notes": "",
+        "claims": {
+          "representation_not_canonical_state": true,
+          "query_preservation_does_not_imply_intervention_preservation": true,
+          "execution_authority": false
+        },
+        "record_digest": "sha256:8b6dab383e94799c6e701cd93d124ac74fcea0a7980d829c3d26963530bee64c"
+      },
+      "bim.extraction.target.v1": {
+        "schema": "ciw.representation-spec.v1",
+        "representation_id": "bim.extraction.target.v1",
+        "role": "STATE",
+        "source_state_type": "ciw.ifc-scoped-quantity.v1",
+        "schema_id": "ciw.ifc-scoped-quantity.v1",
+        "quantity_semantics": "schema-specific quantities and installed checked predicates",
+        "unit_semantics": "declared by retained source",
+        "frame_semantics": "declared scope; no inferred spatial authority",
+        "time_semantics": "same instant",
+        "scale": {
+          "length_m": null,
+          "time_s": null,
+          "energy_j": null,
+          "resolution": null,
+          "label": "exact rational"
+        },
+        "uncertainty_semantics": "native covariance and explicit numerical round-trip bounds",
+        "equivalence_contract": "TASK_SPECIFIC",
+        "preserved_queries": [],
+        "supported_interventions": [],
+        "recovery_route": null,
+        "provenance_refs": [],
+        "notes": "",
+        "claims": {
+          "representation_not_canonical_state": true,
+          "query_preservation_does_not_imply_intervention_preservation": true,
+          "execution_authority": false
+        },
+        "record_digest": "sha256:bbea8afbdc7d5d983300b84cf736fc94d294f2359ac9bce85bbc655bff1aca71"
+      }
+    },
+    "morphisms": {
+      "bim.extraction.mapping.v1": {
+        "schema": "ciw.scientific-morphism.v1",
+        "morphism_id": "bim.extraction.mapping.v1",
+        "kind": "TRANSFORM",
+        "domain_representation_id": "bim.extraction.source.v1",
+        "codomain_representation_id": "bim.extraction.target.v1",
+        "semantic_capability": null,
+        "parameter_names": [],
+        "preconditions": [
+          "installed verifier obligations"
+        ],
+        "validity": {
+          "assumptions": [
+            "trusted installed experiment code; retained runtime identity"
+          ],
+          "operating_regime": [
+            "declared quantity-only scope"
+          ],
+          "failure_conditions": [
+            "any refuted obligation"
+          ]
+        },
+        "preservation": {
+          "queries": [],
+          "interventions": [],
+          "invariants": [],
+          "approximation_tolerance": null
+        },
+        "loss": {
+          "class": "TASK_SPECIFIC",
+          "description": "task-specific checked round-trip predicates",
+          "metrics": {}
+        },
+        "uncertainty": {
+          "behavior": "UNKNOWN",
+          "method": null
+        },
+        "reversibility": "UNKNOWN",
+        "authority_requirements": [],
+        "verification_requirements": [],
+        "provenance_refs": [],
+        "notes": "",
+        "claims": {
+          "typed_scientific_morphism": true,
+          "semantic_capability_is_execution_link_not_truth": true,
+          "finite_witness_required_for_empirical_claim": true,
+          "execution_authority": false
+        },
+        "record_digest": "sha256:5b1d5e6dabed8b3323376378bf67fc98f9c340c081f76468f7fb9460150c7182"
+      }
+    },
+    "semantic_catalog_ref": "sha256:f830a533aa3aeb0b019c5fe53764e74847c625a05bde1c7efb42b80ef5d79d8d",
+    "claims": {
+      "describes_scientific_semantics": true,
+      "selects_engine": false,
+      "authorizes_execution": false,
+      "canonical_state_authority": false
+    },
+    "record_digest": "sha256:8dbfdd667e6ffac6e69073df72177b4c9b86638bbcb2b60d7a2a1386425af54e"
+  },
+  "contract": {
+    "schema": "ciw.preservation-contract.v1",
+    "contract_id": "bim.extraction.preservation.v1",
+    "registry_ref": "sha256:8dbfdd667e6ffac6e69073df72177b4c9b86638bbcb2b60d7a2a1386425af54e",
+    "morphism_id": "bim.extraction.mapping.v1",
+    "morphism_ref": "sha256:5b1d5e6dabed8b3323376378bf67fc98f9c340c081f76468f7fb9460150c7182",
+    "domain_representation_id": "bim.extraction.source.v1",
+    "codomain_representation_id": "bim.extraction.target.v1",
+    "requires": [],
+    "effects": [
+      {
+        "property_id": "bim.extraction.identity.v1",
+        "effect": "PRESERVE",
+        "output_property_id": "bim.extraction.identity.v1",
+        "transform_id": null,
+        "bound": null,
+        "notes": ""
+      },
+      {
+        "property_id": "bim.extraction.source_bytes.v1",
+        "effect": "PRESERVE",
+        "output_property_id": "bim.extraction.source_bytes.v1",
+        "transform_id": null,
+        "bound": null,
+        "notes": ""
+      },
+      {
+        "property_id": "bim.extraction.operational_geometry.v1",
+        "effect": "FORGET",
+        "output_property_id": null,
+        "transform_id": null,
+        "bound": null,
+        "notes": "Original geometry bytes remain audit evidence; no spatial authority in the computation carrier."
+      }
+    ],
+    "notes": "Declared scalar projection, not whole IFC conformance.",
+    "claims": {
+      "typed_preservation_contract": true,
+      "unmentioned_properties_are_unknown": true,
+      "does_not_upgrade_textual_morphism_claims": true,
+      "physical_validity_established": false,
+      "execution_authority": false,
+      "state_admission_authority": false
+    },
+    "record_digest": "sha256:72540dda5b67abf360234a421b89e8ff0ff0d21ac9e2626b477b9e6d8c91c2da"
+  },
+  "profile": {
+    "schema": "ciw.interoperability-profile.v1",
+    "profile_id": "bim.scoped-ifc-beam-profile.v1",
+    "source_family": "STANDARD",
+    "standard_id": "standard.ifc4.v1",
+    "source_profile_id": "bim.declared-beam-length.v1",
+    "source_system_id": "buildingsmart.certification-dataset.v1",
+    "source_schema_id": "IFC4 selected IfcBeam/Length/unit/placement-reference profile only",
+    "registry_ref": "sha256:8dbfdd667e6ffac6e69073df72177b4c9b86638bbcb2b60d7a2a1386425af54e",
+    "morphism_id": "bim.extraction.mapping.v1",
+    "morphism_ref": "sha256:5b1d5e6dabed8b3323376378bf67fc98f9c340c081f76468f7fb9460150c7182",
+    "source_representation_id": "bim.extraction.source.v1",
+    "source_representation_ref": "sha256:8b6dab383e94799c6e701cd93d124ac74fcea0a7980d829c3d26963530bee64c",
+    "target_representation_id": "bim.extraction.target.v1",
+    "target_representation_ref": "sha256:bbea8afbdc7d5d983300b84cf736fc94d294f2359ac9bce85bbc655bff1aca71",
+    "preservation_contract_ref": "sha256:72540dda5b67abf360234a421b89e8ff0ff0d21ac9e2626b477b9e6d8c91c2da",
+    "mapping_id": "bim.native-cse-quantity-projection.v1",
+    "mapping_assumptions": [
+      "explicit unique GlobalId and quantity",
+      "placement retained without spatial computation",
+      "synthetic independent scalar observation; native prior policy, not metrological calibration"
+    ],
+    "uncertainty_semantics": "explicit declared prior/noise covariance, no authenticated calibration",
+    "declared_loss_properties": [
+      "bim.extraction.operational_geometry.v1"
+    ],
+    "verification_requirements": [
+      "selected subject mapping",
+      "declared covariance policy"
+    ],
+    "notes": "Qualification is scoped to the selected quantity profile. No IFC certification.",
+    "claims": {
+      "external_representation_profile": true,
+      "standard_or_schema_conformance_established": false,
+      "semantic_preservation_established": false,
+      "physical_validity_established": false,
+      "provider_execution": false,
+      "canonical_state_mutated": false,
+      "state_admission_authority": false
+    },
+    "record_digest": "sha256:dcf9d721d157bbe4d892d647fad1f0f00422d8745c78b79273f996792e8496e0"
+  },
+  "ingress": {
+    "schema": "ciw.external-ingress.v1",
+    "ingress_id": "bim.external-beam-ingress.v1",
+    "profile_ref": "sha256:dcf9d721d157bbe4d892d647fad1f0f00422d8745c78b79273f996792e8496e0",
+    "payload_ref": "sha256:903b5a005901397aa2b235daf6a60f46c099eae286cb01c815abf0a341707432",
+    "payload_media_type": "application/x-step",
+    "source_identity": {
+      "reference_id": "bim.external-beam-reference.v1",
+      "namespace": "IFC.GlobalId",
+      "external_id": "0fqX614OH1YO1Njdxms2$Q",
+      "object_kind": "BIM_OBJECT"
+    },
+    "mapping_parameters": {
+      "global_id": "0fqX614OH1YO1Njdxms2$Q",
+      "spatial_authority": "none_in_projection"
+    },
+    "mapping_evidence_refs": [
+      "sha256:50fdb0ccc421d31c55fe4d0559f2e1500c8c35b2b591819bf7fc0bc49b849d27"
+    ],
+    "notes": "Exact original IFC bytes retained separately.",
+    "claims": {
+      "external_payload_retained": true,
+      "mapping_executed": false,
+      "profile_conformance_established": false,
+      "semantic_preservation_established": false,
+      "identity_admission_performed": false,
+      "canonical_state_mutated": false
+    },
+    "record_digest": "sha256:596b37e533953caf59d85b9fcda49ae1a242fe488c44cd0f7ed935b21f6a0c89"
+  },
+  "verification": {
+    "schema": "ciw.external-ingress-verification.v1",
+    "verification_id": "bim.external-ingress-verification.v1",
+    "profile_ref": "sha256:dcf9d721d157bbe4d892d647fad1f0f00422d8745c78b79273f996792e8496e0",
+    "ingress_ref": "sha256:596b37e533953caf59d85b9fcda49ae1a242fe488c44cd0f7ed935b21f6a0c89",
+    "payload_ref": "sha256:903b5a005901397aa2b235daf6a60f46c099eae286cb01c815abf0a341707432",
+    "checks": [
+      {
+        "kind": "PROFILE_CONFORMANCE",
+        "status": "VERIFIED",
+        "method": "DECLARED_PROFILE",
+        "evidence_ref": "sha256:50fdb0ccc421d31c55fe4d0559f2e1500c8c35b2b591819bf7fc0bc49b849d27",
+        "notes": "Installed bounded mapping experiment; see explicit scope and losses."
+      },
+      {
+        "kind": "SOURCE_IDENTITY",
+        "status": "VERIFIED",
+        "method": "MAPPING_TEST",
+        "evidence_ref": "sha256:50fdb0ccc421d31c55fe4d0559f2e1500c8c35b2b591819bf7fc0bc49b849d27",
+        "notes": "Installed bounded mapping experiment; see explicit scope and losses."
+      },
+      {
+        "kind": "REPRESENTATION_MAPPING",
+        "status": "VERIFIED",
+        "method": "MAPPING_TEST",
+        "evidence_ref": "sha256:50fdb0ccc421d31c55fe4d0559f2e1500c8c35b2b591819bf7fc0bc49b849d27",
+        "notes": "Installed bounded mapping experiment; see explicit scope and losses."
+      },
+      {
+        "kind": "MAPPING_ASSUMPTIONS",
+        "status": "VERIFIED",
+        "method": "MAPPING_TEST",
+        "evidence_ref": "sha256:50fdb0ccc421d31c55fe4d0559f2e1500c8c35b2b591819bf7fc0bc49b849d27",
+        "notes": "Installed bounded mapping experiment; see explicit scope and losses."
+      },
+      {
+        "kind": "UNCERTAINTY_HANDLING",
+        "status": "VERIFIED",
+        "method": "MAPPING_TEST",
+        "evidence_ref": "sha256:50fdb0ccc421d31c55fe4d0559f2e1500c8c35b2b591819bf7fc0bc49b849d27",
+        "notes": "Installed bounded mapping experiment; see explicit scope and losses."
+      },
+      {
+        "kind": "PRESERVATION_PRECONDITIONS",
+        "status": "VERIFIED",
+        "method": "MAPPING_TEST",
+        "evidence_ref": "sha256:50fdb0ccc421d31c55fe4d0559f2e1500c8c35b2b591819bf7fc0bc49b849d27",
+        "notes": "Installed bounded mapping experiment; see explicit scope and losses."
+      }
+    ],
+    "status": "VERIFIED",
+    "notes": "No physical authenticity inferred from successful arithmetic.",
+    "claims": {
+      "profile_and_mapping_checks_retained": true,
+      "verification_is_not_physical_validation": true,
+      "verification_is_not_identity_admission": true,
+      "mapping_executed": false,
+      "canonical_state_mutated": false
+    },
+    "record_digest": "sha256:892186bc6f8698cfe7c1a8439711d0736cea3c3947922829d93de8988eff5d4e"
+  },
+  "qualification": {
+    "schema": "ciw.external-ingress-qualification.v1",
+    "profile_ref": "sha256:dcf9d721d157bbe4d892d647fad1f0f00422d8745c78b79273f996792e8496e0",
+    "ingress_ref": "sha256:596b37e533953caf59d85b9fcda49ae1a242fe488c44cd0f7ed935b21f6a0c89",
+    "verification_ref": "sha256:892186bc6f8698cfe7c1a8439711d0736cea3c3947922829d93de8988eff5d4e",
+    "payload_ref": "sha256:903b5a005901397aa2b235daf6a60f46c099eae286cb01c815abf0a341707432",
+    "source_system_id": "buildingsmart.certification-dataset.v1",
+    "source_identity": {
+      "reference_id": "bim.external-beam-reference.v1",
+      "namespace": "IFC.GlobalId",
+      "external_id": "0fqX614OH1YO1Njdxms2$Q",
+      "object_kind": "BIM_OBJECT"
+    },
+    "source_representation_id": "bim.extraction.source.v1",
+    "source_representation_ref": "sha256:8b6dab383e94799c6e701cd93d124ac74fcea0a7980d829c3d26963530bee64c",
+    "target_representation_id": "bim.extraction.target.v1",
+    "target_representation_ref": "sha256:bbea8afbdc7d5d983300b84cf736fc94d294f2359ac9bce85bbc655bff1aca71",
+    "morphism_ref": "sha256:5b1d5e6dabed8b3323376378bf67fc98f9c340c081f76468f7fb9460150c7182",
+    "preservation_contract_ref": "sha256:72540dda5b67abf360234a421b89e8ff0ff0d21ac9e2626b477b9e6d8c91c2da",
+    "status": "QUALIFIED",
+    "reasons": [
+      "profile_mapping_and_preconditions_verified"
+    ],
+    "claims": {
+      "qualified_for_net_identity_and_semantic_workflow": true,
+      "mapping_executed": false,
+      "canonical_entity_created": false,
+      "state_admission_performed": false,
+      "physical_validity_established": false,
+      "canonical_state_mutated": false
+    },
+    "record_digest": "sha256:ff6a40b08e2fb76841cf9586b0ae9c8420e2b137bc0a2611c9eb8fba1a232dc7"
+  },
+  "identity_binding": {
+    "schema": "ciw.entity-binding.v1",
+    "binding_id": "bim.external-to-cse-binding.v1",
+    "canonical_entity_id": "candidate-ifc-beam:0fqX614OH1YO1Njdxms2$Q",
+    "references": [
+      {
+        "reference_id": "bim.external-beam-reference.v1",
+        "system_id": "buildingsmart.certification-dataset.v1",
+        "namespace": "IFC.GlobalId",
+        "external_id": "0fqX614OH1YO1Njdxms2$Q",
+        "object_kind": "BIM_OBJECT",
+        "evidence_ref": "sha256:ff6a40b08e2fb76841cf9586b0ae9c8420e2b137bc0a2611c9eb8fba1a232dc7"
+      },
+      {
+        "reference_id": "bim.cse-beam-reference.v1",
+        "system_id": "cse.quantity-projection.v1",
+        "namespace": "IFC.GlobalId",
+        "external_id": "0fqX614OH1YO1Njdxms2$Q",
+        "object_kind": "BIM_OBJECT",
+        "evidence_ref": "sha256:50fdb0ccc421d31c55fe4d0559f2e1500c8c35b2b591819bf7fc0bc49b849d27"
+      }
+    ],
+    "notes": "Candidate record continuity only; canonical entity and physical identity are not admitted.",
+    "claims": {
+      "candidate_identity_map": true,
+      "canonical_entity_created": false,
+      "identity_admission_performed": false,
+      "canonical_state_mutated": false,
+      "execution_authority": false
+    },
+    "record_digest": "sha256:8453693b31a88e776f8a98fcc29565981b7cc653c58ca59bba477582a240c953"
+  }
+}

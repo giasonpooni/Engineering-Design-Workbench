@@ -530,3 +530,16 @@ except where a component carries an explicit separate notice. Third-party
 engines, libraries, runtimes, assets and standalone providers retain their
 original licenses. See [LICENSE](LICENSE) and the
 [platform licensing policy](docs/LICENSING.md).
+
+## Shared preservation experiment
+
+The immediate BIM, sensor, math and 1792 workloads now share an executable
+preservation/verification question. The external buildingSMART beam-length
+projection runs through native CSE and exports/reloads a checked quantity carrier;
+unsupported whole-IFC imports remain retained refusals. The exact Representation
+Laboratory and synthetic sensor estimate reuse typed verification/admission
+eligibility, while the existing 1792 childhood input journey runs through NET's
+original production controller. Canonical admission remains separate.
+
+See [scope, mathematics, commands and limits](docs/SHARED_PRESERVATION_EXPERIMENTS.md).
+The new work is a bounded qualification, not proof of a Universal Adapter.
