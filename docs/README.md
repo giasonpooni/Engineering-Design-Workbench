@@ -36,6 +36,7 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 
 - [Finite representation preservation and Board morphism binding](FINITE_REPRESENTATION_PRESERVATION.md) (research branch increment)
 - [Typed preservation contracts, composition, verification and admission eligibility](PRESERVATION_CONTRACTS.md) (research branch increment)
+- [Industrial cross-system identity and semantic transition envelopes](INDUSTRIAL_SEMANTIC_TRANSITIONS.md) (research branch increment)
 
 - [Protocol and record identities](PROTOCOL.md)
 - [Contract foundations and typed exchange](CONTRACT_FOUNDATIONS.md)
