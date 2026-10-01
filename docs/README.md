@@ -16,6 +16,7 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 | Current provider map and loose-tool collapse rule | [Systems catalog](SYSTEMS_CATALOG.md) |
 | Shared profiles, typed composition and evidence boundaries | [Consolidation roadmap](CONSOLIDATION.md) |
 | Executable implementation architecture | [Architecture](ARCHITECTURE.md) |
+| Parameterized System Board and visual candidate editor | [System Board](SYSTEM_BOARD.md) · [Visual Editor V1](SYSTEM_BOARD_VISUAL.md) |
 | Python, Julia, native execution and proof responsibilities | [Execution responsibilities](EXECUTION_RESPONSIBILITIES.md) |
 | Bounded Rust/C++, JuliaControl and JuMP execution | [Native interoperability](NATIVE_INTEROP.md) |
 | Fixed-model chemical kinetics and cross-engine references | [Reaction benchmark](REACTION_BENCHMARK.md) |
