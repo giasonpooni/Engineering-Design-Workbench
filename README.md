@@ -4,7 +4,7 @@
 **Foundry v1 on this branch:** [implementation and complete retained delivery](docs/NET_FOUNDRY_DELIVERY.md). Source, installable wheel, patches, and original qualification evidence are committed to Git; this is not a main-branch merge or product release.
 <!-- /foundry-delivery-v1 -->
 
-**A programmable workbench for scientific computing and game/simulation development.**
+**A programmable scientific workbench developing an invariant-preserving computational interlingua across heterogeneous engineering and simulation systems.**
 
 **Notations Engineering Terminal (NET)** is the terminal-first workbench from
 **Notation Systems**. It runs supported models and analysis operations, retains
@@ -192,6 +192,81 @@ pinned adapters, contracts and pending integrations. A repository link means
 that a project can be found, not that its integration has been exercised.
 [Provider availability](docs/PROVIDER_AVAILABILITY.md) documents setup;
 the [stack map](docs/STACK.md) records the detailed division of responsibilities.
+
+## Computational interlingua / universal-adapter hypothesis
+
+An ordinary adapter answers a transport question:
+
+```text
+representation A -> representation B
+```
+
+NET is investigating a stronger contract: whether heterogeneous domain systems
+can participate in one bounded computational grammar **without collapsing their
+specialist mathematics into one universal object model**.
+
+The working kernel is:
+
+```text
+object / state
+  + representation
+  + typed morphism
+  + invariant or lawful-variance contract
+  + evidence
+  + verification
+  + admission authority
+```
+
+A transformation is therefore not considered meaningful merely because data can
+be converted. It must declare what is preserved, what may vary, how that variance
+is lawful, what information is lost, and which downstream operations remain
+valid.
+
+| Contract class | Meaning |
+| --- | --- |
+| **Invariant** | A declared property must remain unchanged. |
+| **Equivariant** | A property may change, but only according to a declared action law. |
+| **Contravariant** | Direction or composition order reverses according to a declared law. |
+| **Commuting / path-preserving** | Alternative valid computational paths must agree exactly or within a declared tolerance. |
+| **Information-loss bounded** | A projection or reduction must state what is discarded and which claims remain supportable. |
+
+The intended control rule is:
+
+```text
+domain state
+    |
+    v
+declared representation
+    |
+    v
+typed transformation / computation
+    |
+    v
+candidate result
+    |
+    v
+preservation + lawful-variance checks
+    |-- pass -> eligible for the next declared admission step
+    '-- fail -> retain candidate + counterevidence; canonical state is unchanged
+```
+
+**Universal adapter** is therefore shorthand for a falsifiable architecture
+hypothesis, not a claim that universality has already been established. New
+domains are expected to contribute their own objects, units, frames, models,
+representations, morphisms, uncertainty semantics, invariants and validators.
+They should not require a new evidence store, execution identity or verification
+authority merely because their domain mathematics differs.
+
+The hypothesis strengthens only if increasingly different workloads can attach
+through new **domain contracts** rather than repeated redesign of the substrate's
+core evidence / execution / result / verification semantics. GIS, BIM/state
+estimation, fluid and thermal systems, mechanics, materials, simulation and game
+worlds are useful stress cases precisely because they do not share one domain
+model.
+
+The objective is not universal mathematics. It is a candidate **universal
+protocol for attaching heterogeneous computation while making preservation
+obligations explicit, executable and auditable**.
 
 ## Interactive simulation development direction
 
