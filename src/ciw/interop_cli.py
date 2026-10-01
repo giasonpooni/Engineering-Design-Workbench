@@ -30,6 +30,17 @@ def main(argv=None):
     parser = argparse.ArgumentParser(prog="net interop", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
 
+    execute_ifc = commands.add_parser("execute-ifc", help="Execute exact IFC/observation bytes through pinned CSE and existing NET review boundaries")
+    execute_ifc.add_argument("ifc", type=Path)
+    execute_ifc.add_argument("observation", type=Path)
+    execute_ifc.add_argument("spec", type=Path)
+    execute_ifc.add_argument("--cse", type=Path, required=True)
+    execute_ifc.add_argument("--output", type=Path, required=True)
+
+    verify_ifc = commands.add_parser("verify-ifc", help="Independently recompute an IFC transition run from retained bytes")
+    verify_ifc.add_argument("record", type=Path)
+    verify_ifc.add_argument("--cse", type=Path)
+
     profile = commands.add_parser("create-profile")
     profile.add_argument("registry", type=Path)
     profile.add_argument("preservation_contract", type=Path)
@@ -74,6 +85,27 @@ def main(argv=None):
 
     args = parser.parse_args(argv)
     try:
+        if args.command in {"execute-ifc", "verify-ifc"}:
+            from .ifc_transition import execute_ifc as execute, verify_ifc as verify
+            from .adapters.subprocess import _json
+            if args.command == "execute-ifc":
+                with args.ifc.open("rb") as stream:
+                    ifc = stream.read(65537)
+                with args.observation.open("rb") as stream:
+                    observation = stream.read(4097)
+                value = execute(ifc, observation, load(args.spec), {"cse": args.cse})
+                save_new(args.output, value)
+                result = verify(value)
+                result["output"] = str(args.output)
+            else:
+                with args.record.open("rb") as stream:
+                    raw = stream.read(4 * 1024 * 1024 + 1)
+                if not raw or len(raw) > 4 * 1024 * 1024:
+                    raise ValueError("IFC transition record exceeds byte budget")
+                result = verify(_json(raw), None if args.cse is None else {"cse": args.cse})
+            print(json.dumps(result, indent=2, allow_nan=False))
+            return 0 if result["qualification"] == "QUALIFIED" and result["transition_readiness"] == "READY_FOR_AUTHORITY_REVIEW" else 2
+
         semantic = _semantic()
 
         if args.command == "create-profile":

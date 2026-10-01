@@ -440,6 +440,23 @@ equipment. Unavailable, inconclusive, refused and failed checks remain visible.
 <a id="extension-rule"></a>
 ## Next gates
 
+The current development order extends the base pilot and its existing gates:
+
+| Priority | Terminal / Adapter | 1792 reference workload |
+| --- | --- | --- |
+| P0 | Real external artifact → interoperability → identity → preservation → transition | Gujranwala Vertical Slice 0.1 |
+| P1 | Actual mapping execution and verification adapters | Persistent playable world/runtime |
+| P2 | Existing Board views of bound contracts and state | Dense gameplay and received-information cognition |
+| P3 | Replicate the same contracts across another domain | Foundry-driven content production |
+| P4 | Measure and improve execution/verification cost and scale | Visual quality and optimization |
+
+Each increment retains its source bytes, execution and verification identities,
+refused or unresolved outcomes, and evidence for the claim it actually checks.
+The [real IFC transition experiment](docs/REAL_IFC_TRANSITION.md) connects P0/P1
+to the existing CSE runner; public-model incompatibility remains a retained
+result rather than permission to invent missing model quantities. Game runtime
+state remains owned by 1792 and does not become industrial canonical state.
+
 **Finish and verify the currently assigned work first.** The agreed initial
 end-to-end demonstration (the **base pilot**) remains the development priority.
 
