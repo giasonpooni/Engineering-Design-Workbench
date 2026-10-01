@@ -10,7 +10,7 @@ from .control_contracts import load, save_new
 from .control_plane import builtin_registry
 from .semantic_capabilities import builtin_semantic_registry
 from .system_board import board_from_spec, compile_board, inspect_board, validate_compilation
-from .board_visual import apply_visual_edit, write_html
+from .board_visual import apply_visual_edit, visual_edit_to_needle_plan, write_html
 
 
 def main(argv=None):
@@ -37,6 +37,12 @@ def main(argv=None):
     apply_edit.add_argument("spec", type=Path)
     apply_edit.add_argument("--output", type=Path, required=True)
 
+    plan_edit = commands.add_parser("plan-edit")
+    plan_edit.add_argument("board", type=Path)
+    plan_edit.add_argument("spec", type=Path)
+    plan_edit.add_argument("baseline_graph_run", type=Path)
+    plan_edit.add_argument("--output", type=Path, required=True)
+
     args = parser.parse_args(argv)
     try:
         if args.command == "create":
@@ -61,6 +67,19 @@ def main(argv=None):
             candidate, summary = apply_visual_edit(load(args.board), load(args.spec))
             save_new(args.output, candidate)
             print(json.dumps({**summary, "status": "candidate_created", "output": str(args.output)}))
+            return 0
+        if args.command == "plan-edit":
+            concrete = builtin_registry(bind=True)
+            semantic = builtin_semantic_registry(concrete)
+            plan = visual_edit_to_needle_plan(
+                load(args.board), load(args.spec), load(args.baseline_graph_run), semantic
+            )
+            save_new(args.output, plan)
+            print(json.dumps({
+                "status": "planned", "needle_id": plan["needle_id"],
+                "target": plan["target"], "execution_authority": False,
+                "output": str(args.output),
+            }))
             return 0
         if args.command == "compile":
             concrete = builtin_registry(bind=True)
