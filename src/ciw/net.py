@@ -158,6 +158,9 @@ def main(argv: list[str] | None = None) -> int:
     if argv and argv[0] == "transition":
         from .transition_cli import main as transition_main
         return transition_main(argv[1:])
+    if argv and argv[0] == "interop":
+        from .interop_cli import main as interop_main
+        return interop_main(argv[1:])
     if argv and argv[0] == "workcell":
         from .workcell_cli import main as workcell_main
         return workcell_main(argv[1:])
@@ -190,6 +193,7 @@ def main(argv: list[str] | None = None) -> int:
     commands.add_parser("parameter", help="Create deterministic parameter programs and immutable candidate Boards")
     commands.add_parser("preservation", help="Declare, compose and verify typed preservation contracts")
     commands.add_parser("transition", help="Bind cross-system identity and package candidate state transitions for authority review")
+    commands.add_parser("interop", help="Bind external standards/proprietary schemas into NET identity and preservation workflows")
     commands.add_parser("morphism", help="Create and inspect scientific representation/morphism contracts")
     commands.add_parser("workcell", help="Operator-bound container compilation and agent work slots")
     commands.add_parser("math", help="Derive bounded covariance and innovation display diagnostics")
