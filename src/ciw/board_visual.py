@@ -20,7 +20,8 @@ import tempfile
 from typing import Any
 
 from .control_contracts import content_ref, keys, text
-from .system_board import board_from_spec, validate_board
+from .system_board import board_from_spec, compile_board, validate_board
+from .needle import plan_from_spec
 
 MAX_HTML_BYTES = 8 * 1024 * 1024
 EDIT_SCHEMA = "ciw.board-visual-edit-spec.v1"
@@ -142,6 +143,43 @@ def apply_visual_edit(board: dict, spec: dict) -> tuple[dict, dict]:
         "execution_authority": False,
     }
     return candidate, summary
+
+
+
+def visual_edit_to_needle_plan(board: dict, spec: dict, baseline_graph_run: dict, registry) -> dict:
+    """Lower one visual edit into the existing Needle plan contract.
+
+    The baseline must be the exact ordinary experiment obtained by compiling the
+    same sealed Board through the supplied semantic registry. This prevents a
+    visual edit from being rebound to an unrelated retained execution graph.
+    """
+    board = validate_board(board)
+    checked = validate_edit_spec(board, spec)
+    target_node = next(node for node in board["nodes"] if node["node_id"] == checked["target"]["node_id"])
+    if target_node["kind"] != "OPERATION":
+        raise ValueError("Needle V1 lowering requires an OPERATION node parameter")
+
+    compilation = compile_board(board, registry)
+    expected_experiment = compilation["semantic_compilation"]["experiment"]
+    if type(baseline_graph_run) is not dict or baseline_graph_run.get("schema") != "ciw.graph-run.v1":
+        raise ValueError("Visual Needle lowering requires a retained graph-run baseline")
+    if baseline_graph_run.get("experiment") != expected_experiment:
+        raise ValueError("Baseline graph-run does not match compilation of the visual edit Board")
+
+    needle_spec = {
+        "needle_id": checked["edit_id"],
+        "target": {
+            "kind": "NODE_PARAMETER",
+            "node_id": checked["target"]["node_id"],
+            "parameter": checked["target"]["parameter"],
+        },
+        "replacement": deepcopy(checked["replacement"]),
+        "propagation": {
+            "relation": "DEPENDENCY",
+            "scope": "DESCENDANTS_INCLUSIVE",
+        },
+    }
+    return plan_from_spec(baseline_graph_run, needle_spec)
 
 
 def render_html(board: dict) -> bytes:
