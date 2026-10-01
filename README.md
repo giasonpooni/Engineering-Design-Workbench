@@ -1,5 +1,9 @@
 # Notations Engineering Terminal
 
+<!-- foundry-delivery-v1 -->
+**Foundry v1 on this branch:** [implementation and complete retained delivery](docs/NET_FOUNDRY_DELIVERY.md). Source, installable wheel, patches, and original qualification evidence are committed to Git; this is not a main-branch merge or product release.
+<!-- /foundry-delivery-v1 -->
+
 **A programmable workbench for scientific computing and game/simulation development.**
 
 **Notations Engineering Terminal (NET)** is the terminal-first workbench from
@@ -451,3 +455,11 @@ except where a component carries an explicit separate notice. Third-party
 engines, libraries, runtimes, assets and standalone providers retain their
 original licenses. See [LICENSE](LICENSE) and the
 [platform licensing policy](docs/LICENSING.md).
+
+## Approved asset-production worker (this development branch)
+
+The existing Foundry packet/production loop now has one closed Blender workbench
+recipe with separate Godot import observations and independent geometry acceptance.
+`net foundry asset run | inspect | export` returns an accepted candidate, not a
+merged game asset or release. The original sixty-package pipeline, native water
+workload, Session and gates remain. [Operating guide and limits](docs/NET_ASSET_WORKER.md).
