@@ -28,7 +28,8 @@ SCHEMAS = {f"ciw.{name}.v1" for name in (
     "scientific-morphism", "morphism-registry", "morphism-witness",
     "intervention-gate", "board-morphism-binding", "board-morphism-compilation",
     "finite-preservation", "preservation-contract", "preservation-composition",
-    "preservation-verification", "preservation-admission-gate")}
+    "preservation-verification", "preservation-admission-gate",
+    "entity-binding", "entity-binding-verification", "industrial-transition-envelope")}
 
 
 def text(value: Any) -> str:
