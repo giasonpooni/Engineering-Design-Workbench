@@ -1,6 +1,6 @@
 # Notation Systems Terminal
 
-**Research workbench and executable instrument architecture for explicit state, representation, transformation, experiment and verification.**
+**Research workbench for an invariant-preserving computational interlingua across heterogeneous scientific and engineering representations.**
 
 [Research foundations](docs/RESEARCH_FOUNDATIONS.md) ·
 [Architecture](docs/ARCHITECTURE.md) ·
@@ -64,6 +64,74 @@ The smallest research vocabulary currently under investigation is:
 \]
 
 A bounded container or experiment supplies scope around those objects; it is not itself the source of scientific authority.
+
+## Computational interlingua and the universal-adapter hypothesis
+
+The broader architectural hypothesis is that heterogeneous scientific and engineering systems can share a **computational interlingua** without being forced into one universal domain model.
+
+An ordinary adapter translates one interface or representation into another:
+
+\[
+R_A \rightarrow R_B
+\]
+
+The Terminal is investigating a stronger contract:
+
+\[
+\boxed{
+\text{Object / State}
++
+\text{Representation}
++
+\text{Typed Morphism}
++
+\text{Invariant or Variance Law}
++
+\text{Evidence}
++
+\text{Verification}
++
+\text{Admission}
+}
+\]
+
+A representation change is therefore not accepted merely because data can be transported or converted. The relevant question is whether the declared meaning of the operation survives the transformation, or changes only according to an explicit law.
+
+That includes several distinct cases:
+
+| Contract class | Required relation |
+| --- | --- |
+| **Invariant** | a declared property is unchanged by the transformation |
+| **Equivariant** | the property changes consistently with a declared group/action law |
+| **Contravariant** | direction or composition order reverses according to a declared law |
+| **Commuting / path-preserving** | alternative valid computational paths agree exactly or within a declared tolerance |
+| **Information-loss bounded** | a reduction or projection states what is discarded and which downstream operations remain valid |
+
+The intended flow is:
+
+~~~text
+domain state
+    ↓
+declared representation
+    ↓
+typed transformation / computation
+    ↓
+candidate result
+    ↓
+preservation + lawful-variance checks
+    ├── pass → eligible for the next declared admission step
+    └── fail → retain the candidate and counterevidence; do not rewrite canonical truth
+~~~
+
+This is why **“universal adapter” is a useful shorthand but not yet a universality claim**. A new workload should be allowed to contribute its own objects, mathematical semantics, representations, morphisms, invariants, uncertainty model and validators. It should not have to collapse those semantics into NET, nor should it require a new evidence store, execution identity or verification authority merely because the domain is different.
+
+The hypothesis is experimentally falsifiable:
+
+> **As progressively different domains are attached, they should require new domain contracts rather than repeated redesign of the substrate's core state/evidence/execution/verification semantics.**
+
+If each substantially different workload forces the core substrate to be conceptually rewritten, the universal-interlingua hypothesis has failed. If GIS, BIM/state estimation, fluid or thermal systems, mechanics, materials, simulation and other workloads can retain their specialist mathematics while composing through the same bounded transformation and verification grammar, the evidence for the hypothesis becomes stronger.
+
+The objective is therefore not universal mathematics. It is a candidate **universal protocol for attaching heterogeneous computation while making preservation obligations explicit and executable**.
 
 ## Architecture thesis
 
