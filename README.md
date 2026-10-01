@@ -2,6 +2,8 @@
 
 **Research workbench for an invariant-preserving computational interlingua across heterogeneous scientific and engineering representations.**
 
+[Mathematical problem](#mathematical-motivation) ·
+[Review note and counterexample](docs/REPRESENTATION_PROBLEM.md) ·
 [Research foundations](docs/RESEARCH_FOUNDATIONS.md) ·
 [Architecture](docs/ARCHITECTURE.md) ·
 [Research context](docs/RESEARCH_CONTEXT.md) ·
@@ -35,7 +37,7 @@ A complex scientific system rarely has one privileged representation. The same u
 
 The Terminal therefore distinguishes:
 
-\[
+$$
 \boxed{
 \text{state}
 \neq
@@ -47,11 +49,11 @@ The Terminal therefore distinguishes:
 \neq
 \text{verification}
 }
-\]
+$$
 
 The smallest research vocabulary currently under investigation is:
 
-\[
+$$
 \boxed{
 \text{State}
 +
@@ -61,9 +63,138 @@ The smallest research vocabulary currently under investigation is:
 +
 \text{Invariant}
 }
-\]
+$$
 
 A bounded container or experiment supplies scope around those objects; it is not itself the source of scientific authority.
+
+## Mathematical motivation
+
+The first reviewable problem is **which queries and interventions survive a
+change of representation**. Let $S$ be a declared mathematical state space,
+$r_i:S\to A_i$ a representation, and $T_{ij}:A_i\to A_j$ an adapter.
+$S$ describes a model; its correspondence to a physical system requires
+separate evidence. Neither a schema nor a matching display establishes that
+correspondence.
+
+For observables $F_i:A_i\to Y$ and $F_j:A_j\to Y$ with compatible units,
+frames and interpretation, exact preservation means
+
+$$
+F_j\circ T_{ij}=F_i
+$$
+
+on the declared admissible domain. This obligation concerns those observables,
+not every property of either representation. If two composable maps preserve
+the same observable through their intermediate representation, their composite
+does too; the domains and preconditions must still match. Approximate
+preservation requires an explicit metric, error bound and composition rule.
+
+A family of queries $\mathcal Q$ defines an observational equivalence relation:
+
+$$
+s\sim_{\mathcal Q}s'
+\quad\Longleftrightarrow\quad
+q(s)=q(s')\quad\text{for every }q\in\mathcal Q.
+$$
+
+For a representation $r:S\to A$ and a query $q:S\to Y_q$, the query can be
+recovered exactly from $r(s)$ if and only if it is constant on each fibre of
+$r$. Equivalently, there is a function $\bar q:r(S)\to Y_q$ such that
+$q=\bar q\circ r$. This elementary
+factorization condition is settled; choosing the appropriate queries,
+interventions and additional structure for a scientific workload remains a
+project question. A representation can discard distinctions irrelevant to one
+task while making another task impossible.
+
+The project distinguishes the following guarantees:
+
+| Notion | What must be specified or checked |
+| --- | --- |
+| Serialized equality | Identical bytes under a fixed encoding and schema. |
+| Derived-output agreement | Equality of a specified calculation or aggregate under declared inputs. |
+| Observational equivalence | Agreement for every query in a declared family, under a stated correspondence. |
+| Statewise intervention preservation | $r\circ N=\bar N\circ r$ on every declared state. |
+| Designated-invariant preservation | The named observable or property survives the map under its contract. |
+| Structural equivalence | An isomorphism in a specified mathematical structure, when that stronger requirement is appropriate. |
+
+These notions are not assumed to coincide. A transformation also carries its
+assumptions, declared loss, uncertainty semantics and evidence references.
+Here $N:S\to S$ is a fine intervention and $\bar N:r(S)\to r(S)$ its
+proposed coarse counterpart.
+Object identity across records is a separate binding claim; agreement of
+observables does not by itself establish that two records identify the same
+physical entity.
+
+### A finite counterexample from the implementation
+
+Draft/unmerged [PR #97](https://github.com/giasonpooni/Notations-Systems-Terminal/pull/97)
+contains a four-state synthetic fixture. The projection $r$ groups `cold-a`
+and `cold-b` as `cold`, and `warm-a` and `warm-b` as `warm`. Each fine state has
+probability $1/4$. In the negative case, $\bar N$ leaves the coarse labels
+unchanged:
+
+| Fine state $s$ | Fine intervention $N(s)$ | $r(N(s))$ | $\bar N(r(s))$ |
+| --- | --- | --- | --- |
+| `cold-a` | `warm-a` | `warm` | `cold` |
+| `cold-b` | `cold-b` | `cold` | `cold` |
+| `warm-a` | `cold-a` | `cold` | `warm` |
+| `warm-b` | `warm-b` | `warm` | `warm` |
+
+Both paths produce probability $1/2$ on each coarse label, yet the statewise
+square fails at `cold-a` and `warm-a`. No deterministic coarse intervention can
+represent this fine intervention exactly: states in the same source fibre
+have different projected destinations. Equal output distributions therefore
+do not establish intervention preservation.
+
+The [mathematical review note](docs/REPRESENTATION_PROBLEM.md) states the
+factorization criterion, the exact fixture and the commands for inspecting
+its retained witnesses. The implementation checks every declared state,
+including zero-probability states. These results concern a finite declared
+model, not a general continuous system or physical validation.
+
+### Open mathematical problems
+
+1. **Task-relative equivalence:** which query family and intervention family
+   capture the claims a workload actually needs? When is the induced quotient
+   sufficient, and when must it retain additional distinctions?
+2. **Additional structure:** what topology, measurable structure, algebraic
+   relations or stochastic transition law must maps respect in a given domain?
+   Sets and maps are the starting point, not a universal answer.
+3. **Composition:** how should validity regions, uncertainty, error bounds and
+   information loss compose without weakening downstream obligations?
+4. **Identity continuity:** what evidence binds different representations to
+   one modeled or physical entity as information is added, aggregated or lost?
+5. **Beyond finite verification:** what regularity assumptions, error estimates
+   or proofs connect a finite/discretized check to an infinite or continuous
+   model? Passing a finite fixture alone supplies no such extension.
+
+For mathematical review, the focused question is: **What is the weakest
+structure that states this preservation problem correctly, and which
+assumptions are missing for the intended workload?** Proposed answers can be
+translated into new contracts and negative fixtures on the existing substrate.
+
+### From mathematical statement to executable evidence
+
+The development path is to specify spaces and maps, declare a preservation
+obligation, bind a typed operation, execute a candidate, verify the claim, and
+retain the witness or counterexample. AI may propose operations; the declared
+contract and its checker determine what the verification supports. Execution,
+verification and state admission retain separate identities and authority.
+
+| Research increment | Implemented scope on its own draft branch |
+| --- | --- |
+| [#95: representation and morphism registry](https://github.com/giasonpooni/Notations-Systems-Terminal/pull/95) | Representation/map declarations and exact registry bindings. |
+| [#97: finite preservation](https://github.com/giasonpooni/Notations-Systems-Terminal/pull/97) | Exact rational pushforwards, conditional expectations, statewise checks and retained counterexamples. |
+| [#106: typed preservation contracts](https://github.com/giasonpooni/Notations-Systems-Terminal/pull/106) | `PRESERVE`, `TRANSFORM`, `BOUND`, `FORGET`, a partial composition algebra and verification receipts; declarations still require evidence. |
+| [#107: industrial semantic transitions](https://github.com/giasonpooni/Notations-Systems-Terminal/pull/107) | Separate identity-continuity and preservation bindings with an admission-eligibility envelope. |
+| [#108: interoperability ingress](https://github.com/giasonpooni/Notations-Systems-Terminal/pull/108) | External profile/payload retention and evidence-backed qualification; no industrial format parser or mapping execution is implied. |
+
+These increments are **draft/unmerged**, not capabilities installed by this
+README's checkout. The general characterization of representation equivalence
+remains open within the project. NET provides an executable setting for testing
+specific formulations; it does not claim a universal mathematical theory of
+representation. New formulations extend the existing workbench while protecting
+previously verified contracts and evidence identities.
 
 ## Computational interlingua and the universal-adapter hypothesis
 
@@ -71,13 +202,13 @@ The broader architectural hypothesis is that heterogeneous scientific and engine
 
 An ordinary adapter translates one interface or representation into another:
 
-\[
+$$
 R_A \rightarrow R_B
-\]
+$$
 
 The Terminal is investigating a stronger contract:
 
-\[
+$$
 \boxed{
 \text{Object / State}
 +
@@ -93,7 +224,7 @@ The Terminal is investigating a stronger contract:
 +
 \text{Admission}
 }
-\]
+$$
 
 A representation change is therefore not accepted merely because data can be transported or converted. The relevant question is whether the declared meaning of the operation survives the transformation, or changes only according to an explicit law.
 
@@ -207,22 +338,22 @@ A morphism should declare its domain, codomain, parameters, units, frame, scale,
 
 Conceptually:
 
-\[
+$$
 S \xrightarrow{N} \widetilde S
 \xrightarrow{\text{run}} Y'
 \xrightarrow{\text{compare}} \Delta Y
 \xrightarrow{\text{verify}} S' \text{ or reject}
-\]
+$$
 
 The base state is not mutated in place. A candidate intervention should expose its dependency closure, predicted local sensitivity where available, actual recomputed consequences and verification result.
 
 A representation is safe for a declared intervention only when the intervention is preserved exactly or within a declared tolerance. One useful research condition is:
 
-\[
+$$
 \pi\circ N \simeq \bar N\circ\pi
-\]
+$$
 
-where \(\pi\) is a representation projection and \(\bar N\) is the corresponding intervention in that representation.
+where $\pi$ is a representation projection and $\bar N$ is the corresponding intervention in that representation.
 
 Draft/unmerged [PR #90](https://github.com/giasonpooni/Notations-Systems-Terminal/pull/90) is the first bounded implementation experiment for local intervention and selective recomputation.
 
@@ -230,9 +361,9 @@ Draft/unmerged [PR #90](https://github.com/giasonpooni/Notations-Systems-Termina
 
 The scientific-controller direction treats a model as a family:
 
-\[
+$$
 M(x;\theta),\qquad \theta\in\Theta
-\]
+$$
 
 rather than as one fixed program. Parameter coordinates may be linear, logarithmic, angular, categorical, distributional, spatial or spectral. Model validity regions and scale transitions are intended to be explicit rather than implicit comments.
 
@@ -333,3 +464,4 @@ Notation Systems is the public project umbrella for this research and the surrou
 Research citations acknowledge intellectual sources; they do not change ownership of the original implementation, grant endorsement, or claim ownership over third-party theories, software or datasets.
 
 The existing [LICENSE](LICENSE), source notices and third-party terms govern the code and included materials.
+

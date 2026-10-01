@@ -13,6 +13,7 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 | Need | Page |
 | --- | --- |
 | Research proposal, thesis and current program | [Root README](../README.md) |
+| Representation equivalence, query/intervention factorization and a finite counterexample | [Mathematical review note](REPRESENTATION_PROBLEM.md) |
 | Intellectual lineage, citations and abstraction boundaries | [Research foundations](RESEARCH_FOUNDATIONS.md) |
 | Product scope, operating model and scientific workspace | [Workbench overview](WORKBENCH_OVERVIEW.md) |
 | Current provider map and loose-tool collapse rule | [Systems catalog](SYSTEMS_CATALOG.md) |
@@ -41,6 +42,7 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 - [State-space transformation contract](STATE_TRANSFORMATIONS.md)
 - [Workbench research context](RESEARCH_CONTEXT.md)
 - [Research foundations, attribution and source-to-architecture map](RESEARCH_FOUNDATIONS.md)
+- [Representation preservation: mathematical review note](REPRESENTATION_PROBLEM.md)
 - [Unimplemented directions](UNIMPLEMENTED_DIRECTIONS.md)
 - [Generic adapters](ADAPTERS.md)
 - [Device and Instrument Gateway proposal](DEVICE_GATEWAY.md) and [acceptance plan](DEVICE_GATEWAY_ACCEPTANCE.md)
@@ -68,3 +70,4 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 
 Historical audits remain linked from the root for context. They do not override
 the current operation catalogue, integration matrix or provider manifests.
+
