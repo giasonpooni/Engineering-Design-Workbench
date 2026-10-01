@@ -5,8 +5,12 @@ import sys
 
 import pytest
 
-from ciw.board_visual import apply_visual_edit, render_html
-from ciw.system_board import board_from_spec, validate_board
+from ciw.board_visual import apply_visual_edit, render_html, visual_edit_to_needle_plan
+from ciw.control_plane import builtin_registry, run_graph
+from ciw.instruments import make_demo_run
+from ciw.semantic_capabilities import builtin_semantic_registry
+from ciw.session import Session
+from ciw.system_board import board_from_spec, compile_board, validate_board
 
 
 def scale(label="system"):
@@ -72,6 +76,89 @@ def board_spec(exposed=True):
         ],
         "board_invariants": ["visual projection never mutates base Board"],
         "notes": "Synthetic visual editor fixture.",
+    }
+
+
+
+def result_socket():
+    return {
+        "socket_id": "result",
+        "port": {"schema": "ciw.operation-result.v1", "unit": None, "frame": None},
+        "scale": scale("signal-result"),
+        "uncertainty_semantics": "UNKNOWN",
+        "provenance_required": True,
+    }
+
+
+def channel_parameter(value="q"):
+    return {
+        "type": "STRING",
+        "value": value,
+        "unit": None,
+        "exposed": True,
+        "domain": {
+            "kind": "ENUM",
+            "minimum": None,
+            "maximum": None,
+            "values": ["q", "v", "energy"],
+            "log_base": None,
+        },
+    }
+
+
+def operation_node(node_id, capability, channel):
+    value = node(node_id, "OPERATION", {"channel": channel_parameter(channel)})
+    value["semantic_capability"] = capability
+    value["sockets"] = {"inputs": [], "outputs": [result_socket()]}
+    value["resources"] = ["cpu"]
+    value["authority_requirements"] = ["read:recording"]
+    value["invariants"] = ["source evidence identity remains retained"]
+    value["validity_conditions"] = ["channel exists in retained recording"]
+    return value
+
+
+def operation_board_spec(channel="q"):
+    return {
+        "board_id": "visual-oscillator-v1",
+        "title": "Visual oscillator Board",
+        "model_id": "analytic-damped-oscillator.v1",
+        "nodes": [
+            operation_node("statistics", "analysis.statistics.v1", channel),
+            operation_node("spectrum", "analysis.spectrum.v1", "q"),
+            operation_node("energy_statistics", "analysis.statistics.v1", "energy"),
+        ],
+        "edges": [{
+            "edge_id": "stats-to-spectrum",
+            "kind": "DEPENDENCY",
+            "source_node_id": "statistics",
+            "target_node_id": "spectrum",
+            "source_socket": None,
+            "target_socket": None,
+            "relation": "declared_execution_dependency",
+            "metadata": {},
+        }],
+        "groups": [
+            {"group_id": "root", "label": "Oscillator", "node_ids": [], "parent_group_id": None},
+            {
+                "group_id": "analysis",
+                "label": "Analysis",
+                "node_ids": ["statistics", "spectrum", "energy_statistics"],
+                "parent_group_id": "root",
+            },
+        ],
+        "board_invariants": ["canonical source evidence is not mutated"],
+        "notes": "Synthetic visual Needle lowering fixture.",
+    }
+
+
+def visual_channel_edit(board, replacement="v"):
+    return {
+        "schema": "ciw.board-visual-edit-spec.v1",
+        "edit_id": "visual-statistics-channel",
+        "board_ref": board["record_digest"],
+        "target": {"node_id": "statistics", "parameter": "channel"},
+        "replacement": replacement,
+        "notes": "Visual channel edit.",
     }
 
 
@@ -141,6 +228,39 @@ def test_visual_edit_refuses_type_drift():
     board = board_from_spec(board_spec())
     with pytest.raises(ValueError, match="numerical"):
         apply_visual_edit(board, edit_spec(board, "fast"))
+
+
+
+def test_visual_edit_lowers_to_existing_needle_plan_for_exact_board_baseline(tmp_path):
+    concrete = builtin_registry(bind=True)
+    semantic = builtin_semantic_registry(concrete)
+    board = board_from_spec(operation_board_spec())
+    compiled = compile_board(board, semantic)
+    source = make_demo_run()
+    session = Session(source, tmp_path / "session", operations=concrete.operations)
+    baseline = run_graph(session, compiled["semantic_compilation"]["experiment"], concrete)
+    assert baseline["status"] == "completed"
+
+    plan = visual_edit_to_needle_plan(board, visual_channel_edit(board), baseline, semantic)
+    assert plan["schema"] == "ciw.needle-plan.v1"
+    assert plan["target"] == {
+        "kind": "NODE_PARAMETER",
+        "node_id": "statistics",
+        "parameter": "channel",
+    }
+    assert plan["before"] == "q"
+    assert plan["replacement"] == "v"
+    assert plan["baseline_graph_run_ref"] == baseline["record_digest"]
+    assert plan["claims"]["execution_authority"] is False
+
+
+def test_visual_edit_to_needle_refuses_nonoperation_target():
+    concrete = builtin_registry(bind=True)
+    semantic = builtin_semantic_registry(concrete)
+    board = board_from_spec(board_spec())
+    fake_baseline = {"schema": "ciw.graph-run.v1"}
+    with pytest.raises(ValueError, match="OPERATION"):
+        visual_edit_to_needle_plan(board, edit_spec(board), fake_baseline, semantic)
 
 
 def test_cli_render_and_apply_edit(tmp_path):
