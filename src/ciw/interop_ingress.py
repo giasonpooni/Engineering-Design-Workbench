@@ -577,11 +577,25 @@ def validate_qualification(
     return detached(value)
 
 
-def identity_reference_from_qualification(qualification: dict) -> dict:
-    """Project a QUALIFIED ingress into the existing entity-binding reference shape."""
-    check_seal(qualification)
-    if qualification.get("schema") != "ciw.external-ingress-qualification.v1":
-        raise ValueError("Identity reference projection requires ingress qualification")
+def identity_reference_from_qualification(
+    qualification: dict,
+    registry: dict,
+    semantic: SemanticRegistry,
+    preservation_contract: dict,
+    profile: dict,
+    ingress: dict,
+    verification: dict,
+) -> dict:
+    """Project a recomputed QUALIFIED ingress into entity-binding reference shape."""
+    qualification = validate_qualification(
+        qualification,
+        registry,
+        semantic,
+        preservation_contract,
+        profile,
+        ingress,
+        verification,
+    )
     if qualification["status"] != "QUALIFIED":
         raise ValueError("Only QUALIFIED ingress may become an entity-binding reference")
     source = _source_identity(qualification["source_identity"])
