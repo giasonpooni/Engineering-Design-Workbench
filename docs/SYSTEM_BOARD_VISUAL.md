@@ -126,6 +126,39 @@ Python then:
 
 The visual page cannot weaken these rules.
 
+For an executable OPERATION-node parameter, the same edit spec can also be
+lowered into the existing Needle plan contract after an exact baseline Board
+execution exists:
+
+~~~sh
+net board plan-edit \
+  board.json \
+  visual-edit.json \
+  baseline-graph-run.json \
+  --output needle-plan.json
+~~~
+
+This path recompiles the sealed Board through the existing semantic capability
+plane and requires the retained baseline graph-run to contain **that exact
+compiled experiment**. Only then is the visual target translated to the
+existing `ciw.needle-plan.v1` target and propagation policy.
+
+Thus:
+
+~~~text
+visual selection
+   ↓
+Board-bound edit intent
+   ↓
+exact Board → experiment comparison
+   ↓
+existing Needle plan
+   ↓
+existing Needle execution command (separate explicit step)
+~~~
+
+Planning still grants no execution authority.
+
 ## Local rendering
 
 Create the editor:
