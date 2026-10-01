@@ -530,13 +530,11 @@ def _verification_check(value: Any) -> dict:
     }
 
 
-def verification_from_spec(contract: dict, spec: dict) -> dict:
+def verification_from_spec(registry: dict, semantic: SemanticRegistry, contract: dict, spec: dict) -> dict:
     keys(spec, {
         "verification_id", "source_state_ref", "candidate_state_ref", "checks", "notes",
     })
-    check_seal(contract)
-    if contract.get("schema") != "ciw.preservation-contract.v1":
-        raise ValueError("Verification requires a sealed preservation contract")
+    contract = validate_contract(contract, registry, semantic)
     source_ref = content_ref(spec["source_state_ref"])
     candidate_ref = content_ref(spec["candidate_state_ref"])
     checks = spec["checks"]
@@ -572,11 +570,11 @@ def verification_from_spec(contract: dict, spec: dict) -> dict:
             "execution_authority": False,
         },
     )
-    validate_verification(value, contract)
+    validate_verification(value, registry, semantic, contract)
     return value
 
 
-def validate_verification(value: dict, contract: dict) -> dict:
+def validate_verification(value: dict, registry: dict, semantic: SemanticRegistry, contract: dict) -> dict:
     keys(value, {
         "schema", "record_digest", "verification_id", "contract_ref",
         "source_state_ref", "candidate_state_ref", "checks", "status", "notes", "claims",
@@ -585,9 +583,7 @@ def validate_verification(value: dict, contract: dict) -> dict:
         raise ValueError("Wrong preservation verification schema")
     check_seal(value)
     _versioned(value["verification_id"], "verification_id")
-    check_seal(contract)
-    if contract.get("schema") != "ciw.preservation-contract.v1":
-        raise ValueError("Verification requires a preservation contract")
+    contract = validate_contract(contract, registry, semantic)
     if value["contract_ref"] != contract["record_digest"]:
         raise ValueError("Verification references a different preservation contract")
     for field in ("contract_ref", "source_state_ref", "candidate_state_ref"):
@@ -619,9 +615,11 @@ def validate_verification(value: dict, contract: dict) -> dict:
     return detached(value)
 
 
-def admission_gate_from_spec(contract: dict, verification: dict, spec: dict) -> dict:
+def admission_gate_from_spec(
+    registry: dict, semantic: SemanticRegistry, contract: dict, verification: dict, spec: dict
+) -> dict:
     """Evaluate admission eligibility only; never mutate or admit canonical state."""
-    validate_verification(verification, contract)
+    validate_verification(verification, registry, semantic, contract)
     keys(spec, {"gate_id", "forbidden_forgets", "notes"})
     forbidden = _unique_properties(spec["forbidden_forgets"], "forbidden forgotten property")
     forgotten = {
@@ -661,11 +659,13 @@ def admission_gate_from_spec(contract: dict, verification: dict, spec: dict) -> 
             "execution_authority": False,
         },
     )
-    validate_admission_gate(value, contract, verification)
+    validate_admission_gate(value, registry, semantic, contract, verification)
     return value
 
 
-def validate_admission_gate(value: dict, contract: dict, verification: dict) -> dict:
+def validate_admission_gate(
+    value: dict, registry: dict, semantic: SemanticRegistry, contract: dict, verification: dict
+) -> dict:
     keys(value, {
         "schema", "record_digest", "gate_id", "contract_ref", "verification_ref",
         "source_state_ref", "candidate_state_ref", "forbidden_forgets",
@@ -675,7 +675,7 @@ def validate_admission_gate(value: dict, contract: dict, verification: dict) -> 
         raise ValueError("Wrong preservation admission-gate schema")
     check_seal(value)
     _versioned(value["gate_id"], "gate_id")
-    validate_verification(verification, contract)
+    validate_verification(verification, registry, semantic, contract)
     if value["contract_ref"] != contract["record_digest"]:
         raise ValueError("Admission gate references a different preservation contract")
     if value["verification_ref"] != verification["record_digest"]:
