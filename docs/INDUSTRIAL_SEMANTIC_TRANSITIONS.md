@@ -16,7 +16,7 @@ candidate entity binding
       ↓
 identity verification
       ↓
-source canonical state
+retained source state
       ↓
 candidate state proposal
       ↓
@@ -201,7 +201,8 @@ state-transition system, not the owner of canonical truth.
 
 ## Non-claims
 
-V1 does not connect to a live ERP/PLM/MES/SCADA product, discover entity
+V1 does not establish that an arbitrary supplied source state is globally canonical,
+connect to a live ERP/PLM/MES/SCADA product, discover entity
 equivalence automatically, admit a canonical entity, mutate canonical state,
 execute a physical action, infer identity from string similarity, infer semantic
 preservation from an API/schema match, grant admission authority to a proposer,
