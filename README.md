@@ -268,6 +268,13 @@ The objective is not universal mathematics. It is a candidate **universal
 protocol for attaching heterogeneous computation while making preservation
 obligations explicit, executable and auditable**.
 
+The next development layer is a **morphism-family frame**: transformations are
+tracked together with identity, composition, inverse/partial-inverse,
+dual/adjoint, representation-change and commuting-path relations. This lets the
+system test not only whether an adapter produces output, but whether related
+transformations preserve the declared semantics across alternative paths. See
+[Workbench research context](docs/RESEARCH_CONTEXT.md#morphism-frame-executable-change-with-preserved-meaning).
+
 ## Interactive simulation development direction
 
 **Use NET during development, not only to display the finished result.** The
