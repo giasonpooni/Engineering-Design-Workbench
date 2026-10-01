@@ -150,8 +150,7 @@ def render_html(board: dict) -> bytes:
     assets = files("ciw").joinpath("web")
     template = assets.joinpath("system_board.html").read_text(encoding="utf-8")
     css = assets.joinpath("system_board.css").read_text(encoding="utf-8")
-    js = assets.joinpath("system_board.js").read_text(encoding="utf-8")
-
+    js = "\n".join(\n        assets.joinpath(name).read_text(encoding="utf-8")\n        for name in (\n            "system_board_core.js",\n            "system_board_graph.js",\n            "system_board_inspector.js",\n            "system_board_init.js",\n        )\n    )\n
     def digest(source: str) -> str:
         return base64.b64encode(sha256(source.encode("utf-8")).digest()).decode("ascii")
 
