@@ -39,6 +39,112 @@ spaces, a transformation, constraints, invariants, and evidence. It validates
 the declaration and its content identity; it does not execute the operation or
 turn a declaration into proof.
 
+## Morphism frame: executable change with preserved meaning
+
+The research vocabulary can be sharpened by treating a **morphism** as the
+smallest explicit unit of lawful change between identified objects or state
+spaces:
+
+\[
+f:X\rightarrow Y.
+\]
+
+In this project, the word does not by itself assert a category-theoretic
+implementation. It is an architectural contract: the domain, codomain,
+representation assumptions, transformation law, evidence inputs and
+verification obligations must be explicit.
+
+A useful morphism record has the form
+
+\[
+\boxed{
+\mathfrak M
+=
+(X,Y,f,\rho_X,\rho_Y,\mathcal L,\mathcal I,\mathcal E,\mathcal V)
+}
+\]
+
+where \(\mathcal L\) captures lawful variance/composition, \(\mathcal I\)
+captures protected relations, \(\mathcal E\) identifies evidence and
+\(\mathcal V\) identifies the checks that may support or reject the claim.
+
+### Morphism families and companion relations
+
+A transformation becomes more informative when its relation to other
+transformations is explicit. The project therefore studies **morphism families**
+rather than isolated functions. Relevant relations include identity,
+composition, inverse or partial inverse, dual/adjoint, representation change,
+commutation, invariant restriction and reduction/quotient.
+
+For a representation map \(\pi:R_X\rightarrow R_Y\) and operation
+realizations \(f_X\) and \(f_Y\), a central preservation claim is
+
+\[
+\boxed{
+\pi\circ f_X
+\simeq
+f_Y\circ\pi
+}
+\]
+
+where \(\simeq\) must name an exact equality, numerical tolerance,
+statistical criterion or another explicit verification policy. A failed relation
+is retained as counterevidence rather than hidden by the adapter.
+
+### Matrix algebra as a finite-dimensional reference model
+
+Linear algebra provides a compact executable laboratory. For
+\(A:V\rightarrow W\), the matrix is a representation of the map after bases
+are selected, not the map itself.
+
+| Linear-algebra object | Morphism interpretation |
+| --- | --- |
+| \(I_V\) | identity morphism / unchanged-state reference |
+| \(BA\) | composition of compatible transformations |
+| \(A^{-1}\) | inverse when the map is bijective |
+| \(A^*\) | dual or adjoint action across a declared pairing |
+| \(P^{-1}AP\) | the same endomorphism under change of basis |
+| \(\ker A\) | distinctions destroyed or made unobservable |
+| \(\operatorname{im}A\) | reachable output subspace |
+| \(\det A\) | multiplicative volume/orientation summary under the usual finite-dimensional assumptions |
+| \(Av=\lambda v\) | invariant one-dimensional subspace and its internal action |
+
+The familiar transpose is therefore treated as a coordinate realization of a
+dual/adjoint operation under declared pairings and bases, not as a universally
+intrinsic array flip.
+
+For a time-indexed matrix \(A(t)\),
+
+\[
+\frac{d}{dt}A(t)^T
+=
+\left(\frac{dA}{dt}\right)^T,
+\]
+
+so differentiation and transpose commute in this setting. For a rotation
+\(R(t)\in SO(3)\),
+
+\[
+R^TR=I,
+\qquad
+R^T\dot R\in\mathfrak{so}(3),
+\]
+
+which gives a concrete example in which identity, dual/transpose structure,
+kinematics and invariants meet.
+
+### Development consequence
+
+The target is not a universal `morphism` class that erases domain semantics.
+It is a common contract grammar through which each domain can declare source and
+target identities, admissible representations, composition compatibility,
+protected invariants, lawful variance, information loss, evidence requirements
+and verification procedures.
+
+A new domain should normally add domain morphisms, invariants and validators
+without changing the identity of evidence, execution, result or verification
+records. That is one concrete test of the proposed computational interlingua.
+
 ## Educational use
 
 The same representation gives learners a stable way to compare mathematical
