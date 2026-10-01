@@ -10,6 +10,7 @@ from .control_contracts import load, save_new
 from .control_plane import builtin_registry
 from .semantic_capabilities import builtin_semantic_registry
 from .system_board import board_from_spec, compile_board, inspect_board, validate_compilation
+from .board_visual import apply_visual_edit, write_html
 
 
 def main(argv=None):
@@ -27,6 +28,15 @@ def main(argv=None):
     compile_cmd.add_argument("board", type=Path)
     compile_cmd.add_argument("--output", type=Path, required=True)
 
+    render = commands.add_parser("render")
+    render.add_argument("board", type=Path)
+    render.add_argument("--output", type=Path, required=True)
+
+    apply_edit = commands.add_parser("apply-edit")
+    apply_edit.add_argument("board", type=Path)
+    apply_edit.add_argument("spec", type=Path)
+    apply_edit.add_argument("--output", type=Path, required=True)
+
     args = parser.parse_args(argv)
     try:
         if args.command == "create":
@@ -37,6 +47,20 @@ def main(argv=None):
                 "record_digest": value["record_digest"],
                 "execution_authority": False, "output": str(args.output),
             }))
+            return 0
+        if args.command == "render":
+            board = load(args.board)
+            write_html(args.output, board)
+            print(json.dumps({
+                "status": "created", "output": str(args.output),
+                "network": "disabled", "provider_execution": False,
+                "execution_authority": False,
+            }))
+            return 0
+        if args.command == "apply-edit":
+            candidate, summary = apply_visual_edit(load(args.board), load(args.spec))
+            save_new(args.output, candidate)
+            print(json.dumps({**summary, "status": "candidate_created", "output": str(args.output)}))
             return 0
         if args.command == "compile":
             concrete = builtin_registry(bind=True)
