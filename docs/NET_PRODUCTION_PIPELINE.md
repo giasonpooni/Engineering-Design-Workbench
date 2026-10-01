@@ -243,3 +243,11 @@ inspect the actual named run for the candidate revision.
 
 These examples motivate the automation/human split. They do not document this exact
 60-task schedule or justify a numerical claim that agents replace Ubisoft's workforce.
+
+## First attached asset candidate worker
+
+[`net foundry asset`](NET_ASSET_WORKER.md) now consumes an existing scoped packet
+for one original workbench prop, executes Blender and a separate Godot inspection,
+and returns a technically checked complete candidate tree. This is a subjob; it
+neither changes this sixty-task template nor self-approves its parent art/tooling
+milestone. Native recipe generation is parameter-driven; no model API is invoked.
