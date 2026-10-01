@@ -703,14 +703,20 @@ def validate_admission_gate(
     [text(reason) for reason in value["reasons"]]
     if expected_violations:
         expected_decision = "REFUSED"
+        expected_reasons = ["contract_forgets_policy_required_properties"]
     elif verification["status"] == "REFUTED":
         expected_decision = "REFUSED"
+        expected_reasons = ["preservation_verification_refuted"]
     elif verification["status"] == "UNRESOLVED":
         expected_decision = "UNRESOLVED"
+        expected_reasons = ["preservation_verification_unresolved"]
     else:
         expected_decision = "ELIGIBLE"
+        expected_reasons = ["preservation_contract_verified_under_declared_loss_policy"]
     if value["decision"] != expected_decision:
         raise ValueError("Admission gate decision contradicts contract/verification")
+    if value["reasons"] != expected_reasons:
+        raise ValueError("Admission gate reasons contradict contract/verification")
     _notes(value["notes"], "admission-gate notes", 8192)
     if value["claims"] != {
         "eligibility_not_admission": True,
