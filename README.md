@@ -332,6 +332,18 @@ The project is converging on a language-neutral operation model. Candidate morph
 
 A morphism should declare its domain, codomain, parameters, units, frame, scale, time semantics, validity region, uncertainty behavior, provenance and verification obligations. The implementation language is secondary to that contract.
 
+Morphisms are not intended to be analyzed only one at a time. The research frame
+also tracks **morphism families**: identity, composition, inverse/partial inverse,
+dual or adjoint, representation-equivalent and commuting transformations whose
+relations themselves become executable claims. Matrix algebra is used as the
+first finite-dimensional reference model because it makes those relations
+concrete through identity maps, composition, transpose/adjoint, kernels, images,
+determinants, eigenstructure and change of basis.
+
+See [Workbench research context](docs/RESEARCH_CONTEXT.md#morphism-frame-executable-change-with-preserved-meaning)
+for the formal development frame and the distinction between invariance and
+lawful variance.
+
 ## Needle: local intervention in a coupled system
 
 **Needle** is the proposed interaction primitive for changing one bounded part of a larger coupled system without requiring the operator to mentally reconstruct every downstream relationship.
