@@ -52,6 +52,7 @@ records exercised paths, independent checks and remaining gaps.
 | You can | Scope and requirements |
 | --- | --- |
 | Generate a synthetic oscillator recording and calculate statistics or a spectrum. | Built-in example; no external scientific provider or hardware required. |
+| Run a bounded elastic contact benchmark on this research branch. | `net impact` retains numerical force/compression/velocity histories, independent analytical checks and typed preservation receipts. [Scope and commands](docs/IMPACT_CONTACT_BENCHMARK.md); polymer plates, damage and molecular coupling remain unqualified. |
 | Save, inspect, reopen and explicitly replay investigations. | Reopening reads retained inputs and results without recomputing them. Replay is a new execution with its own identity. |
 | Run supported measurement, telemetry, calibration, estimation and design workflows. | Uses the exact provider versions and input assumptions listed in the integration guides; not a generic live sensor-fusion service. |
 | Evaluate supported covariance and geometric-path calculations. | Bounded matrix, mesh, translation-flow, flat-torus and curved-path operations; each has its own numerical limits. |

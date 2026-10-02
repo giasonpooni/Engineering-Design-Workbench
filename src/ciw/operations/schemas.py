@@ -18,7 +18,9 @@ def validate_role(operation_id: str, role: str) -> None:
                 "fsrt.tank-reconstruct.v1": "state_estimator",
                 "fsrt.tank-reconstruct.v2": "state_estimator",
                 "jspt.covariance-propagate.v1": "backend",
-                "gte.project-circle.v1": "backend"}.get(operation_id)
+                "gte.project-circle.v1": "backend",
+                "impact.spring-contact.v1": "backend",
+                "impact.spring-contact-verify.v1": "verification"}.get(operation_id)
     if expected is not None and role != expected:
         raise ValueError("Operation role contradicts the declared payload contract")
 
@@ -48,6 +50,8 @@ def validate_payload(operation_id: str, data: dict, run: dict, parameters: dict,
         from ..adapters.covariance_records import validate_jspt_payload as validator
     elif operation_id == "gte.project-circle.v1":
         from ..adapters.gte_records import validate_payload as validator
+    elif operation_id in {"impact.spring-contact.v1", "impact.spring-contact-verify.v1"}:
+        from ..impact_workflow import validate_payload as validator
     else:
         validator = _VALIDATORS.get(operation_id)
         if validator is None:
