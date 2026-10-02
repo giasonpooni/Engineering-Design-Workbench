@@ -241,6 +241,7 @@ def validate_bim_mapping_witness(
     if value["schema"] != "ciw.interop-mapping-witness.v1":
         raise ValueError("Wrong interoperability mapping witness schema")
     check_seal(value)
+    bim_workflow._validate(bundle)
     _versioned(value["execution_id"], "execution_id")
     qualification = validate_qualification(
         qualification,
