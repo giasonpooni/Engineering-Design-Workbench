@@ -80,7 +80,7 @@ def _outcome(data: dict) -> str:
     raise ValueError("Unknown native BIM mapping outcome")
 
 
-def execute_bim_mapping(
+def execute_bim_mapping_bundle(
     registry: dict,
     semantic: SemanticRegistry,
     preservation_contract: dict,
@@ -91,8 +91,8 @@ def execute_bim_mapping(
     bim_source: dict,
     repositories: dict,
     spec: dict,
-) -> dict:
-    """Execute the existing CSE mapping for one exact qualified IFC occurrence."""
+) -> tuple[dict, dict]:
+    """Execute the existing CSE mapping and return witness plus retained native bundle."""
     qualification = validate_qualification(
         qualification,
         registry,
@@ -186,8 +186,36 @@ def execute_bim_mapping(
         qualification,
         bundle,
     )
-    return value
+    return value, bundle
 
+
+
+def execute_bim_mapping(
+    registry: dict,
+    semantic: SemanticRegistry,
+    preservation_contract: dict,
+    profile: dict,
+    ingress: dict,
+    ingress_verification: dict,
+    qualification: dict,
+    bim_source: dict,
+    repositories: dict,
+    spec: dict,
+) -> dict:
+    """Compatibility wrapper returning only the mapping witness."""
+    witness, _ = execute_bim_mapping_bundle(
+        registry,
+        semantic,
+        preservation_contract,
+        profile,
+        ingress,
+        ingress_verification,
+        qualification,
+        bim_source,
+        repositories,
+        spec,
+    )
+    return witness
 
 def validate_bim_mapping_witness(
     value: dict,
