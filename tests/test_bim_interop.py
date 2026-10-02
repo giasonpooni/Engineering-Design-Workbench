@@ -9,8 +9,9 @@ import runpy
 import pytest
 
 from ciw.bim_interop import execute_bim_mapping, execute_bim_mapping_bundle, validate_bim_mapping_witness
-from ciw.cse_preservation import verify_bim_preservation
+from ciw.cse_preservation import project_bim_states, verify_bim_preservation
 from ciw.control_plane import builtin_registry
+from ciw.industrial_transition import binding_from_spec, identity_verification_from_spec
 from ciw.interop_ingress import (
     ingress_from_spec,
     profile_from_spec,
@@ -285,3 +286,81 @@ def test_cse_preservation_verifier_leaves_unknown_property_unresolved(repositori
     assert check["status"] == "UNRESOLVED"
     assert check["method"] == "NOT_PERFORMED"
     assert check["evidence_ref"] is None
+
+
+def verified_binding(qualification):
+    source_identity = qualification["source_identity"]
+    binding = binding_from_spec({
+        "binding_id": "industrial.ifc-storey15-binding.v1",
+        "canonical_entity_id": "asset.storey15",
+        "references": [{
+            "reference_id": source_identity["reference_id"],
+            "system_id": qualification["source_system_id"],
+            "namespace": source_identity["namespace"],
+            "external_id": source_identity["external_id"],
+            "object_kind": source_identity["object_kind"],
+            "evidence_ref": qualification["record_digest"],
+        }],
+        "notes": "Synthetic verified identity binding for the IFC/CSE integration test.",
+    })
+    verification = identity_verification_from_spec(binding, {
+        "verification_id": "industrial.ifc-storey15-identity-verification.v1",
+        "checks": [{
+            "reference_id": source_identity["reference_id"],
+            "status": "VERIFIED",
+            "method": "CROSS_SYSTEM_EVIDENCE",
+            "evidence_ref": qualification["record_digest"],
+            "notes": "Qualified ingress is bound to the declared canonical test entity.",
+        }],
+        "notes": "Test identity verification; no physical asset registry admission.",
+    })
+    return binding, verification
+
+
+def test_projected_cse_states_bind_verified_identity_and_native_covariance(repositories):
+    sem, reg, contract, profile, ingress, verification, qualification, src = setup_objects()
+    witness, bundle = execute_bim_mapping_bundle(
+        reg, sem, contract, profile, ingress, verification, qualification,
+        src, repositories, {"execution_id": "interop.ifc-cse-project.v1", "notes": ""},
+    )
+    binding, identity_verification = verified_binding(qualification)
+    prior, candidate = project_bim_states(
+        reg, sem, contract, profile, ingress, verification, qualification,
+        witness, bundle, binding, identity_verification,
+    )
+    data = bundle["steps"][0]["result"]["data"]
+    assert prior["identity"]["entity_id"] == "asset.storey15"
+    assert candidate["identity"]["entity_id"] == "asset.storey15"
+    assert prior["identity"]["execution_id"] is None
+    assert candidate["identity"]["execution_id"] == witness["native_execution_ref"]
+    assert prior["uncertainty"]["matrix"] == data["prior"]["covariance"]
+    assert candidate["uncertainty"]["matrix"] == data["posterior"]["covariance"]
+    assert prior["uncertainty"]["basis"]["id"] == data["prior"]["world_digest"]
+    assert candidate["uncertainty"]["basis"]["id"] == data["posterior"]["world_digest"]
+
+
+def test_preservation_receipt_can_bind_projected_net_states(repositories):
+    sem, reg, contract, profile, ingress, verification, qualification, src = setup_objects()
+    witness, bundle = execute_bim_mapping_bundle(
+        reg, sem, contract, profile, ingress, verification, qualification,
+        src, repositories, {"execution_id": "interop.ifc-cse-stateverify.v1", "notes": ""},
+    )
+    binding, identity_verification = verified_binding(qualification)
+    prior, candidate = project_bim_states(
+        reg, sem, contract, profile, ingress, verification, qualification,
+        witness, bundle, binding, identity_verification,
+    )
+    receipt = verify_bim_preservation(
+        reg, sem, contract, profile, ingress, verification, qualification,
+        witness, bundle,
+        verification_id="interop.ifc-cse-state-preservation.v1",
+        notes="Receipt bound to explicit NET state records.",
+        source_state_record=prior,
+        candidate_state_record=candidate,
+        binding=binding,
+        identity_verification=identity_verification,
+    )
+    assert receipt["status"] == "VERIFIED"
+    assert receipt["source_state_ref"] == prior["record_digest"]
+    assert receipt["candidate_state_ref"] == candidate["record_digest"]
+    assert receipt["claims"]["verification_is_not_admission"] is True
