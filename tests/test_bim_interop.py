@@ -8,7 +8,8 @@ import runpy
 
 import pytest
 
-from ciw.bim_interop import execute_bim_mapping, validate_bim_mapping_witness
+from ciw.bim_interop import execute_bim_mapping, execute_bim_mapping_bundle, validate_bim_mapping_witness
+from ciw.cse_preservation import verify_bim_preservation
 from ciw.control_plane import builtin_registry
 from ciw.interop_ingress import (
     ingress_from_spec,
@@ -212,3 +213,75 @@ def test_runtime_witness_recomputes_against_retained_native_bundle(repositories)
             witness, reg, sem, contract, profile, ingress, verification,
             qualification, fresh,
         )
+
+
+def test_cse_preservation_verifier_discharges_supported_contract(repositories):
+    sem, reg, contract, profile, ingress, verification, qualification, src = setup_objects()
+    witness, bundle = execute_bim_mapping_bundle(
+        reg, sem, contract, profile, ingress, verification, qualification,
+        src, repositories, {"execution_id": "interop.ifc-cse-verify.v1", "notes": ""},
+    )
+    receipt = verify_bim_preservation(
+        reg, sem, contract, profile, ingress, verification, qualification,
+        witness, bundle,
+        verification_id="interop.ifc-cse-preservation-verification.v1",
+        notes="Scoped native CSE evidence only.",
+    )
+    assert receipt["status"] == "VERIFIED"
+    assert receipt["source_state_ref"] == "sha256:" + witness["prior_world_digest"]
+    assert receipt["candidate_state_ref"] == "sha256:" + witness["posterior_world_digest"]
+    assert len(receipt["checks"]) == len(contract["requires"]) + len(contract["effects"])
+    assert all(check["status"] == "VERIFIED" for check in receipt["checks"])
+    assert any(
+        check["property_id"] == "uncertainty.full-covariance.v1"
+        and check["method"] == "NUMERICAL_BOUND"
+        for check in receipt["checks"]
+    )
+    assert receipt["claims"]["verification_is_not_admission"] is True
+    assert receipt["claims"]["canonical_state_mutated"] is False
+
+
+def test_held_mapping_cannot_be_upgraded_to_fully_verified_preservation(repositories):
+    sem, reg, contract, profile, ingress, verification, qualification, src = setup_objects()
+    held = deepcopy(src)
+    observation = json.loads(base64.b64decode(held["observation_bytes_b64"]))
+    observation["cross_covariance_policy"] = "unknown"
+    held["observation_bytes_b64"] = base64.b64encode(canonical(observation)).decode()
+    witness, bundle = execute_bim_mapping_bundle(
+        reg, sem, contract, profile, ingress, verification, qualification,
+        held, repositories, {"execution_id": "interop.ifc-cse-held-verify.v1", "notes": ""},
+    )
+    assert witness["mapping_outcome"] == "HELD"
+    receipt = verify_bim_preservation(
+        reg, sem, contract, profile, ingress, verification, qualification,
+        witness, bundle,
+        verification_id="interop.ifc-cse-held-preservation.v1",
+        notes="Held native mapping must not become a verified transition.",
+    )
+    assert receipt["status"] in {"REFUTED", "UNRESOLVED"}
+    checks = {(row["kind"], row["property_id"]): row for row in receipt["checks"]}
+    assert checks[("REQUIRE", "uncertainty.independent-measurement.v1")]["status"] == "REFUTED"
+    assert checks[("PRESERVE", "uncertainty.full-covariance.v1")]["status"] == "UNRESOLVED"
+
+
+def test_cse_preservation_verifier_leaves_unknown_property_unresolved(repositories):
+    sem, reg, contract, profile, ingress, verification, qualification, src = setup_objects()
+    witness, bundle = execute_bim_mapping_bundle(
+        reg, sem, contract, profile, ingress, verification, qualification,
+        src, repositories, {"execution_id": "interop.ifc-cse-unknown.v1", "notes": ""},
+    )
+    from ciw.cse_preservation import _check_property
+    source_record = runpy.run_path(str(ROOT / "examples/bim-quantity/make_source.py"))["source"]()
+    observation = json.loads(base64.b64decode(source_record["observation_bytes_b64"]))
+    data = bundle["steps"][0]["result"]["data"]
+    check = _check_property(
+        kind="PRESERVE",
+        property_id="physics.energy-conservation.v1",
+        witness=witness,
+        source=source_record,
+        observation=observation,
+        data=data,
+    )
+    assert check["status"] == "UNRESOLVED"
+    assert check["method"] == "NOT_PERFORMED"
+    assert check["evidence_ref"] is None
