@@ -37,7 +37,15 @@ jobs:
         run: |
           git clone --no-checkout https://github.com/giasonpooni/Construction-State-Estimator-for-BIM.git cse
           git -C cse checkout 4b74abda40bba3277de69bf61e9e09283ae2d5b3
-          echo "CIW_CSE_REPO=$PWD/cse" >> "$GITHUB_ENV"
+      - name: Bind pinned CSE path
+        shell: python
+        run: |
+          import os
+          from pathlib import Path
+          path = Path('cse').resolve()
+          assert path.is_dir()
+          with open(os.environ['GITHUB_ENV'], 'a', encoding='utf-8') as stream:
+              stream.write(f'CIW_CSE_REPO={path}\n')
       - name: Runtime bridge and semantic regressions
         run: python -m pytest -q tests/test_bim_interop.py tests/test_interop_ingress.py tests/test_industrial_transition.py tests/test_preservation_contracts.py tests/test_bim_quantity.py tests/test_board_morphisms.py tests/test_finite_preservation.py tests/test_representation_interventions.py tests/test_representation_morphisms.py --junitxml=bim-interop-tests.xml
       - name: Require complete qualification
