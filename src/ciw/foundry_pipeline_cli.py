@@ -40,17 +40,22 @@ def main(argv=None) -> int:
     init.add_argument("--project-id", required=True)
     init.add_argument("--source-root", type=Path, required=True)
     init.add_argument("--output-dir", type=Path, required=True)
-    for name in ("status", "report", "impact", "packet", "check", "review", "run", "conflicts", "queue", "batch"):
+    for name in ("status", "report", "impact", "packet", "check", "review", "run", "conflicts", "queue", "batch", "batch-check"):
         p = sub.add_parser(name)
         p.add_argument("project", type=Path, help="operator-owned project.json")
-        if name in {"status", "report", "impact", "packet", "review", "run", "queue", "batch"}:
+        if name in {"status", "report", "impact", "packet", "review", "run", "queue", "batch", "batch-check"}:
             p.add_argument("--source-root", type=Path, required=True)
-        if name in {"status", "report", "packet", "review", "queue", "batch"}:
+        if name in {"status", "report", "packet", "review", "queue", "batch", "batch-check"}:
             p.add_argument("--evidence", action="append", default=[], metavar="TASK=DIRECTORY")
         if name in {"packet", "review", "run"}:
             p.add_argument("--task", required=True)
             p.add_argument("--output-dir", required=True, type=Path)
-        if name == "queue":
+        if name == "batch-check":
+            p.add_argument("--batch-dir", type=Path, required=True)
+            p.add_argument("--batch-id", required=True, help="independently retained batch digest")
+            p.add_argument("--candidate", action="append", default=[], metavar="TASK=DIRECTORY")
+            p.add_argument("--output-dir", type=Path)
+        elif name == "queue":
             p.add_argument("--target", action="append", default=[], help="include target and prerequisite closure; repeat for several milestones")
         elif name == "batch":
             p.add_argument("--spec", type=Path, required=True)
@@ -89,7 +94,12 @@ def main(argv=None) -> int:
             project = load(args.project)
             pipeline.validate_project(project)
             evidence = evidence_map(getattr(args, "evidence", []))
-            if args.command in {"queue", "batch"}:
+            if args.command == "batch-check":
+                from .foundry_batch_review import check_batch
+                report = check_batch(project, args.source_root, args.batch_dir,
+                    expected_batch_id=args.batch_id, candidates=evidence_map(args.candidate),
+                    evidence=evidence, destination=args.output_dir)
+            elif args.command in {"queue", "batch"}:
                 from .foundry_queue import queue, prepare_batch
                 if args.command == "queue":
                     report = queue(project, args.source_root, evidence, targets=args.target)

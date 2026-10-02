@@ -63,6 +63,39 @@ Retain the packet digest independently when issuing work. Scope checking is not
 technical, historical, artistic or gameplay acceptance. Batch issuance does not
 run the engine, approve a parent task, merge changes or authorize release.
 
+## Inspect returned candidates and package the review
+
+Retain the `record_digest` from `batch.json` independently at issuance. Then inspect
+all returned candidates through the same scope checker with one command:
+
+```sh
+net foundry pipeline batch-check ../production/1792/project.json --source-root ../1792/game --batch-dir ../production/water-batch-001 --batch-id RETAINED_BATCH_DIGEST --candidate water-domain=../candidate-game --output-dir ../production/water-review-001
+```
+
+Repeat `--candidate TASK=DIRECTORY` for each returned task, and provide current
+`--evidence TASK=DIRECTORY` bindings. Omitted candidates are retained as missing.
+Unknown or duplicate task bindings refuse. The original batch ID anchors the
+manifest, packets, specification and issuance queue; a substituted or re-sealed
+batch cannot silently replace that identity. Linked packet files refuse.
+
+The command independently recomputes each supplied candidate's scope check and
+the current prerequisite frontier. A candidate may pass its old packet scope but
+still be held because the source changed, prerequisites are no longer satisfied,
+or the task was already completed. Missing, unreadable and out-of-scope candidates
+remain visible alongside passing candidates. No returned worker status is trusted.
+
+`REVIEW.md` summarizes the batch; `review.json` retains full scope-check receipts,
+current evidence identities, source drift and integration conflicts. The JSON
+completion record is written last. Outputs are create-only and must be outside
+the source, batch and all candidate roots. Candidate assets are not copied.
+
+Exit codes: **0** means all candidates are ready for quality review, **2** means
+the retained report is incomplete, and **1** means the inspection itself refused.
+Ready for quality review does not mean accepted or safe to merge. Native tests,
+historical/artistic judgment and integration remain separate required steps.
+This is an inspection snapshot: keep input directories quiescent, and recheck the
+candidate inventory identity before later review or integration.
+
 ## Production adoption order
 
 1. Use the slice frontier and packet handoffs during the Gujranwala production loop.

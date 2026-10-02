@@ -9,6 +9,8 @@ from ciw import foundry_pipeline as pipeline, foundry_packets as packets
 from ciw.control_contracts import load, save_new
 from ciw.foundry_pipeline_cli import main
 from ciw.foundry_queue import queue, prepare_batch
+from ciw.foundry_batch_review import check_batch
+from ciw.operations.runner import seal
 
 
 @pytest.fixture
@@ -158,3 +160,107 @@ def test_cli_batch_and_queue(case, tmp_path, capsys):
     assert main(args) == 0
     assert json.loads(capsys.readouterr().out)["executed"] is False
     assert main(args) == 1
+
+
+def issued(case, tmp_path):
+    out = tmp_path / "batch"
+    value = prepare_batch(case[1], case[0], spec("vision", "water-domain"), out)
+    return out, value["record_digest"]
+
+
+def test_batch_review_reuses_scope_checker_without_dispatch(case, tmp_path):
+    directory, identity = issued(case, tmp_path)
+    with patch("subprocess.Popen", side_effect=AssertionError("unexpected execution")):
+        result = check_batch(case[1], case[0], directory, expected_batch_id=identity,
+            candidates={"vision": case[0], "water-domain": case[0]}, destination=tmp_path / "review")
+    assert result["status"] == "ready_for_quality_review"
+    assert result["quality_acceptance"] == "not_performed"
+    assert all(r["scope_check"]["status"] == "scope_passed" for r in result["candidates"])
+    assert load(tmp_path / "review/review.json") == result
+    assert "integration remain outstanding" in (tmp_path / "review/REVIEW.md").read_text()
+    with pytest.raises(FileExistsError):
+        check_batch(case[1], case[0], directory, expected_batch_id=identity,
+            candidates={}, destination=tmp_path / "review")
+
+
+def test_missing_refused_and_unreadable_candidates_are_retained(case, tmp_path):
+    directory, identity = issued(case, tmp_path)
+    candidate = tmp_path / "bad"; candidate.mkdir()
+    (candidate / "injected.gd").write_text("unexpected")
+    report = check_batch(case[1], case[0], directory, expected_batch_id=identity,
+        candidates={"vision": candidate})
+    assert report["status"] == "incomplete"
+    assert [r["status"] for r in report["candidates"]] == ["scope_refused", "missing_candidate"]
+    report = check_batch(case[1], case[0], directory, expected_batch_id=identity,
+        candidates={"vision": tmp_path / "absent"})
+    assert report["candidates"][0]["status"] == "candidate_unreadable"
+    assert report["candidates"][0]["reason"]
+
+
+@pytest.mark.parametrize("path", ["batch.json", "queue.json", "spec.json", "vision/packet.json"])
+def test_review_refuses_tampering_even_resealed_batch(case, tmp_path, path):
+    directory, identity = issued(case, tmp_path)
+    value = load(directory / path)
+    if path == "batch.json":
+        value["conflicts"]["parallel_execution"] = "performed"
+    elif path == "queue.json": value["frontier"] = []
+    elif path == "spec.json": value["assignments"][0]["assignee"] = "other"
+    else: value["assignee"] = "other"
+    if "record_digest" in value:
+        value.pop("record_digest")
+        value = seal(value)
+    (directory / path).write_text(json.dumps(value))
+    with pytest.raises(ValueError):
+        check_batch(case[1], case[0], directory, expected_batch_id=identity,
+            candidates={}, destination=tmp_path / "review")
+    assert not (tmp_path / "review").exists()
+
+
+def test_current_source_drift_prevents_ready_even_if_old_candidate_passes(case, tmp_path):
+    import shutil
+    directory, identity = issued(case, tmp_path)
+    candidate = tmp_path / "candidate"
+    shutil.copytree(case[0], candidate)
+    (case[0] / "notes.txt").write_text("new source baseline")
+    report = check_batch(case[1], case[0], directory, expected_batch_id=identity,
+        candidates={"vision": candidate, "water-domain": candidate})
+    assert all(r["scope_check"]["status"] == "scope_passed" for r in report["candidates"])
+    assert all(not r["ready_for_quality_review"] for r in report["candidates"])
+    assert report["status"] == "incomplete"
+
+
+def test_review_unknown_candidate_and_contained_output_refuse(case, tmp_path):
+    directory, identity = issued(case, tmp_path)
+    with pytest.raises(ValueError, match="outside this batch"):
+        check_batch(case[1], case[0], directory, expected_batch_id=identity,
+            candidates={"unknown": case[0]})
+    for output in [case[0] / "review", directory / "review"]:
+        with pytest.raises(ValueError, match="outside"):
+            check_batch(case[1], case[0], directory, expected_batch_id=identity,
+                candidates={}, destination=output)
+        assert not output.exists()
+
+
+def test_incomplete_batch_and_linked_packet_refuse(case, tmp_path):
+    directory, identity = issued(case, tmp_path)
+    packet = directory / "vision/packet.json"
+    original = tmp_path / "original.json"
+    packet.rename(original)
+    try: packet.symlink_to(original)
+    except OSError: pytest.skip("symlink unavailable")
+    with pytest.raises(ValueError, match="Symlinks"):
+        check_batch(case[1], case[0], directory, expected_batch_id=identity, candidates={})
+    packet.unlink(); original.rename(packet)
+    (directory / "batch.json").unlink()
+    with pytest.raises(OSError):
+        check_batch(case[1], case[0], directory, expected_batch_id=identity, candidates={})
+
+
+def test_batch_check_cli_returns_incomplete_and_complete(case, tmp_path, capsys):
+    directory, identity = issued(case, tmp_path)
+    args = ["batch-check", str(tmp_path / "project/project.json"), "--source-root", str(case[0]),
+            "--batch-dir", str(directory), "--batch-id", identity]
+    assert main(args) == 2
+    assert json.loads(capsys.readouterr().out)["status"] == "incomplete"
+    assert main(args + ["--candidate", "vision="+str(case[0]), "--candidate", "water-domain="+str(case[0])]) == 0
+    assert json.loads(capsys.readouterr().out)["status"] == "ready_for_quality_review"
