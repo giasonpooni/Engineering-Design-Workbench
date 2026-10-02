@@ -16,6 +16,7 @@ from .industrial_transition import (
     validate_identity_verification,
     validate_transition_envelope,
 )
+from .preservation_contracts import admission_gate_from_spec
 from .semantic_capabilities import builtin_semantic_registry
 
 
@@ -35,6 +36,19 @@ def main(argv=None):
     verify_identity.add_argument("binding", type=Path)
     verify_identity.add_argument("spec", type=Path)
     verify_identity.add_argument("--output", type=Path, required=True)
+
+    prepare = commands.add_parser("prepare")
+    prepare.add_argument("source_state", type=Path)
+    prepare.add_argument("candidate_state", type=Path)
+    prepare.add_argument("binding", type=Path)
+    prepare.add_argument("identity_verification", type=Path)
+    prepare.add_argument("registry", type=Path)
+    prepare.add_argument("preservation_contract", type=Path)
+    prepare.add_argument("preservation_verification", type=Path)
+    prepare.add_argument("gate_policy", type=Path)
+    prepare.add_argument("transition_spec", type=Path)
+    prepare.add_argument("--gate-output", type=Path, required=True)
+    prepare.add_argument("--output", type=Path, required=True)
 
     envelope = commands.add_parser("envelope")
     envelope.add_argument("source_state", type=Path)
@@ -86,6 +100,45 @@ def main(argv=None):
                 "output": str(args.output),
             }, indent=2))
             return 0 if value["status"] == "VERIFIED" else 2
+
+        if args.command == "prepare":
+            semantic = _semantic()
+            registry = load(args.registry)
+            contract = load(args.preservation_contract)
+            preservation_verification = load(args.preservation_verification)
+            gate = admission_gate_from_spec(
+                registry,
+                semantic,
+                contract,
+                preservation_verification,
+                load(args.gate_policy),
+            )
+            save_new(args.gate_output, gate)
+            envelope_value = transition_envelope_from_spec(
+                load(args.source_state),
+                load(args.candidate_state),
+                load(args.binding),
+                load(args.identity_verification),
+                registry,
+                semantic,
+                contract,
+                preservation_verification,
+                gate,
+                load(args.transition_spec),
+            )
+            save_new(args.output, envelope_value)
+            print(json.dumps({
+                "status": envelope_value["readiness"],
+                "gate_decision": gate["decision"],
+                "transition_id": envelope_value["transition_id"],
+                "canonical_entity_id": envelope_value["canonical_entity_id"],
+                "required_admission_authority": envelope_value["required_admission_authority"],
+                "state_admission_performed": False,
+                "canonical_state_mutated": False,
+                "gate_output": str(args.gate_output),
+                "output": str(args.output),
+            }, indent=2))
+            return 0 if envelope_value["readiness"] == "READY_FOR_AUTHORITY_REVIEW" else 2
 
         if args.command == "envelope":
             semantic = _semantic()
