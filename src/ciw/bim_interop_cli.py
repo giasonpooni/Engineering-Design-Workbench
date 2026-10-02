@@ -6,7 +6,7 @@ import json
 from pathlib import Path
 import sys
 
-from .bim_interop import execute_bim_mapping, validate_bim_mapping_witness
+from .bim_interop import execute_bim_mapping_bundle, validate_bim_mapping_witness
 from .cse_preservation import verify_bim_preservation
 from .control_contracts import load, save_new
 from .control_plane import builtin_registry
@@ -32,6 +32,7 @@ def main(argv=None):
     execute.add_argument("spec", type=Path)
     execute.add_argument("--cse-repository", type=Path, required=True)
     execute.add_argument("--output", type=Path, required=True)
+    execute.add_argument("--bundle-output", type=Path, required=True)
 
     verify = commands.add_parser("verify-preservation")
     verify.add_argument("registry", type=Path)
@@ -60,7 +61,7 @@ def main(argv=None):
     try:
         semantic = _semantic()
         if args.command == "execute":
-            value = execute_bim_mapping(
+            value, bundle = execute_bim_mapping_bundle(
                 load(args.registry),
                 semantic,
                 load(args.preservation_contract),
@@ -73,6 +74,7 @@ def main(argv=None):
                 load(args.spec),
             )
             save_new(args.output, value)
+            save_new(args.bundle_output, bundle)
             print(json.dumps({
                 "status": value["mapping_outcome"],
                 "execution_id": value["execution_id"],
@@ -81,6 +83,7 @@ def main(argv=None):
                 "preservation_verification_performed": False,
                 "state_admission_performed": False,
                 "output": str(args.output),
+                "bundle_output": str(args.bundle_output),
             }, indent=2))
             return 0 if value["mapping_outcome"] == "MAPPED" else 2
 
