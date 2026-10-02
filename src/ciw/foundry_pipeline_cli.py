@@ -40,17 +40,22 @@ def main(argv=None) -> int:
     init.add_argument("--project-id", required=True)
     init.add_argument("--source-root", type=Path, required=True)
     init.add_argument("--output-dir", type=Path, required=True)
-    for name in ("status", "report", "impact", "packet", "check", "review", "run", "conflicts"):
+    for name in ("status", "report", "impact", "packet", "check", "review", "run", "conflicts", "queue", "batch"):
         p = sub.add_parser(name)
         p.add_argument("project", type=Path, help="operator-owned project.json")
-        if name in {"status", "report", "impact", "packet", "review", "run"}:
+        if name in {"status", "report", "impact", "packet", "review", "run", "queue", "batch"}:
             p.add_argument("--source-root", type=Path, required=True)
-        if name in {"status", "report", "packet", "review"}:
+        if name in {"status", "report", "packet", "review", "queue", "batch"}:
             p.add_argument("--evidence", action="append", default=[], metavar="TASK=DIRECTORY")
         if name in {"packet", "review", "run"}:
             p.add_argument("--task", required=True)
             p.add_argument("--output-dir", required=True, type=Path)
-        if name == "packet":
+        if name == "queue":
+            p.add_argument("--target", action="append", default=[], help="include target and prerequisite closure; repeat for several milestones")
+        elif name == "batch":
+            p.add_argument("--spec", type=Path, required=True)
+            p.add_argument("--output-dir", type=Path, required=True)
+        elif name == "packet":
             p.add_argument("--allow-write", action="append", default=[])
             p.add_argument("--context", action="append", default=[])
             p.add_argument("--assignee", required=True)
@@ -84,7 +89,13 @@ def main(argv=None) -> int:
             project = load(args.project)
             pipeline.validate_project(project)
             evidence = evidence_map(getattr(args, "evidence", []))
-            if args.command in {"status", "report"}:
+            if args.command in {"queue", "batch"}:
+                from .foundry_queue import queue, prepare_batch
+                if args.command == "queue":
+                    report = queue(project, args.source_root, evidence, targets=args.target)
+                else:
+                    report = prepare_batch(project, args.source_root, load(args.spec), args.output_dir, evidence)
+            elif args.command in {"status", "report"}:
                 report = pipeline.assess(project, args.source_root, evidence)
                 if args.command == "report":
                     text = pipeline.markdown_report(project, report)

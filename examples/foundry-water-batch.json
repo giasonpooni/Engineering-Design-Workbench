@@ -1,0 +1,12 @@
+{
+  "schema": "ciw.foundry-batch-spec.v1",
+  "assignments": [
+    {
+      "task_id": "water-domain",
+      "assignee": "operator-selected-qa-host",
+      "writable": [],
+      "context": ["foundry/water_round.gd"],
+      "max_changed_bytes": 131072
+    }
+  ]
+}

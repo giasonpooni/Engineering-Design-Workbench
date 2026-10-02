@@ -8,6 +8,7 @@ on:
       - 'src/ciw/session.py'
       - 'src/ciw/operations/**'
       - 'tests/test_foundry_pipeline.py'
+      - 'tests/test_foundry_queue.py'
       - 'scripts/check_foundry_pipeline.py'
       - '.github/workflows/net-foundry-pipeline.yml'
       - 'pyproject.toml'
@@ -37,7 +38,7 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install -e '.[dev]' build
       - name: New packet/pipeline and unchanged Foundry/production/control suites
-        run: python -m pytest -q tests/test_foundry_pipeline.py tests/test_foundry.py tests/test_production.py tests/test_game_trace.py tests/test_game_session.py tests/test_game_retention.py tests/test_control_plane.py tests/test_interactive_contract.py tests/test_interactive_session.py -o addopts= --junitxml=pipeline-source.xml
+        run: python -m pytest -q tests/test_foundry_queue.py tests/test_foundry_pipeline.py tests/test_foundry.py tests/test_production.py tests/test_game_trace.py tests/test_game_session.py tests/test_game_retention.py tests/test_control_plane.py tests/test_interactive_contract.py tests/test_interactive_session.py -o addopts= --junitxml=pipeline-source.xml
       - run: python -m build --wheel
       - name: Installed-wheel tests outside checkout
         shell: bash
@@ -50,6 +51,7 @@ jobs:
           with tempfile.TemporaryDirectory() as tmp:
               root = pathlib.Path(tmp)
               shutil.copy2('tests/test_foundry_pipeline.py', root / 'test_foundry_pipeline.py')
+              shutil.copy2('tests/test_foundry_queue.py', root / 'test_foundry_queue.py')
               env = {k:v for k,v in os.environ.items() if k != 'PYTHONPATH'}
               subprocess.run([sys.executable, '-m', 'pytest', '-q', str(root), '-o', 'addopts=', '--junitxml='+str(report)], cwd=root, env=env, check=True)
           PY
