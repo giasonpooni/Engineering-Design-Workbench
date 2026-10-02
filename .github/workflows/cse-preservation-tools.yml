@@ -31,7 +31,7 @@ jobs:
       - name: Clone pinned CSE
         shell: bash
         run: |
-          git clone --no-checkout https://github.com/giasonpooni/Construction-State-Estimator-for-BIM.git cse
+          git clone --config core.autocrlf=false --no-checkout https://github.com/giasonpooni/Construction-State-Estimator-for-BIM.git cse
           git -C cse checkout 4b74abda40bba3277de69bf61e9e09283ae2d5b3
       - name: Bind pinned CSE path
         shell: python
