@@ -1,4 +1,4 @@
-"""Run and inspect the bounded elastic contact benchmark through NET."""
+"""Run and inspect bounded elastic/crush contact benchmarks through NET."""
 from __future__ import annotations
 
 import argparse
@@ -11,7 +11,14 @@ from . import impact_workflow as workflow
 
 
 def main(argv=None) -> int:
-    parser = argparse.ArgumentParser(prog="net impact", description=__doc__)
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if argv and argv[0] == "sweep":
+        from .impact_sweep import main as sweep_main
+        return sweep_main(argv[1:])
+    crush = bool(argv and argv[0] == "crush")
+    if crush:
+        argv = argv[1:]
+    parser = argparse.ArgumentParser(prog="net impact crush" if crush else "net impact", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
     example = commands.add_parser("example")
     example.add_argument("--output", type=Path, required=True)
@@ -26,11 +33,17 @@ def main(argv=None) -> int:
     args = parser.parse_args(argv)
     try:
         if args.command == "example":
-            from .impact_contract import example_request
+            if crush:
+                from .impact_crush_contract import example_request
+            else:
+                from .impact_contract import example_request
             save_new(args.output, example_request())
             result = {"status": "created", "request": str(args.output)}
         elif args.command == "run":
-            result = workflow.run(load(args.request), args.output_dir)
+            request = load(args.request)
+            if workflow._crush(request) != crush:
+                raise ValueError("Request profile differs from the selected impact command")
+            result = workflow.run(request, args.output_dir)
         elif args.command == "inspect":
             result = workflow.inspect(args.directory)
         elif args.command == "verify":

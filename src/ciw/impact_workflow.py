@@ -17,32 +17,65 @@ from .operations.runner import check_seal, digest, seal
 
 SIMULATE = "impact.spring-contact.v1"
 VERIFY = "impact.spring-contact-verify.v1"
+CRUSH_SIMULATE = "impact.crush-contact.v1"
+CRUSH_VERIFY = "impact.crush-contact-verify.v1"
 FRAME = "impact.normal.inward_positive.v1"
 AUTHORITY = {"physical_validation": "not_established", "scale_preservation": "not_established",
              "state_admission": "not_performed", "hardware_actuation": "not_performed"}
 
 
-def runtime_identity(kind: str) -> dict:
-    from . import impact_contract, impact_reference, impact_solver, impact_verification
-    modules = [impact_contract, impact_solver] if kind == "solver" else [impact_contract, impact_reference, impact_verification]
+def _crush(request: dict) -> bool:
+    return isinstance(request, dict) and request.get("schema") == "ciw.impact-crush-request.v1"
+
+
+def _modules(request: dict):
+    # Fixed installed profiles only. Saved schema IDs never name import paths.
+    if _crush(request):
+        from . import impact_crush_contract as contract, impact_crush_solver as solver
+        from . import impact_crush_verification as verification, impact_crush_preservation as preservation
+    else:
+        from . import impact_contract as contract, impact_solver as solver
+        from . import impact_verification as verification, impact_preservation as preservation
+    return contract, solver, verification, preservation
+
+
+def _operation_ids(request: dict) -> tuple[str, str]:
+    return (CRUSH_SIMULATE, CRUSH_VERIFY) if _crush(request) else (SIMULATE, VERIFY)
+
+
+def runtime_identity(kind: str, *, crush: bool = False) -> dict:
+    if crush:
+        from . import impact_crush_contract as contract, impact_crush_reference as reference
+        from . import impact_crush_solver as solver, impact_crush_verification as verification
+    else:
+        from . import impact_contract as contract, impact_reference as reference
+        from . import impact_solver as solver, impact_verification as verification
+    modules = [contract, solver] if kind == "solver" else [contract, reference, verification]
     modules.append(__import__(__name__, fromlist=["*"]))
     raw = b"\0".join(Path(m.__file__).name.encode() + b"\0" +
                      Path(m.__file__).read_text(encoding="utf-8").replace("\r\n", "\n").encode()
                      for m in modules)
-    return {"provider": "ciw.impact." + kind, "version": "1", "code_sha256": sha256(raw).hexdigest(),
-            "source_normalization": "utf8_lf", "scope": "synthetic_elastic_contact_only"}
+    return {"provider": "ciw.impact." + ("crush-" if crush else "") + kind, "version": "1", "code_sha256": sha256(raw).hexdigest(),
+            "source_normalization": "utf8_lf", "scope": "synthetic_elastic_plastic_crush_only" if crush else "synthetic_elastic_contact_only"}
 
 
 def make_source(request: dict) -> dict:
-    from .impact_contract import validate_request
-    request = validate_request(request)
+    contract, _, _, _ = _modules(request)
+    request = contract.validate_request(request)
     model = request["model"]
     duration = math.pi * math.sqrt(model["mass_kg"] / model["stiffness_n_per_m"]) * request["integration"]["duration_factor"]
+    if _crush(request):
+        from .impact_crush_reference import reference
+        duration = reference(request)["contact_duration_s"] * request["integration"]["duration_factor"]
+    simulate_id, verify_id = _operation_ids(request)
+    units = {"compression": "m", "velocity": "m/s", "force": "N"}
+    if _crush(request):
+        units.update(plastic_compression="m", plastic_work="J")
     manifest = InstrumentManifest(
-        instrument_id="impact-initial-state.v1", role="synthetic_initial_conditions",
-        units={"compression": "m", "velocity": "m/s", "force": "N"}, frames=(FRAME,),
+        instrument_id="impact-crush-initial-state.v1" if _crush(request) else "impact-initial-state.v1", role="synthetic_initial_conditions",
+        units=units, frames=(FRAME,),
         sampling={"kind": "one_initial_state_at_first_contact"},
-        supported_operations=(SIMULATE, VERIFY),
+        supported_operations=(simulate_id, verify_id),
         calibration_requirements={"physical_measurements": "none; synthetic benchmark"},
     )
     run = {"run_schema": "run.v1", "run_id": "run-impact-" + digest(request)[7:23],
@@ -54,6 +87,9 @@ def make_source(request: dict) -> dict:
            "time_s": [0.0], "channels": {"compression": {"unit": "m", "values": [0.0]},
                                          "velocity": {"unit": "m/s", "values": [model["initial_speed_m_per_s"]]},
                                          "force": {"unit": "N", "values": [0.0]}}, "render": {}}
+    if _crush(request):
+        run["channels"].update(plastic_compression={"unit": "m", "values": [0.0]},
+                               plastic_work={"unit": "J", "values": [0.0]})
     run["evidence_id"] = evidence_id(run)
     return run
 
@@ -68,38 +104,47 @@ def source_request(run: dict) -> dict:
 
 
 def _simulate(run: dict, parameters: dict) -> dict:
-    from .impact_solver import simulate
     keys(parameters, set())
-    return simulate(source_request(run))
+    request = source_request(run)
+    return _modules(request)[1].simulate(request)
 
 
 def _candidate(run: dict, parameters: dict) -> dict:
-    from .impact_contract import validate_result
+    request = source_request(run)
+    simulate_id, _ = _operation_ids(request)
     keys(parameters, {"candidate"})
     candidate = parameters["candidate"]
     check_seal(candidate)
-    if (candidate.get("schema") != "ciw.operation-result.v1" or candidate.get("operation_id") != SIMULATE
+    if (candidate.get("schema") != "ciw.operation-result.v1" or candidate.get("operation_id") != simulate_id
             or candidate.get("role") != "backend" or candidate.get("evidence_id") != run["evidence_id"]
             or candidate.get("run_id") != run["run_id"] or candidate.get("parameters") != {}):
         raise ValueError("Verification candidate must bind the exact impact source and simulation operation")
     validate_identity(candidate.get("result_id"), "result")
     validate_identity(candidate.get("execution_id"), "execution")
-    validate_result(source_request(run), candidate["data"])
+    _modules(request)[0].validate_result(request, candidate["data"])
     return candidate
 
 
 def _verify(run: dict, parameters: dict) -> dict:
-    from .impact_verification import verify
     candidate = _candidate(run, parameters)
+    request = source_request(run)
     return {"schema": "ciw.impact-verification-payload.v1", "verification_id": new_identity("verification"),
             "candidate_result_id": candidate["result_id"], "candidate_execution_id": candidate["execution_id"],
             "candidate_record_digest": candidate["record_digest"], "source_evidence_id": run["evidence_id"],
-            "report": verify(source_request(run), candidate["data"]), "authority": deepcopy(AUTHORITY)}
+            "report": _modules(request)[2].verify(request, candidate["data"]), "authority": deepcopy(AUTHORITY)}
 
 
 def operations() -> list[Operation]:
-    return [Operation(SIMULATE, "backend", _simulate, lambda: runtime_identity("solver")),
-            Operation(VERIFY, "verification", _verify, lambda: runtime_identity("verifier"))]
+    def bind(operation_id, callback):
+        def execute(run, parameters):
+            if operation_id not in _operation_ids(source_request(run)):
+                raise ValueError("Impact operation cannot execute a different physical profile")
+            return callback(run, parameters)
+        return execute
+    return [Operation(SIMULATE, "backend", bind(SIMULATE, _simulate), lambda: runtime_identity("solver")),
+            Operation(VERIFY, "verification", bind(VERIFY, _verify), lambda: runtime_identity("verifier")),
+            Operation(CRUSH_SIMULATE, "backend", bind(CRUSH_SIMULATE, _simulate), lambda: runtime_identity("solver", crush=True)),
+            Operation(CRUSH_VERIFY, "verification", bind(CRUSH_VERIFY, _verify), lambda: runtime_identity("verifier", crush=True))]
 
 
 def registry():
@@ -113,12 +158,13 @@ def registry():
 
 def validate_payload(operation: str, data: dict, run: dict, parameters: dict, selection: dict) -> None:
     """Read stored contracts without rerunning either numerical implementation."""
-    from .impact_contract import validate_result
-    if operation == SIMULATE:
+    request = source_request(run)
+    simulate_id, verify_id = _operation_ids(request)
+    contract, _, verifier, _ = _modules(request)
+    if operation == simulate_id:
         keys(parameters, set())
-        validate_result(source_request(run), data)
-    elif operation == VERIFY:
-        from .impact_verification import validate_report
+        contract.validate_result(request, data)
+    elif operation == verify_id:
         candidate = _candidate(run, parameters)
         keys(data, {"schema", "verification_id", "candidate_result_id", "candidate_execution_id",
                     "candidate_record_digest", "source_evidence_id", "report", "authority"})
@@ -129,7 +175,7 @@ def validate_payload(operation: str, data: dict, run: dict, parameters: dict, se
                 or data["candidate_execution_id"] != candidate["execution_id"]
                 or data["candidate_record_digest"] != candidate["record_digest"]):
             raise ValueError("Impact verification identity or authority binding differs")
-        validate_report(source_request(run), candidate["data"], data["report"])
+        verifier.validate_report(request, candidate["data"], data["report"])
     else:
         raise ValueError("Unsupported impact operation")
 
@@ -138,7 +184,7 @@ def validate_result_dependencies(results: dict) -> None:
     """Verification snapshots must match an actually retained solver occurrence."""
     verification_ids = set()
     for result in results.values():
-        if result.get("operation_id") != VERIFY:
+        if result.get("operation_id") not in {VERIFY, CRUSH_VERIFY}:
             continue
         candidate = result["parameters"]["candidate"]
         if results.get(candidate["result_id"]) != candidate:
@@ -164,15 +210,16 @@ def run(request: dict, destination: Path) -> dict:
     destination.mkdir(parents=True, exist_ok=False)
     save_new(destination / "request.json", source["metadata"]["impact_request"])
     session = Session(source, destination, operations=registry())
-    candidate = _execute(session, SIMULATE, {})
+    simulate_id, verify_id = _operation_ids(source_request(session.run))
+    candidate = _execute(session, simulate_id, {})
     verification = None
     if candidate["status"] == "completed":
-        verification = _execute(session, VERIFY, {"candidate": candidate["result"]})
+        verification = _execute(session, verify_id, {"candidate": candidate["result"]})
     session.save_workspace(destination / "workspace.json")
     if candidate["status"] != "completed" or verification is None or verification["status"] != "completed":
         return inspect(destination)
     save_new(destination / "verification.json", verification["result"]["data"])
-    from .impact_preservation import build
+    build = _modules(source_request(session.run))[3].build
     save_new(destination / "preservation.json", build(source_request(session.run), candidate["result"]["data"],
                                                      verification["result"]["data"]["report"]))
     return inspect(destination)
@@ -185,17 +232,18 @@ def _read(destination: Path):
         session = Session.from_workspace(destination / "workspace.json", Path(temporary))
     if load(destination / "request.json") != source_request(session.run):
         raise ValueError("Retained request differs from source evidence")
-    candidates = [r for r in session.results.values() if r["operation_id"] == SIMULATE]
-    verifications = [r for r in session.results.values() if r["operation_id"] == VERIFY]
+    simulate_id, verify_id = _operation_ids(source_request(session.run))
+    candidates = [r for r in session.results.values() if r["operation_id"] == simulate_id]
+    verifications = [r for r in session.results.values() if r["operation_id"] == verify_id]
     executions = list(session.executions.values())
-    if any(e["operation_id"] not in {SIMULATE, VERIFY} for e in executions):
+    if any(e["operation_id"] not in {simulate_id, verify_id} for e in executions):
         raise ValueError("Impact bundle contains an unrelated execution")
-    if len(executions) == 1 and executions[0]["operation_id"] == SIMULATE and executions[0]["status"] == "refused":
+    if len(executions) == 1 and executions[0]["operation_id"] == simulate_id and executions[0]["status"] == "refused":
         if session.results or (destination / "verification.json").exists():
             raise ValueError("Refused solver bundle cannot contain results")
         return session, None, None
     if (len(executions) == 2 and len(candidates) == 1 and not verifications
-            and sum(e["status"] == "refused" and e["operation_id"] == VERIFY for e in executions) == 1):
+            and sum(e["status"] == "refused" and e["operation_id"] == verify_id for e in executions) == 1):
         if len(session.results) != 1 or (destination / "verification.json").exists():
             raise ValueError("Refused verifier bundle contains unexpected results")
         return session, candidates[0], None
@@ -206,7 +254,7 @@ def _read(destination: Path):
         raise ValueError("Verification does not bind the retained candidate occurrence")
     if load(destination / "verification.json") != verification["data"]:
         raise ValueError("Verification artifact differs from retained verification result")
-    from .impact_preservation import validate
+    validate = _modules(source_request(session.run))[3].validate
     validate(load(destination / "preservation.json"), source_request(session.run), candidate["data"],
              verification["data"]["report"])
     return session, candidate, verification
@@ -224,8 +272,8 @@ def inspect(destination: Path) -> dict:
     preservation = load(Path(destination) / "preservation.json")
     return {"schema": "ciw.impact-inspection.v1", "status": report["qualification"]["action"],
             "qualification": report["qualification"], "evidence_id": session.run["evidence_id"],
-            "operation_id": SIMULATE, "execution_id": candidate["execution_id"], "result_id": candidate["result_id"],
-            "verification_operation_id": VERIFY, "verification_execution_id": verification["execution_id"],
+            "operation_id": candidate["operation_id"], "execution_id": candidate["execution_id"], "result_id": candidate["result_id"],
+            "verification_operation_id": verification["operation_id"], "verification_execution_id": verification["execution_id"],
             "verification_id": verification["data"]["verification_id"], "checks": report["checks"],
             "metrics": report["metrics"], "fresh_execution": False, "fresh_numerical_verification": False,
             "preservation": {"contract_ref": preservation["contract"]["record_digest"],
@@ -237,17 +285,17 @@ def inspect(destination: Path) -> dict:
 
 
 def verify_retained(destination: Path) -> dict:
-    from .impact_verification import verify
     session, candidate, verification = _read(destination)
     if verification is None:
         return inspect(destination)
-    fresh = verify(source_request(session.run), candidate["data"])
+    request = source_request(session.run)
+    fresh = _modules(request)[2].verify(request, candidate["data"])
     if fresh != verification["data"]["report"]:
         raise ValueError("Independent recomputation differs from retained verification report")
     result = inspect(destination)
     result["fresh_numerical_verification"] = True
     result["recomputed_report_digest"] = fresh["record_digest"]
-    result["recomputed_with_runtime"] = runtime_identity("verifier")
+    result["recomputed_with_runtime"] = runtime_identity("verifier", crush=_crush(request))
     return result
 
 
@@ -258,6 +306,8 @@ def export_csv(destination: Path, output: Path) -> dict:
     _, candidate, _ = _read(destination)
     trace = candidate["data"]["primary"]
     names = ["time_s", "compression_m", "velocity_m_per_s", "force_n"]
+    if candidate["operation_id"] == CRUSH_SIMULATE:
+        names.extend(["plastic_compression_m", "plastic_work_j"])
     output = Path(output)
     output.parent.mkdir(parents=True, exist_ok=True)
     with output.open("x", encoding="utf-8", newline="") as stream:

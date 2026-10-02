@@ -8,7 +8,11 @@ on:
       - 'src/ciw/session.py'
       - 'tests/test_impact*.py'
       - 'docs/IMPACT_CONTACT_BENCHMARK.md'
+      - 'docs/IMPACT_CRUSH_BENCHMARK.md'
+      - 'docs/IMPACT_SCENARIO_ENVELOPE.md'
       - 'examples/impact-contact/**'
+      - 'examples/impact-crush/**'
+      - 'examples/impact-sweep/**'
       - '.github/workflows/impact-contact.yml'
   workflow_dispatch:
 permissions:
@@ -34,7 +38,7 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install -e '.[dev]' build
       - name: Impact and existing substrate regressions
-        run: python -m pytest -q tests/test_impact_core.py tests/test_impact_workflow.py tests/test_impact_preservation.py tests/test_operation_runner.py tests/test_operation_failure_retention.py tests/test_operation_publication.py tests/test_preservation_contracts.py tests/test_finite_preservation.py tests/test_board_morphisms.py tests/test_representation_morphisms.py tests/test_control_plane.py tests/test_semantic_capabilities.py --junitxml=impact-tests.xml
+        run: python -m pytest -q tests/test_impact_core.py tests/test_impact_workflow.py tests/test_impact_preservation.py tests/test_impact_crush_core.py tests/test_impact_crush_workflow.py tests/test_impact_crush_preservation.py tests/test_impact_sweep.py tests/test_operation_runner.py tests/test_operation_failure_retention.py tests/test_operation_publication.py tests/test_preservation_contracts.py tests/test_finite_preservation.py tests/test_board_morphisms.py tests/test_representation_morphisms.py tests/test_control_plane.py tests/test_semantic_capabilities.py --junitxml=impact-tests.xml
       - name: Require complete qualification
         shell: bash
         run: |
@@ -69,8 +73,35 @@ jobs:
           cd installed-smoke
           "$IMPACT_PYTHON" -m ciw.net impact example --output request.json
           "$IMPACT_PYTHON" -m ciw.net impact run request.json --output-dir run
+          "$IMPACT_PYTHON" -m ciw.net impact inspect run
           "$IMPACT_PYTHON" -m ciw.net impact verify run
           "$IMPACT_PYTHON" -m ciw.net impact export run --output observations.csv
+          "$IMPACT_PYTHON" -m ciw.net impact crush example --output crush-request.json
+          "$IMPACT_PYTHON" -m ciw.net impact crush run crush-request.json --output-dir crush-run
+          "$IMPACT_PYTHON" -m ciw.net impact crush inspect crush-run
+          "$IMPACT_PYTHON" -m ciw.net impact crush verify crush-run
+          "$IMPACT_PYTHON" -m ciw.net impact crush export crush-run --output crush-observations.csv
+          "$IMPACT_PYTHON" -m ciw.net impact sweep example --output sweep-request.json
+          if "$IMPACT_PYTHON" -m ciw.net impact sweep run sweep-request.json --output-dir sweep-run > sweep-run.json; then
+            exit 1
+          else
+            test "$?" -eq 2
+          fi
+          for command in inspect verify; do
+            if "$IMPACT_PYTHON" -m ciw.net impact sweep "$command" sweep-run > "sweep-$command.json"; then
+              exit 1
+            else
+              test "$?" -eq 2
+            fi
+          done
+          "$IMPACT_PYTHON" - <<'PYTHON'
+          import json
+          from pathlib import Path
+          for command in ('run', 'inspect', 'verify'):
+              result = json.loads(Path(f'sweep-{command}.json').read_text(encoding='utf-8'))
+              assert result['status'] == 'LOCAL' and result['requirements_status'] == 'FAIL'
+              assert result['case_count'] == 6
+          PYTHON
       - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
         with:
           name: impact-contact-${{ matrix.os }}
