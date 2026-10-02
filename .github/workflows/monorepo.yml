@@ -1,0 +1,43 @@
+name: Public measurement monorepo qualification
+
+on:
+  push:
+    branches: [main]
+    tags: ['**']
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  independent-wheels-and-composition:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install wheel build tooling
+        run: python -m pip install 'setuptools>=77' wheel
+      - name: Qualify independent packages and the existing two-provider adapter
+        run: python scripts/check_monorepo.py --output-dir results/monorepo
+      - name: Retain qualification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: monorepo-qualification-python-${{ matrix.python }}
+          path: results/monorepo/
+          if-no-files-found: error
