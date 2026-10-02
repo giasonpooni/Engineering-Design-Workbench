@@ -7,7 +7,7 @@ from pathlib import Path
 import sys
 
 from .bim_interop import execute_bim_mapping_bundle, validate_bim_mapping_witness
-from .cse_preservation import verify_bim_preservation
+from .cse_preservation import project_bim_states, verify_bim_preservation
 from .control_contracts import load, save_new
 from .control_plane import builtin_registry
 from .semantic_capabilities import builtin_semantic_registry
@@ -34,6 +34,20 @@ def main(argv=None):
     execute.add_argument("--output", type=Path, required=True)
     execute.add_argument("--bundle-output", type=Path, required=True)
 
+    project = commands.add_parser("project-states")
+    project.add_argument("registry", type=Path)
+    project.add_argument("preservation_contract", type=Path)
+    project.add_argument("profile", type=Path)
+    project.add_argument("ingress", type=Path)
+    project.add_argument("ingress_verification", type=Path)
+    project.add_argument("qualification", type=Path)
+    project.add_argument("mapping_witness", type=Path)
+    project.add_argument("bundle", type=Path)
+    project.add_argument("binding", type=Path)
+    project.add_argument("identity_verification", type=Path)
+    project.add_argument("--source-output", type=Path, required=True)
+    project.add_argument("--candidate-output", type=Path, required=True)
+
     verify = commands.add_parser("verify-preservation")
     verify.add_argument("registry", type=Path)
     verify.add_argument("preservation_contract", type=Path)
@@ -45,6 +59,10 @@ def main(argv=None):
     verify.add_argument("bundle", type=Path)
     verify.add_argument("--verification-id", required=True)
     verify.add_argument("--notes", default="")
+    verify.add_argument("--source-state", type=Path)
+    verify.add_argument("--candidate-state", type=Path)
+    verify.add_argument("--binding", type=Path)
+    verify.add_argument("--identity-verification", type=Path)
     verify.add_argument("--output", type=Path, required=True)
 
     inspect = commands.add_parser("inspect")
@@ -87,6 +105,33 @@ def main(argv=None):
             }, indent=2))
             return 0 if value["mapping_outcome"] == "MAPPED" else 2
 
+        if args.command == "project-states":
+            source_state, candidate_state = project_bim_states(
+                load(args.registry),
+                semantic,
+                load(args.preservation_contract),
+                load(args.profile),
+                load(args.ingress),
+                load(args.ingress_verification),
+                load(args.qualification),
+                load(args.mapping_witness),
+                load(args.bundle),
+                load(args.binding),
+                load(args.identity_verification),
+            )
+            save_new(args.source_output, source_state)
+            save_new(args.candidate_output, candidate_state)
+            print(json.dumps({
+                "status": "projected",
+                "source_state_ref": source_state["record_digest"],
+                "candidate_state_ref": candidate_state["record_digest"],
+                "canonical_entity_id": source_state["identity"]["entity_id"],
+                "state_admission_performed": False,
+                "source_output": str(args.source_output),
+                "candidate_output": str(args.candidate_output),
+            }, indent=2))
+            return 0
+
         if args.command == "verify-preservation":
             value = verify_bim_preservation(
                 load(args.registry),
@@ -100,6 +145,10 @@ def main(argv=None):
                 load(args.bundle),
                 verification_id=args.verification_id,
                 notes=args.notes,
+                source_state_record=None if args.source_state is None else load(args.source_state),
+                candidate_state_record=None if args.candidate_state is None else load(args.candidate_state),
+                binding=None if args.binding is None else load(args.binding),
+                identity_verification=None if args.identity_verification is None else load(args.identity_verification),
             )
             save_new(args.output, value)
             print(json.dumps({
