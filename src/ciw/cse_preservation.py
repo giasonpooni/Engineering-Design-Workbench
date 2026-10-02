@@ -404,6 +404,10 @@ def verify_bim_preservation(
     *,
     verification_id: str,
     notes: str = "",
+    source_state_record: dict | None = None,
+    candidate_state_record: dict | None = None,
+    binding: dict | None = None,
+    identity_verification: dict | None = None,
 ) -> dict:
     """Create a typed preservation receipt from scoped native CSE evidence."""
     registry = validate_registry(registry, semantic)
@@ -423,6 +427,23 @@ def verify_bim_preservation(
     observation = _observation(source)
     data = _native_data(bundle)
     source_ref, candidate_ref = _native_state_refs(data)
+    supplied_states = source_state_record is not None or candidate_state_record is not None
+    if supplied_states:
+        if (
+            source_state_record is None or candidate_state_record is None
+            or binding is None or identity_verification is None
+        ):
+            raise ValueError("Typed state verification requires source/candidate states plus identity binding")
+        validate_projected_bim_states(
+            source_state_record,
+            candidate_state_record,
+            witness,
+            bundle,
+            binding,
+            identity_verification,
+        )
+        source_ref = source_state_record["record_digest"]
+        candidate_ref = candidate_state_record["record_digest"]
 
     checks = []
     for property_id in contract["requires"]:
