@@ -61,7 +61,12 @@ def _result_data(bundle: dict) -> dict:
 def _source_from_bundle(bundle: dict) -> dict:
     if type(bundle) is not dict or type(bundle.get("source")) is not dict:
         raise ValueError("BIM session does not retain its source")
-    return bundle["source"]
+    evidence = bundle["source"].get("evidence")
+    if type(evidence) is not list or len(evidence) != 1:
+        raise ValueError("BIM session requires one retained source artifact")
+    import base64
+    raw = base64.b64decode(evidence[0]["bytes_b64"], validate=True)
+    return bim_workflow._source(raw)
 
 
 def _outcome(data: dict) -> str:
@@ -114,7 +119,7 @@ def execute_bim_mapping(
     if qualification["source_identity"]["object_kind"] not in {"CAD_OBJECT", "BIM_OBJECT"}:
         raise ValueError("BIM mapping bridge requires a CAD/BIM external identity")
 
-    ifc_bytes = bim_workflow._source(canonical(source))["ifc_bytes_b64"]
+    ifc_bytes = source["ifc_bytes_b64"]
     # Reuse the workload's own canonical evidence decoder indirectly through the
     # already validated source and compare its exact declared byte commitment.
     import base64
