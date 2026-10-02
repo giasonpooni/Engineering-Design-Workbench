@@ -5,6 +5,8 @@ import json
 import os
 from pathlib import Path
 import runpy
+import subprocess
+import sys
 
 import pytest
 
@@ -364,3 +366,90 @@ def test_preservation_receipt_can_bind_projected_net_states(repositories):
     assert receipt["source_state_ref"] == prior["record_digest"]
     assert receipt["candidate_state_ref"] == candidate["record_digest"]
     assert receipt["claims"]["verification_is_not_admission"] is True
+
+
+def test_projected_states_and_cse_receipt_prepare_transition_envelope_cli(repositories, tmp_path):
+    sem, reg, contract, profile, ingress, verification, qualification, src = setup_objects()
+    witness, bundle = execute_bim_mapping_bundle(
+        reg, sem, contract, profile, ingress, verification, qualification,
+        src, repositories, {"execution_id": "interop.ifc-cse-transition.v1", "notes": ""},
+    )
+    binding, identity_verification = verified_binding(qualification)
+    prior, candidate = project_bim_states(
+        reg, sem, contract, profile, ingress, verification, qualification,
+        witness, bundle, binding, identity_verification,
+    )
+    preservation = verify_bim_preservation(
+        reg, sem, contract, profile, ingress, verification, qualification,
+        witness, bundle,
+        verification_id="interop.ifc-cse-transition-preservation.v1",
+        notes="State-bound preservation receipt for transition-envelope test.",
+        source_state_record=prior,
+        candidate_state_record=candidate,
+        binding=binding,
+        identity_verification=identity_verification,
+    )
+    assert preservation["status"] == "VERIFIED"
+
+    payloads = {
+        "source": prior,
+        "candidate": candidate,
+        "binding": binding,
+        "identity": identity_verification,
+        "registry": reg,
+        "contract": contract,
+        "preservation": preservation,
+    }
+    paths = {}
+    for name, value in payloads.items():
+        path = tmp_path / f"{name}.json"
+        path.write_text(json.dumps(value), encoding="utf-8")
+        paths[name] = path
+
+    policy = {
+        "gate_id": "interop.ifc-cse-transition-gate.v1",
+        "forbidden_forgets": [],
+        "notes": "Quantity-only transition accepts declared loss of solid geometry authority.",
+    }
+    policy_path = tmp_path / "gate-policy.json"
+    policy_path.write_text(json.dumps(policy), encoding="utf-8")
+
+    transition_spec = {
+        "transition_id": "interop.ifc-cse-transition-envelope.v1",
+        "proposer": {
+            "kind": "SOLVER",
+            "proposer_id": "pinned-cse-runtime",
+            "execution_ref": witness["record_digest"],
+            "notes": "CSE produced the candidate; proposer identity grants no admission authority.",
+        },
+        "required_admission_authority": "authority.canonical-state-operator.v1",
+        "notes": "Synthetic end-to-end executable interoperability transition.",
+    }
+    transition_path = tmp_path / "transition-spec.json"
+    transition_path.write_text(json.dumps(transition_spec), encoding="utf-8")
+    gate_path = tmp_path / "gate.json"
+    envelope_path = tmp_path / "envelope.json"
+
+    subprocess.run([
+        sys.executable, "-m", "ciw.net", "transition", "prepare",
+        str(paths["source"]),
+        str(paths["candidate"]),
+        str(paths["binding"]),
+        str(paths["identity"]),
+        str(paths["registry"]),
+        str(paths["contract"]),
+        str(paths["preservation"]),
+        str(policy_path),
+        str(transition_path),
+        "--gate-output", str(gate_path),
+        "--output", str(envelope_path),
+    ], check=True)
+
+    gate = json.loads(gate_path.read_text(encoding="utf-8"))
+    envelope = json.loads(envelope_path.read_text(encoding="utf-8"))
+    assert gate["decision"] == "ELIGIBLE"
+    assert gate["claims"]["state_admission_performed"] is False
+    assert envelope["readiness"] == "READY_FOR_AUTHORITY_REVIEW"
+    assert envelope["source_state_ref"] == prior["record_digest"]
+    assert envelope["candidate_state_ref"] == candidate["record_digest"]
+    assert envelope["claims"]["state_admission_performed"] is False
