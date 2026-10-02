@@ -7,6 +7,7 @@ from pathlib import Path
 import sys
 
 from .bim_interop import execute_bim_mapping, validate_bim_mapping_witness
+from .cse_preservation import verify_bim_preservation
 from .control_contracts import load, save_new
 from .control_plane import builtin_registry
 from .semantic_capabilities import builtin_semantic_registry
@@ -31,6 +32,19 @@ def main(argv=None):
     execute.add_argument("spec", type=Path)
     execute.add_argument("--cse-repository", type=Path, required=True)
     execute.add_argument("--output", type=Path, required=True)
+
+    verify = commands.add_parser("verify-preservation")
+    verify.add_argument("registry", type=Path)
+    verify.add_argument("preservation_contract", type=Path)
+    verify.add_argument("profile", type=Path)
+    verify.add_argument("ingress", type=Path)
+    verify.add_argument("ingress_verification", type=Path)
+    verify.add_argument("qualification", type=Path)
+    verify.add_argument("mapping_witness", type=Path)
+    verify.add_argument("bundle", type=Path)
+    verify.add_argument("--verification-id", required=True)
+    verify.add_argument("--notes", default="")
+    verify.add_argument("--output", type=Path, required=True)
 
     inspect = commands.add_parser("inspect")
     inspect.add_argument("witness", type=Path)
@@ -69,6 +83,32 @@ def main(argv=None):
                 "output": str(args.output),
             }, indent=2))
             return 0 if value["mapping_outcome"] == "MAPPED" else 2
+
+        if args.command == "verify-preservation":
+            value = verify_bim_preservation(
+                load(args.registry),
+                semantic,
+                load(args.preservation_contract),
+                load(args.profile),
+                load(args.ingress),
+                load(args.ingress_verification),
+                load(args.qualification),
+                load(args.mapping_witness),
+                load(args.bundle),
+                verification_id=args.verification_id,
+                notes=args.notes,
+            )
+            save_new(args.output, value)
+            print(json.dumps({
+                "status": value["status"],
+                "verification_id": value["verification_id"],
+                "source_state_ref": value["source_state_ref"],
+                "candidate_state_ref": value["candidate_state_ref"],
+                "checks": value["checks"],
+                "verification_is_not_admission": True,
+                "output": str(args.output),
+            }, indent=2))
+            return 0 if value["status"] == "VERIFIED" else 2
 
         checked = validate_bim_mapping_witness(
             load(args.witness),
