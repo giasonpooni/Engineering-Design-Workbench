@@ -226,6 +226,7 @@ def main(argv: list[str] | None = None) -> int:
         return science_main(argv[1:])
     parser = argparse.ArgumentParser(prog="net", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
+    commands.add_parser("polymer", help="Assess retained molding cycles, inspect metrology and run numerical audits")
     commands.add_parser("compose", help="Compile typed wiring and checked stages into existing NET graphs")
     commands.add_parser("dsp", help="Run and inspect the bounded specialist DSP instrument")
     commands.add_parser("impact", help="Run the bounded elastic contact benchmark with independent verification")

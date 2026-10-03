@@ -34,6 +34,12 @@ operations, provider requirements, recorded checks and remaining qualification.
 Runtime availability, numerical agreement and experimental physical validation
 are separate conditions.
 
+Run `net polymer demo --output-dir polymer-demo` for a saved cycle report and audit,
+or `net polymer qualify --output-dir polymer-qualification` to exercise both
+process profiles and the complete agent workflow. Retained native calibration
+import and the finite qualification evidence are described in the
+[operator guide](docs/POLYMER_PROCESSING.md).
+
 ## One repository, modular instruments
 
 The [engineering monorepo](docs/MONOREPO.md) co-locates 21 imported public modules

@@ -16,6 +16,7 @@ existing benches.
 | Tool and role | Workbench status | Entry point |
 | --- | --- | --- |
 | `analytic-damped-oscillator.v1` | Integrated built-in synthetic instrument | `python -m ciw demo`, `analyze stats`, `analyze spectrum` |
+| Polymer cycle metrology and bounded control | Explicit injection/extrusion-blow quantitative features and retained native calibration ingress, scoped cooling reference, copilot context and toy control; numerical consistency does not establish physical qualification | `net polymer demo`, `qualify`, `summary`, `export`, `run-ingress`; [operator guide](POLYMER_PROCESSING.md), [explicit agent profile](NET_AGENT_PROTOCOL.md#polymer-cycle-profile) |
 | `ciw.julia-oscillator.v1` | Typed Julia `OrdinaryDiffEqTsit5` provider seam; Python analytic oracle and retained replay are implemented, external runtime gate remains explicit. Inspection includes an educational model card; offline what-if previews remain hypothetical until submitted as a new execution. | `ciw julia-oscillator create`, `inspect`, `preview`, `replay`; [Julia operating guide](JULIA_OSCILLATOR.md), [model exploration](MODEL_EXPLORATION.md) |
 | RCI measurement-chain/calibration adapter | Integrated experimental pinned subprocess; synthetic mass fixture | `python -m ciw investigation create`, `inspect`, `replay` |
 | FSRT state-estimation operation | Integrated experimental pinned subprocess; one simultaneous two-reservoir snapshot | Same investigation; shared `operation.execute` after explicit runtime binding |

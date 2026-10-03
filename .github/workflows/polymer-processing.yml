@@ -5,9 +5,11 @@ on:
     paths:
       - 'src/ciw/polymer_*.py'
       - 'src/ciw/net.py'
+      - 'src/ciw/agent_mcp.py'
       - 'src/ciw/session.py'
       - 'src/ciw/operations/**'
       - 'tests/test_polymer_*.py'
+      - 'examples/polymer/**'
       - 'docs/POLYMER*.md'
       - 'pyproject.toml'
       - '.github/workflows/polymer-processing.yml'
@@ -16,9 +18,11 @@ on:
     paths:
       - 'src/ciw/polymer_*.py'
       - 'src/ciw/net.py'
+      - 'src/ciw/agent_mcp.py'
       - 'src/ciw/session.py'
       - 'src/ciw/operations/**'
       - 'tests/test_polymer_*.py'
+      - 'examples/polymer/**'
       - 'pyproject.toml'
       - '.github/workflows/polymer-processing.yml'
   workflow_dispatch:
@@ -44,12 +48,16 @@ jobs:
       - name: Installed CLI injection example
         run: |
           net polymer example --output "$RUNNER_TEMP/injection.json"
-          net polymer run "$RUNNER_TEMP/injection.json" --output-dir "$RUNNER_TEMP/injection"
-          net polymer inspect "$RUNNER_TEMP/injection"
-          net polymer verify "$RUNNER_TEMP/injection"
-          net polymer replay "$RUNNER_TEMP/injection" --output-dir "$RUNNER_TEMP/injection-replay"
+          net polymer run "$RUNNER_TEMP/injection.json" --output-dir "$RUNNER_TEMP/injection" --summary
+          net polymer inspect "$RUNNER_TEMP/injection" --summary
+          net polymer verify "$RUNNER_TEMP/injection" --output "$RUNNER_TEMP/injection-audit.json"
+          net polymer replay "$RUNNER_TEMP/injection" --output-dir "$RUNNER_TEMP/injection-replay" --summary
       - name: Installed CLI blow molding example
         run: |
           net polymer example --process extrusion_blow_molding --output "$RUNNER_TEMP/blow.json"
-          net polymer run "$RUNNER_TEMP/blow.json" --output-dir "$RUNNER_TEMP/blow"
+          net polymer run "$RUNNER_TEMP/blow.json" --output-dir "$RUNNER_TEMP/blow" --summary
           net polymer verify "$RUNNER_TEMP/blow"
+      - name: Complete installed operator and agent qualification
+        run: |
+          net polymer prepare-ingress examples/polymer/native-dimension.template.json --bundle examples/polymer/native-dimension.bundle.json --sensor-id sensor:level --quantity part_dimension --modality vision_3d --max-age-s 2 --output "$RUNNER_TEMP/native-ingress.json"
+          net polymer qualify --ingress "$RUNNER_TEMP/native-ingress.json" --output-dir "$RUNNER_TEMP/polymer-qualification"

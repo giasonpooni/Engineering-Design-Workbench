@@ -254,10 +254,22 @@ def _validate_proposal(request, metrology, value):
     _require(value["limitations"] == CONTROL_LIMITATIONS, "Control limitations differ")
     if status == "ABSTAINED":
         _require(value["reason"] in {"INDETERMINATE_METROLOGY", "MISSING_STALE_OR_AMBIGUOUS_QUALITY_MEASUREMENT", "QUALITY_OUTSIDE_GAIN_DOMAIN_OR_UNCERTAINTY_BUDGET",
+                 "MISSING_OR_AMBIGUOUS_RESPONSE_SPECIFICATION", "RESPONSE_MEASUREMENT_CONDITION_MISMATCH", "UNQUALIFIED_RESPONSE_METROLOGY",
                  "MEASUREMENT_CYCLE_TOO_OLD", "MINIMUM_CYCLE_DWELL_NOT_ELAPSED", "NO_MEASUREMENT_AFTER_PRIOR_ADJUSTMENT"}, "Unknown control abstention")
         return
     _require(status in {"PROPOSED", "NO_CHANGE", "BOUND_LIMITED"}, "Unknown trial status")
     _require(metrology["status"] in {"CONFORMING", "NONCONFORMING"}, "Indeterminate metrology cannot support a trial")
+    specs = [spec for spec in request["tolerances"]
+             if spec["quantity"] == response["quantity"] and spec["unit"] == response["unit"]]
+    _require(len(specs) == 1, "Trial requires one response-specific specification")
+    _require(request["measurement_condition"] == specs[0]["condition"]
+             and metrology["measurement_condition"] == request["measurement_condition"],
+             "Trial response measurement condition differs from its specification")
+    qualities = [item for item in metrology["quantities"]
+                 if item["quantity"] == response["quantity"] and item["unit"] == response["unit"]]
+    _require(len(qualities) == 1 and qualities[0]["status"] in {"CONFORMING", "NONCONFORMING"}
+             and qualities[0]["specification_ref"] == specs[0]["specification_ref"],
+             "Trial requires a determinate specification-bound response quantity")
     last = guard["last_adjustment_cycle_index"]
     _require(guard["current_cycle_index"]-guard["measurement_cycle_index"] <= guard["maximum_measurement_delay_cycles"], "Trial uses a delayed measurement")
     _require(last is None or (guard["current_cycle_index"]-last >= guard["minimum_dwell_cycles"] and guard["measurement_cycle_index"] > last), "Trial precedes dwell or post-adjustment observation")
@@ -472,6 +484,19 @@ def _control_oracle(request, metrology):
     response = control["response"]
     if metrology["status"] == "INDETERMINATE":
         return {"status": "ABSTAINED", "reason": "INDETERMINATE_METROLOGY"}
+    specs = [spec for spec in request["tolerances"]
+             if (spec["quantity"], spec["unit"]) == (response["quantity"], response["unit"])]
+    if len(specs) != 1:
+        return {"status": "ABSTAINED", "reason": "MISSING_OR_AMBIGUOUS_RESPONSE_SPECIFICATION"}
+    # The independent metrology oracle derives its condition from this request;
+    # retained report condition binding is checked by the offline contract.
+    if specs[0]["condition"] != request["measurement_condition"]:
+        return {"status": "ABSTAINED", "reason": "RESPONSE_MEASUREMENT_CONDITION_MISMATCH"}
+    quantities = [item for item in metrology["quantities"]
+                  if (item["quantity"], item["unit"]) == (response["quantity"], response["unit"])]
+    if (len(quantities) != 1 or quantities[0]["status"] not in {"CONFORMING", "NONCONFORMING"}
+            or quantities[0]["specification_ref"] != specs[0]["specification_ref"]):
+        return {"status": "ABSTAINED", "reason": "UNQUALIFIED_RESPONSE_METROLOGY"}
     guard = control["cycle_guard"]
     current_cycle, measured_cycle = guard["current_cycle_index"], guard["measurement_cycle_index"]
     last_cycle = guard["last_adjustment_cycle_index"]

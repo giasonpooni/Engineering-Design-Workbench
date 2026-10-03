@@ -307,3 +307,29 @@ def test_modified_context_without_resealing_fails_content_integrity():
     context["authority"]["plc_write_allowed"] = True
     with pytest.raises(ValueError):
         validate_context(request, report, context)
+
+
+@pytest.mark.parametrize("process,expected_document,excluded_document", [
+    ("injection_molding", "synthetic-injection-quality", "synthetic-blow-quality"),
+    ("extrusion_blow_molding", "synthetic-blow-quality", "synthetic-injection-quality"),
+])
+def test_full_example_has_scoped_evidence_linked_part_dimension_leads(process, expected_document, excluded_document):
+    from ciw.polymer_contract import example_request
+    from ciw.polymer_metrology import assess_metrology
+
+    request = example_request(process)
+    report = {"schema": "ciw.polymer-assessment.v1", "identity": deepcopy(request["identity"]),
+              "process": process, "source_kind": request["source_kind"],
+              "source_ref": content_identity(request), "metrology": assess_metrology(request)}
+    context = build_context(request, report)
+    validate_context(request, report, context)
+    assert context["status"] == "CONTEXT_READY"
+    documents = {row["document_id"]: row for row in context["llm_context"]["untrusted_data"]["documents"]}
+    assert expected_document in documents and excluded_document not in documents
+    assert documents[expected_document]["tool_id"] == request["identity"]["tool_id"]
+    assert documents[expected_document]["material_lot_id"] == request["identity"]["material_lot_id"]
+    assert process in documents[expected_document]["processes"]
+    assert any(row["document_id"] == expected_document and row["quantity"] == "part_dimension"
+               for row in context["ranked_hypotheses"])
+    assert all(row["causal_status"] == "not_established" and row["parameter_changes"] == []
+               for row in context["ranked_hypotheses"])

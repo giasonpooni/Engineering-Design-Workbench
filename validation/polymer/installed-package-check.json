@@ -1,0 +1,136 @@
+{
+  "schema": "ciw.polymer-installed-package-check.v1",
+  "status": "PASS",
+  "import_path": "/tmp/polymer-final-installed-c53383586a0d/lib/python3.12/site-packages/ciw/__init__.py",
+  "python": "3.12.14",
+  "wheel_sha256": "db19069a2d9657505755204f0e02c985dcf2279af49d7a50288bfcdcaca7bca9",
+  "checks": [
+    "installed fixed contracts",
+    "fixed_tool_contracts",
+    "extrusion_blow_molding:complete_and_numerically_verified",
+    "extrusion_blow_molding:part_nonconformance_separate",
+    "extrusion_blow_molding:scoped_copilot_context",
+    "extrusion_blow_molding:replay_evidence_and_fresh_occurrences",
+    "extrusion_blow_molding:fresh_read_only_audit",
+    "extrusion_blow_molding:complete_typed_agent_graph",
+    "extrusion_blow_molding:idempotent_agent_retry",
+    "extrusion_blow_molding:fresh_agent_replay",
+    "injection_molding:complete_and_numerically_verified",
+    "injection_molding:part_nonconformance_separate",
+    "injection_molding:scoped_copilot_context",
+    "injection_molding:replay_evidence_and_fresh_occurrences",
+    "injection_molding:fresh_read_only_audit",
+    "injection_molding:complete_typed_agent_graph",
+    "injection_molding:idempotent_agent_retry",
+    "injection_molding:fresh_agent_replay",
+    "native_ingress:retention_audit_and_replay",
+    "malformed_ingress_refused",
+    "injection_molding:installed CLI summary and saved receipt",
+    "extrusion_blow_molding:installed CLI summary and saved receipt",
+    "installed MCP stdio complete graph, idempotent retry and fresh replay"
+  ],
+  "qualification": {
+    "schema": "ciw.polymer-tool-qualification.v1",
+    "status": "PASS",
+    "scope": "finite_installed_reference_workflows_not_physical_validation",
+    "checks": [
+      {
+        "name": "fixed_tool_contracts",
+        "passed": true
+      },
+      {
+        "name": "extrusion_blow_molding:complete_and_numerically_verified",
+        "passed": true
+      },
+      {
+        "name": "extrusion_blow_molding:part_nonconformance_separate",
+        "passed": true
+      },
+      {
+        "name": "extrusion_blow_molding:scoped_copilot_context",
+        "passed": true
+      },
+      {
+        "name": "extrusion_blow_molding:replay_evidence_and_fresh_occurrences",
+        "passed": true
+      },
+      {
+        "name": "extrusion_blow_molding:fresh_read_only_audit",
+        "passed": true
+      },
+      {
+        "name": "extrusion_blow_molding:complete_typed_agent_graph",
+        "passed": true
+      },
+      {
+        "name": "extrusion_blow_molding:idempotent_agent_retry",
+        "passed": true
+      },
+      {
+        "name": "extrusion_blow_molding:fresh_agent_replay",
+        "passed": true
+      },
+      {
+        "name": "injection_molding:complete_and_numerically_verified",
+        "passed": true
+      },
+      {
+        "name": "injection_molding:part_nonconformance_separate",
+        "passed": true
+      },
+      {
+        "name": "injection_molding:scoped_copilot_context",
+        "passed": true
+      },
+      {
+        "name": "injection_molding:replay_evidence_and_fresh_occurrences",
+        "passed": true
+      },
+      {
+        "name": "injection_molding:fresh_read_only_audit",
+        "passed": true
+      },
+      {
+        "name": "injection_molding:complete_typed_agent_graph",
+        "passed": true
+      },
+      {
+        "name": "injection_molding:idempotent_agent_retry",
+        "passed": true
+      },
+      {
+        "name": "injection_molding:fresh_agent_replay",
+        "passed": true
+      },
+      {
+        "name": "native_ingress:retention_audit_and_replay",
+        "passed": true
+      },
+      {
+        "name": "malformed_ingress_refused",
+        "passed": true
+      }
+    ],
+    "native_ingress_ref": "sha256:520ec494d6316d733a3068a5fa66f33dc9c168f72c291e076c76a4ac0f330798",
+    "runtime": {
+      "provider": "ciw.polymer.qualification",
+      "version": "1",
+      "code_sha256": "f918f58c81a2ae2c31a598a0c37d4220ab8a28acdb2853bc252e670dc38c2856",
+      "source_normalization": "utf8_lf",
+      "scope": "retained_cycle_reference_models_and_simulated_control_only",
+      "environment": {
+        "python": "3.12.14",
+        "floating_point": "binary64"
+      }
+    },
+    "authority": {
+      "physical_validation": "not_established",
+      "calibration_traceability": "not_established",
+      "structural_acceptance": "not_established",
+      "state_admission": "not_performed",
+      "hardware_actuation": "not_performed",
+      "llm_inference": "not_performed"
+    }
+  },
+  "scope": "installed reference workflows and retained native calibration ingress; no physical validation"
+}
