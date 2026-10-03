@@ -176,7 +176,7 @@ physical measurement validation or device permission.
 
 Unqualified dependencies remain visible: the exact original private GTE
 comparisons in CBSR; private DAF reproduction checks in FlowState; optional BIM
-corpus, USD/IFC and private PLSR checks where not provisioned. Gate reports name
+private PLSR checks and the unavailable JSPT Grams guest interface. Public USD/IFC SDKs and the original three-model corpus are qualified separately; six implemented public JSPT covariance/quantity checks retain their own scope. Gate reports name
 their skipped tests and reasons, and reject unexpected skips. Public slow
 FlowState reproduction is qualified only when its separate lane actually runs.
 Private Periodic Space integration paths remain unqualified. Native-host

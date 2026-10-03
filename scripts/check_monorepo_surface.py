@@ -16,6 +16,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import re
 import shutil
 import subprocess
 import sys
@@ -45,6 +46,7 @@ SCOPE = (
     "calibration, independent verification, state admission, machine or acquisition authority."
 )
 NET_SELECTION = "not flat-torus-reference and not oblique_lattice"
+RETAINED_PHASES = ("full_scientific_suite", "original_lint_passed", "original_entrypoints", "regeneration")
 
 
 def _run(arguments, *, cwd: Path, log: Path, bindings=None, timeout=600) -> str:
@@ -285,10 +287,101 @@ print(json.dumps({'cases':results,'independent_verification':False,'admission':'
 '''
 
 
+def qualify_remaining(report: dict, python: Path, temporary: Path, suite: Path, source: Path,
+                      runtime: Path, uv: str, output: Path, log: Path) -> None:
+    deterministic = output / "surface-determinism.json"
+    _run([python,"-I",suite / "tools/e2e.py","--runs","5","--profile","fast",
+          "--baseline","self","--report",deterministic],cwd=temporary,log=log,timeout=3600)
+    cycles = json.loads(deterministic.read_text())
+    if (cycles["runs"],cycles["passed"],cycles["failed"],cycles["profile"],cycles["baseline"]) != (5,5,0,"fast","self"):
+        raise AssertionError("Original Surface five-cycle same-machine determinism failed")
+    if len(cycles["cycles"]) != 5 or not all(item["passed"] and len(item["steps"]) == 6 for item in cycles["cycles"]):
+        raise AssertionError("Determinism must execute each original fast-profile step")
+    report["determinism"] = {"report":str(deterministic),"sha256":sha256(deterministic.read_bytes()).hexdigest(),
+        "runs":5,"passed":5,"profile":"fast","baseline":"self",
+        "hash_seeds":[item["hash_seed"] for item in cycles["cycles"]],
+        "thread_counts":[item["threads"] for item in cycles["cycles"]],
+        "execution_scope":"Unchanged original profile from complete copied source; experiment bootstrap selects its original src, other entry points use the installed wheel",
+        "full_profile_repeated_suite":"not_performed; complete suite and both-stage regeneration executed separately"}
+    locked = temporary / "surface-locked"; _copy_source(source,locked)
+    lock_bytes = (locked / "uv.lock").read_bytes()
+    locked_env = temporary / "locked-environment"
+    bindings = {"UV_PROJECT_ENVIRONMENT":locked_env,"UV_PYTHON_DOWNLOADS":"never"}
+    report["uv_version"] = _run([uv,"--version"],cwd=temporary,log=log).strip()
+    _run([uv,"sync","--locked","--extra","dev","--python",sys.executable],cwd=locked,log=log,bindings=bindings,timeout=900)
+    locked_python = locked_env / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
+    _run([locked_python,"-I","-m","ruff","check","."],cwd=locked,log=log)
+    junit = output / "surface-locked-contracts.xml"
+    _run([locked_python,"-I","-m","pytest","-q","-rs","-m","not numerical","--junitxml",junit],cwd=locked,log=log,timeout=900)
+    locked_skips = json.loads(_run([locked_python,"-I","-c",_EXPECTED_SKIPS,locked],cwd=temporary,log=log))
+    if (locked / "uv.lock").read_bytes() != lock_bytes:
+        raise AssertionError("The original frozen dependency lock changed")
+    report["original_locked_lane"] = {**_surface_junit(junit,locked_skips),
+        "uv_lock_sha256":sha256(lock_bytes).hexdigest(),"frozen_resolution_reproduced":True,
+        "source_editable_contract_suite":True,"original_lint_passed":True}
+    integrations = temporary / "terminal-integrations"; (integrations / "tests").mkdir(parents=True)
+    names = ("test_geodesic_reference.py","test_curved_path_study.py")
+    for name in names:
+        shutil.copyfile(ROOT / "tests" / name,integrations / "tests" / name)
+    shutil.copytree(ROOT / "examples",integrations / "examples")
+    (integrations / "scripts").mkdir()
+    shutil.copyfile(ROOT / "scripts/check_curved_path_study.py",integrations / "scripts/check_curved_path_study.py")
+    junit = output / "terminal-surface-tests.xml"
+    native_outputs = output / "native-geodesic-fixtures"
+    bindings = {"CIW_CSG_REPO":runtime,"CIW_GEODESIC_FIXTURE_DIR":native_outputs}
+    _run([python,"-I","-m","pytest","-q","--import-mode=importlib","-k",NET_SELECTION,
+          "--junitxml",junit,"tests"],cwd=integrations,log=log,bindings=bindings,timeout=1200)
+    report["terminal_integration_tests"] = {**_junit(junit),"selection":NET_SELECTION,
+        "unchanged_test_hashes":{name:sha256((ROOT / "tests" / name).read_bytes()).hexdigest() for name in names},
+        "private_periodic_space_provider_qualified":False}
+    configuration = temporary / "net-replay.json"
+    configuration.write_text(json.dumps({"provider":str(runtime),
+        "source":str(integrations / "examples/geodesic-reference/curved-path.json"),
+        "output":str(output / "retained-replays")}))
+    report["native_replay"] = json.loads(_run([python,"-I","-c",_NET_REPLAY,configuration],cwd=temporary,log=log,timeout=600))
+    report["post_execution_imports"] = verify_imports(ROOT)
+    if _git(ROOT,"rev-parse","HEAD") != report["terminal_revision"]:
+        raise ValueError("Terminal HEAD changed during Surface qualification")
+
+
+def _tooling_hashes() -> dict:
+    return {name:sha256((ROOT / "scripts" / name).read_bytes()).hexdigest()
+            for name in ("check_monorepo_surface.py","check_monorepo.py","monorepo.py")}
+
+
+def _terminal_input_proof(revision: str) -> dict:
+    """Compare relevant current file bytes with a named historical commit."""
+    paths = ("src","pyproject.toml","README.md","LICENSE","examples",
+             "tests/test_geodesic_reference.py","tests/test_curved_path_study.py",
+             "scripts/check_curved_path_study.py")
+    records = {}
+    for line in _git(ROOT,"ls-tree","-r",revision,"--",*paths).splitlines():
+        metadata,name = line.split("\t",1)
+        mode,kind,digest = metadata.split()
+        path = ROOT / name
+        if kind != "blob" or mode not in ("100644","100755") or not path.is_file():
+            raise ValueError("Unsupported or missing retained Terminal input: "+name)
+        if _git(ROOT,"hash-object","--no-filters","--",str(path)) != digest:
+            raise ValueError("Terminal input bytes changed since retained evidence: "+name)
+        records[name] = {"git_blob":digest,"sha256":sha256(path.read_bytes()).hexdigest()}
+    if not records or not any(name.startswith("src/") for name in records):
+        raise ValueError("Historical Terminal inputs must be nonempty")
+    # Detect an untracked/new source or example addition as well as mutations.
+    for root in ("src","examples"):
+        actual = {path.relative_to(ROOT).as_posix() for path in (ROOT / root).rglob("*")
+                  if path.is_file() and "__pycache__" not in path.parts and path.suffix != ".pyc"}
+        if actual != {name for name in records if name.startswith(root+"/")}:
+            raise ValueError("Terminal input file set changed since retained evidence: "+root)
+    return {"historical_revision":revision,"current_revision":_git(ROOT,"rev-parse","HEAD"),
+            "unchanged_file_bytes":records}
+
+
 def qualify(args, report: dict, output: Path, log: Path) -> None:
     if sys.version_info < (3, 11):
         raise ValueError("Surface requires Python 3.11 or newer")
     report["imports"] = verify_imports(ROOT)
+    report["tooling_sha256"] = _tooling_hashes()
+    report["terminal_input_proof"] = _terminal_input_proof(report["terminal_revision"])
     module = {item["role"]: item for item in load_manifest(ROOT)["modules"]}["csg"]
     if (module["import_revision"], module["runtime_revision"]) != (SURFACE_REVISION, SURFACE_RUNTIME_REVISION):
         raise ValueError("Surface qualification requires the reviewed green import and unchanged NET runtime pin")
@@ -328,7 +421,8 @@ def qualify(args, report: dict, output: Path, log: Path) -> None:
         report["original_lint_passed"] = True
         # Original run_experiment.py inserts its sibling src directory. Run the
         # unchanged entry points from a fixture copy without that directory, so
-        # both it and the unchanged determinism harness import the wheel.
+        # regeneration imports the wheel. The original determinism profile
+        # uses a complete source copy, including Ruff's first-party module map.
         entrypoints = temporary / "surface-entrypoints"; _copy_source(source,entrypoints)
         shutil.rmtree(entrypoints / "src")
         artifacts = output / "regenerated"; artifacts.mkdir()
@@ -346,73 +440,206 @@ def qualify(args, report: dict, output: Path, log: Path) -> None:
             report["original_entrypoints"][name] = {"source_sha256":sha256(path.read_bytes()).hexdigest(),
                 "output":str(retained),"output_sha256":sha256(retained.read_bytes()).hexdigest()}
         report["regeneration"] = json.loads(_run([python,"-I","-c",_ARTEFACTS,artifacts,source],cwd=temporary,log=log))
-        deterministic = output / "surface-determinism.json"
-        _run([python,"-I",entrypoints / "tools/e2e.py","--runs","5","--profile","fast",
-              "--baseline","self","--report",deterministic],cwd=temporary,log=log,timeout=3600)
-        cycles = json.loads(deterministic.read_text())
-        if (cycles["runs"],cycles["passed"],cycles["failed"],cycles["profile"],cycles["baseline"]) != (5,5,0,"fast","self"):
-            raise AssertionError("Original Surface five-cycle same-machine determinism failed")
-        if len(cycles["cycles"]) != 5 or not all(item["passed"] and len(item["steps"]) == 6 for item in cycles["cycles"]):
-            raise AssertionError("Determinism must execute each original fast-profile step")
-        report["determinism"] = {"report":str(deterministic),"sha256":sha256(deterministic.read_bytes()).hexdigest(),
-            "runs":5,"passed":5,"profile":"fast","baseline":"self",
-            "hash_seeds":[item["hash_seed"] for item in cycles["cycles"]],
-            "thread_counts":[item["threads"] for item in cycles["cycles"]],
-            "full_profile_repeated_suite":"not_performed; complete suite and both-stage regeneration executed separately"}
-        locked = temporary / "surface-locked"; _copy_source(source,locked)
-        lock_bytes = (locked / "uv.lock").read_bytes()
-        locked_env = temporary / "locked-environment"
-        bindings = {"UV_PROJECT_ENVIRONMENT":locked_env,"UV_PYTHON_DOWNLOADS":"never"}
-        report["uv_version"] = _run([uv,"--version"],cwd=temporary,log=log).strip()
-        _run([uv,"sync","--locked","--extra","dev","--python",sys.executable],cwd=locked,log=log,bindings=bindings,timeout=900)
-        locked_python = locked_env / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
-        _run([locked_python,"-I","-m","ruff","check","."],cwd=locked,log=log)
-        junit = output / "surface-locked-contracts.xml"
-        _run([locked_python,"-I","-m","pytest","-q","-rs","-m","not numerical","--junitxml",junit],cwd=locked,log=log,timeout=900)
-        locked_skips = json.loads(_run([locked_python,"-I","-c",_EXPECTED_SKIPS,locked],cwd=temporary,log=log))
-        if (locked / "uv.lock").read_bytes() != lock_bytes:
-            raise AssertionError("The original frozen dependency lock changed")
-        report["original_locked_lane"] = {**_surface_junit(junit,locked_skips),
-            "uv_lock_sha256":sha256(lock_bytes).hexdigest(),"frozen_resolution_reproduced":True,
-            "source_editable_contract_suite":True,"original_lint_passed":True}
-        integrations = temporary / "terminal-integrations"; (integrations / "tests").mkdir(parents=True)
-        names = ("test_geodesic_reference.py","test_curved_path_study.py")
-        for name in names:
-            shutil.copyfile(ROOT / "tests" / name,integrations / "tests" / name)
-        shutil.copytree(ROOT / "examples",integrations / "examples")
-        (integrations / "scripts").mkdir()
-        shutil.copyfile(ROOT / "scripts/check_curved_path_study.py",integrations / "scripts/check_curved_path_study.py")
-        junit = output / "terminal-surface-tests.xml"
-        native_outputs = output / "native-geodesic-fixtures"
-        bindings = {"CIW_CSG_REPO":runtime,"CIW_GEODESIC_FIXTURE_DIR":native_outputs}
-        _run([python,"-I","-m","pytest","-q","--import-mode=importlib","-k",NET_SELECTION,
-              "--junitxml",junit,"tests"],cwd=integrations,log=log,bindings=bindings,timeout=1200)
-        report["terminal_integration_tests"] = {**_junit(junit),"selection":NET_SELECTION,
-            "unchanged_test_hashes":{name:sha256((ROOT / "tests" / name).read_bytes()).hexdigest() for name in names},
-            "private_periodic_space_provider_qualified":False}
-        configuration = temporary / "net-replay.json"
-        configuration.write_text(json.dumps({"provider":str(runtime),
-            "source":str(integrations / "examples/geodesic-reference/curved-path.json"),
-            "output":str(output / "retained-replays")}))
-        report["native_replay"] = json.loads(_run([python,"-I","-c",_NET_REPLAY,configuration],cwd=temporary,log=log,timeout=600))
-        report["post_execution_imports"] = verify_imports(ROOT)
+        qualify_remaining(report,python,temporary,suite,source,runtime,uv,output,log)
+
+
+def _initial_fixture_failure(previous: dict, failed_cycles: dict) -> None:
+    """Accept only the observed original src-free Ruff classification fault."""
+    error = previous.get("error", {})
+    message = error.get("message", "")
+    if (not isinstance(previous.get("verification_id"),str)
+            or not re.fullmatch(r"verification:[0-9a-f]{32}",previous["verification_id"])
+            or not isinstance(previous.get("terminal_revision"),str)
+            or not re.fullmatch(r"[0-9a-f]{40}",previous["terminal_revision"])):
+        raise ValueError("Retained evidence requires a canonical verification ID and immutable full commit ID")
+    if (not isinstance(failed_cycles,dict)
+            or previous.get("schema") != "notations.monorepo-surface-gate.v1"
+            or previous.get("status") != "failed" or error.get("type") != "RuntimeError"
+            or previous.get("original_lint_passed") is not True
+            or not all(name in previous for name in RETAINED_PHASES)
+            or any(name in previous for name in ("determinism","original_locked_lane",
+                                                 "terminal_integration_tests","native_replay"))
+            or not re.match(r"Command failed \(1\): [^\n]+ -I [^\n]+/surface-entrypoints/tools/e2e\.py --runs 5\n",message)
+            or message.count("<- lint: ruff exited 1:") != 5
+            or not all(signature in message for signature in (
+                "first failure, cycle 1 (seed 1001), step lint:",
+                "0/5 cycles passed (fast profile", "help: Organize imports",
+                "Found 30 errors.\n[*] 30 fixable with the `--fix` option."))):
+        raise ValueError("Resume requires the original src-free determinism lint fixture failure")
+    if tuple(failed_cycles.get(name) for name in ("runs","passed","failed","profile","baseline")) != (5,0,5,"fast","self"):
+        raise ValueError("Resume requires five original fast/self cycles failing only at lint")
+    cycles = failed_cycles.get("cycles", [])
+    if len(cycles) != 5:
+        raise ValueError("The original failed determinism evidence is incomplete")
+    for index,cycle in enumerate(cycles,1):
+        steps = cycle.get("steps", [])
+        if (cycle.get("cycle") != index or cycle.get("hash_seed") != 1000+index
+                or cycle.get("profile") != "fast" or cycle.get("passed") is not False
+                or len(steps) != 2 or steps[0].get("step") != "import"
+                or steps[0].get("passed") is not True or steps[0].get("detail") != "0.3.0"
+                or steps[1].get("step") != "lint" or steps[1].get("passed") is not False):
+            raise ValueError("Resume cannot retain a numerical, import or boundary determinism failure")
+        detail = steps[1].get("detail", "")
+        # The unchanged harness retains only Ruff's final lines; the I001 code
+        # itself is truncated, but these exact import-organization diagnostics
+        # and all 30 fixable errors survive in every cycle.
+        if (not detail.startswith("ruff exited 1:\n") or "help: Organize imports" not in detail
+                or "Found 30 errors.\n[*] 30 fixable with the `--fix` option." not in detail):
+            raise ValueError("Resume requires the observed Ruff import-classification signature")
+
+
+def resume_remaining(args, report: dict, previous: dict, prefix: Path,
+                     output: Path, log: Path) -> None:
+    """Recheck completed evidence, then retry the unchanged remaining profiles.
+
+    This is for the initial gate-fixture fixes, after full scientific tests and
+    wheel regeneration passed. It cannot resume an incomplete or failed science
+    suite, and every remaining check executes rather than being cached.
+    """
+    failed_path = prefix / "surface-determinism.json"
+    failed_bytes = failed_path.read_bytes()
+    _initial_fixture_failure(previous,json.loads(failed_bytes))
+    if verify_imports(ROOT) != previous.get("imports"):
+        raise ValueError("Preserved module identities changed since the completed checks")
+    if previous.get("python_version") != sys.version or previous.get("platform") != platform.platform():
+        raise ValueError("Retained scientific evidence requires the same Python and platform")
+    report["imports"] = verify_imports(ROOT)
+    module = {item["role"]:item for item in load_manifest(ROOT)["modules"]}["csg"]
+    if previous["module"] != module:
+        raise ValueError("Retained Surface module declaration changed")
+    report["module"] = module
+    report["terminal_input_proof"] = _terminal_input_proof(previous["terminal_revision"])
+    report["tooling_sha256"] = _tooling_hashes()
+    report["prefix_evidence"].update({"failed_determinism":{"path":str(failed_path),
+        "sha256":sha256(failed_bytes).hexdigest()},"payload":{name:previous[name] for name in RETAINED_PHASES},
+        "original_wheels":previous["wheels"],"original_wheel_boundary":previous["wheel_boundary"],
+        "original_tooling_sha256":previous.get("tooling_sha256","not_recorded_by_initial_gate")})
+    uv = str(args.uv) if args.uv else shutil.which("uv")
+    if uv is None:
+        raise RuntimeError("The original locked Surface lane requires uv")
+    with tempfile.TemporaryDirectory(prefix="notations-surface-resume-") as directory, ExitStack() as contexts:
+        temporary = Path(directory)
+        source = contexts.enter_context(provider_worktrees(ROOT,revisions="import",roles=["csg"]))["csg"]
+        runtime = contexts.enter_context(provider_worktrees(ROOT,revisions="runtime",roles=["csg"]))["csg"]
+        if (_git(source,"rev-parse","HEAD"),_git(runtime,"rev-parse","HEAD")) != (
+                SURFACE_REVISION,SURFACE_RUNTIME_REVISION):
+            raise ValueError("Surface source or historical execution binding changed")
+        hashes = {str(path.relative_to(source)):sha256(path.read_bytes()).hexdigest()
+                  for path in sorted((source / "tests").rglob("*.py"))}
+        suite_record = previous["full_scientific_suite"]
+        if hashes != suite_record["original_test_hashes"]:
+            raise ValueError("Original full-suite test bytes changed")
+        junit = Path(suite_record["junit"])
+        if sha256(junit.read_bytes()).hexdigest() != suite_record["junit_sha256"]:
+            raise ValueError("Completed full-suite evidence changed")
+        for name,digest in previous["regeneration"]["files"].items():
+            if sha256((prefix / "regenerated" / name).read_bytes()).hexdigest() != digest:
+                raise ValueError("Completed regenerated artefact changed")
+        python = _python(temporary / "wheel-environment",temporary,log)
+        build = temporary / "surface-build"; _copy_source(source,build)
+        surface = _surface_wheel(python,build,temporary / "surface-wheel",log)
+        terminal = temporary / "terminal-build"; terminal.mkdir()
+        for name in ("pyproject.toml","README.md","LICENSE"):
+            shutil.copyfile(ROOT / name,terminal / name)
+        shutil.copytree(ROOT / "src",terminal / "src")
+        ciw = _wheel(python,terminal,temporary / "terminal-wheel",log)
+        _run([python,"-I","-m","pip","install","--no-deps",surface["path"],ciw["path"]],cwd=temporary,log=log)
+        expected = {"geodesic_testbed":{key:surface[key] for key in ("distribution","version")},
+                    "ciw":{key:ciw[key] for key in ("distribution","version")}}
+        installation = json.loads(_run([python,"-I","-c",_IMPORT_PROBE,json.dumps(expected)],cwd=temporary,log=log))
+        boundary = json.loads(_run([python,"-I","-c",_WHEEL_BOUNDARY],cwd=temporary,log=log))
+        for key in ("numpy","pytest","matplotlib","version"):
+            if boundary[key] != previous["wheel_boundary"][key]:
+                raise ValueError("Completed scientific execution dependency identity changed")
+        if surface["sha256"] != previous["wheels"]["surface"]["sha256"]:
+            raise ValueError("Retained Surface wheel bytes changed")
+        report["installed_packages"] = installation
+        report["wheel_boundary"] = boundary
+        report["wheels"] = {name:{key:value for key,value in wheel.items() if key != "path"}
+                            for name,wheel in (("surface",surface),("terminal",ciw))}
+        suite = temporary / "surface-suite"; _copy_source(source,suite)
+        skips = json.loads(_run([python,"-I","-c",_EXPECTED_SKIPS,suite],cwd=temporary,log=log))
+        confirmed = _surface_junit(junit,skips)
+        if confirmed["tests"] != 799 or any(confirmed[key] != suite_record[key] for key in (
+                "tests","passed","skipped","errors","failures")):
+            raise ValueError("Full original scientific suite was not completely successful")
+        if set(previous["original_entrypoints"]) != {
+                "run_experiment.py","write_reference_report.py",
+                "emit_boundary_record.py","replay_path_artefact.py"}:
+            raise ValueError("Retained original entrypoint evidence is incomplete")
+        for name,item in previous["original_entrypoints"].items():
+            if (sha256((source / "examples" / name).read_bytes()).hexdigest() != item["source_sha256"]
+                    or sha256(Path(item["output"]).read_bytes()).hexdigest() != item["output_sha256"]):
+                raise ValueError("Retained original entrypoint source or output changed")
+        artifacts = json.loads(_run([python,"-I","-c",_ARTEFACTS,prefix / "regenerated",source],cwd=temporary,log=log))
+        if artifacts != previous["regeneration"]:
+            raise ValueError("Regenerated numerical and boundary evidence changed")
+        report["gate_retry"] = {"prior_error":previous["error"],
+            "reason":"Corrected original src-free determinism fixture; exact lint-only fault accepted",
+            "retained_revalidated_phases":list(RETAINED_PHASES),
+            "executed_remaining_phases":["determinism","original_locked_lane","terminal_integration_tests","native_replay"]}
+        for name in RETAINED_PHASES:
+            report[name] = previous[name]
+        report["phase_provenance"] = {name:{"execution":"retained_and_revalidated",
+            "verification_id":previous["verification_id"],"terminal_revision":previous["terminal_revision"],
+            "report_sha256":report["prefix_evidence"]["report"]["sha256"]} for name in RETAINED_PHASES}
+        qualify_remaining(report,python,temporary,suite,source,runtime,uv,output,log)
+        report["phase_provenance"].update({name:{"execution":"executed_fresh",
+            "verification_id":report["verification_id"],"terminal_revision":report["terminal_revision"]}
+            for name in report["gate_retry"]["executed_remaining_phases"]})
 
 
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--output-dir",type=Path,default=ROOT / "results/monorepo-surface")
     parser.add_argument("--uv",type=Path,help="uv executable for the original locked contract lane")
+    parser.add_argument("--resume-remaining",action="store_true",
+                        help="Revalidate successful science/artifact evidence after the initial fixture failure, then rerun remaining profiles")
+    parser.add_argument("--resume-from",type=Path,
+                        help="Original failed report to preserve and revalidate; defaults to output-dir/report.json")
     args = parser.parse_args(argv)
+    if args.resume_from and not args.resume_remaining:
+        parser.error("--resume-from requires --resume-remaining")
     output = args.output_dir.expanduser().resolve(); output.mkdir(parents=True,exist_ok=True)
-    log = output / "commands.log"; log.write_text("")
+    verification_id = "verification:"+uuid.uuid4().hex
+    execution_output = output / ("resume-"+verification_id.split(":",1)[1]) if args.resume_remaining else output
+    execution_output.mkdir(exist_ok=True)
+    log = execution_output / "commands.log"
     report = {"schema":"notations.monorepo-surface-gate.v1","status":"running",
-        "verification_id":"verification:"+uuid.uuid4().hex,
+        "verification_id":verification_id,
         "created_at":datetime.now(timezone.utc).isoformat(),"terminal_revision":_git(ROOT,"rev-parse","HEAD"),
         "python_version":sys.version,"platform":platform.platform(),"minimum_python":"3.11",
         "dependencies":REQUIREMENTS,"claim_scope":SCOPE,"independent_verification":False,
         "admission":"not_performed","log":str(log)}
     try:
-        qualify(args,report,output,log)
+        if args.resume_remaining:
+            previous_path = args.resume_from.expanduser().resolve() if args.resume_from else output / "report.json"
+            old_bytes = previous_path.read_bytes()
+            old_digest = sha256(old_bytes).hexdigest()
+            snapshot = output / ("previous-report-"+old_digest+".json")
+            if snapshot.exists():
+                if snapshot.read_bytes() != old_bytes:
+                    raise ValueError("Historical report snapshot bytes changed")
+            else:
+                with snapshot.open("xb") as stream:
+                    stream.write(old_bytes)
+            previous = json.loads(old_bytes)
+            if not isinstance(previous,dict):
+                raise ValueError("Historical Surface report must be a JSON object")
+            if not isinstance(previous.get("log"),str):
+                raise ValueError("Historical Surface report must identify its original command log")
+            report["prefix_evidence"] = {"report":{"path":str(snapshot),"sha256":old_digest,
+                "original_path":str(previous_path),
+                "verification_id":previous.get("verification_id"),"terminal_revision":previous.get("terminal_revision"),
+                "created_at":previous.get("created_at"),"status":previous.get("status")},
+                "previous_log":{"path":previous.get("log"),
+                    "sha256":sha256(Path(previous["log"]).read_bytes()).hexdigest()},
+                "new_execution_output":str(execution_output)}
+            log.write_text("")
+            resume_remaining(args,report,previous,previous_path.parent,execution_output,log)
+        else:
+            log.write_text("")
+            qualify(args,report,output,log)
     except Exception as error:
         report.update(status="failed",error={"type":type(error).__name__,"message":str(error)})
         print("Surface gate failed:",error,file=sys.stderr)
@@ -421,6 +648,8 @@ def main(argv=None) -> int:
         print("Surface gate passed: full installed-wheel suite, numerical regeneration, locked contracts and exact NET replay")
     finally:
         (output / "report.json").write_text(json.dumps(report,sort_keys=True,indent=2)+"\n")
+        if args.resume_remaining:
+            (execution_output / "report.json").write_text(json.dumps(report,sort_keys=True,indent=2)+"\n")
     return 0 if report["status"] == "passed" else 1
 
 
