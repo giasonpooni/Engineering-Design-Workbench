@@ -8,7 +8,7 @@ import pytest
 
 from ciw.control_contracts import bytes_ref, load, save_new
 from ciw.core.identities import content_identity
-from ciw.foundry_project import FILES, PROJECT, GodotProjectBinding, snapshot, validate_lock
+from ciw.foundry_project import FILES, DEPENDENCY_FILES, PROJECT, GodotProjectBinding, snapshot, validate_lock
 from ciw import foundry_water as water
 from ciw import foundry_workflow as workflow
 from ciw.production import run_production
@@ -209,3 +209,92 @@ def test_resealed_worker_pass_cannot_change_retained_acceptance(case, tmp_path):
 def test_net_cli_dispatch(case, tmp_path):
     from ciw.net import main
     assert main(["foundry", "compile", "1792.water-round.v1", "--game-root", str(case[0]), "--output-dir", str(tmp_path / "order")]) == 0
+
+
+def test_current_title_dependencies_are_explicitly_locked(case, tmp_path):
+    game, legacy_lock, _ = case
+    for owner, dependency in zip(("childhood/childhood_state.gd", "territory/misl_rules.gd"), DEPENDENCY_FILES):
+        (game / owner).write_text('extends RefCounted\nconst Rule = preload("res://' + dependency + '")\n')
+        target = game / dependency
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text("# CURRENT TITLE DEPENDENCY TEST DOUBLE\nextends RefCounted\n")
+    lock, sources = snapshot(game)
+    assert set(sources) == set(FILES) | set(DEPENDENCY_FILES)
+    assert lock["files"] == {name: bytes_ref(raw) for name, raw in sources.items()}
+    assert lock["source_lock_id"] != legacy_lock["source_lock_id"]
+    validate_lock(lock)
+    validate_lock(legacy_lock)  # Existing retained eleven-file evidence remains readable.
+    executable = tmp_path / "fake-godot"
+    executable.write_bytes(b"not executable test fixture")
+    binding = GodotProjectBinding(executable, game, expected_sha256=bytes_ref(executable.read_bytes()), source_lock=lock)
+    assert binding.sources == sources
+    (game / DEPENDENCY_FILES[0]).write_text("changed since compilation")
+    with pytest.raises(ValueError, match="changed since the work order"):
+        GodotProjectBinding(executable, game, expected_sha256=bytes_ref(executable.read_bytes()), source_lock=lock)
+
+
+def test_unreferenced_optional_rules_do_not_change_legacy_lock(case):
+    game, legacy_lock, _ = case
+    for name in DEPENDENCY_FILES:
+        target = game / name
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text("# NOT IN THIS WORKLOAD\nextends RefCounted\n")
+    lock, sources = snapshot(game)
+    assert lock == legacy_lock and set(sources) == set(FILES)
+
+
+def test_registered_dependency_missing_refuses_before_native_or_output(case, tmp_path):
+    game, _, _ = case
+    owner = "childhood/childhood_state.gd"
+    (game / owner).write_text('extends RefCounted\nconst Rule = preload("res://' + DEPENDENCY_FILES[0] + '")\n')
+    output = tmp_path / "order"
+    with patch("subprocess.Popen", side_effect=AssertionError("compile executed")):
+        with pytest.raises(ValueError) as failure:
+            workflow.compile_order(game, output)
+    assert DEPENDENCY_FILES[0] in str(failure.value) and owner in str(failure.value)
+    assert not output.exists()
+
+
+def test_unregistered_transitive_rule_refuses_without_reading_it(case, tmp_path):
+    game, _, _ = case
+    (game / "childhood/childhood_state.gd").write_text('extends RefCounted\nconst Rule = preload("res://' + DEPENDENCY_FILES[0] + '")\n')
+    (game / DEPENDENCY_FILES[0]).write_text('extends RefCounted\nconst Rule = preload("res://future_rule.gd")\n')
+    (game / "future_rule.gd").write_text("# Not an installed source grant\nextends RefCounted\n")
+    output = tmp_path / "order"
+    with patch("subprocess.Popen", side_effect=AssertionError("compile executed")):
+        with pytest.raises(ValueError, match="Unregistered game-owned dependency: future_rule.gd"):
+            workflow.compile_order(game, output)
+    assert not output.exists()
+
+
+@pytest.mark.parametrize("change", ["missing-original", "unregistered-addition"])
+def test_saved_lock_cannot_expand_or_drop_installed_sources(case, change):
+    lock = deepcopy(case[1])
+    if change == "missing-original":
+        del lock["files"][FILES[0]]
+    else:
+        lock["files"]["future_rule.gd"] = bytes_ref(b"unregistered source")
+    lock["source_lock_id"] = content_identity({k: v for k, v in lock.items() if k != "source_lock_id"})
+    with pytest.raises(ValueError, match="installed game-owned source contract"):
+        validate_lock(lock)
+
+
+def test_long_native_failure_retains_complete_refused_campaign(case, tmp_path):
+    game, lock, source = case
+    executable = tmp_path / "fake-godot"
+    executable.write_bytes(b"not executable test fixture")
+    binding = GodotProjectBinding(executable, game, expected_sha256=bytes_ref(executable.read_bytes()), source_lock=lock)
+    root = tmp_path / "long-refusal"
+    diagnostic = "SCRIPT ERROR: fixture parse failure at res://foundry/water_round.gd:4; " + "detail " * 1000
+    with patch("ciw.foundry_project.run_process", side_effect=RuntimeError(diagnostic)):
+        report = run_production(source, water.compile_plan(source), water.registry(binding), water.WORKERS, water.gates(), root)
+    assert report["status"] == "incomplete" and report["result_count"] == 0
+    assert report["jobs"]["water-round"]["status"] == "refused"
+    assert report["jobs"]["water-round-regression"]["status"] == "blocked"
+    workspace = load(root / "session/workspace.json")
+    refusal = workspace["executions"][0]["refusal"]
+    assert refusal["code"] == "foundry_game_runtime_failed"
+    assert refusal["message"] == diagnostic[:500] + " [truncated]"
+    assert len(refusal["message"]) == 512
+    with patch("subprocess.Popen", side_effect=AssertionError("inspection executed")):
+        assert workflow.inspect_order(root)["status"] == "incomplete"
