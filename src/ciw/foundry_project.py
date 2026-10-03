@@ -9,6 +9,7 @@ from __future__ import annotations
 from copy import deepcopy
 from pathlib import Path
 import platform
+import re
 import tempfile
 
 from .control_contracts import bytes_ref, content_ref, keys, save_new
@@ -22,6 +23,11 @@ FILES = ("characters/character_names.gd", "childhood/aftermath_state.gd",
          "patrol/companion_rules.gd", "territory/gujranwala_state.gd",
          "territory/misl_rules.gd", "territory/water_round_rules.gd",
          "tests/aftermath_fixture.gd", "tests/gujranwala_fixture.gd", ENTRYPOINT)
+# Keep the original eleven-file contract readable. These two title-owned rules
+# are explicit additions used by the current Gujranwala state, not permission to
+# traverse arbitrary resources or import the rest of the game.
+DEPENDENCY_FILES = ("childhood/message_followup_rules.gd", "commissions/commission_rules.gd")
+ALLOWED_FILES = frozenset((*FILES, *DEPENDENCY_FILES))
 PROJECT = b'config_version=5\n[application]\nconfig/name="NET Foundry isolated domain worker"\n[rendering]\nrenderer/rendering_method="gl_compatibility"\n'
 MAX_FILE_BYTES = 128 * 1024
 MAX_SOURCE_BYTES = 1024 * 1024
@@ -31,7 +37,9 @@ def validate_lock(lock: dict) -> None:
     keys(lock, {"schema", "profile", "files", "project_sha256", "source_lock_id"})
     if lock["schema"] != "ciw.foundry-source-lock.v1" or lock["profile"] != PROFILE:
         raise ValueError("Unsupported Foundry source lock")
-    keys(lock["files"], set(FILES))
+    if (type(lock["files"]) is not dict or not set(FILES) <= set(lock["files"])
+            or not set(lock["files"]) <= ALLOWED_FILES):
+        raise ValueError("Foundry source lock requires the installed game-owned source contract")
     for digest in lock["files"].values():
         content_ref(digest)
     if lock["project_sha256"] != bytes_ref(PROJECT):
@@ -46,19 +54,32 @@ def snapshot(game_root: Path) -> tuple[dict, dict[str, bytes]]:
     if not root.is_dir():
         raise ValueError("Require an operator-selected game directory")
     sources: dict[str, bytes] = {}
-    for name in FILES:
+    pending = list(FILES)
+    required_by: dict[str, str] = {}
+    for name in pending:
         path = root / name
         # Refuse a symlink anywhere inside the supplied root, including parents.
         if any(p.is_symlink() for p in (path, *path.parents) if p != root and root in p.parents):
             raise ValueError("Source symlinks are not admitted")
         if not path.is_file():
-            raise ValueError(f"Missing regular game-owned source: {name}")
+            origin = f" (required by {required_by[name]})" if name in required_by else ""
+            raise ValueError(f"Missing regular game-owned source: {name}{origin}")
         with path.open("rb") as stream:
             raw = stream.read(MAX_FILE_BYTES + 1)
         if not 0 < len(raw) <= MAX_FILE_BYTES:
             raise ValueError("Game source exceeds file byte budget")
-        raw.decode("utf-8")
+        script = raw.decode("utf-8")
         sources[name] = raw
+        # This bounded literal-resource check supplements Godot's parser; it is
+        # not a general GDScript dependency resolver. Never follow an undeclared
+        # path, even when the referenced file happens to exist in the checkout.
+        for dependency in re.findall(r"res://([\w/.-]+\.gd)", script):
+            if dependency not in ALLOWED_FILES:
+                raise ValueError(f"Unregistered game-owned dependency: {dependency} (required by {name}); "
+                                 "review the installed Foundry source contract before execution")
+            if dependency not in pending:
+                pending.append(dependency)
+                required_by[dependency] = name
     if sum(map(len, sources.values())) > MAX_SOURCE_BYTES:
         raise ValueError("Game source exceeds total byte budget")
     lock = {"schema": "ciw.foundry-source-lock.v1", "profile": PROFILE,
@@ -70,7 +91,7 @@ def snapshot(game_root: Path) -> tuple[dict, dict[str, bytes]]:
 
 
 class GodotProjectBinding:
-    """Snapshot all eleven selected modules, not a moving game checkout."""
+    """Snapshot the installed source closure, not a moving game checkout."""
     def __init__(self, executable: Path, game_root: Path, *, expected_sha256: str, source_lock: dict):
         validate_lock(source_lock)
         content_ref(expected_sha256)
@@ -138,4 +159,10 @@ class GodotProjectBinding:
                 self.runtime_identity()
                 return result
         except (OSError, ValueError, RuntimeError) as exc:
-            raise AdapterRefusal("foundry_game_runtime_failed", str(exc)[:4096]) from exc
+            # The original graph checker admits at most 512 characters for a
+            # refusal reason. A larger adapter diagnostic otherwise leaves only
+            # a partial campaign instead of retaining its refused/blocked jobs.
+            message = str(exc) or type(exc).__name__
+            if len(message) > 512:
+                message = message[:500] + " [truncated]"
+            raise AdapterRefusal("foundry_game_runtime_failed", message) from exc

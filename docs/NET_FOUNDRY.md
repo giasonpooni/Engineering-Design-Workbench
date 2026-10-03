@@ -18,7 +18,7 @@ by the saved order. Missing observations hold the job; native failures refuse;
 both block descendants and do not consume a speculative repair.
 
 1792 owns `game/foundry/water_round.gd` and all gameplay source. NET snapshots a
-closed list of eleven GDScript modules into a disposable minimal project. Nothing
+closed, installed list of GDScript modules into a disposable minimal project. Nothing
 is vendored across licences, and the user's game checkout/save files are not
 modified. The adapter uses **explicit completed-inquiry and pose fixtures**: this
 is a real game-domain/clock/save operation, not a played walking route, rendered
@@ -81,6 +81,27 @@ Shared libraries, the OS and all possible external reads are not attested.
 No model API calls, autonomous source editing, remote workers, leases, automatic
 Git merging, ESM admission, deployment or release are added. Existing scientific,
 GIS and agent/MCP branches are neither absorbed nor silently merged.
+
+## Current-title source closure
+
+The original eleven-file water contract remains readable and runnable against its
+original title source. Current Gujranwala rules also reference
+`childhood/message_followup_rules.gd` and `commissions/commission_rules.gd`.
+Compilation now includes those two explicitly installed dependencies when a
+selected script references them, preserving their exact bytes in the same source
+lock. Unreferenced files do not alter a historical lock.
+
+A missing registered dependency identifies both the missing path and its referring
+script. A new, unregistered literal GDScript dependency refuses during compilation,
+before creating the order or launching Godot. Review that dependency and extend the
+installed source contract deliberately; copying the whole game or dropping the
+source check is not required. This bounded literal-resource check supplements
+Godot's parser and does not resolve computed paths or general asset dependencies.
+Old qualification records keep their original source locks and runtime scope.
+Native refusal messages now obey the original graph's 512-character bound, so a
+long engine error still retains a complete refused campaign and blocked regression.
+Long messages carry an explicit truncation marker; full failed-process logs are
+not retained by this adapter. Successful capture logs retain their existing bounds.
 
 ## Qualification
 
