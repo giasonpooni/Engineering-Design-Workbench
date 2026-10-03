@@ -4,6 +4,17 @@ For the current public component inventory and integration boundaries, see the
 [systems catalog](SYSTEMS_CATALOG.md), [Notation Systems stack map](STACK.md)
 and [this component's role](STACK_ROLE.md).
 
+The five heat-transfer and fluid-design additions are available through
+`net thermofluids catalog`: **Convective Heat Transfer**, **Advanced Heat Transfer /
+Advanced Thermofluids Design**, **Advanced Fluid Dynamics**, **Radiative Heat
+Transfer (energy and building systems)**, and **Two-Phase Flow and Heat Transfer**.
+Their initial executable scope is respectively local laminar-tube convection,
+effectiveness–NTU exchanger sizing, analytic laminar pipe flow, diffuse-gray
+parallel-surface radiation, and saturated no-slip mixture/latent-duty balances.
+See [Thermofluids](THERMOFLUIDS.md) for exact commands, validity limits and
+remaining advanced models. These use the shared CLI and record/identity helpers;
+they are not yet Session operations or automatically coupled to other solvers.
+
 This catalogue records tools that can be used through the workbench and the
 contracts needed to reproduce their results. An external tool is listed as
 integrated only after its workbench entry point, saved evidence and replay path

@@ -26,6 +26,7 @@ replay creates a new execution.
 | Evolving workflow structure | Bounded typed hypergraph rewriting, invariant checks, retained transformation dependencies, alternative paths and explicit schedule comparisons. [Hypergraph rewriting](docs/HYPERGRAPH_REWRITE.md). |
 | Measurement and estimation | Calibration, time reconciliation, telemetry, covariance propagation, state estimation and bounded observation-design workflows. [Integration coverage](docs/INTEGRATION_COVERAGE.md). |
 | Scientific models and testbeds | Bounded impact and atmospheric models, thermal observers, geometric calculations and domain-specific numerical checks. [Atmospheric engine](docs/ATMOSPHERIC_ENGINE.md). |
+| Heat transfer and thermofluids | Convective heat transfer, heat-exchanger design, analytic fluid-dynamics benchmarks, radiative exchange for energy/building studies, and saturated two-phase balances. [Five bounded reference profiles](docs/THERMOFLUIDS.md). |
 | Polymer processing | Cycle metrology, scoped cooling and pressure-arrival estimates, evidence-linked copilot context, and bounded control simulations for injection and extrusion blow molding. [Polymer processing](docs/POLYMER_PROCESSING.md). |
 | Evidence and representation | Typed contracts, identity-bound representations, source correction and dependency status, and signed human/reasoning/vision bundles. [Correction loop](docs/CORRECTION_LOOP.md) · [Legibility instrument](docs/LEGIBILITY.md). |
 | Interactive worlds | Supported BIM, spatial and geometric interfaces; native computation and bounded Blender/Godot/Bevy development workflows. [Technical reference](TECHNICAL_REFERENCE.md). |
@@ -82,6 +83,26 @@ model equations, a qualified scalar-state handoff, and explicit expansion
 routes. The existing FlowState snapshot estimator and runtime pin remain
 unchanged; experimental validation and general molecular/CFD coupling remain
 unestablished.
+
+## Heat transfer and thermofluids
+
+`net thermofluids` adds five provider-free reference profiles: `convection`,
+`heat-exchanger`, `pipe-flow`, `radiation` and `two-phase`. Each accepts an explicit
+SI request and retains quantities, model assumptions, scope, source identity and
+distinct execution/result identities. `inspect` reads retained results; `verify`
+checks same-implementation reproduction; `replay` creates a new execution.
+
+```sh
+net thermofluids catalog
+net thermofluids example --profile radiation --output results/radiation-request.json
+net thermofluids run results/radiation-request.json --output results/radiation-run.json
+net thermofluids verify results/radiation-run.json --output results/radiation-check.json
+```
+
+These are bounded engineering calculations, not a general CFD or boiling solver.
+The [thermofluids guide](docs/THERMOFLUIDS.md) identifies domain guards, numerical
+checks, and the extensions needed for advanced coupled design. Property values
+are declared inputs; experimental validation and uncertainty remain unestablished.
 
 ## Evolving workflow structures
 
