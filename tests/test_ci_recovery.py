@@ -32,9 +32,11 @@ def test_workbench_is_normal_python_without_runtime_source_expansion():
 
 
 @pytest.mark.parametrize('path', [
-    'giasonpooni/Scientific-Computation-Runtime.git',
-    'giasonpooni/scientific-computation-runtime',
-    'giasonpooni/Parameterized-Lyapunov-Stability-Runtime.git',
+    'atomtrapping/Scientific-Computation-Runtime.git',
+    'atomtrapping/scientific-computation-runtime',
+    'atomtrapping/Parameterized-Lyapunov-Stability-Runtime.git',
+    'atomtrapping/Notations-Compute-Runtime.git',
+    'atomtrapping/notations-data-intake',
 ])
 def test_helper_answers_only_an_allowlisted_repo(path):
     request = 'protocol=https\nhost=github.com\npath=' + path + '\n\n'
@@ -42,14 +44,15 @@ def test_helper_answers_only_an_allowlisted_repo(path):
 
 
 @pytest.mark.parametrize('wire_request', [
-    'protocol=http\nhost=github.com\npath=giasonpooni/Scientific-Computation-Runtime.git\n',
-    'protocol=https\nhost=github.com.attacker.test\npath=giasonpooni/Scientific-Computation-Runtime.git\n',
-    'protocol=https\nhost=github.com:443\npath=giasonpooni/Scientific-Computation-Runtime.git\n',
+    'protocol=http\nhost=github.com\npath=atomtrapping/Scientific-Computation-Runtime.git\n',
+    'protocol=https\nhost=github.com.attacker.test\npath=atomtrapping/Scientific-Computation-Runtime.git\n',
+    'protocol=https\nhost=github.com:443\npath=atomtrapping/Scientific-Computation-Runtime.git\n',
     'protocol=https\nhost=github.com\npath=other/Scientific-Computation-Runtime.git\n',
-    'protocol=https\nhost=github.com\npath=giasonpooni/Unregistered-Repository.git\n',
-    'protocol=https\nhost=github.com\npath=giasonpooni/../Scientific-Computation-Runtime.git\n',
-    'protocol=https\nhost=github.com\npath=giasonpooni/Scientific-Computation-Runtime.git/info/refs\n',
-    'protocol=https\nhost=github.com\nhost=github.com\npath=giasonpooni/Scientific-Computation-Runtime.git\n',
+    'protocol=https\nhost=github.com\npath=giasonpooni/Scientific-Computation-Runtime.git\n',
+    'protocol=https\nhost=github.com\npath=atomtrapping/Unregistered-Repository.git\n',
+    'protocol=https\nhost=github.com\npath=atomtrapping/../Scientific-Computation-Runtime.git\n',
+    'protocol=https\nhost=github.com\npath=atomtrapping/Scientific-Computation-Runtime.git/info/refs\n',
+    'protocol=https\nhost=github.com\nhost=github.com\npath=atomtrapping/Scientific-Computation-Runtime.git\n',
     'protocol=https\nhost=github.com\n', 'x' * 8193,
 ])
 def test_helper_refuses_unbound_or_ambiguous_destinations(wire_request):
@@ -111,7 +114,7 @@ def test_real_git_credential_protocol_obeys_repository_allowlist(tmp_path):
     env = dict(os.environ, **access.configuration(Path(access.__file__)),
                CIW_PROVIDER_READ_TOKEN='test-secret', GIT_CONFIG_NOSYSTEM='1',
                GIT_CONFIG_GLOBAL=os.devnull)
-    allowed = subprocess.run(['git','credential','fill'], input='protocol=https\nhost=github.com\npath=giasonpooni/Scientific-Computation-Runtime.git\n\n',
+    allowed = subprocess.run(['git','credential','fill'], input='protocol=https\nhost=github.com\npath=atomtrapping/Scientific-Computation-Runtime.git\n\n',
                              env=env, cwd=tmp_path, text=True, capture_output=True, timeout=10)
     assert allowed.returncode == 0
     assert 'password=test-secret' in allowed.stdout
@@ -139,6 +142,6 @@ def test_ci_concurrency_and_provider_wiring():
             steps = job['steps']
             assert any(step.get('run') == 'python scripts/ci_provider_access.py configure' for step in steps)
             for step in steps:
-                if step.get('with', {}).get('repository', '').startswith('giasonpooni/'):
+                if step.get('with', {}).get('repository', '').startswith('atomtrapping/'):
                     assert step['with']['token'] == '${{ env.CIW_PROVIDER_READ_TOKEN }}'
                     assert step['with']['persist-credentials'] == 'false'

@@ -27,6 +27,20 @@ PROVIDERS = frozenset(name.lower() for name in (
     "State-Estimation-Evaluation-Testbed", "Streaming-Telemetry-Feature-Extraction",
     "System-Identification-Dynamics-Testbed", "Time-Base-Reconciliation-Runtime",
     "Translation-Surface-Dynamics-Explorer", "Yield-Weighted-Inference-Runtime",
+    # Verified current names for the same providers; legacy slugs remain aliases.
+    "Conformance-and-Replay-Retainer", "Notations-Calibration-Runtime",
+    "Notations-ClockSync", "Notations-Compute-Runtime",
+    "Notations-Data-Intake", "Notations-Estimator-Bench",
+    "Notations-Estimator-for-BIM", "Notations-FaultSense-RunTime",
+    "Notations-FlowState", "Notations-Linear-Dynamics-Testbed",
+    "Notations-Metrology-Adapter", "Notations-Observability-Testbed",
+    "Notations-Periodic-Space", "Notations-Real-Time-Globe",
+    "Notations-Retrieval-Agent", "Notations-Sensitivity-Testbed",
+    "Notations-SensorDesign-RunTime", "Notations-Signal-Processing-RunTime",
+    "Notations-State-Inference-Engine", "Notations-State-Ledger",
+    "Notations-State-Recompiler", "Notations-Surface-RunTime",
+    "Notations-Telemetry-Engine", "Notations-Yield-Weighted-Runtime",
+    "Polygon-Trajectory-Experiments",
 ))
 TOKEN_ENV = "CIW_PROVIDER_READ_TOKEN"
 
@@ -53,7 +67,7 @@ def credential(request: str, token: str) -> str:
     if fields.get("protocol") != "https" or fields.get("host") != "github.com":
         return ""
     path = fields.get("path", "")
-    if not re.fullmatch(r"giasonpooni/[A-Za-z0-9_.-]+", path, re.IGNORECASE):
+    if not re.fullmatch(r"atomtrapping/[A-Za-z0-9_.-]+", path, re.IGNORECASE):
         return ""
     owner, name = path.lower().split("/", 1)
     if name.removesuffix(".git") not in PROVIDERS:

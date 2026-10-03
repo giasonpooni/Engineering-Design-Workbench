@@ -24,8 +24,8 @@ original tracked bytes at these commits:
 
 | Role | Repository | Revision | License at pin |
 | --- | --- | --- | --- |
-| `ftr` | [Flat-Torus-Geodesic-Reference](https://github.com/giasonpooni/Flat-Torus-Geodesic-Reference) | `dc918562cd9e351a65475d29f46963c9f2fd7db8` | MIT |
-| `csg` | [Curved-Surface-Geodesic-Sensitivity-Runtime](https://github.com/giasonpooni/Curved-Surface-Geodesic-Sensitivity-Runtime) | `bbc535af29c30997e56fd120320c570830676462` | MPL-2.0 |
+| `ftr` | [Flat-Torus-Geodesic-Reference](https://github.com/atomtrapping/Notations-Periodic-Space) | `dc918562cd9e351a65475d29f46963c9f2fd7db8` | MIT |
+| `csg` | [Curved-Surface-Geodesic-Sensitivity-Runtime](https://github.com/atomtrapping/Notations-Surface-RunTime) | `bbc535af29c30997e56fd120320c570830676462` | MPL-2.0 |
 
 The executable pin declarations live in
 [`geodesic_reference.py`](../src/ciw/geodesic_reference.py). Runtime identities
@@ -35,9 +35,9 @@ Workspace JSON cannot supply executable bindings.
 
 ```sh
 python -m pip install -e '.[dev]'
-git -c core.autocrlf=false clone https://github.com/giasonpooni/Flat-Torus-Geodesic-Reference.git /trusted/references/ftr
+git -c core.autocrlf=false clone https://github.com/atomtrapping/Notations-Periodic-Space.git /trusted/references/ftr
 git -C /trusted/references/ftr -c core.autocrlf=false checkout --detach dc918562cd9e351a65475d29f46963c9f2fd7db8
-git -c core.autocrlf=false clone https://github.com/giasonpooni/Curved-Surface-Geodesic-Sensitivity-Runtime.git /trusted/references/csg
+git -c core.autocrlf=false clone https://github.com/atomtrapping/Notations-Surface-RunTime.git /trusted/references/csg
 git -C /trusted/references/csg -c core.autocrlf=false checkout --detach bbc535af29c30997e56fd120320c570830676462
 ciw serve --flat-torus-repo /trusted/references/ftr --curved-surface-repo /trusted/references/csg --output-dir results/references
 ```

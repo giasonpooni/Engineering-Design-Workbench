@@ -209,6 +209,8 @@ async def watch_remote(url: str) -> None:
 def parser() -> argparse.ArgumentParser:
     root = argparse.ArgumentParser(prog="ciw", description="Computational Instrumentation Workbench")
     commands = root.add_subparsers(dest="command", required=True)
+    dependencies = commands.add_parser("dependencies", help="Inspect retained dependency and correction status without provider execution")
+    dependencies.add_argument("path", type=Path, help="Saved workspace JSON")
     commands.add_parser("legibility", help="Compile and verify synchronized specimen representations")
     from .doctor import PROFILES
     doctor = commands.add_parser("doctor", help="Inspect explicit local provider identities without running or installing them")
@@ -511,6 +513,14 @@ def main(argv: list[str] | None = None) -> int:
         return legibility_main(command_line[1:])
     args = parser().parse_args(argv)
     try:
+        if args.command == "dependencies":
+            # Session restore validates offline, but normally exports records.
+            # Use disposable output so inspecting never writes beside the source.
+            import tempfile
+            with tempfile.TemporaryDirectory(prefix="ciw-dependencies-") as temporary:
+                retained = Session.from_workspace(args.path, Path(temporary))
+                print_json(retained.dependency_status())
+            return 0
         if args.command == "doctor":
             from .doctor import diagnose
             report = diagnose(args.profile, stack_root=args.stack_root, engine=args.engine, binding=args.binding)

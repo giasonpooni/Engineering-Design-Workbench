@@ -72,6 +72,13 @@ does not imply that a hosted demo or released game exists.
 | Core identity | Python package and CLI **`ciw`**; existing session and record contracts remain unchanged. |
 | Status | Active development with bounded scientific workflows and separately tracked native/interactive prototypes. |
 
+Use the [integration coverage matrix](docs/INTEGRATION_COVERAGE.md) to distinguish
+callable operations, required provider bindings and remaining qualification.
+The [2026-10-03 concerns audit](docs/CONCERNS_AUDIT_2026-10-03.md) checks the broader
+platform narrative against merged source. The [retained correction loop](docs/CORRECTION_LOOP.md)
+demonstrates local dependency review with preserved history and fresh results;
+its synthetic reference establishes workflow behavior, not physical calibration.
+
 ## Architecture
 
 NET owns investigation state, operation selection and retained execution
@@ -84,18 +91,22 @@ worlds. NET requests supported operations and inspects explicit observations;
 it does not impose one universal scene tree or ECS model on those applications.
 A project does not have to use every tool.
 
-The [Geospatial Systems Compiler](https://github.com/giasonpooni/Geospatial-Systems-Compiler),
-[Curved Surface Runtime](https://github.com/giasonpooni/Curved-Surface-Runtime), and
-[State Estimator for BIM](https://github.com/giasonpooni/State-Estimator-for-BIM)
+The [Geospatial Systems Compiler](https://github.com/atomtrapping/Notations-FrameMapper-RunTime),
+[Curved Surface Runtime](https://github.com/atomtrapping/Notations-Surface-RunTime), and
+[State Estimator for BIM](https://github.com/atomtrapping/Notations-Estimator-for-BIM)
 remain independently scoped projects, not capabilities absorbed into NET.
+
+The [incremental engineering monorepo migration](docs/MONOREPO.md) records the
+first measurement imports, retained history, independent packages and unchanged
+provider authority boundaries.
 
 ## Explore the work
 
 | Case study | Implementation and evidence |
 | --- | --- |
-| Blender-authored Godot / Bevy experiment | [PR #45](https://github.com/giasonpooni/Notations-Engineering-Terminal/pull/45): bounded, headless projectile work; not a released game. |
-| Julia-authored native oscillator | [PR #47](https://github.com/giasonpooni/Notations-Engineering-Terminal/pull/47): checked C export with Python/Rust consumers. |
-| C++ and Godot native consumers | [PR #50](https://github.com/giasonpooni/Notations-Engineering-Terminal/pull/50): native-interface and headless numerical qualification. |
+| Blender-authored Godot / Bevy experiment | [PR #45](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/45): bounded, headless projectile work; not a released game. |
+| Julia-authored native oscillator | [PR #47](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/47): checked C export with Python/Rust consumers. |
+| C++ and Godot native consumers | [PR #50](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/50): native-interface and headless numerical qualification. |
 
 These links identify separate development increments. Consult each PR's current
 branch and status rather than assuming its implementation has been merged into

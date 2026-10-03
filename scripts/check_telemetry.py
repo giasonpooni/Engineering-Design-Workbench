@@ -35,7 +35,7 @@ def main(argv=None):
             path = stack_root / repository
             if not args.stack_root:
                 subprocess.run(["git", "-c", "core.autocrlf=false", "clone", "--no-checkout", "--filter=blob:none",
-                                "https://github.com/giasonpooni/" + repository + ".git", str(path)],
+                                "https://github.com/atomtrapping/" + repository + ".git", str(path)],
                                check=True, timeout=120)
                 subprocess.run(["git", "-C", str(path), "-c", "core.autocrlf=false", "checkout",
                                 "--detach", pins[role]["revision"]], check=True, timeout=120)

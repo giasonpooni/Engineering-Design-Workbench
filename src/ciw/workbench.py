@@ -63,6 +63,9 @@ _OVERHEAD = 4096
 
 
 def _workflow(kind):
+    if kind == "reference-evidence":
+        from . import reference_evidence
+        return reference_evidence
     if kind == "project-graph":
         from .project_workflow import ProjectGraphWorkflow
         return ProjectGraphWorkflow()
@@ -1097,6 +1100,21 @@ class Workbench:
                    if record["kind"] == "acquired-calibrated-window" else {}),
                 "status": "completed"}
                 for record, native, step in self._native_steps()]) + self.failed_execution_summaries()
+
+    def dependency_artifacts(self):
+        """Capture the lightweight catalog dependency surface under one lock."""
+        with self._lock:
+            bundles = self.list_bundles()
+            for bundle in bundles:
+                if bundle["kind"] == "native-interop":
+                    source = self._sources[bundle["source_id"]]
+                    declaration = _json(base64.b64decode(source["bytes_b64"], validate=True))
+                    upstream = declaration.get("upstream")
+                    if upstream is not None:
+                        bundle["upstream_bundle_ids"] = [upstream["bundle_digest"]]
+            return deepcopy({"sources": self.list_sources(), "bundles": bundles,
+                "executions": [entry for entry in self.native_executions()
+                               if entry["status"] == "completed"]})
 
     def snapshot(self):
         with self._lock:

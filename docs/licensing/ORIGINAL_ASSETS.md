@@ -69,7 +69,7 @@ identify these acts where permission is required. Mandatory exceptions, valid
 prior grants and provider/platform permissions survive. This policy is not a
 deployed machine-readable access control.
 
-Requests: [licensing request](https://github.com/giasonpooni/Notations-Systems-Terminal/issues/new?template=licensing-request.yml&title=Licensing%20request).
+Requests: [licensing request](https://github.com/atomtrapping/Notations-Systems-Terminal/issues/new?template=licensing-request.yml&title=Licensing%20request).
 Request, acknowledgement, payment, credit, access or silence is not permission.
 Do not upload assets or confidential information to a public issue; request
 a private discussion before disclosing sensitive terms.

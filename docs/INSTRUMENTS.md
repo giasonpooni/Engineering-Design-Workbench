@@ -41,7 +41,7 @@ provider pins. Fresh upstream replay checks the prior before fitting a declared
 model, testing candidate observability, predicting one step and ranking expected
 uncertainty reduction under an observation budget. The separate YWIR result is
 an advisory computation-token decision. ICRH's
-[`identified-budgeted-observation.v1` profile](https://github.com/giasonpooni/Instrument-Conformance-and-Replay-Harness/blob/main/profiles/identified-budgeted-observation.v1.json)
+[`identified-budgeted-observation.v1` profile](https://github.com/atomtrapping/Conformance-and-Replay-Retainer/blob/main/profiles/identified-budgeted-observation.v1.json)
 checks the retained graph and original/replay bindings.
 
 The prediction and ranking are conditional on an identified point model;

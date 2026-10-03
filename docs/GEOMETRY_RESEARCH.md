@@ -8,9 +8,9 @@ become sensor observations or state estimates through integration.
 
 | Source kind / operation | Native repository and role | Implemented claim |
 | --- | --- | --- |
-| `covariance-geometry` / `ciw.covariance-geometry.v1` | [Covariance Geometry and Geodesic Testbed](https://github.com/giasonpooni/Covariance-Geometry-and-Geodesic-Testbed), `cggt` | Affine-invariant distance and sampled geodesics between declared SPD matrices |
-| `mesh-path` / `ciw.mesh-path.v1` | [Intrinsic Surface Geodesics Testbed](https://github.com/giasonpooni/Intrinsic-Surface-Geodesics-Testbed), `isgt` | Shortest paths along triangle-mesh edges, with Euclidean lower bounds and an explicit discretization gap |
-| `translation-flow` / `ciw.translation-flow.v1` | [Translation Surface Dynamics Explorer](https://github.com/giasonpooni/Translation-Surface-Dynamics-Explorer), `tsde` | Exact rational trajectory prefixes on connected square-tiled translation surfaces |
+| `covariance-geometry` / `ciw.covariance-geometry.v1` | [Covariance Geometry and Geodesic Testbed](https://github.com/atomtrapping/Covariance-Geometry-and-Geodesic-Testbed), `cggt` | Affine-invariant distance and sampled geodesics between declared SPD matrices |
+| `mesh-path` / `ciw.mesh-path.v1` | [Intrinsic Surface Geodesics Testbed](https://github.com/atomtrapping/Intrinsic-Surface-Geodesics-Testbed), `isgt` | Shortest paths along triangle-mesh edges, with Euclidean lower bounds and an explicit discretization gap |
+| `translation-flow` / `ciw.translation-flow.v1` | [Translation Surface Dynamics Explorer](https://github.com/atomtrapping/Polygon-Trajectory-Experiments), `tsde` | Exact rational trajectory prefixes on connected square-tiled translation surfaces |
 
 The exact commit and source-tree pins are in
 [`geometry_research.py`](../src/ciw/geometry_research.py). All three repositories
