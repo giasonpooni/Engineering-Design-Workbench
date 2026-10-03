@@ -223,3 +223,38 @@ def test_retained_side_history_cannot_authorize_a_different_module():
     with pytest.raises(subprocess.CalledProcessError):
         with monorepo.provider_worktrees(roles=["jspt"], overrides={"jspt": "f863bdd69d49224e0cdc871943bbb052e5b0a975"}):
             pytest.fail("A reviewed side branch grants no authority to an unrelated provider")
+
+
+@pytest.mark.parametrize("directory", [
+    "venv", ".venv", ".venv-shadow", "__pycache__", ".pytest_cache",
+    ".mypy_cache", ".ruff_cache", "shadow.egg-info",
+])
+@pytest.mark.parametrize("scope", ["provider", "terminal"])
+def test_directory_names_cannot_exempt_untracked_executable_sources(checkout, directory, scope):
+    base = ("instruments/measurement/calibration/src/mcur" if scope == "provider"
+            else "src/ciw")
+    path = checkout / base / directory / "__init__.py"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("raise RuntimeError('unreviewed package')\n")
+    (checkout / ".git/info/exclude").write_text(base + "/" + directory + "/\n")
+    audit = monorepo.verify_imports if scope == "provider" else monorepo.verify_terminal_source
+    with pytest.raises(ValueError, match="untracked"):
+        audit(checkout)
+
+
+def test_generated_artifact_names_cannot_exempt_symlinked_source(checkout):
+    directory = checkout / "instruments/measurement/calibration/src/mcur/__pycache__"
+    directory.mkdir()
+    (directory / "shadow.pyc").symlink_to(checkout / "src/ciw/__init__.py")
+    with pytest.raises(ValueError, match="untracked"):
+        monorepo.verify_imports(checkout)
+
+
+def test_import_audit_allows_only_named_generated_artifacts(checkout):
+    base = checkout / "instruments/measurement/calibration"
+    for relative in ("src/mcur/__pycache__/core.pyc", ".pytest_cache/v/cache/nodeids",
+                     "src/mcur.egg-info/PKG-INFO"):
+        path = base / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(b"generated artifact")
+    assert len(monorepo.verify_imports(checkout)) == 21

@@ -11,6 +11,7 @@ import sys
 import uuid
 
 from monorepo import ROOT, git, load_manifest, verify_imports
+from check_monorepo import _environment
 
 GATES = {
     "measurement": "check_monorepo.py",
@@ -42,7 +43,7 @@ def check(args):
         run_output = output / report["verification_id"].split(":", 1)[1]
         run_output.mkdir(exist_ok=False)
         verification_ids = {report["verification_id"]}
-        environment = dict(os.environ)
+        environment = _environment()
         if args.node_bin:
             node_bin = args.node_bin.expanduser().resolve()
             if not node_bin.is_dir():
@@ -92,7 +93,7 @@ def check(args):
         if git(ROOT, "rev-parse", "HEAD").decode().strip() != report["terminal_revision"]:
             raise ValueError("The repository revision changed during qualification")
         report["status"] = "passed" if all(r["status"] == "passed" for r in report["groups"].values()) else "failed"
-    except (OSError, ValueError, subprocess.CalledProcessError) as error:
+    except (OSError, ValueError, subprocess.SubprocessError) as error:
         report.update(status="failed", error={"type": type(error).__name__, "message": str(error)})
     finally:
         (output / "report.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")

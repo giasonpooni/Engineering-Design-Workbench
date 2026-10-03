@@ -1,16 +1,15 @@
 # Engineering superrepo
 
-The cumulative branch `feat/engineering-superrepo-20261003` consolidates 21
-public engineering modules alongside the existing Terminal package. Development
+The default branch contains 21 public engineering modules alongside the
+existing Terminal package, merged through pull request #126. Development
 and review share a repository; packages, release identities, deployment choices
 and scientific authority remain module-owned.
 
 The import registry is [`instruments/manifest.json`](../instruments/manifest.json).
 It records full source commit and tree identities, original repository IDs,
 ownership, licences, package versions, build boundaries and existing execution
-pins. The branch includes the earlier measurement and inference migration
-history. Native Git transfer is required before publication; this documentation
-does not assert that the branch has been pushed or merged. The
+pins. The merged imports retain the earlier measurement and inference migration
+history and original source ancestry. The
 [second-wave record](MONOREPO_WAVE2.md) preserves the earlier seven-module
 qualification and its scope.
 
@@ -159,12 +158,19 @@ the retained qualification reports, bound to their exact checkout.
 
 ## Terminal source identity
 
-The measurement gate binds NET's tracked source bytes and index to the reported
-commit before and after qualification. Tracked byte changes, staged metadata
-drift and ignored executable shadow sources are refused. Generated results and
-runtime caches are permitted outside those source boundaries. The import audit
-separately preserves every declared original module tree and execution pin;
-co-location does not freeze or replace independently qualified Terminal work.
+The shared import audit binds NET's tracked source bytes and index to its
+commit alongside every declared original module tree and execution pin. Each
+qualification lane audits before and after execution. Tracked byte changes,
+staged metadata drift and ignored executable shadow sources are refused.
+Directory names such as `venv`, `__pycache__` and `.egg-info` do not authorize
+untracked source. Only bytecode and specifically named pytest cache and package
+metadata files with regular file and ancestor types are permitted inside source
+boundaries; gate output remains outside executable source directories.
+
+The aggregate coordinator removes Python import/test and Git repository-selection
+overrides before launching child gates and retains failed reports for subprocess errors,
+including audit timeouts. Co-location does not freeze or replace independently
+qualified Terminal work.
 
 ## Authority and qualification limits
 
