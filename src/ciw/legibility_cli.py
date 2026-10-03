@@ -114,6 +114,10 @@ def _publish(destination, contract, artifacts, *, run=None, private_key=None, de
 def parser():
     root = argparse.ArgumentParser(prog="ciw legibility", description=__doc__)
     actions = root.add_subparsers(dest="action", required=True)
+    compare = actions.add_parser("compare", help="Compare intact bundle sources; signatures and bytes require verify")
+    compare.add_argument("before", type=Path, help="Earlier bundle.json")
+    compare.add_argument("after", type=Path, help="Later bundle.json")
+    compare.add_argument("--output", type=Path)
     demo = actions.add_parser("demo", help="Build a signed synthetic impact specimen and NET compilation session")
     demo.add_argument("--output-dir", type=Path, required=True)
     compile_ = actions.add_parser("compile", help="Compile a source contract with explicit artifact paths")
@@ -150,7 +154,15 @@ def parser():
 def main(argv=None):
     args = parser().parse_args(argv)
     try:
-        if args.action == "demo":
+        if args.action == "compare":
+            from .legibility_compare import compare_bundles
+            result = compare_bundles(read_json(args.before), read_json(args.after))
+            if args.output:
+                with args.output.open("x", encoding="utf-8") as stream:
+                    json.dump(result, stream, indent=2, allow_nan=False)
+            print(json.dumps(result, indent=2, allow_nan=False))
+            return 2 if result["same_version_content_conflict"] else 0
+        elif args.action == "demo":
             from cryptography.hazmat.primitives.asymmetric.ed25519 import Ed25519PrivateKey
             import tempfile
             with tempfile.TemporaryDirectory(prefix="ciw-legibility-fixture-") as temporary:
