@@ -1,0 +1,15 @@
+{
+  "schema": "ciw.weather-request.v1",
+  "profile": "thermodynamics",
+  "context": {
+    "source_kind": "synthetic",
+    "source_ref": "NET weather example: thermodynamics"
+  },
+  "inputs": {
+    "temperature_k": 283.15,
+    "pressure_pa": 100000.0,
+    "relative_humidity": 0.65,
+    "phase": "water",
+    "layer_top_pressure_pa": 85000.0
+  }
+}

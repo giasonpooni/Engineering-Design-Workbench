@@ -1,0 +1,17 @@
+{
+  "schema": "ciw.weather-request.v1",
+  "profile": "evapotranspiration",
+  "context": {
+    "source_kind": "synthetic",
+    "source_ref": "NET weather example: evapotranspiration"
+  },
+  "inputs": {
+    "minimum_temperature_c": 12.3,
+    "maximum_temperature_c": 21.5,
+    "actual_vapour_pressure_kpa": 1.409,
+    "air_pressure_kpa": 100.1,
+    "wind_2m_m_s": 2.078,
+    "net_radiation_mj_m2_day": 13.28,
+    "soil_heat_mj_m2_day": 0.0
+  }
+}

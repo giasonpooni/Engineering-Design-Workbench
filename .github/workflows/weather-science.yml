@@ -1,0 +1,72 @@
+name: Weather science
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'src/ciw/weather_*.py'
+      - 'src/ciw/operations/**'
+      - 'src/ciw/session.py'
+      - 'src/ciw/operator_commands.py'
+      - 'tests/test_weather*.py'
+      - 'scripts/check_weather_installed.py'
+      - 'pyproject.toml'
+      - '.github/workflows/weather-science.yml'
+  pull_request:
+    paths:
+      - 'src/ciw/weather_*.py'
+      - 'src/ciw/operations/**'
+      - 'src/ciw/session.py'
+      - 'src/ciw/operator_commands.py'
+      - 'tests/test_weather*.py'
+      - 'scripts/check_weather_installed.py'
+      - 'pyproject.toml'
+      - '.github/workflows/weather-science.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: weather-science-${{ github.event_name }}-${{ github.ref }}
+  cancel-in-progress: true
+jobs:
+  qualification:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[dev]' build
+      - name: Numerical profiles and retained integration
+        shell: bash
+        run: python -m pytest -q tests/test_weather*.py tests/test_atmosphere*.py tests/test_operation*.py tests/test_operator_catalog.py --junitxml=weather-tests.xml
+      - run: python -m build --wheel
+      - name: Installed lifecycle outside checkout
+        shell: bash
+        run: |
+          python -m venv installed-weather
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            WEATHER_PYTHON="$PWD/installed-weather/Scripts/python.exe"
+            WEATHER_NET="$PWD/installed-weather/Scripts/net.exe"
+          else
+            WEATHER_PYTHON="$PWD/installed-weather/bin/python"
+            WEATHER_NET="$PWD/installed-weather/bin/net"
+          fi
+          "$WEATHER_PYTHON" -m pip install dist/*.whl
+          "$WEATHER_PYTHON" scripts/check_weather_installed.py --net "$WEATHER_NET" --output-dir installed-weather-smoke
+      - uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: weather-science-${{ matrix.os }}
+          path: |
+            weather-tests.xml
+            installed-weather-smoke/**
+            dist/*.whl
+          if-no-files-found: error
+          retention-days: 14
