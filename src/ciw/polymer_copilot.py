@@ -123,12 +123,12 @@ def example_knowledge(identity: dict) -> dict:
     _identity(identity)
     rows = [
         ("synthetic-injection-quality", "tool_and_lot", ["injection_molding"],
-         "SYNTHETIC FIXTURE. Injection molding dimensional length, width, diameter, "
+         "SYNTHETIC FIXTURE. Injection molding part_dimension (part dimensions), length, width, diameter, "
          "sink appearance, and cooling temperature variation require review of "
          "calibrated measurements and process history. Appearance alone does not "
          "establish structural strength or a root cause. No qualified recipe is supplied."),
         ("synthetic-blow-quality", "tool_and_lot", ["extrusion_blow_molding"],
-         "SYNTHETIC FIXTURE. Extrusion blow molding wall thickness, parison thickness, "
+         "SYNTHETIC FIXTURE. Extrusion blow molding part_dimension (part dimensions), wall_thickness (wall thickness), parison thickness, "
          "and container dimensions require calibrated measurement and tool-specific "
          "process history. Thickness or appearance alone does not establish strength. "
          "No qualified recipe is supplied."),

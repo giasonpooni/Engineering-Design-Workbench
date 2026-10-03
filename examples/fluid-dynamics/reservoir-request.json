@@ -1,0 +1,68 @@
+{
+  "schema": "ciw.fluid-reservoir-request.v1",
+  "scope": "linear_incompressible_two_reservoir_piston",
+  "source": {
+    "kind": "synthetic",
+    "source_ref": "fluid.reservoir.default_initial_head_pulse"
+  },
+  "fluid": {
+    "density_kg_per_m3": 1000.0,
+    "gravity_m_per_s2": 9.80665,
+    "compressibility": "incompressible"
+  },
+  "reservoirs": {
+    "area1_m2": 0.1,
+    "area2_m2": 0.12,
+    "equilibrium_depth1_m": 0.5,
+    "equilibrium_depth2_m": 0.6,
+    "maximum_head_fraction": 0.1
+  },
+  "connector": {
+    "length_m": 1.0,
+    "area_m2": 0.002,
+    "resistance_pa_s_per_m3": 20000.0
+  },
+  "structure": {
+    "enabled": true,
+    "piston_area_m2": 0.01,
+    "mass_kg": 5.0,
+    "stiffness_n_per_m": 200.0,
+    "damping_n_s_per_m": 0.5,
+    "maximum_displacement_m": 0.1,
+    "equilibrium_preload": "balances_equilibrium_hydrostatic_pressure"
+  },
+  "initial": {
+    "transfer_m3": -0.001,
+    "flow_m3_per_s": 0.0,
+    "piston_displacement_m": 0.0,
+    "piston_velocity_m_per_s": 0.0
+  },
+  "forcing": {
+    "kind": "none",
+    "external_force_n": 0.0
+  },
+  "clock": {
+    "id": "fluid.reservoir.synthetic_model_clock.v1",
+    "kind": "synthetic_model_time",
+    "start_s": 0.0,
+    "duration_s": 4.0,
+    "coarse_step_count": 400
+  },
+  "desired_observables": [
+    "connector_velocity",
+    "energy_balance",
+    "flow_rate",
+    "free_surface_elevation",
+    "interface_work",
+    "mass_balance",
+    "pressure_deviation",
+    "structural_displacement",
+    "volume_transfer"
+  ],
+  "tolerances": {
+    "equations_relative": 1e-09,
+    "balance_relative": 1e-09,
+    "reference_relative": 0.001,
+    "refinement_relative": 0.001
+  }
+}

@@ -14,6 +14,49 @@ access a PLC, or establish physical validation. These interfaces provide a place
 to attach qualified sensors, models, and machine adapters later without creating
 a second evidence store or merging their authority with numerical verification.
 
+## Operator readiness
+
+Install the project, then run the finite readiness gate:
+
+```bash
+python -m pip install '.[dev]'
+net polymer doctor
+net polymer qualify --output-dir qualification
+```
+
+`doctor` reads the fixed local tool contracts without executing or granting them.
+`qualify` executes both process profiles, the complete typed agent graphs,
+idempotent retries, fresh replays and numerical audits. It saves
+`qualification/qualification.json` and each cycle's report. Its scope is the
+installed reference instrument; a passing gate does not establish factory
+accuracy, trained-model performance or physical commissioning.
+
+For a single usable example with saved outputs:
+
+```bash
+net polymer demo --process injection_molding --output-dir injection-demo
+net polymer summary injection-demo
+net polymer verify injection-demo --output fresh-audit.json
+net polymer export injection-demo --output-dir exported-report
+```
+
+Open `injection-demo/report/report.html` for a readable retained report.
+`measurements.csv` contains every original sample, timestamp, SI unit, declared
+standard uncertainty and source/calibration/clock reference. `summary.json`
+labels workflow completion, numerical audit, part conformity, model, copilot
+and simulated-control outcomes separately. CSV is a marginal projection; it
+does not encode joint covariance. The retained native ingress, when supplied,
+is also exported intact. These views do not rerun models or modify the source.
+Exports and saved receipts use create-only destinations.
+
+The synthetic example deliberately has a nonconforming dimension. A successful
+workflow and numerical audit preserve that decision. Copilot context contains
+cited documentation leads; it has no LLM inference or established cause.
+
+For agent tooling, use the explicit
+[polymer MCP profile](NET_AGENT_PROTOCOL.md#polymer-cycle-profile). The trusted
+launch selector and per-operation grants are independent of profile data.
+
 ## Run and inspect
 
 After installing the project, run either process fixture through the same NET
@@ -54,6 +97,10 @@ retained numerical verification passed. It does not mean the part conforms, the
 copilot found a cause, or the model is physically qualified. The example's
 dimensional measurement deliberately lies outside its specified interval; that
 nonconformance can be correctly calculated and numerically verified.
+
+Add `--summary` to `run`, `inspect` or `replay` for concise decisions while
+retaining the full JSON interface. `verify --output audit.json` saves a fresh
+verification receipt without rewriting the retained workspace.
 
 ## Explicit operations and identities
 
@@ -129,6 +176,114 @@ calibration traceability, final-part release authority, or structural strength.
 A hot dimension at ejection does not satisfy a specification for a conditioned
 part merely because its numeric interval would fit the same bounds.
 
+## Retained native ingress
+
+`ciw.polymer_ingress` connects retained `ciw.calibrated-window-session.v1` and
+`ciw.acquired-calibrated-window-session.v1` bundles to this workload. It reuses
+the existing native bundle readers and performs no acquisition, provider
+execution, calibration calculation, or native numerical replay during import.
+The acquired path also retains the complete PPDA acquisition graph and selected
+snapshot records through its unchanged native child.
+
+An envelope contains the full native bundles, a valid polymer request template,
+explicit bindings, the exactly derived request, and a deterministic mapping
+receipt. Each binding contains only `sensor_id`, `bundle_ref`, `quantity`,
+`modality`, and `max_age_s`. Its `bundle_ref` is the digest of the **full** native
+bundle, including any retained verification. Native sensor identity, quantity
+semantics, SI output unit, frame and reference clock must match exactly; all
+bundles must share the exact epoch. No aliases, unit conversion, epoch rebasing,
+value/time/uncertainty overrides, or sample selection are performed. Every native
+sample is copied, and the template's sensor rows are wholly replaced.
+
+```python
+from ciw.polymer_ingress import make_envelope, derive, validate
+from ciw.telemetry import digest
+
+envelope = make_envelope(template, [native_bundle], [{
+    "sensor_id": "sensor:dimension",     # exact native calibration identity
+    "bundle_ref": digest(native_bundle),
+    "quantity": "part_dimension",       # exact native quantity semantics
+    "modality": "vision_3d",            # caller-declared quantitative modality
+    "max_age_s": 2.0,
+}])
+request = derive(validate(envelope))
+```
+
+Save the envelope as JSON and run it with:
+
+```bash
+net polymer run-ingress envelope.json --output-dir imported-run --summary
+```
+
+The run retains the envelope as `ingress.json` and
+inside the existing source metadata, so offline inspection, verification and
+replay can check exact upstream-to-request lineage. `make_envelope`, `validate`
+and `derive` return detached data. Their content receipts certify mapping
+consistency, without adding execution occurrences or physical authority.
+
+The projection copies each native MCUR corrected value and standard uncertainty
+with its TBRT nominal mapped timestamp. Native raw source bytes, calibration and
+clock declarations, joint raw covariance, full mapped time/value covariance,
+STFE feature, GSIE state, native runtime identities, and retained verification
+remain inspectable in the envelope. Pointwise metrology uses the marginal value
+uncertainty and the existing conservative interval enclosure; it performs no
+averaging or precision gain. Features and posterior estimates are not imported
+as instantaneous acquired observations.
+
+The existing reader checks the native source's exact covariance declaration.
+The importer checks mapped matrix shape, symmetry and marginal consistency. It
+does not rederive or repair native rounded covariance, or certify that the full
+mapped matrix is positive semidefinite. The full matrix remains retained; it is
+not substituted by a diagonal approximation for a downstream joint calculation.
+
+Native statistical time covariance does not become a deterministic `max_skew_s`
+certificate. The template's skew, freshness, cycle/part association and modality
+remain caller declarations conditional on nominal coordinates. No validated
+cycle membership, acquisition authenticity or traceable calibration follows
+from import. If a configured imported pressure channel has nonzero mapped time
+uncertainty, the arrival calculation receives an explicitly unbound reserved
+identity and abstains. Its full timing covariance remains retained.
+
+The current independent-input cooling model receives explicitly unbound reserved
+temperature and boundary identities and reports `ABSTAINED` for native ingress.
+The mapping receipt records this withheld binding, and the original template
+remains unchanged. This preserves native correlations without quietly projecting
+them into a model that assumes independence. A numerical audit may correctly pass
+that abstention while physical validation remains unestablished.
+
+The shipped `examples/polymer/native-dimension.bundle.json` is retained output
+from actual pinned TBRT, MCUR, STFE, GSIE and SET executions of a **synthetic bench
+declaration**. Its two positive dimension readings intentionally do not represent
+a real molded part. It supports repeatable offline import checks; regenerating
+its native numbers requires those exact provider checkouts. Its uncertainty and
+time/value covariance are retained unchanged.
+
+Native envelopes use a bounded, duplicate-key/nonfinite-rejecting JSON reader
+and atomic create-only writer. Their 4 MiB file budget includes original native
+byte encodings; these retained strings are not truncated to fit the smaller
+generic control-document text limit.
+
+Fresh PPDA acquisition was not qualified in this pass because an authenticated
+checkout of its exact private pin was unavailable. Acquired import's tests
+cover offline graph validation and routing; actual native execution evidence
+here covers TBRT, MCUR, STFE, GSIE and SET. The
+[readiness record](../validation/polymer/README.md) states this distinction.
+
+Prepare and run that shipped fixture from the repository root:
+
+```bash
+net polymer prepare-ingress examples/polymer/native-dimension.template.json \
+  --bundle examples/polymer/native-dimension.bundle.json \
+  --sensor-id sensor:level --quantity part_dimension --modality vision_3d \
+  --max-age-s 2 --output native-envelope.json
+net polymer run-ingress native-envelope.json --output-dir native-run --summary
+net polymer qualify --ingress native-envelope.json --output-dir qualification
+```
+
+`sensor:level` is the retained bench sensor identity; its quantity semantics in
+this fixture are explicitly `part_dimension`. Import does not rename or infer
+the quantity from that identity.
+
 ## Engineering reference and simulated control
 
 The model kind is `lumped_cooling_reference`. It computes a homogeneous lumped
@@ -174,10 +329,13 @@ injection-cavity pressure-arrival locations.
 The control plan is always `simulation_only`. It supports `cooling_time_s` and,
 depending on process identity, `holding_pressure_pa` or `blow_pressure_pa`.
 A proposal requires a single fresh, compatible response measurement, determinate
-metrology, a declared nonzero local gain, uncertainty budget, parameter bounds,
-maximum step, and gain-validity domain. Its relaxed linear correction is bounded
-by the maximum step and parameter interval. The gain is declared, not learned
-from the current cycle or inferred by an LLM.
+response-specific metrology bound to a matching specification and measurement
+condition, a declared nonzero local gain, uncertainty budget, parameter bounds,
+maximum step, and gain-validity domain. An unrelated nonconforming quantity cannot
+qualify a response whose uncertainty overlaps its tolerance or whose ejection
+measurement is incompatible with a conditioned-part specification. Its relaxed
+linear correction is bounded by the maximum step and parameter interval. The
+gain is declared, not learned from the current cycle or inferred by an LLM.
 
 The required `control.cycle_guard` declares `current_cycle_index`,
 `measurement_cycle_index`, `last_adjustment_cycle_index` (or `null`),

@@ -1,0 +1,50 @@
+{
+  "schema": "ciw.fluid-wave-request.v1",
+  "scope": "periodic_uniform_depth_linear_shallow_water_surface_gravity_wave",
+  "model": {
+    "length_m": 20.0,
+    "depth_m": 0.1,
+    "width_m": 1.0,
+    "density_kg_per_m3": 1000.0,
+    "gravity_m_per_s2": 9.81,
+    "amplitude_m": 0.0005,
+    "pulse_center_m": 10.0,
+    "initial_profile": "zero_mean_three_mode_right_travelling_pulse",
+    "boundary": "periodic_uniform_depth",
+    "particle_semantics": "none"
+  },
+  "clock": {
+    "owner": "ciw.fluid-wave-provider.v1",
+    "clock_id": "fluid-wave-model-clock",
+    "time_origin_s": 0.0,
+    "time_basis": "elapsed_model_time",
+    "externally_synchronized": false
+  },
+  "integration": {
+    "method": "implicit_midpoint",
+    "cells": 64,
+    "steps": 64,
+    "duration_s": 5.048187773461522,
+    "time_refinement_factor": 2,
+    "spatial_refinement_factor": 2
+  },
+  "desired_observables": [
+    "depth_averaged_velocity",
+    "energy_accounting",
+    "free_surface_elevation",
+    "hydrostatic_bottom_pressure",
+    "mass_balance",
+    "numerical_convergence",
+    "surface_gravity_wave",
+    "volume_flux",
+    "wave_speed"
+  ],
+  "tolerances": {
+    "analytic_normalized": 0.01,
+    "mass_relative": 1e-12,
+    "energy_relative": 1e-11,
+    "wave_speed_relative": 0.01,
+    "time_refinement_normalized": 0.001,
+    "spatial_refinement_normalized": 0.01
+  }
+}

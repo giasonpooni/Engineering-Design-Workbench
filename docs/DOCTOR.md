@@ -8,6 +8,7 @@ wanted. No credentials are read or tested.
 
 ```sh
 ciw doctor --profile core
+ciw doctor --profile legibility
 ciw doctor --profile declared-workloads --stack-root /providers/declared --engine /tools/execution-cli
 ciw doctor --profile native-interop --binding /bindings/native.json
 ciw doctor --profile interval-requirement --binding /bindings/interval.json
@@ -29,6 +30,7 @@ doctor never searches for or provisions a replacement.
 | Profile | Existing requirement authority | Local checks |
 | --- | --- | --- |
 | `core` | Installed CIW distribution metadata | CIW metadata, required Python version and exact required distribution versions; optional extras excluded |
+| `legibility` | Installed CIW metadata's exact `legibility` extra requirements | Core checks plus selected installed dependency versions, including cryptography; no cryptography import, key generation or signature verification |
 | `declared-workloads` | `ciw.declared_workload.PINS` | Exact source checkouts and presence/digest of the explicitly bound engine |
 | `native-interop` | Packaged `native-interop-runtimes.json` | Approved SCR checkout, host/operator digest, optional complete accepted Julia source closure, executable digest and depot presence |
 | `interval-requirement` | Manifest `interval_family` | Profile SCR revision/tree, host/operator digest, exact executable and worker/environment file hashes, depot presence |
@@ -52,8 +54,9 @@ or more fixed classifications:
 
 `preflight_passed` applies only to listed checks. Every report says
 `qualification: not_performed` and lists checks not performed. A selected
-provider profile does not implicitly check unrelated provider profiles or core
-package metadata; use `--profile core` separately. Installed metadata describes
+native provider profile does not implicitly check unrelated provider profiles or core
+package metadata; use `--profile core` separately. The `legibility` profile
+includes the core checks and accepts no native bindings. Installed metadata describes
 the installed distribution; when using a source checkout it does not attest
 that checkout's package requirements.
 
@@ -89,3 +92,9 @@ non-Git subprocesses/network/provisioning. Existing
 `tests/test_provider_provisioning.py` continues to check read-only checkout reuse
 and hidden source drift. Installed-wheel diagnostics must also work outside the
 source checkout.
+
+`tests/test_doctor_legibility.py` checks exact selected-extra pins, missing and
+mismatched dependencies, unsupported metadata, CLI exit behavior and absence
+of cryptography imports, network calls or provider execution. The
+[installed operator check](RUN_NET.md#check-the-installed-operator-path)
+executes the separate workflows after successful preflight.

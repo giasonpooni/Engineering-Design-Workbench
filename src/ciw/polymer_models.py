@@ -330,6 +330,20 @@ def control_proposal(request: dict, metrology: dict) -> dict:
         return _report("ciw.polymer-control-proposal.v1", **common, status="ABSTAINED", reason=reason)
     if metrology.get("status") not in {"CONFORMING", "NONCONFORMING"}:
         return refuse("INDETERMINATE_METROLOGY")
+    response = control["response"]
+    specifications = [spec for spec in request["tolerances"]
+                      if spec["quantity"] == response["quantity"] and spec["unit"] == response["unit"]]
+    if len(specifications) != 1:
+        return refuse("MISSING_OR_AMBIGUOUS_RESPONSE_SPECIFICATION")
+    specification = specifications[0]
+    if (request["measurement_condition"] != specification["condition"]
+            or metrology.get("measurement_condition") != request["measurement_condition"]):
+        return refuse("RESPONSE_MEASUREMENT_CONDITION_MISMATCH")
+    quality = [item for item in metrology.get("quantities", [])
+               if item["quantity"] == response["quantity"] and item["unit"] == response["unit"]]
+    if (len(quality) != 1 or quality[0]["status"] not in {"CONFORMING", "NONCONFORMING"}
+            or quality[0].get("specification_ref") != specification["specification_ref"]):
+        return refuse("UNQUALIFIED_RESPONSE_METROLOGY")
     guard = control["cycle_guard"]
     current_cycle, measured_cycle = guard["current_cycle_index"], guard["measurement_cycle_index"]
     last_cycle = guard["last_adjustment_cycle_index"]
@@ -340,7 +354,6 @@ def control_proposal(request: dict, metrology: dict) -> dict:
             return refuse("MINIMUM_CYCLE_DWELL_NOT_ELAPSED")
         if measured_cycle <= last_cycle:
             return refuse("NO_MEASUREMENT_AFTER_PRIOR_ADJUSTMENT")
-    response = control["response"]
     rows = [row for row in metrology.get("measurements", [])
             if row["quantity"] == response["quantity"] and row["unit"] == response["unit"]]
     if len(rows) != 1 or rows[0].get("status") != "VALID":

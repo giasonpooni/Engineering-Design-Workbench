@@ -76,12 +76,17 @@ engines, GPU instrumentation, Godot and Blender each have their own runtime and
 host requirements. Source code in the monorepo does not supply a compiled
 engine or a source-to-binary attestation.
 
-The doctor profiles `declared-workloads`, `native-interop`,
+The `legibility` doctor profile checks the signed-representation extra without
+importing its cryptographic provider. The doctor profiles `declared-workloads`, `native-interop`,
 `interval-requirement`, `reaction-catalyst` and `reaction-cantera` inspect their
 explicit local checkout/engine or runtime-binding arguments. For the exact
 flags, run `net doctor --help`. Missing dependencies return a failed preflight
 with a classification such as `dependency_unavailable`; preserve that report
 and provision the named requirement before retrying.
+
+The [installed public-tool guide](RUN_NET.md) adds signed-representation and
+impact checks. The [fluid guide](FLUID_DYNAMICS.md) and
+[polymer guide](POLYMER_PROCESSING.md) cover their retained operator paths.
 
 Bounded [atmosphere](ATMOSPHERIC_ENGINE.md) and
 [impact](IMPACT_TESTBED.md) examples can run without those external engines.

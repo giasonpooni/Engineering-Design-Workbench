@@ -23,6 +23,7 @@ replay creates a new execution.
 | --- | --- |
 | Investigation and execution | Sessions, operation and capability registries, retained runs, save/reopen, explicit replay and runtime preflight. [Instrument catalogue](docs/INSTRUMENTS.md). |
 | Typed composition and design | Workflow composition, parameterized Boards and declared input/output contracts. [Workflow algebra](docs/WORKFLOW_ALGEBRA.md) · [Scientific workflows](docs/NET_SCIENTIFIC_WORKFLOWS.md). |
+| Evolving workflow structure | Bounded typed hypergraph rewriting, invariant checks, retained transformation dependencies, alternative paths and explicit schedule comparisons. [Hypergraph rewriting](docs/HYPERGRAPH_REWRITE.md). |
 | Measurement and estimation | Calibration, time reconciliation, telemetry, covariance propagation, state estimation and bounded observation-design workflows. [Integration coverage](docs/INTEGRATION_COVERAGE.md). |
 | Scientific models and testbeds | Bounded impact and atmospheric models, thermal observers, geometric calculations and domain-specific numerical checks. [Atmospheric engine](docs/ATMOSPHERIC_ENGINE.md). |
 | Polymer processing | Cycle metrology, scoped cooling and pressure-arrival estimates, evidence-linked copilot context, and bounded control simulations for injection and extrusion blow molding. [Polymer processing](docs/POLYMER_PROCESSING.md). |
@@ -33,6 +34,12 @@ Support is specific to each profile. The coverage matrix identifies callable
 operations, provider requirements, recorded checks and remaining qualification.
 Runtime availability, numerical agreement and experimental physical validation
 are separate conditions.
+
+Run `net polymer demo --output-dir polymer-demo` for a saved cycle report and audit,
+or `net polymer qualify --output-dir polymer-qualification` to exercise both
+process profiles and the complete agent workflow. Retained native calibration
+import and the finite qualification evidence are described in the
+[operator guide](docs/POLYMER_PROCESSING.md).
 
 ## One repository, modular instruments
 
@@ -64,6 +71,39 @@ explicit runtime checkouts, executables or credentials. Consolidation alone does
 not establish that every workflow can run after an upstream repository is removed.
 The migration and qualification guides record the current dependency closure.
 
+## Bounded dynamic fluid models
+
+`net fluid` retains a time-dependent two-reservoir exchange model with a
+bidirectionally coupled compliant boundary, and a separate periodic linear
+surface-wave profile. Independent references, mass/energy/interface-work
+checks, and temporal/spatial refinement qualify their declared numerical
+domains. The [fluid guide](docs/FLUID_DYNAMICS.md) includes runnable commands,
+model equations, a qualified scalar-state handoff, and explicit expansion
+routes. The existing FlowState snapshot estimator and runtime pin remain
+unchanged; experimental validation and general molecular/CFD coupling remain
+unestablished.
+
+## Evolving workflow structures
+
+`net rewrite` adds an optional, bounded hypergraph computation model for ensemble
+construction and workflow auditing. Fixed rules replicate nodes, vary declared
+parameters, add typed couplings and split a thermal zone while preserving its
+declared heat capacity. Retained histories distinguish content identities from
+rewrite execution, result and verification occurrences. Bounded exploration
+keeps branch identities; explicit schedule checks compare exact terminal graphs.
+
+```sh
+net rewrite example --profile thermal --output results/thermal-request.json
+net rewrite run results/thermal-request.json --output results/thermal-rewrite.json
+net rewrite verify results/thermal-rewrite.json --output results/thermal-verification.json
+```
+
+The [rewrite guide](docs/HYPERGRAPH_REWRITE.md) covers types, limits, replay and
+qualification. These transformations describe structure; numerical models still
+calculate behavior, and existing operation contracts govern execution. Preserved
+declarations do not establish predictive accuracy or validate a proposed mapping
+from hypergraph evolution to fundamental physics.
+
 ## Quickstart
 
 Follow the [operator quickstart](docs/quickstart.md) to install, check and use the
@@ -76,6 +116,10 @@ The [operator readiness guide](docs/OPERATOR_READINESS.md) explains exact public
 provider provisioning and specialist qualification. Scientific provider and
 engine dependencies remain optional and explicitly bound. Reading retained
 results must not silently launch a runtime or rerun an experiment.
+
+The [installed public-tool guide](docs/RUN_NET.md) adds checked paths through
+impact, signed Legibility and atmospheric handoffs. Python 3.11 or newer is
+required.
 
 
 ```sh

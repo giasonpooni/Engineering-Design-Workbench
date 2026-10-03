@@ -140,6 +140,10 @@ def validate_execution(execution: dict, run: dict, revision: int, results: dict)
     runtime = execution.get("runtime")
     if runtime is not None and (not isinstance(runtime, dict) or not runtime):
         raise ValueError("Invalid execution runtime identity")
+    if operation_id in {"fluid.reservoir.simulate.v1", "fluid.reservoir.verify.v1",
+                        "fluid.wave.simulate.v1", "fluid.wave.verify.v1"}:
+        from ..fluid_workflow import validate_runtime
+        validate_runtime(operation_id, runtime, allow_absent=execution.get("status") == "refused")
     try:
         timestamp = datetime.fromisoformat(execution["created_at"])
         if timestamp.tzinfo is None or timestamp.utcoffset() is None:

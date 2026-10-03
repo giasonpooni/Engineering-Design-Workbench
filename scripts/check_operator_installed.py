@@ -1,378 +1,341 @@
-"""Validate the installed operator journey outside its source checkout.
+"""Qualify installed local NET workflows from outside the source checkout.
 
-Run this with a regular wheel installation, not an editable install. Every
-instrument subprocess uses Python's isolated mode. The retained report covers
-bounded synthetic workflows and local Session transport, not physical
-validation, hardware use or qualification of every imported provider.
+Run this script with the interpreter containing the installed wheel and its
+Legibility extra. Results retain actual CLI responses and immutable source
+snapshots. Passing qualifies these bounded synthetic workflows only; it grants
+no provider authority, physical validation, canonical admission or actuation.
 """
 from __future__ import annotations
 
 import argparse
+from datetime import datetime, timezone
 from hashlib import sha256
 import json
 import os
 from pathlib import Path
-import socket
 import subprocess
 import sys
 import time
+import zipfile
 
 
-SOURCE = Path(__file__).resolve().parents[1]
+PROVENANCE = """
+import importlib.metadata as metadata, importlib.util, json, sys
+distribution = metadata.distribution('computational-instrumentation-workbench')
+spec = importlib.util.find_spec('ciw')
+direct = distribution.read_text('direct_url.json')
+print(json.dumps({'distribution': distribution.metadata['Name'],
+    'version': distribution.version, 'python': sys.version,
+    'interpreter': sys.executable, 'isolated': bool(sys.flags.isolated),
+    'ciw_origin': spec.origin, 'package_root': str(distribution.locate_file('ciw')),
+    'direct_url': json.loads(direct) if direct else None,
+    'dependencies': {name: metadata.version(name) for name in
+                     ('numpy', 'websockets', 'cryptography')}}))
+"""
 
 
-def require(condition, message: str) -> None:
-    if not condition:
-        raise AssertionError(message)
+def _hash(path: Path) -> str:
+    value = sha256()
+    with path.open("rb") as stream:
+        for chunk in iter(lambda: stream.read(1024 * 1024), b""):
+            value.update(chunk)
+    return value.hexdigest()
 
 
-def read(path: Path):
+def _snapshot(directory: Path) -> dict[str, str]:
+    return {path.relative_to(directory).as_posix(): _hash(path)
+            for path in sorted(directory.rglob("*")) if path.is_file()}
+
+
+def _read(path: Path) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
-def digest(path: Path) -> str:
-    return "sha256:" + sha256(path.read_bytes()).hexdigest()
+def _write(path: Path, value: object) -> None:
+    with path.open("x", encoding="utf-8") as stream:
+        json.dump(value, stream, indent=2, allow_nan=False)
+        stream.write("\n")
 
 
-def write(path: Path, value) -> None:
-    path.write_text(json.dumps(value, indent=2, allow_nan=False) + "\n", encoding="utf-8")
+class Qualification:
+    def __init__(self, destination: Path, timeout: float):
+        self.root = destination
+        self.timeout = timeout
+        self.commands: list[dict] = []
+        self.checks: list[dict] = []
+        self.root.joinpath("commands").mkdir()
 
+    def require(self, name: str, condition: bool, detail: object = None) -> None:
+        self.checks.append({"check": name, "status": "PASS" if condition else "FAIL",
+                            "observed": detail})
+        if not condition:
+            raise ValueError(name)
 
-def source_identity(root: Path) -> dict:
-    def git(*arguments):
-        return subprocess.check_output(["git", "--no-replace-objects", "-C", str(root), *arguments],
-                                       text=True, timeout=30).strip()
-    return {"root": str(root), "revision": git("rev-parse", "HEAD"),
-            "source_tree": git("rev-parse", "HEAD^{tree}"),
-            "tracked_changes_present": bool(git("status", "--porcelain", "--untracked-files=no"))}
-
-
-class Journey:
-    def __init__(self, python: Path, output: Path):
-        self.python = python.expanduser().absolute()
-        require(self.python.is_file(), "Installed Python executable is unavailable")
-        self.output = output.resolve()
-        require(SOURCE not in self.output.parents and self.output != SOURCE,
-                "Installed checks must execute outside the source checkout")
-        self.output.mkdir(parents=True, exist_ok=False)
-        self.logs = self.output / "commands"
-        self.logs.mkdir()
-        self.environment = dict(os.environ)
-        # The subprocesses also use -I. Removing these makes provider child
-        # processes inherit no source-tree Python path from the invoking shell.
-        self.environment.pop("PYTHONPATH", None)
-        self.environment.pop("PYTHONHOME", None)
-        self.environment["PYTHONUNBUFFERED"] = "1"
-        temporary = self.output / "temporary"
-        temporary.mkdir()
-        self.environment.update(TMPDIR=str(temporary), TEMP=str(temporary), TMP=str(temporary))
-        self.report = {"schema": "ciw.installed-operator-check.v1", "status": "failed",
-                       "scope": "installed_bounded_synthetic_operator_journey",
-                       "physical_validation": "not_established", "state_admission": "not_performed",
-                       "hardware_actuation": "not_performed", "all_provider_qualification": "not_performed",
-                       "commands": [], "checks": {}}
-        self.processes: list[subprocess.Popen] = []
-        self.streams = []
-
-    def invoke(self, module: str | None, arguments: list[str], *, expected: int | tuple[int, ...] = 0,
-               timeout: float = 60, json_output: bool = True):
-        command = [str(self.python), "-I", "-m", module, *arguments] if module else [str(self.python), "-I", *arguments]
-        index = len(self.report["commands"]) + 1
-        prefix = self.logs / f"{index:03d}"
-        row = {"argv": command, "cwd": str(self.output), "expected_exit": expected,
-               "stdout": str(prefix.with_suffix(".stdout.txt")),
-               "stderr": str(prefix.with_suffix(".stderr.txt"))}
-        self.report["commands"].append(row)
+    def execute(self, name: str, arguments: list[str], expected: int = 0) -> dict:
+        # Only runtime locations needed on supported platforms are propagated.
+        # Credentials and Python/repository overrides never enter the child.
+        allowed = ("PATH", "SYSTEMROOT", "WINDIR", "COMSPEC", "PATHEXT",
+                   "TEMP", "TMP", "TMPDIR", "USERPROFILE", "APPDATA", "LOCALAPPDATA")
+        environment = {key: value for key, value in os.environ.items() if key.upper() in allowed}
+        command = [sys.executable, "-I", *arguments]
+        stem = f"{len(self.commands) + 1:02d}-{name}"
+        stdout_path = self.root / "commands" / (stem + ".stdout.json")
+        stderr_path = self.root / "commands" / (stem + ".stderr.txt")
+        record = {"name": name, "argv": command, "cwd": str(self.root),
+                  "expected_returncode": expected,
+                  "stdout": stdout_path.relative_to(self.root).as_posix(),
+                  "stderr": stderr_path.relative_to(self.root).as_posix()}
+        self.commands.append(record)
+        started = time.monotonic()
         try:
-            result = subprocess.run(command, cwd=self.output, env=self.environment, text=True,
-                                    encoding="utf-8", errors="replace", capture_output=True,
-                                    timeout=timeout, check=False)
+            completed = subprocess.run(command, cwd=self.root, env=environment,
+                                       stdout=subprocess.PIPE, stderr=subprocess.PIPE,
+                                       timeout=self.timeout, check=False)
         except subprocess.TimeoutExpired as exc:
-            row["timed_out"] = True
-            prefix.with_suffix(".stdout.txt").write_bytes(exc.stdout or b"")
-            prefix.with_suffix(".stderr.txt").write_bytes(exc.stderr or b"")
-            raise
-        prefix.with_suffix(".stdout.txt").write_text(result.stdout, encoding="utf-8")
-        prefix.with_suffix(".stderr.txt").write_text(result.stderr, encoding="utf-8")
-        row["exit_code"] = result.returncode
-        acceptable = (expected,) if isinstance(expected, int) else expected
-        require(result.returncode in acceptable,
-                f"Command returned {result.returncode}, expected {expected}: {command}; "
-                f"{(result.stderr or result.stdout)[-4000:]}")
-        if not json_output:
-            return result
-        return json.loads(result.stdout if result.stdout.strip() else result.stderr)
+            stdout_path.write_bytes(exc.stdout or b"")
+            stderr_path.write_bytes(exc.stderr or b"")
+            record.update(returncode=None, status="TIMEOUT",
+                          elapsed_s=time.monotonic() - started)
+            raise ValueError(f"{name} exceeded {self.timeout:g} seconds") from exc
+        stdout_path.write_bytes(completed.stdout)
+        stderr_path.write_bytes(completed.stderr)
+        record.update(returncode=completed.returncode, elapsed_s=time.monotonic() - started,
+                      stdout_sha256=_hash(stdout_path), stderr_sha256=_hash(stderr_path),
+                      status="PASS" if completed.returncode == expected else "FAIL")
+        if completed.returncode != expected:
+            raise ValueError(f"{name} returned {completed.returncode}, expected {expected}; "
+                             f"see {stderr_path}")
+        value = json.loads(completed.stdout)
+        if not isinstance(value, dict):
+            raise ValueError(f"{name} did not return a JSON object")
+        return value
 
-    def net(self, *arguments, **options):
-        return self.invoke("ciw.net", list(map(str, arguments)), **options)
+    def ciw(self, name: str, *arguments: str, expected: int = 0) -> dict:
+        return self.execute(name, ["-m", "ciw", *arguments], expected)
 
-    def ciw(self, *arguments, **options):
-        return self.invoke("ciw", list(map(str, arguments)), **options)
+    def net(self, name: str, *arguments: str, expected: int = 0) -> dict:
+        return self.execute(name, ["-m", "ciw.net", *arguments], expected)
 
-    def send(self, kind: str, url: str, payload: dict | None = None) -> dict:
-        value = self.ciw("send", kind, "--url", url, "--payload", json.dumps(payload or {}))
-        require(value.get("type") == "response", f"Session refused {kind}: {value}")
-        return value["payload"]
+    def unchanged(self, name: str, directory: Path, before: dict) -> None:
+        after = _snapshot(directory)
+        self.require(name, before == after, {"before": before, "after": after})
 
-    def check_installation(self) -> None:
-        probe = """import importlib.metadata as m, json, pathlib, platform, sys, ciw
-d = m.distribution('computational-instrumentation-workbench')
-direct = d.read_text('direct_url.json')
-print(json.dumps({'module': str(pathlib.Path(ciw.__file__).resolve()),
- 'distribution_module': str(pathlib.Path(d.locate_file('ciw/__init__.py')).resolve()),
- 'version': d.version, 'direct_url': json.loads(direct) if direct else None,
- 'python': sys.version, 'executable': sys.executable, 'platform': platform.platform(),
- 'isolated': sys.flags.isolated}))"""
-        value = self.invoke(None, ["-c", probe])
-        module = Path(value["module"])
-        require(value["isolated"] == 1, "Installed probes must run in isolated mode")
-        require(module == Path(value["distribution_module"]), "Imported CIW differs from the installed distribution")
-        require(SOURCE not in module.parents and SOURCE not in self.output.parents,
-                "Installed checks must execute outside the source checkout")
-        require(not (value["direct_url"] or {}).get("dir_info", {}).get("editable", False),
-                "Use a regular wheel installation, not an editable install")
-        self.report["installation"] = value
-        self.report["source"] = source_identity(SOURCE)
-        doctor = self.net("doctor", "--profile", "core")
-        require(doctor["status"] == "preflight_passed", "Installed core dependencies failed preflight")
-        require(all(row["status"] == "passed" for row in doctor["checks"]), "A core dependency check failed")
-        self.report["checks"]["core_doctor"] = doctor
 
-    def check_cold_start(self) -> None:
-        # Expose only the installed CIW package through its own package path.
-        # Adding its entire site-packages directory would also expose NumPy,
-        # defeating the missing-dependency check that -S is intended to make.
-        module = self.report["installation"]["module"]
-        bootstrap = f"""import importlib.util, pathlib, sys
-path = pathlib.Path({module!r})
-spec = importlib.util.spec_from_file_location('ciw', path, submodule_search_locations=[str(path.parent)])
-package = importlib.util.module_from_spec(spec)
-sys.modules['ciw'] = package
-spec.loader.exec_module(package)
-from ciw.net import main
-code = main()
-if 'numpy' in sys.modules or 'websockets' in sys.modules:
-    raise RuntimeError('Blocked setup imported scientific dependencies')
-raise SystemExit(code)"""
-        directory = self.output / "blocked-first-use"
-        summary = self.invoke(None, ["-S", "-c", bootstrap, "start", "--output-dir", str(directory)], expected=2)
-        receipt = read(directory / "readiness.json")
-        require(summary["status"] == receipt["status"] == "failed"
-                and receipt["workflows"] == {}
-                and receipt["checks"][0]["check"] == "core_preflight"
-                and receipt["checks"][0]["status"] == "failed", "Cold setup did not retain a blocked preflight receipt")
-        preflight = read(directory / "preflight.json")
-        require(preflight["status"] == "blocked" and "dependency_unavailable" in preflight["classifications"],
-                "Cold setup did not classify missing dependencies")
-        require("net doctor" in summary["failure"]["reason"], "Cold setup omitted its actionable doctor instruction")
-        self.report["checks"]["cold_start"] = {"status": "passed", "receipt": str(directory / "readiness.json"),
-            "missing_dependencies_classified": True, "scientific_execution_performed": False}
+def _wheel_proof(qualification: Qualification, wheel: Path, package_root: Path) -> dict:
+    files = {}
+    with zipfile.ZipFile(wheel) as archive:
+        for item in archive.infolist():
+            if item.is_dir() or not item.filename.startswith("ciw/"):
+                continue
+            relative = Path(item.filename).relative_to("ciw")
+            if ".." in relative.parts or relative.is_absolute() or item.filename in files:
+                raise ValueError("Wheel contains an invalid or duplicated ciw package path")
+            expected = sha256(archive.read(item)).hexdigest()
+            installed = package_root / relative
+            qualification.require("installed-wheel-byte:" + item.filename,
+                                  installed.is_file() and _hash(installed) == expected,
+                                  {"expected_sha256": expected, "installed_file": str(installed)})
+            files[item.filename] = expected
+    qualification.require("wheel-package-present", bool(files))
+    return {"wheel": str(wheel), "wheel_sha256": _hash(wheel),
+            "ciw_files_matched": len(files), "files": files}
 
-    def check_first_use(self) -> dict:
-        catalog = self.net("catalog", "--json")
-        require(catalog["read_only"] is True and catalog["authorizes_execution"] is False,
-                "Catalog must remain read-only navigation")
-        names = {row["command"] for row in catalog["commands"]}
-        require(len(names) == len(catalog["commands"]), "Catalog contains duplicate commands")
-        require({"net catalog", "net doctor", "net start", "net workbench", "net provision",
-                 "net science", "net atmosphere", "net dsp", "net board", "net compose"} <= names,
-                "Installed catalog omits operator or specialist entry points")
-        workflows = {row["workflow"]: row for row in catalog["workflows"]}
-        require(len(workflows) == len(catalog["workflows"]), "Catalog contains duplicate workflows")
-        require({"thermal-observer", "residual-monitor", "curved-path-transfer", "calibrated-observable"} <= workflows.keys(),
-                "Installed catalog omits declared scientific workflows")
-        self.report["checks"]["catalog"] = {"commands": sorted(names), "workflow_count": len(workflows),
-                                               "workflow_operation_ids": sorted(row["operation_id"] for row in workflows.values())}
-        first = self.output / "first-use"
-        summary = self.net("start", "--output-dir", first, timeout=180)
-        receipt_path = first / "readiness.json"
-        require(summary["status"] == "completed" and summary["receipt_sha256"] == digest(receipt_path),
-                "First-use completion receipt is missing or has the wrong digest")
-        receipt = read(receipt_path)
-        require(receipt["status"] == "completed" and receipt["authority"]["scope"] == "bounded_synthetic_core_workflows",
-                "First use did not complete the bounded core workflows")
-        require(receipt["authority"]["external_provider_qualification"] == "not_performed"
-                and receipt["authority"]["physical_validation"] == "not_established"
-                and receipt["authority"]["state_admission"] == "not_performed",
-                "First-use receipt expanded its authority")
-        require(all(row["status"] == "passed" for row in receipt["checks"]), "A first-use step failed")
-        for artifact in receipt["artifacts"]:
-            path = (first / artifact["path"]).resolve()
-            require(first in path.parents, "Artifact escaped its retained first-use directory")
-            require(path.stat().st_size == artifact["byte_count"] and digest(path) == artifact["sha256"],
-                    "Retained first-use artifact differs from its receipt: " + artifact["path"])
-        thermal = receipt["workflows"]["thermal"]
-        require(thermal["checks"]["replay-comparison"]["status"] == "PASS", "Thermal posterior replay is not exact")
-        for original, replay in (("source_bundle_id", "replayed_bundle_id"),
-                                 ("original_execution_id", "replay_execution_id"),
-                                 ("original_result_id", "replay_result_id")):
-            require(thermal[original] != thermal[replay], "Thermal replay reused a retained occurrence identity")
-        require(thermal["verification"]["outcome"] == "passed" and thermal["verification"]["independent"] is False,
-                "Thermal reproduction verification scope changed")
-        inspected = read(first / "atmosphere/inspection.json")
-        verified = read(first / "atmosphere/verification-report.json")
-        require(inspected["status"] == verified["status"] == "LOCAL"
-                and inspected["fresh_numerical_verification"] is False
-                and verified["fresh_numerical_verification"] is True
-                and verified["fresh_execution"] is False, "Atmosphere inspection/recheck semantics changed")
-        require(bool(verified["checks"]) and all(row["status"] == "PASS" for row in verified["checks"]),
-                "Independent atmosphere checks did not pass")
-        for identity in ("evidence_id", "execution_id", "result_id", "verification_execution_id", "verification_id"):
-            require(inspected[identity] == verified[identity], "Atmosphere recheck changed retained identities")
-        before = {row["path"]: digest(first / row["path"]) for row in receipt["artifacts"]}
-        refusal = self.net("start", "--output-dir", first, expected=1)
-        require(refusal["status"] == "refused", "Existing first-use output was accepted")
-        require(digest(receipt_path) == summary["receipt_sha256"]
-                and before == {path: digest(first / path) for path in before}, "Refused first use changed retained artifacts")
-        self.report["checks"]["first_use"] = {"receipt": str(receipt_path), "receipt_sha256": digest(receipt_path),
-            "thermal": thermal, "atmosphere_check_count": len(verified["checks"]),
-            "existing_output_refused_without_change": True}
-        return catalog
 
-    def launch(self, directory: Path, port: int) -> subprocess.Popen:
-        number = len(self.processes) + 1
-        stream = (self.output / f"workbench-{number}.log").open("w", encoding="utf-8")
-        self.streams.append(stream)
-        process = subprocess.Popen([str(self.python), "-I", "-u", "-m", "ciw.net", "workbench",
-                                    "--output-dir", str(directory), "--port", str(port), "--bind", "127.0.0.1"],
-                                   cwd=self.output, env=self.environment, stdin=subprocess.DEVNULL,
-                                   stdout=stream, stderr=subprocess.STDOUT)
-        self.processes.append(process)
-        return process
+def _scientific(qualification: Qualification, family: str, directory: Path) -> dict:
+    arguments = ("impact", "plate") if family == "impact" else ("atmosphere",)
+    qualification.net(family + "-example", *arguments, "example", "--output", family + "-request.json")
+    created = qualification.net(family + "-run", *arguments, "run", family + "-request.json",
+                                "--output-dir", directory.name)
+    qualification.require(family + "-numerical-local", created["status"] == "LOCAL")
+    before = _snapshot(directory)
+    inspected = qualification.net(family + "-inspect", *arguments, "inspect", directory.name)
+    verified = qualification.net(family + "-verify", *arguments, "verify", directory.name)
+    identity_fields = ("evidence_id", "operation_id", "execution_id", "result_id",
+                       "verification_operation_id", "verification_execution_id", "verification_id")
+    qualification.require(family + "-retained-identities",
+                          all(inspected[key] == verified[key] for key in identity_fields),
+                          {key: inspected[key] for key in identity_fields})
+    qualification.require(family + "-separate-identities",
+                          len({inspected[key] for key in identity_fields}) == len(identity_fields))
+    qualification.require(family + "-fresh-numerical-report-only",
+                          inspected["fresh_numerical_verification"] is False
+                          and verified["fresh_numerical_verification"] is True
+                          and inspected["fresh_execution"] is False and verified["fresh_execution"] is False)
+    qualification.require(family + "-authority-boundary",
+                          verified["authority"]["physical_validation"] == "not_established"
+                          and verified["authority"]["state_admission"] == "not_performed"
+                          and verified["authority"]["hardware_actuation"] == "not_performed"
+                          and verified["preservation"]["state_admission_performed"] is False,
+                          verified["authority"])
+    qualification.unchanged(family + "-inspect-verify-unchanged", directory, before)
+    return {"inspection": inspected, "verification": verified, "snapshot": before}
 
-    @staticmethod
-    def stop(process: subprocess.Popen) -> None:
-        if process.poll() is None:
-            process.terminate()
-            try:
-                process.wait(timeout=10)
-            except subprocess.TimeoutExpired:
-                process.kill()
-                process.wait(timeout=10)
 
-    def await_health(self, process: subprocess.Popen, url: str) -> dict:
-        deadline = time.monotonic() + 30
-        while time.monotonic() < deadline:
-            require(process.poll() is None, "Owned Workbench process exited before becoming healthy; inspect its log")
-            try:
-                return self.ciw("health", "--url", url, timeout=8)
-            except AssertionError:
-                time.sleep(0.1)
-        raise AssertionError("Owned Workbench process did not become healthy within 30 seconds")
+def qualify(destination: Path, *, expected_wheel: Path | None = None, timeout: float = 120) -> dict:
+    destination = destination.absolute()
+    if destination.exists() or destination.is_symlink():
+        raise ValueError("Output directory already exists; choose a new path to preserve retained results")
+    checkout = Path(__file__).resolve().parents[1]
+    if (checkout / "src" / "ciw").is_dir() and destination.resolve().is_relative_to(checkout):
+        raise ValueError("Output directory must be outside the source checkout")
+    destination.mkdir(parents=True, exist_ok=False)
+    qualification = Qualification(destination.resolve(), timeout)
+    report = {"schema": "ciw.installed-operator-qualification.v1", "status": "FAIL",
+              "started_at": datetime.now(timezone.utc).isoformat(),
+              "scope": "installed local public synthetic workflows",
+              "physical_validation_status": "not_assessed", "canonical_admission": False,
+              "physical_actuation": "not_performed", "private_provider_qualification": "not_performed",
+              "commands": qualification.commands, "checks": qualification.checks}
+    try:
+        provenance = qualification.execute("installed-provenance", ["-c", PROVENANCE])
+        report["installed_package"] = provenance
+        qualification.require("isolated-interpreter", provenance["isolated"] is True)
+        package_root = Path(provenance["package_root"]).resolve(strict=True)
+        editable = (provenance.get("direct_url") or {}).get("dir_info", {}).get("editable")
+        qualification.require("installed-package-without-source-fallback",
+                              editable is not True and Path(provenance["ciw_origin"]).resolve()
+                              == package_root / "__init__.py" and not package_root.is_relative_to(checkout))
+        report["wheel_byte_proof"] = (_wheel_proof(qualification, expected_wheel, package_root)
+                                      if expected_wheel else {"status": "not_requested"})
+        for profile in ("core", "legibility"):
+            result = qualification.ciw("doctor-" + profile, "doctor", "--profile", profile)
+            qualification.require("doctor-" + profile + "-preflight",
+                                  result["status"] == "preflight_passed"
+                                  and result["read_only"] is True
+                                  and result["qualification"] == "not_performed")
 
-    def check_workbench(self, catalog: dict) -> None:
-        directory = self.output / "workbench"
-        with socket.socket() as reserved:
-            reserved.bind(("127.0.0.1", 0))
-            port = reserved.getsockname()[1]
-        url = f"ws://127.0.0.1:{port}"
-        process = self.launch(directory, port)
-        health = self.await_health(process, url)
-        require(health["status"] == "healthy", "Live Workbench health failed")
-        session = self.send("session.get", url)
-        operations = self.send("operation.list", url)["operations"]
-        declared = {row["operation_id"] for row in operations if "source_kind" in row}
-        require(declared == {row["operation_id"] for row in catalog["workflows"]},
-                "Unified catalog does not cover every live Session workflow")
-        completed = self.send("operation.execute", url, {"operation_id": "statistics.v1", "parameters": {}})
-        require(completed["status"] == "completed", "Live Session statistics operation failed")
-        result = completed["result"]
-        require(result["execution_id"] == completed["execution"]["execution_id"], "Live result lost its execution link")
-        require(result["result_id"] in {row["result_id"] for row in self.send("result.list", url)["results"]},
-                "Completed live result is absent from the result catalog")
-        saved = self.send("workspace.save", url)
-        path = Path(saved["workspace_file"])
-        original = read(path)
-        self.stop(process)
-        restarted = self.launch(directory, port)
-        self.await_health(restarted, url)
-        reopened = self.send("session.get", url)
-        require(reopened["run"]["evidence_id"] == session["run"]["evidence_id"], "Resume replaced retained evidence")
-        require(self.send("result.get", url, {"result_id": result["result_id"]}) == result,
-                "Resume changed a retained live result")
-        self.send("workspace.save", url)
-        restored = read(path)
-        for key in ("run", "selection", "results", "executions"):
-            require(restored[key] == original[key], "Resume changed retained workspace " + key)
-        self.stop(restarted)
-        self.report["checks"]["workbench"] = {"status": "passed", "url": url,
-            "workspace": str(path), "source_evidence_id": session["run"]["evidence_id"],
-            "result_id": result["result_id"], "execution_id": result["execution_id"],
-            "workflow_operation_count": len(declared), "restart_preserved_records_without_reexecution": True}
+        providers = qualification.net("provider-discovery", "providers", "--json")
+        capabilities = qualification.net("provider-capabilities", "capabilities", "--json")
+        indexed = qualification.ciw("instrument-capabilities", "capabilities", "list")
+        qualification.require("discovery-grants-no-execution-authority",
+                              providers["authorizes_execution"] is False
+                              and capabilities["authorizes_execution"] is False
+                              and indexed["authorizes_execution"] is False
+                              and indexed["qualification"] == "not_performed"
+                              and indexed["status"] == "index_only"
+                              and all(item["bound"] is False for item in providers["operations"].values()))
+        report["discovery"] = {"providers": len(providers["providers"]),
+                               "declared_operations": len(capabilities["operations"]),
+                               "capability_index_response": indexed}
 
-    def check_public_provider(self, monorepo: Path) -> None:
-        monorepo = monorepo.resolve(strict=True)
-        require(monorepo not in Path(self.report["installation"]["module"]).parents,
-                "The imported installed package comes from the provisioning source")
-        plan = self.net("provision", "--plan", "--monorepo", monorepo, "--workflow", "residual-monitor", expected=(0, 1))
-        require(plan["read_only"] is True and plan["qualification"] == "not_performed",
-                "Public provider planning changed its authority")
-        providers = self.output / "public-providers"
-        provisioned = self.net("provision", "--monorepo", monorepo, "--workflow", "curved-path-transfer",
-                               "--output-dir", providers, timeout=180)
-        require(provisioned["status"] == "provisioned", "Public curved-path provider was not provisioned")
-        source = self.output / "curved-source.json"
-        raw = subprocess.check_output(["git", "--no-replace-objects", "-C", str(monorepo), "show",
-            provisioned["plan"]["source"]["revision"] + ":examples/curved-path-study/baseline.json"], timeout=30)
-        source.write_bytes(raw)
-        bindings = providers / "bindings.json"
-        context = self.output / "first-use/oscillator/workspace.json"
-        context_digest = digest(context)
-        native = self.output / "curved-original"
-        selected = self.net("science", "run", "--workspace", context, "--kind", "curved-path-transfer",
-            "--source", source, "--label", "existing synthetic curved-path baseline", "--bindings-file", bindings,
-            "--output-dir", native, "--json", timeout=180)
-        require(selected["validation"] == "content_consistent" and selected["retained_verification_outcome"] == "passed",
-                "Provisioned public workflow did not retain a passing reproduction")
-        workspace = native / "workspace.json"
-        before = digest(workspace)
-        replay = self.net("science", "replay", "--workspace", workspace, "--bundle", selected["bundle_id"],
-            "--bindings-file", bindings, "--output-dir", self.output / "curved-replay", "--json", timeout=180)
-        fresh = replay["bundle"]
-        require(replay["replay_receipt"]["numerical_match"] is True, "Public curved-path replay did not numerically match")
-        require(selected["bundle_id"] != fresh["bundle_id"]
-                and set(selected["execution_ids"]).isdisjoint(fresh["execution_ids"])
-                and set(selected["result_ids"]).isdisjoint(fresh["result_ids"]),
-                "Public workflow replay reused native occurrence identities")
-        require(before == digest(workspace) and context_digest == digest(context), "Public workflow changed an input workspace")
-        self.report["checks"]["public_provider"] = {"status": "passed", "workflow": "curved-path-transfer",
-            "source": provisioned["plan"]["source"], "source_sha256": digest(source),
-            "providers": provisioned["plan"]["providers"], "bindings_file": str(bindings),
-            "original": selected, "replay": replay, "residual_monitor_plan": plan,
-            "scope": "existing_declared_synthetic_case_and_same_runtime_reproduction"}
+        demo = qualification.ciw("oscillator-demo", "demo", "--output", "oscillator.json")
+        analyzed = qualification.ciw("oscillator-stats", "analyze", "stats", "--recording", "oscillator.json",
+                                     "--start", "0", "--end", "12", "--output-dir", "oscillator")
+        result = analyzed["payload"]
+        before = _snapshot(qualification.root / "oscillator")
+        recording_before = _hash(qualification.root / "oscillator.json")
+        workspace = qualification.ciw("oscillator-inspect", "inspect", "oscillator/workspace.json")
+        reopened = qualification.net("oscillator-reopen", "inspect", "oscillator/workspace.json", "--json")
+        qualification.require("oscillator-retained-identities",
+                              workspace["run"]["evidence_id"] == demo["evidence_id"] == result["evidence_id"]
+                              and result in workspace["results"] and result in reopened["results"].values())
+        qualification.require("oscillator-no-verification-promotion",
+                              result["verification_status"] == "not_verified" and result["verification_id"] is None
+                              and reopened["physical_validation"] == "not_performed"
+                              and reopened["state_admission"] == "not_performed")
+        qualification.require("oscillator-separate-identities",
+                              result["operation_id"] == "statistics.v1"
+                              and len({result[key] for key in ("evidence_id", "operation_id", "execution_id", "result_id")}) == 4)
+        qualification.unchanged("oscillator-inspection-unchanged", qualification.root / "oscillator", before)
+        qualification.require("oscillator-recording-unchanged",
+                              recording_before == _hash(qualification.root / "oscillator.json"))
 
-    def finish(self) -> None:
-        for process in self.processes:
-            self.stop(process)
-        for stream in self.streams:
-            stream.close()
-        write(self.output / "qualification.json", self.report)
+        impact_dir = qualification.root / "impact-plate"
+        impact = _scientific(qualification, "impact", impact_dir)
+        object_id = "notations:specimen:installed-plate-001"
+        qualification.ciw("impact-legibility-import", "legibility", "import-impact", "impact-plate/workspace.json",
+                          "--object-id", object_id, "--version", "1", "--output-dir", "impact-legibility")
+        imported_dir = qualification.root / "impact-legibility"
+        imported_before = _snapshot(imported_dir)
+        imported = qualification.ciw("impact-legibility-verify", "legibility", "verify", "impact-legibility",
+                                     "--expected-object-id", object_id, "--expected-version", "1")
+        bindings = _read(imported_dir / "compilation-binding.json")
+        source = _read(imported_dir / "contract.json")
+        qualification.require("impact-legibility-preserves-scientific-identities",
+                              source["bindings"] == {key: impact["inspection"][key] for key in
+                                                     ("evidence_id", "operation_id", "execution_id", "verification_id")}
+                              and bindings["source_bindings"] == source["bindings"]
+                              and bindings["compilation_execution_id"] != source["bindings"]["execution_id"])
+        qualification.require("impact-legibility-content-without-authority",
+                              imported["content_intact"] is True and imported["artifact_status"] == "verified"
+                              and source["qualification"]["status"] == "numerical_only"
+                              and source["qualification"]["canonical_admission"] is False
+                              and imported["physical_validation_status"] == "not_assessed"
+                              and imported["canonical_admission"] is False)
+        qualification.unchanged("impact-import-preserves-original-workspace", impact_dir, impact["snapshot"])
+        qualification.unchanged("impact-legibility-verification-unchanged", imported_dir, imported_before)
+
+        published = qualification.ciw("signed-legibility-demo", "legibility", "demo", "--output-dir", "signed-legibility")
+        signed_dir = qualification.root / "signed-legibility"
+        signed_before = _snapshot(signed_dir)
+        signed_source = _read(signed_dir / "contract.json")
+        expected = ("--trust", "signed-legibility/demo-trust.json", "--expected-object-id",
+                    signed_source["object"]["object_id"], "--expected-version", signed_source["object"]["version"])
+        signed = qualification.ciw("signed-legibility-verify", "legibility", "verify", "signed-legibility", *expected)
+        refused = qualification.ciw("signed-legibility-wrong-version", "legibility", "verify", "signed-legibility",
+                                   *expected[:-1], signed_source["object"]["version"] + "-wrong", expected=2)
+        qualification.require("signed-content-trust-and-currentness",
+                              all(signed[key] is True for key in ("content_intact", "signature_valid", "issuer_trusted",
+                                                                 "object_matches", "version_current"))
+                              and signed["verification_id"] != published["verification"]["verification_id"])
+        qualification.require("wrong-version-refused-with-intact-signature",
+                              refused["version_current"] is False and refused["signature_valid"] is True
+                              and refused["verification_id"] != signed["verification_id"])
+        qualification.require("legibility-does-not-grant-scientific-authority",
+                              signed["physical_validation_status"] == "not_assessed" and signed["canonical_admission"] is False)
+        qualification.unchanged("signed-verification-and-refusal-unchanged", signed_dir, signed_before)
+        report["trust_scope"] = "Same-run synthetic demo anchor; organizational issuer identity and external freshness are not established"
+
+        atmosphere_dir = qualification.root / "atmosphere-column"
+        atmosphere = _scientific(qualification, "atmosphere", atmosphere_dir)
+        handoffs = {}
+        for provider in ("impact", "fluid", "render"):
+            path = "atmosphere-" + provider + ".json"
+            exported = qualification.net("atmosphere-handoff-" + provider, "atmosphere", "handoff",
+                                         atmosphere_dir.name, "--sample-index", "0", "--provider", provider,
+                                         "--output", path)
+            payload = _read(qualification.root / path)
+            qualification.require("atmosphere-handoff-bindings:" + provider,
+                                  payload["provider"] == provider and payload["sample_index"] == 0
+                                  and payload["source_evidence_id"] == atmosphere["inspection"]["evidence_id"]
+                                  and payload["source_result_id"] == atmosphere["inspection"]["result_id"]
+                                  and payload["source_execution_id"] == atmosphere["inspection"]["execution_id"]
+                                  and payload["verification_id"] == atmosphere["inspection"]["verification_id"]
+                                  and payload["recomputed_report_digest"] == atmosphere["verification"]["recomputed_report_digest"]
+                                  and exported["status"] == "exported")
+            handoffs[provider] = {"file": path, "sha256": _hash(qualification.root / path),
+                                  "record_digest": payload["record_digest"]}
+        qualification.unchanged("atmosphere-handoffs-preserve-original-bundle", atmosphere_dir, atmosphere["snapshot"])
+        report["handoffs"] = handoffs
+        report["numerical_scope"] = {"impact": "bounded simply supported elastic modal plate patch contact",
+                                     "atmosphere": "bounded dry ideal-gas hydrostatic column",
+                                     "receiving_provider_execution": "not_performed"}
+        report["status"] = "PASS"
+    except (OSError, ValueError, KeyError, TypeError, zipfile.BadZipFile) as exc:
+        report["failure"] = {"type": type(exc).__name__, "reason": str(exc)}
+    report["finished_at"] = datetime.now(timezone.utc).isoformat()
+    _write(qualification.root / "report.json", report)
+    return report
 
 
 def main() -> int:
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("--python", type=Path, default=Path(sys.executable), help="Python from a regular installed wheel environment")
-    parser.add_argument("--output-dir", type=Path, required=True, help="New retained report directory outside the checkout")
-    parser.add_argument("--monorepo", type=Path, help="Explicit local retained Git objects for public provider activation; no fetch")
+    parser.add_argument("--output-dir", type=Path, required=True, help="New directory outside the source checkout")
+    parser.add_argument("--expected-wheel", type=Path, help="Optional exact ciw package-byte comparison")
+    parser.add_argument("--timeout", type=float, default=120, help="Per-command limit in seconds (1–300)")
     args = parser.parse_args()
-    journey = Journey(args.python, args.output_dir)
+    if not 1 <= args.timeout <= 300:
+        parser.error("timeout must be between 1 and 300 seconds")
     try:
-        journey.check_installation()
-        journey.check_cold_start()
-        catalog = journey.check_first_use()
-        journey.check_workbench(catalog)
-        if args.monorepo is not None:
-            journey.check_public_provider(args.monorepo)
-        else:
-            journey.report["checks"]["public_provider"] = {"status": "not_requested", "qualification": "not_performed"}
-        journey.report["status"] = "passed"
-    except Exception as exc:
-        journey.report["failure"] = {"error_type": type(exc).__name__, "reason": str(exc)}
-    finally:
-        journey.finish()
-    print(json.dumps({"status": journey.report["status"], "report": str(journey.output / "qualification.json"),
-                      **({"failure": journey.report["failure"]} if "failure" in journey.report else {})}, indent=2))
-    return 0 if journey.report["status"] == "passed" else 1
+        report = qualify(args.output_dir, expected_wheel=args.expected_wheel, timeout=args.timeout)
+    except (OSError, ValueError) as exc:
+        print(json.dumps({"status": "REFUSE", "reason": str(exc)}))
+        return 2
+    print(json.dumps({"status": report["status"], "report": str(args.output_dir.absolute() / "report.json"),
+                      "commands": len(report["commands"]), "checks": len(report["checks"]),
+                      "physical_validation_status": report["physical_validation_status"],
+                      "canonical_admission": report["canonical_admission"]}, indent=2))
+    return 0 if report["status"] == "PASS" else 1
 
 
 if __name__ == "__main__":

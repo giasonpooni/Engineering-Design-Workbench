@@ -7,7 +7,7 @@ on:
     paths:
       - 'src/ciw/**'
       - 'tests/test_operator*.py'
-      - 'scripts/check_operator_installed.py'
+      - 'scripts/check_operator_journey.py'
       - 'pyproject.toml'
       - 'examples/curved-path-study/baseline.json'
       - 'instruments/manifest.json'
@@ -16,7 +16,7 @@ on:
     paths:
       - 'src/ciw/**'
       - 'tests/test_operator*.py'
-      - 'scripts/check_operator_installed.py'
+      - 'scripts/check_operator_journey.py'
       - 'pyproject.toml'
       - 'examples/curved-path-study/baseline.json'
       - 'instruments/manifest.json'
@@ -73,7 +73,7 @@ jobs:
               raise RuntimeError('Expected one built wheel')
           subprocess.run([str(installed_python), '-m', 'pip', 'install', str(wheels[0])], check=True)
           output = Path(os.environ['RUNNER_TEMP']) / 'operator-readiness'
-          subprocess.run([str(installed_python), str(root / 'scripts/check_operator_installed.py'),
+          subprocess.run([str(installed_python), str(root / 'scripts/check_operator_journey.py'),
                           '--output-dir', str(output), '--monorepo', str(root)],
                          cwd=Path(os.environ['RUNNER_TEMP']), check=True)
           PYTHON

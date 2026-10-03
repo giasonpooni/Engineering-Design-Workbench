@@ -120,6 +120,7 @@ def _node(name: str, operation: str, dependencies: list[str] | None = None) -> d
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
     if argv[:2] == ["foundry", "childhood"]:
+
         from .foundry_childhood import main as childhood_main
         return childhood_main(argv[2:])
     for name, module, _purpose in COMMANDS:
@@ -130,6 +131,7 @@ def main(argv: list[str] | None = None) -> int:
     commands = parser.add_subparsers(dest="command", required=True)
     for name, _module, purpose in COMMANDS:
         commands.add_parser(name, help=purpose)
+
     for name in ("providers", "capabilities"):
         command = commands.add_parser(name)
         command.add_argument("--catalog", type=Path)
