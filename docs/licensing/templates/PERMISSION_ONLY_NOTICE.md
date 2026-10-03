@@ -1,6 +1,6 @@
 # Permission-only public notice template
 
-**Status: inactive draft template; proprietary adoption not cleared.**
+**Status: unissued model notice / unexecuted agreement template. This template grants no rights.**
 
 This model is for separately identified, legally eligible materials. It does
 not govern this repository, replace its existing licence, revoke prior
@@ -9,7 +9,9 @@ grant is issued here. This template file is documentation published under the
 repository's applicable terms. Its model restrictions are not a licence for
 this file. See the [repository audit and adoption requirements](../README.md).
 
-Complete all required fields and verify authority and compatibility before
+The [asset policy](../ORIGINAL_ASSETS.md) records the owner's declaration and
+request route. Complete required fields and verify asset-specific authority,
+prior grants and compatibility before
 issuing an operative notice or agreement. Repository AGPL rights require no
 separate outreach.
 

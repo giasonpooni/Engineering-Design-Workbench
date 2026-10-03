@@ -1,9 +1,10 @@
-# Permission-only licensing proposal
+# Permission-only licensing framework
 
-**Status: inactive draft templates; proprietary adoption not cleared.**
+**Status: asset enrollment policy established; zero NET asset versions enrolled. Agreement templates remain unexecuted.**
 
-These documents describe a proposed permission-only framework for separately
-identified, legally eligible materials. They do not govern this repository,
+The [original asset policy](ORIGINAL_ASSETS.md) establishes exact-version
+enrollment for eligible non-software assets. The [register](rights-register.json)
+currently has no enrolled NET asset versions. Templates support controlled releases. They do not govern this repository,
 replace its existing licence, revoke prior permissions, or restrict rights
 granted under existing licences. Repository files remain subject to their
 applicable licences and notices. No completed permission grant is issued here.
@@ -20,11 +21,12 @@ rights. See the [controlling licence](../../LICENSE) and
 - [Public rights notice template](templates/PERMISSION_ONLY_NOTICE.md)
 - [Business agreement and schedules template](templates/PERMISSION_ONLY_AGREEMENT.md)
 
-The intended issuing names are Notation Systems Inc., Cartesian Graphics Ltd.,
-and Giason Pooni Studios. Naming them does not establish incorporation,
-ownership, agency or a transfer of Giason Pooni's rights. The legal owner or
-authorized licensor for each material must be identified and supported by
-records before an operative notice or agreement is issued.
+The owner supplied Notation Systems Inc., Cartesian Graphics Ltd., and Giason
+Pooni Studios as issuing names, stated that assets are original with a reference-only
+corpus, and expressly selected Notation Systems Inc. as legal asset owner on
+2 October 2026. The policy records this declaration separately from independent
+title verification; it creates no assignment or corporate-status certification.
+Per-asset authority, prior grants and source rights remain relevant.
 
 ## Audit disposition
 
@@ -36,11 +38,11 @@ completed chain-of-title review or worldwide enforceability certification.
 | --- | --- |
 | Draft clause logic | Reviewed for no implied grant, scope, assent, confidentiality, prior rights, mandatory law and court-determined remedies. |
 | Current repository replacement | Not cleared. Existing AGPL and component grants conflict with a blanket permission-only replacement. |
-| Ownership and licensing authority | Not established by the inspected repository records. Signed assignments, employment records or other authority may exist elsewhere and must be produced. |
+| Ownership and licensing authority | Owner declares Notation Systems Inc. owns original assets. Recorded declaration; no independent title certification or assignment created here. |
 | Contributor and dependency lineage | Incomplete. Representative components were inspected; a complete inventory and rights analysis were not performed. |
-| Operative notice and grant | Incomplete. Owner, asset boundaries, release identifiers and verified licensing contact remain unfilled. |
+| Asset enrollment and outreach | Policy, empty exact-version register and GitHub request route established. No current NET file is newly restricted and no recipient grant is executed. |
 | International contract enforcement | Not cleared. Target-market assent, mandatory exceptions, forum and enforcement routes require a jurisdiction-specific assessment. |
-| Publication as inactive templates | Ready for documentation review. Publication does not activate the proposed restrictions. |
+| Policy and templates | Policy governs enrollment; publication alone grants no recipient rights and restricts no existing repository file. |
 
 ## Repository evidence
 
@@ -57,7 +59,7 @@ These are representative findings, not an exhaustive bill of materials.
 | [Upstream path replay example](https://github.com/giasonpooni/Notations-Systems-Terminal/blob/55d67d42beea95d7ce98af935b48bd84df5e9b4b/examples/csg-path-sensitivity/upstream/replay_path_artefact.py) | Explicit `MPL-2.0` source header. | `da1c667eaec3ffab9fef19708eb8e598ebc10a45` |
 | [Bevy view Cargo.toml](https://github.com/giasonpooni/Notations-Systems-Terminal/blob/55d67d42beea95d7ce98af935b48bd84df5e9b4b/tools/bevy-render-view/Cargo.toml) | Explicit `MIT OR Apache-2.0` package declaration. | `e3e13d850f1f7ed5502a6eece7780f885903c97d` |
 
-## Requirements before operative adoption
+## Requirements before asset enrollment and controlled delivery
 
 For each proposed restricted release, retain the legal rights holder and
 authority to license, signed contributor or contractor rights where needed,
@@ -75,7 +77,8 @@ prudent support for that assessment, not a guarantee of universal enforcement.
 Do not remove or narrow existing grants as part of this documentation change.
 For wholly owned future additions, different terms remain possible only where
 the rights, contribution history, integrations and distribution obligations
-permit. Other repositories need their own review; this audit covers NET only.
+permit. Other repositories need their own review; this baseline audit covers NET only.
+1792 and Garibaldi carry their own material-specific notices and corpus boundaries.
 
 ## International boundaries
 

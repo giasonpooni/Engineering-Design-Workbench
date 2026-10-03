@@ -65,14 +65,14 @@ The controlling grants are the full licenses and applicable component notices.
 For a particular combined release whose compatibility remains uncertain, obtain
 a qualified legal review before publishing that combination.
 
-## Proposed permission-only templates
+## Original assets and permission requests
 
-The [licensing proposal and repository audit](licensing/README.md) contains
-inactive templates for separately identified, legally eligible materials.
-Proprietary adoption is not cleared. These documents do not change this
-repository's AGPL grant, earlier permissions or separately licensed components.
-AGPL-compliant use of covered NET code requires no separate outreach or
-permission. Ownership, contributor authority, third-party compatibility,
-release scope and target-market terms must be verified before any operative
-permission-only notice is issued.
+The [asset permission policy](licensing/ORIGINAL_ASSETS.md) records the owner's
+originality declaration and Notation Systems Inc. as declared asset owner,
+separates authored assets from the reference corpus, and establishes exact-version
+enrollment and a request route. The [register](licensing/rights-register.json)
+contains no enrolled NET asset versions; no existing NET file is newly restricted.
 
+The [framework and audit](licensing/README.md) retain the unexecuted templates.
+AGPL-compliant use of covered NET code requires no separate outreach or permission.
+The AGPL grant, prior permissions and separately licensed components are preserved.
