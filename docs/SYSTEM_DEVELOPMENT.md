@@ -86,6 +86,21 @@ failures, errors or skips. Their exact-count guards must track those retained
 case inventories; changing the guard does not substitute for rerunning either
 workflow on the new exact head.
 
+The exact `22fd4a1b19e1e782e588b0cd4d0660e6672a4a02` integration head passed
+scientific composition on Linux and Windows with Python 3.11/3.12, its actual
+OCI lane, the atmospheric engine, Godot observation capture and mathematical
+inspection. The retained OCI artifact binds hosted merge
+`96cae42a119dbb3523b49c688c7a42d39e7e701f` to tree
+`38ffd4620426c0162f1bf6bd3b88244c0f7eb724`; this remains evidence for that
+exact source tree rather than a transferable success claim.
+
+The same head's broad prototype workflow completed 5,978 tests in each Windows
+Python lane before 83 monorepo fixture clones per lane failed to check out
+retained instrument paths under Git's default Windows long-path policy. The Python matrix must enable
+`core.longpaths` before those nested fixture clones. A fresh exact-head Windows
+run is required to qualify that workflow repair; the earlier errors are not
+reclassified as passing tests.
+
 Private candidate-workbench qualification requires operator-provisioned
 `CIW_PROVIDER_READ_TOKEN`. Its absence is an explicit unresolved provisioning
 blocker, not a waived check. Run broad regressions in bounded chunks with owned
