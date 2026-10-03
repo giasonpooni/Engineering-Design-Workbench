@@ -86,7 +86,31 @@ _PYTHON_PINS = {
     "csg": ("geodesic_reference.py", "PINS", "curved-path-transfer"),
     "tsde": ("geometry_research.py", "PINS", "translation-flow"),
 }
-_CACHES = {".venv", "venv", "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache"}
+_PYTEST_CACHE_FILES = {"README.md", ".gitignore", "CACHEDIR.TAG", "v/cache/nodeids",
+                       "v/cache/lastfailed", "v/cache/stepwise"}
+_PACKAGE_METADATA_FILES = {"PKG-INFO", "SOURCES.txt", "dependency_links.txt",
+                           "entry_points.txt", "requires.txt", "top_level.txt",
+                           "not-zip-safe", "zip-safe"}
+
+
+def _generated_file(path):
+    """Allow only named non-source artifacts, never a whole cache directory.
+
+    Source copying excludes bytecode and package metadata. A directory called
+    venv, .venv, __pycache__ or *.egg-info cannot authorize executable shadows.
+    Generated files must also retain ordinary file and ancestor types.
+    """
+    path = Path(path)
+    if path.is_symlink() or not path.is_file() or path.resolve() != path:
+        return False
+    if path.parent.name == "__pycache__" and path.suffix == ".pyc":
+        return True
+    if path.parent.name.endswith(".egg-info") and path.name in _PACKAGE_METADATA_FILES:
+        return True
+    for parent in path.parents:
+        if parent.name == ".pytest_cache":
+            return path.relative_to(parent).as_posix() in _PYTEST_CACHE_FILES
+    return False
 
 
 def git(root, *arguments):
@@ -235,9 +259,12 @@ def verify_imports(root=ROOT):
                 raise ValueError("Imported working file differs from the preserved source")
         git(root, "diff", "--cached", "--quiet", "--no-ext-diff", "--no-textconv", "HEAD", "--", prefix)
         for raw_name in git(root, "ls-files", "--others", "-z", "--", prefix).split(b"\0"):
-            if raw_name and not set(Path(os.fsdecode(raw_name)).relative_to(prefix).parts) & _CACHES:
+            if raw_name and not _generated_file(root / os.fsdecode(raw_name)):
                 raise ValueError("Unexpected untracked file inside an imported module")
         result[module["role"]] = tree
+    # All qualification lanes copy or execute Terminal tooling as well as the
+    # providers. A clean imported subtree cannot authorize dirty root sources.
+    verify_terminal_source(root)
     return result
 
 
@@ -287,9 +314,7 @@ def verify_terminal_source(root=ROOT):
     for raw_name in git(root, "ls-files", "--others", "-z", "--", "src", "scripts", "tests").split(b"\0"):
         if not raw_name:
             continue
-        parts = Path(os.fsdecode(raw_name)).parts
-        if any(part in _CACHES or part.startswith(".venv") or part.endswith(".egg-info")
-               for part in parts[1:-1]):
+        if _generated_file(root / os.fsdecode(raw_name)):
             continue
         raise ValueError("Terminal executable source contains an untracked file: " + os.fsdecode(raw_name))
     if git(root, "rev-parse", "HEAD").decode().strip() != revision:
