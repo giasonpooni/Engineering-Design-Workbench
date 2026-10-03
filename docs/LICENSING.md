@@ -64,3 +64,15 @@ Blender/Godot/Bevy distribution. Those checks remain release-specific.
 The controlling grants are the full licenses and applicable component notices.
 For a particular combined release whose compatibility remains uncertain, obtain
 a qualified legal review before publishing that combination.
+
+## Proposed permission-only templates
+
+The [licensing proposal and repository audit](licensing/README.md) contains
+inactive templates for separately identified, legally eligible materials.
+Proprietary adoption is not cleared. These documents do not change this
+repository's AGPL grant, earlier permissions or separately licensed components.
+AGPL-compliant use of covered NET code requires no separate outreach or
+permission. Ownership, contributor authority, third-party compatibility,
+release scope and target-market terms must be verified before any operative
+permission-only notice is issued.
+
