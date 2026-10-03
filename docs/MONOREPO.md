@@ -1,17 +1,17 @@
 # Engineering superrepo
 
-The cumulative branch `feat/monorepo-continuation-20261003` consolidates 21
-public engineering modules alongside the existing Terminal package. Development
+The default branch contains 21 public engineering modules alongside the
+existing Terminal package, merged through pull request #126. Development
 and review share a repository; packages, release identities, deployment choices
 and scientific authority remain module-owned.
 
 The import registry is [`instruments/manifest.json`](../instruments/manifest.json).
 It records full source commit and tree identities, original repository IDs,
 ownership, licences, package versions, build boundaries and existing execution
-pins. The branch includes the earlier measurement and inference migration
-history and the merged Terminal correction-loop and Legibility extensions.
-Calibration and ClockSync are already on the default branch; the remaining
-imports are proposed together with preserved native ancestry. The
+pins. All 21 public modules are co-located on the default branch with their
+original native Git ancestry. The workspace includes the earlier measurement
+and inference migration history, the retained Terminal correction loop,
+Legibility, and the integrated NET workloads. The
 [second-wave record](MONOREPO_WAVE2.md) preserves the earlier seven-module
 qualification and its scope.
 The Legibility Instrument is composed into the existing `ciw` package;
@@ -109,6 +109,19 @@ python scripts/superrepo.py audit
 python scripts/superrepo.py check --output-dir results/superrepo
 ```
 
+For temporary worktrees, builds and runtime files outside synchronized storage,
+choose an existing private directory with `--temp-root`:
+
+```sh
+task_temp_root="$(mktemp -d /tmp/notations-qualification.XXXXXX)"
+python scripts/superrepo.py check --temp-root "$task_temp_root" --output-dir results/superrepo
+rmdir "$task_temp_root"
+```
+
+The resolved directory is passed to child gates through `TMPDIR`, `TEMP` and
+`TMP`; reports stay in `--output-dir`. Without this option the inherited temporary
+directory settings remain unchanged. Cleanup failures still fail qualification.
+
 The audit verifies exact source trees and original-history reachability,
 working file bytes and modes, package/licence identities, preserved execution
 bindings and unexpected untracked source files. Module records must also retain
@@ -172,6 +185,22 @@ complete Git history and retain per-lane evidence. Configured Python/platform
 matrices are not evidence of remote execution. Observed results belong in
 the retained qualification reports, bound to their exact checkout.
 
+## Terminal source identity
+
+The shared import audit binds NET's tracked source bytes and index to its
+commit alongside every declared original module tree and execution pin. Each
+qualification lane audits before and after execution. Tracked byte changes,
+staged metadata drift and ignored executable shadow sources are refused.
+Directory names such as `venv`, `__pycache__` and `.egg-info` do not authorize
+untracked source. Only bytecode backed by an existing Python source file and specifically named
+pytest cache and package metadata files with regular file and ancestor types
+are permitted inside source boundaries; gate output remains outside executable source directories.
+
+The aggregate coordinator removes Python import/test and Git repository-selection
+overrides before launching child gates and retains failed reports for subprocess errors,
+including audit timeouts. Co-location does not freeze or replace independently
+qualified Terminal work.
+
 ## Authority and qualification limits
 
 The existing [consolidation architecture](CONSOLIDATION.md),
@@ -225,16 +254,16 @@ expanding the registry.
 
 ## Native Git transfer
 
-A cumulative Git bundle carries the original histories and native import
-commits. In an authenticated Terminal checkout:
+The merged default branch retains the original histories and native import
+commits. Qualification requires a complete checkout, as configured in CI.
+For an existing shallow checkout, retrieve the retained history before auditing:
 
 ```sh
-git bundle verify /path/to/engineering-superrepo.bundle
-git fetch /path/to/engineering-superrepo.bundle refs/heads/feat/engineering-superrepo-20261003:refs/heads/feat/engineering-superrepo-20261003
-git push origin feat/engineering-superrepo-20261003
+git fetch --unshallow origin
+python scripts/superrepo.py audit
 ```
 
-Review the resulting branch and merge it with a merge commit. Squash, rebase or
-file-content recreation loses the required ancestry. Keep native source commits
+Use merge commits for future import branches. Squash, rebase or file-content
+recreation loses the required ancestry. Keep native source commits
 reachable after merging so provider worktrees and the source audit continue to
 operate.

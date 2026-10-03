@@ -1,0 +1,84 @@
+name: Interactive projectile qualification
+on:
+  pull_request:
+    paths:
+      - 'src/ciw/interactive_*.py'
+      - 'tools/interactive-simulation/**'
+      - 'tests/test_interactive*.py'
+      - 'scripts/check_interactive_simulation.py'
+      - 'examples/interactive-simulation/**'
+      - '.github/workflows/interactive-projectile.yml'
+      - 'src/ciw/session.py'
+      - 'src/ciw/core/**'
+      - 'src/ciw/operations/**'
+      - 'pyproject.toml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: interactive-projectile-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+jobs:
+  contracts:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - run: |
+          python3 -m venv .venv
+          .venv/bin/python -m pip install -e ".[dev]"
+          .venv/bin/python -m pytest -q tests/test_interactive_contract.py tests/test_interactive_session.py --junitxml=interactive-tests.xml
+          git diff --check
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: interactive-contract-tests
+          path: interactive-tests.xml
+          if-no-files-found: error
+  native:
+    needs: contracts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          persist-credentials: false
+      - name: Provision exact engine versions and Rust toolchain
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/interactive-tools"
+          cd "$RUNNER_TEMP/interactive-tools"
+          curl --fail --location --retry 2 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.5.2-stable/Godot_v4.5.2-stable_linux.x86_64.zip
+          echo '87f6e6be292929e363d15ed9052f277b2ba4e95ed994e1e099048097be2dfd03  godot.zip' | sha256sum --check
+          unzip -q godot.zip
+          chmod +x Godot_v4.5.2-stable_linux.x86_64
+          curl --fail --location --retry 2 -O https://download.blender.org/release/Blender4.5/blender-4.5.3-linux-x64.tar.xz
+          curl --fail --location --retry 2 -O https://download.blender.org/release/Blender4.5/blender-4.5.3.sha256
+          grep ' blender-4.5.3-linux-x64.tar.xz$' blender-4.5.3.sha256 | sha256sum --check
+          tar -xf blender-4.5.3-linux-x64.tar.xz
+          rustup toolchain install 1.96.0 --profile minimal
+      - name: Build Bevy ECS adapter and retain dependency resolution
+        run: |
+          cargo +1.96.0 build --release --locked --manifest-path tools/interactive-simulation/bevy/Cargo.toml
+          sha256sum tools/interactive-simulation/bevy/target/release/ciw-bevy-projectile > bevy-binary.sha256
+      - name: Run real all-three investigation and regression campaign
+        run: |
+          python3 -m venv .venv
+          .venv/bin/python -m pip install .
+          .venv/bin/python scripts/check_interactive_simulation.py \
+            --blender "$RUNNER_TEMP/interactive-tools/blender-4.5.3-linux-x64/blender" \
+            --godot "$RUNNER_TEMP/interactive-tools/Godot_v4.5.2-stable_linux.x86_64" \
+            --bevy tools/interactive-simulation/bevy/target/release/ciw-bevy-projectile \
+            --output-dir results/interactive-native
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: interactive-native-evidence
+          path: |
+            results/interactive-native
+            tools/interactive-simulation/bevy/Cargo.lock
+            bevy-binary.sha256
+          if-no-files-found: error

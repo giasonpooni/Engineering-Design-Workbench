@@ -92,9 +92,9 @@ _PYTHON_PINS = {
 }
 _ENVIRONMENTS = {".venv", "venv"}
 _ENVIRONMENT_CONTENTS = {"bin", "Scripts", "lib", "lib64", "Lib", "include", "Include", "share"}
-_TOOL_CACHES = {".pytest_cache", ".mypy_cache", ".ruff_cache"}
-_SOURCE_SUFFIXES = {".py", ".pyw", ".pyc", ".pyo", ".so", ".pyd", ".dll", ".dylib",
-                    ".sh", ".bat", ".cmd", ".ps1", ".js", ".cjs", ".mjs", ".ts", ".tsx", ".jsx"}
+_PYTEST_CACHE_FILES = {"README.md", ".gitignore", "CACHEDIR.TAG", "v/cache/nodeids",
+                       "v/cache/lastfailed", "v/cache/stepwise"}
+_TOOL_CACHE_MARKERS = {".gitignore", "CACHEDIR.TAG"}
 _PACKAGE_METADATA = {"PKG-INFO", "SOURCES.txt", "dependency_links.txt", "entry_points.txt",
                      "requires.txt", "top_level.txt", "not-zip-safe", "zip-safe"}
 _IMPORT_STATUSES = {
@@ -129,7 +129,7 @@ def _generated_file(path, boundary, *, environments=False, package_metadata=Fals
         if parts[1] in _ENVIRONMENT_CONTENTS:
             return len(parts) > 2 or path.is_dir()
         return len(parts) == 2 and parts[1] in {"pyvenv.cfg", ".gitignore", "CACHEDIR.TAG"}
-    if path.is_symlink() or not path.is_file() or path.stat().st_mode & 0o111:
+    if path.is_symlink() or not path.is_file() or path.resolve() != path or path.stat().st_mode & 0o111:
         return False
     if parts[-2] == "__pycache__":
         try:
@@ -149,8 +149,18 @@ def _generated_file(path, boundary, *, environments=False, package_metadata=Fals
                 return False
             source = path.parent.parent / (rewrite["stem"] + ".py")
         return source.is_file() and not source.is_symlink()
-    if parts[0] in _TOOL_CACHES:
-        return path.suffix.lower() not in _SOURCE_SUFFIXES
+    # Recognize generated data by its declared shape, not by the absence of a
+    # familiar source suffix. Unknown filenames cannot hide inside tool caches.
+    cache_name = Path(*parts[1:]).as_posix()
+    if parts[0] == ".pytest_cache":
+        return cache_name in _PYTEST_CACHE_FILES
+    if parts[0] == ".mypy_cache":
+        return cache_name in _TOOL_CACHE_MARKERS or re.fullmatch(
+            r"[0-9]+\.[0-9]+/(?:[A-Za-z_][A-Za-z0-9_]*/)*[A-Za-z_][A-Za-z0-9_]*\.(?:data|meta)\.json",
+            cache_name) is not None
+    if parts[0] == ".ruff_cache":
+        return cache_name in _TOOL_CACHE_MARKERS or re.fullmatch(
+            r"[0-9]+\.[0-9]+\.[0-9]+/[0-9]+", cache_name) is not None
     if package_metadata and parts[-2].endswith(".egg-info"):
         # Build metadata belongs immediately under a declared source boundary.
         # A nested package directory cannot exempt arbitrary source or metadata.

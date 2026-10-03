@@ -1,0 +1,3528 @@
+{
+  "schema": "ciw.ifc-transition-run.v1",
+  "spec": {
+    "run_id": "experiment.ifc-room.v1",
+    "canonical_entity_id": "candidate:ifc-room",
+    "required_admission_authority": "authority.external-review.v1",
+    "target": {
+      "ifc_class": "IfcBuildingStorey",
+      "global_id": "CIWSTOREY00000000000015",
+      "quantity": "ClearHeight"
+    },
+    "model_frame": "synthetic-declared-model-frame",
+    "source_provenance": {
+      "kind": "SYNTHETIC_FIXTURE",
+      "source_uri": "repository:examples/bim-quantity/room.ifc",
+      "revision": "ciw.bim-quantity-source.v1",
+      "source_path": "examples/bim-quantity/room.ifc",
+      "license": "AGPL-3.0-or-later",
+      "sha256": "sha256:7407d51c47daded8ac49e1ad0e26137b154aaacd0244134e17c57a5d77c49890"
+    }
+  },
+  "ifc_artifact": {
+    "sha256": "sha256:7407d51c47daded8ac49e1ad0e26137b154aaacd0244134e17c57a5d77c49890",
+    "byte_count": 1562,
+    "bytes_b64": "SVNPLTEwMzAzLTIxOwpIRUFERVI7CkZJTEVfREVTQ1JJUFRJT04oKCdDSVcgZGVjbGFyZWQgcXVhbnRpdHkgZXhhbXBsZScpLCcyOzEnKTsKRklMRV9OQU1FKCdyb29tLmlmYycsJzIwMjYtMDktMjJUMDA6MDA6MDAnLCgnQ0lXJyksKCdDSVcnKSwnQ0lXJywnQ0lXJywnJyk7CkZJTEVfU0NIRU1BKCgnSUZDNCcpKTsKRU5EU0VDOwpEQVRBOwojMT1JRkNQUk9KRUNUKCdDSVdQUk9KRUNUMDAwMDAwMDAwMDAxJywkLCdRdWFudGl0eSBmaXh0dXJlJywkLCQsJCwkLCQsIzMpOwojMj1JRkNTSVVOSVQoKiwuTEVOR1RIVU5JVC4sJCwuTUVUUkUuKTsKIzM9SUZDVU5JVEFTU0lHTk1FTlQoKCMyKSk7CiM1PUlGQ0JVSUxESU5HKCdDSVdCVUlMRElORzAwMDAwMDAwMDAwNScsJCwnQnVpbGRpbmcnLCQsJCwjMTAsJCwkLCQsJCwkLCQpOwojMTA9SUZDTE9DQUxQTEFDRU1FTlQoJCwjMTEpOwojMTE9SUZDQVhJUzJQTEFDRU1FTlQzRCgjMTIsJCwkKTsKIzEyPUlGQ0NBUlRFU0lBTlBPSU5UKCgwLiwwLiwwLikpOwojMTU9SUZDQlVJTERJTkdTVE9SRVkoJ0NJV1NUT1JFWTAwMDAwMDAwMDAwMDE1JywkLCdMZXZlbCAxJywkLCQsIzIwLCQsJCwkLCQpOwojMjA9SUZDTE9DQUxQTEFDRU1FTlQoIzEwLCMyMSk7CiMyMT1JRkNBWElTMlBMQUNFTUVOVDNEKCMyMiwkLCQpOwojMjI9SUZDQ0FSVEVTSUFOUE9JTlQoKDAuLDAuLDAuKSk7CiMyNz1JRkNSRUxERUZJTkVTQllQUk9QRVJUSUVTKCdDSVdQUk9QRVJUSUVTMDAwMDAwMDAyNycsJCwkLCQsKCMxNSksIzI4KTsKIzI4PUlGQ0VMRU1FTlRRVUFOVElUWSgnQ0lXUVVBTlRJVFkwMDAwMDAwMDAwMjgnLCQsJ1F0b19TdG9yZXlCYXNlUXVhbnRpdGllcycsJCwkLCgjMjkpKTsKIzI5PUlGQ1FVQU5USVRZTEVOR1RIKCdDbGVhckhlaWdodCcsJCwkLDMuKTsKIzMwMD1JRkNTUEFDRSgnQ0lXU1BBQ0UwMDAwMDAwMDAwMDMwMCcsJCwnSW5zcGVjdGlvbiByb29tJywkLCQsIzMwMSwkLCQsJCwkLCQpOwojMzAxPUlGQ0xPQ0FMUExBQ0VNRU5UKCMyMCwjMzAyKTsKIzMwMj1JRkNBWElTMlBMQUNFTUVOVDNEKCMzMDMsJCwkKTsKIzMwMz1JRkNDQVJURVNJQU5QT0lOVCgoMC4sMC4sMC4pKTsKIzMwNT1JRkNRVUFOVElUWUxFTkdUSCgnTGVuZ3RoJywkLCQsNS4pOwojMzA2PUlGQ1FVQU5USVRZTEVOR1RIKCdXaWR0aCcsJCwkLDQuKTsKIzMwNz1JRkNFTEVNRU5UUVVBTlRJVFkoJ0NJV1FVQU5USVRZMDAwMDAwMDAwMzA3JywkLCdRdG9fU3BhY2VCYXNlUXVhbnRpdGllcycsJCwkLCgjMzA1LCMzMDYpKTsKIzMwOD1JRkNSRUxERUZJTkVTQllQUk9QRVJUSUVTKCdDSVdQUk9QRVJUSUVTMDAwMDAwMDMwOCcsJCwkLCQsKCMzMDApLCMzMDcpOwojNDAwPUlGQ1JFTEFHR1JFR0FURVMoJ0NJV0FHR1JFR0FURTAwMDAwMDAwNDAwJywkLCQsJCwjMSwoIzUpKTsKIzQwMT1JRkNSRUxBR0dSRUdBVEVTKCdDSVdBR0dSRUdBVEUwMDAwMDAwMDQwMScsJCwkLCQsIzUsKCMxNSkpOwojNDAyPUlGQ1JFTEFHR1JFR0FURVMoJ0NJV0FHR1JFR0FURTAwMDAwMDAwNDAyJywkLCQsJCwjMTUsKCMzMDApKTsKRU5EU0VDOwpFTkQtSVNPLTEwMzAzLTIxOwo="
+  },
+  "observation_artifact": {
+    "sha256": "sha256:e606e4d8a1b9c5397fd70cf6e40976eefd27ec7f5f43a246befea0e77cf9c50b",
+    "byte_count": 390,
+    "bytes_b64": "ewogICJzY2hlbWEiOiAiY2l3LmJpbS1zY2FsYXItb2JzZXJ2YXRpb24udjEiLAogICJ2YWx1ZSI6IDIuOTksCiAgInZhcmlhbmNlIjogMi41ZS0wNSwKICAidW5pdCI6ICJtIiwKICAiZnJhbWUiOiAic3ludGhldGljLWRlY2xhcmVkLW1vZGVsLWZyYW1lIiwKICAiaWZjX3NoYTI1NiI6ICJzaGEyNTY6NzQwN2Q1MWM0N2RhZGVkOGFjNDllMWFkMGUyNjEzN2IxNTRhYWFjZDAyNDQxMzRlMTdjNTdhNWQ3N2M0OTg5MCIsCiAgImNyb3NzX2NvdmFyaWFuY2VfcG9saWN5IjogImluZGVwZW5kZW50IiwKICAiaWZjX2NsYXNzIjogIklmY0J1aWxkaW5nU3RvcmV5IiwKICAiZ2xvYmFsX2lkIjogIkNJV1NUT1JFWTAwMDAwMDAwMDAwMDE1IiwKICAicXVhbnRpdHkiOiAiQ2xlYXJIZWlnaHQiCn0K"
+  },
+  "native_session": {
+    "schema": "ciw.bim-quantity-session.v1",
+    "session_id": "session-f12cbcbb21384982bd2b5713365b1c73",
+    "created_at": "2026-10-01T19:34:00.246768Z",
+    "source": {
+      "experiment_id": "experiment.ifc-room.v1",
+      "experiment_digest": "sha256:1c9bb7770d196a2c454f8e466a594f65762004758bfe9ab3a19b97326eb4d2d3",
+      "evidence": [
+        {
+          "artifact_ref": "sha256:1c9bb7770d196a2c454f8e466a594f65762004758bfe9ab3a19b97326eb4d2d3",
+          "sha256": "sha256:1c9bb7770d196a2c454f8e466a594f65762004758bfe9ab3a19b97326eb4d2d3",
+          "bytes_b64": "eyJjb25maWd1cmF0aW9uIjp7ImNyb3NzX2NvdmFyaWFuY2UiOiJleHBsaWNpdF9pbmRlcGVuZGVudF9vcl9ob2xkIiwiZnJhbWVfdHJhbnNmb3JtIjoibm90X3BlcmZvcm1lZCIsImdlb21ldHJ5X2F1dGhvcml0eSI6IlFVQU5USVRZX09OTFkiLCJvYnNlcnZhdGlvbl9tb2RlbCI6Im5hdGl2ZV9yYXdfcXVhbnRpdHkiLCJzdGF0ZV9hZG1pc3Npb24iOiJub3RfcGVyZm9ybWVkIn0sImV4cGVyaW1lbnRfaWQiOiJleHBlcmltZW50LmlmYy1yb29tLnYxIiwiaWZjX2J5dGVzX2I2NCI6IlNWTlBMVEV3TXpBekxUSXhPd3BJUlVGRVJWSTdDa1pKVEVWZlJFVlRRMUpKVUZSSlQwNG9LQ2REU1ZjZ1pHVmpiR0Z5WldRZ2NYVmhiblJwZEhrZ1pYaGhiWEJzWlNjcExDY3lPekVuS1RzS1JrbE1SVjlPUVUxRktDZHliMjl0TG1sbVl5Y3NKekl3TWpZdE1Ea3RNakpVTURBNk1EQTZNREFuTENnblEwbFhKeWtzS0NkRFNWY25LU3duUTBsWEp5d25RMGxYSnl3bkp5azdDa1pKVEVWZlUwTklSVTFCS0NnblNVWkROQ2NwS1RzS1JVNUVVMFZET3dwRVFWUkJPd29qTVQxSlJrTlFVazlLUlVOVUtDZERTVmRRVWs5S1JVTlVNREF3TURBd01EQXdNREF4Snl3a0xDZFJkV0Z1ZEdsMGVTQm1hWGgwZFhKbEp5d2tMQ1FzSkN3a0xDUXNJek1wT3dvak1qMUpSa05UU1ZWT1NWUW9LaXd1VEVWT1IxUklWVTVKVkM0c0pDd3VUVVZVVWtVdUtUc0tJek05U1VaRFZVNUpWRUZUVTBsSFRrMUZUbFFvS0NNeUtTazdDaU0xUFVsR1EwSlZTVXhFU1U1SEtDZERTVmRDVlVsTVJFbE9SekF3TURBd01EQXdNREF3TlNjc0pDd25RblZwYkdScGJtY25MQ1FzSkN3ak1UQXNKQ3drTENRc0pDd2tMQ1FwT3dvak1UQTlTVVpEVEU5RFFVeFFURUZEUlUxRlRsUW9KQ3dqTVRFcE93b2pNVEU5U1VaRFFWaEpVekpRVEVGRFJVMUZUbFF6UkNnak1USXNKQ3drS1RzS0l6RXlQVWxHUTBOQlVsUkZVMGxCVGxCUFNVNVVLQ2d3TGl3d0xpd3dMaWtwT3dvak1UVTlTVVpEUWxWSlRFUkpUa2RUVkU5U1JWa29KME5KVjFOVVQxSkZXVEF3TURBd01EQXdNREF3TURFMUp5d2tMQ2RNWlhabGJDQXhKeXdrTENRc0l6SXdMQ1FzSkN3a0xDUXBPd29qTWpBOVNVWkRURTlEUVV4UVRFRkRSVTFGVGxRb0l6RXdMQ015TVNrN0NpTXlNVDFKUmtOQldFbFRNbEJNUVVORlRVVk9WRE5FS0NNeU1pd2tMQ1FwT3dvak1qSTlTVVpEUTBGU1ZFVlRTVUZPVUU5SlRsUW9LREF1TERBdUxEQXVLU2s3Q2lNeU56MUpSa05TUlV4RVJVWkpUa1ZUUWxsUVVrOVFSVkpVU1VWVEtDZERTVmRRVWs5UVJWSlVTVVZUTURBd01EQXdNREF5Tnljc0pDd2tMQ1FzS0NNeE5Ta3NJekk0S1RzS0l6STRQVWxHUTBWTVJVMUZUbFJSVlVGT1ZFbFVXU2duUTBsWFVWVkJUbFJKVkZrd01EQXdNREF3TURBd01qZ25MQ1FzSjFGMGIxOVRkRzl5WlhsQ1lYTmxVWFZoYm5ScGRHbGxjeWNzSkN3a0xDZ2pNamtwS1RzS0l6STVQVWxHUTFGVlFVNVVTVlJaVEVWT1IxUklLQ2REYkdWaGNraGxhV2RvZENjc0pDd2tMRE11S1RzS0l6TXdNRDFKUmtOVFVFRkRSU2duUTBsWFUxQkJRMFV3TURBd01EQXdNREF3TURNd01DY3NKQ3duU1c1emNHVmpkR2x2YmlCeWIyOXRKeXdrTENRc0l6TXdNU3drTENRc0pDd2tMQ1FwT3dvak16QXhQVWxHUTB4UFEwRk1VRXhCUTBWTlJVNVVLQ015TUN3ak16QXlLVHNLSXpNd01qMUpSa05CV0VsVE1sQk1RVU5GVFVWT1ZETkVLQ016TURNc0pDd2tLVHNLSXpNd016MUpSa05EUVZKVVJWTkpRVTVRVDBsT1ZDZ29NQzRzTUM0c01DNHBLVHNLSXpNd05UMUpSa05SVlVGT1ZFbFVXVXhGVGtkVVNDZ25UR1Z1WjNSb0p5d2tMQ1FzTlM0cE93b2pNekEyUFVsR1ExRlZRVTVVU1ZSWlRFVk9SMVJJS0NkWGFXUjBhQ2NzSkN3a0xEUXVLVHNLSXpNd056MUpSa05GVEVWTlJVNVVVVlZCVGxSSlZGa29KME5KVjFGVlFVNVVTVlJaTURBd01EQXdNREF3TXpBM0p5d2tMQ2RSZEc5ZlUzQmhZMlZDWVhObFVYVmhiblJwZEdsbGN5Y3NKQ3drTENnak16QTFMQ016TURZcEtUc0tJek13T0QxSlJrTlNSVXhFUlVaSlRrVlRRbGxRVWs5UVJWSlVTVVZUS0NkRFNWZFFVazlRUlZKVVNVVlRNREF3TURBd01ETXdPQ2NzSkN3a0xDUXNLQ016TURBcExDTXpNRGNwT3dvak5EQXdQVWxHUTFKRlRFRkhSMUpGUjBGVVJWTW9KME5KVjBGSFIxSkZSMEZVUlRBd01EQXdNREF3TkRBd0p5d2tMQ1FzSkN3ak1Td29JelVwS1RzS0l6UXdNVDFKUmtOU1JVeEJSMGRTUlVkQlZFVlRLQ2REU1ZkQlIwZFNSVWRCVkVVd01EQXdNREF3TURRd01TY3NKQ3drTENRc0l6VXNLQ014TlNrcE93b2pOREF5UFVsR1ExSkZURUZIUjFKRlIwRlVSVk1vSjBOSlYwRkhSMUpGUjBGVVJUQXdNREF3TURBd05EQXlKeXdrTENRc0pDd2pNVFVzS0NNek1EQXBLVHNLUlU1RVUwVkRPd3BGVGtRdFNWTlBMVEV3TXpBekxUSXhPd289IiwibW9kZWxfZnJhbWUiOiJzeW50aGV0aWMtZGVjbGFyZWQtbW9kZWwtZnJhbWUiLCJvYnNlcnZhdGlvbl9ieXRlc19iNjQiOiJld29nSUNKelkyaGxiV0VpT2lBaVkybDNMbUpwYlMxelkyRnNZWEl0YjJKelpYSjJZWFJwYjI0dWRqRWlMQW9nSUNKMllXeDFaU0k2SURJdU9Ua3NDaUFnSW5aaGNtbGhibU5sSWpvZ01pNDFaUzB3TlN3S0lDQWlkVzVwZENJNklDSnRJaXdLSUNBaVpuSmhiV1VpT2lBaWMzbHVkR2hsZEdsakxXUmxZMnhoY21Wa0xXMXZaR1ZzTFdaeVlXMWxJaXdLSUNBaWFXWmpYM05vWVRJMU5pSTZJQ0p6YUdFeU5UWTZOelF3TjJRMU1XTTBOMlJoWkdWa09HRmpORGxsTVdGa01HVXlOakV6TjJJeE5UUmhZV0ZqWkRBeU5EUXhNelJsTVRkak5UZGhOV1EzTjJNME9UZzVNQ0lzQ2lBZ0ltTnliM056WDJOdmRtRnlhV0Z1WTJWZmNHOXNhV041SWpvZ0ltbHVaR1Z3Wlc1a1pXNTBJaXdLSUNBaWFXWmpYMk5zWVhOeklqb2dJa2xtWTBKMWFXeGthVzVuVTNSdmNtVjVJaXdLSUNBaVoyeHZZbUZzWDJsa0lqb2dJa05KVjFOVVQxSkZXVEF3TURBd01EQXdNREF3TURFMUlpd0tJQ0FpY1hWaGJuUnBkSGtpT2lBaVEyeGxZWEpJWldsbmFIUWlDbjBLIiwic2NoZW1hIjoiY2l3LmJpbS1xdWFudGl0eS1zb3VyY2UudjEiLCJ0YXJnZXQiOnsiZ2xvYmFsX2lkIjoiQ0lXU1RPUkVZMDAwMDAwMDAwMDAwMTUiLCJpZmNfY2xhc3MiOiJJZmNCdWlsZGluZ1N0b3JleSIsInF1YW50aXR5IjoiQ2xlYXJIZWlnaHQifX0="
+        }
+      ]
+    },
+    "configuration": {
+      "cross_covariance": "explicit_independent_or_hold",
+      "frame_transform": "not_performed",
+      "geometry_authority": "QUANTITY_ONLY",
+      "observation_model": "native_raw_quantity",
+      "state_admission": "not_performed"
+    },
+    "runtimes": {
+      "cse": {
+        "schema": "ciw.subprocess-runtime.v1",
+        "adapter_version": "ciw-pinned-subprocess-v1",
+        "repository_root": "/workspace/scratch/355d744aca6c/cse",
+        "revision": "4b74abda40bba3277de69bf61e9e09283ae2d5b3",
+        "source_tree": "d1bea6737380b1cdd8f42f9962e282f1047dceec",
+        "module": "gat.session",
+        "source_root": ".",
+        "python_executable": "/opt/codex/runtimes/codex-primary-runtime/dependencies/python/bin/python",
+        "python_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+        "python_version": "3.12.14",
+        "dependencies": {
+          "numpy": "2.3.5",
+          "scipy": "1.17.0"
+        }
+      }
+    },
+    "steps": [
+      {
+        "runtime_ref": "cse",
+        "operation_id": "ciw.bim-quantity.v1",
+        "execution_id": "execution-fb06c5e000f64eed8ec7290f9e737cd3",
+        "input_refs": [
+          "sha256:1c9bb7770d196a2c454f8e466a594f65762004758bfe9ab3a19b97326eb4d2d3"
+        ],
+        "request": {
+          "configuration": {
+            "cross_covariance": "explicit_independent_or_hold",
+            "frame_transform": "not_performed",
+            "geometry_authority": "QUANTITY_ONLY",
+            "observation_model": "native_raw_quantity",
+            "state_admission": "not_performed"
+          },
+          "experiment_id": "experiment.ifc-room.v1",
+          "ifc_bytes_b64": "SVNPLTEwMzAzLTIxOwpIRUFERVI7CkZJTEVfREVTQ1JJUFRJT04oKCdDSVcgZGVjbGFyZWQgcXVhbnRpdHkgZXhhbXBsZScpLCcyOzEnKTsKRklMRV9OQU1FKCdyb29tLmlmYycsJzIwMjYtMDktMjJUMDA6MDA6MDAnLCgnQ0lXJyksKCdDSVcnKSwnQ0lXJywnQ0lXJywnJyk7CkZJTEVfU0NIRU1BKCgnSUZDNCcpKTsKRU5EU0VDOwpEQVRBOwojMT1JRkNQUk9KRUNUKCdDSVdQUk9KRUNUMDAwMDAwMDAwMDAxJywkLCdRdWFudGl0eSBmaXh0dXJlJywkLCQsJCwkLCQsIzMpOwojMj1JRkNTSVVOSVQoKiwuTEVOR1RIVU5JVC4sJCwuTUVUUkUuKTsKIzM9SUZDVU5JVEFTU0lHTk1FTlQoKCMyKSk7CiM1PUlGQ0JVSUxESU5HKCdDSVdCVUlMRElORzAwMDAwMDAwMDAwNScsJCwnQnVpbGRpbmcnLCQsJCwjMTAsJCwkLCQsJCwkLCQpOwojMTA9SUZDTE9DQUxQTEFDRU1FTlQoJCwjMTEpOwojMTE9SUZDQVhJUzJQTEFDRU1FTlQzRCgjMTIsJCwkKTsKIzEyPUlGQ0NBUlRFU0lBTlBPSU5UKCgwLiwwLiwwLikpOwojMTU9SUZDQlVJTERJTkdTVE9SRVkoJ0NJV1NUT1JFWTAwMDAwMDAwMDAwMDE1JywkLCdMZXZlbCAxJywkLCQsIzIwLCQsJCwkLCQpOwojMjA9SUZDTE9DQUxQTEFDRU1FTlQoIzEwLCMyMSk7CiMyMT1JRkNBWElTMlBMQUNFTUVOVDNEKCMyMiwkLCQpOwojMjI9SUZDQ0FSVEVTSUFOUE9JTlQoKDAuLDAuLDAuKSk7CiMyNz1JRkNSRUxERUZJTkVTQllQUk9QRVJUSUVTKCdDSVdQUk9QRVJUSUVTMDAwMDAwMDAyNycsJCwkLCQsKCMxNSksIzI4KTsKIzI4PUlGQ0VMRU1FTlRRVUFOVElUWSgnQ0lXUVVBTlRJVFkwMDAwMDAwMDAwMjgnLCQsJ1F0b19TdG9yZXlCYXNlUXVhbnRpdGllcycsJCwkLCgjMjkpKTsKIzI5PUlGQ1FVQU5USVRZTEVOR1RIKCdDbGVhckhlaWdodCcsJCwkLDMuKTsKIzMwMD1JRkNTUEFDRSgnQ0lXU1BBQ0UwMDAwMDAwMDAwMDMwMCcsJCwnSW5zcGVjdGlvbiByb29tJywkLCQsIzMwMSwkLCQsJCwkLCQpOwojMzAxPUlGQ0xPQ0FMUExBQ0VNRU5UKCMyMCwjMzAyKTsKIzMwMj1JRkNBWElTMlBMQUNFTUVOVDNEKCMzMDMsJCwkKTsKIzMwMz1JRkNDQVJURVNJQU5QT0lOVCgoMC4sMC4sMC4pKTsKIzMwNT1JRkNRVUFOVElUWUxFTkdUSCgnTGVuZ3RoJywkLCQsNS4pOwojMzA2PUlGQ1FVQU5USVRZTEVOR1RIKCdXaWR0aCcsJCwkLDQuKTsKIzMwNz1JRkNFTEVNRU5UUVVBTlRJVFkoJ0NJV1FVQU5USVRZMDAwMDAwMDAwMzA3JywkLCdRdG9fU3BhY2VCYXNlUXVhbnRpdGllcycsJCwkLCgjMzA1LCMzMDYpKTsKIzMwOD1JRkNSRUxERUZJTkVTQllQUk9QRVJUSUVTKCdDSVdQUk9QRVJUSUVTMDAwMDAwMDMwOCcsJCwkLCQsKCMzMDApLCMzMDcpOwojNDAwPUlGQ1JFTEFHR1JFR0FURVMoJ0NJV0FHR1JFR0FURTAwMDAwMDAwNDAwJywkLCQsJCwjMSwoIzUpKTsKIzQwMT1JRkNSRUxBR0dSRUdBVEVTKCdDSVdBR0dSRUdBVEUwMDAwMDAwMDQwMScsJCwkLCQsIzUsKCMxNSkpOwojNDAyPUlGQ1JFTEFHR1JFR0FURVMoJ0NJV0FHR1JFR0FURTAwMDAwMDAwNDAyJywkLCQsJCwjMTUsKCMzMDApKTsKRU5EU0VDOwpFTkQtSVNPLTEwMzAzLTIxOwo=",
+          "model_frame": "synthetic-declared-model-frame",
+          "observation_bytes_b64": "ewogICJzY2hlbWEiOiAiY2l3LmJpbS1zY2FsYXItb2JzZXJ2YXRpb24udjEiLAogICJ2YWx1ZSI6IDIuOTksCiAgInZhcmlhbmNlIjogMi41ZS0wNSwKICAidW5pdCI6ICJtIiwKICAiZnJhbWUiOiAic3ludGhldGljLWRlY2xhcmVkLW1vZGVsLWZyYW1lIiwKICAiaWZjX3NoYTI1NiI6ICJzaGEyNTY6NzQwN2Q1MWM0N2RhZGVkOGFjNDllMWFkMGUyNjEzN2IxNTRhYWFjZDAyNDQxMzRlMTdjNTdhNWQ3N2M0OTg5MCIsCiAgImNyb3NzX2NvdmFyaWFuY2VfcG9saWN5IjogImluZGVwZW5kZW50IiwKICAiaWZjX2NsYXNzIjogIklmY0J1aWxkaW5nU3RvcmV5IiwKICAiZ2xvYmFsX2lkIjogIkNJV1NUT1JFWTAwMDAwMDAwMDAwMDE1IiwKICAicXVhbnRpdHkiOiAiQ2xlYXJIZWlnaHQiCn0K",
+          "schema": "ciw.bim-quantity-source.v1",
+          "target": {
+            "global_id": "CIWSTOREY00000000000015",
+            "ifc_class": "IfcBuildingStorey",
+            "quantity": "ClearHeight"
+          }
+        },
+        "request_sha256": "sha256:1c9bb7770d196a2c454f8e466a594f65762004758bfe9ab3a19b97326eb4d2d3",
+        "result": {
+          "schema": "ciw.declared-workload-result.v1",
+          "operation_id": "ciw.bim-quantity.v1",
+          "execution_ref": "execution-fb06c5e000f64eed8ec7290f9e737cd3",
+          "input_refs": [
+            "sha256:1c9bb7770d196a2c454f8e466a594f65762004758bfe9ab3a19b97326eb4d2d3"
+          ],
+          "data": {
+            "geometry_authority": "QUANTITY_ONLY",
+            "ifc_sha256": "sha256:7407d51c47daded8ac49e1ad0e26137b154aaacd0244134e17c57a5d77c49890",
+            "invariants": {
+              "passed": true,
+              "results": [
+                {
+                  "detail": "1 edges",
+                  "invariant_id": "STRUCT-01",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "module"
+                },
+                {
+                  "detail": "2 nodes",
+                  "invariant_id": "STRUCT-02",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "spatial-tree"
+                },
+                {
+                  "detail": "",
+                  "invariant_id": "STRUCT-03",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "openings"
+                },
+                {
+                  "detail": "",
+                  "invariant_id": "GAUSS-01",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "belief"
+                },
+                {
+                  "detail": "",
+                  "invariant_id": "GAUSS-01",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "full"
+                },
+                {
+                  "detail": "jitter=0",
+                  "invariant_id": "GAUSS-02",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "belief"
+                },
+                {
+                  "detail": "diag >= 0",
+                  "invariant_id": "GAUSS-02",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "full"
+                },
+                {
+                  "detail": "3 vars",
+                  "invariant_id": "GAUSS-03",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "derived"
+                },
+                {
+                  "detail": "",
+                  "invariant_id": "CONS-01",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "nonneg"
+                },
+                {
+                  "detail": "",
+                  "invariant_id": "CONS-02",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "bounds"
+                },
+                {
+                  "detail": "",
+                  "invariant_id": "CONS-03",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "restatements"
+                },
+                {
+                  "detail": "",
+                  "invariant_id": "QTY-01",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "rollups"
+                }
+              ]
+            },
+            "ledger": {
+              "events": [
+                {
+                  "error_digest": null,
+                  "error_message": null,
+                  "error_type": null,
+                  "event_hash": "cafa1369e48118d1ece6fab9fd98d1891403151b3a9aa98bb820c128109a7b7e",
+                  "kind": "genesis",
+                  "operation": {
+                    "belief_digest": "48aca2408f9c7fa956fa68d949c06874603bb48a8097f2e5d986a3a7616b4d86",
+                    "configuration_digest": "df43caa94c08a9cc2b3ecca4c7d072c999ea4fae4bde264b5bef5656535cb230",
+                    "module_digest": "3c2685093dde1b4562207e7a802ded8387faf357b764923eb83faded2edd352f",
+                    "runtime_contract": "gat-world-v1"
+                  },
+                  "previous_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+                  "prior_world_digest": "4c6e12debe75e952072c789a2cff2f76d8ac15553ce4a69977e1a9e31317d60a",
+                  "provenance": {},
+                  "result_world_digest": "4c6e12debe75e952072c789a2cff2f76d8ac15553ce4a69977e1a9e31317d60a",
+                  "seq": 0,
+                  "verification": {
+                    "passed": true,
+                    "results": [
+                      {
+                        "detail": "1 edges",
+                        "invariant_id": "STRUCT-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "module"
+                      },
+                      {
+                        "detail": "2 nodes",
+                        "invariant_id": "STRUCT-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "spatial-tree"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "STRUCT-03",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "openings"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "GAUSS-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "belief"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "GAUSS-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "full"
+                      },
+                      {
+                        "detail": "jitter=0",
+                        "invariant_id": "GAUSS-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "belief"
+                      },
+                      {
+                        "detail": "diag >= 0",
+                        "invariant_id": "GAUSS-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "full"
+                      },
+                      {
+                        "detail": "3 vars",
+                        "invariant_id": "GAUSS-03",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "derived"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "CONS-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "nonneg"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "CONS-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "bounds"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "CONS-03",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "restatements"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "QTY-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "rollups"
+                      }
+                    ]
+                  },
+                  "verification_digest": "8e83a6e8b66cb179179dcf4eca170dadf1dd143db486b87df1f2722cf2db19dc"
+                },
+                {
+                  "error_digest": null,
+                  "error_message": null,
+                  "error_type": null,
+                  "event_hash": "34f7d11f6cb27628bc007b6950ffc0656a3c31fc11158154c1b199fb2bfa3b15",
+                  "kind": "transition",
+                  "operation": {
+                    "measurements": [
+                      {
+                        "noise_sigma": 0.005,
+                        "value": 2.99,
+                        "var": {
+                          "entity": {
+                            "global_id": "CIWSTOREY00000000000015",
+                            "ifc_class": "IfcBuildingStorey"
+                          },
+                          "quantity": "ClearHeight"
+                        }
+                      }
+                    ],
+                    "op": "observe_quantity"
+                  },
+                  "previous_hash": "cafa1369e48118d1ece6fab9fd98d1891403151b3a9aa98bb820c128109a7b7e",
+                  "prior_world_digest": "4c6e12debe75e952072c789a2cff2f76d8ac15553ce4a69977e1a9e31317d60a",
+                  "provenance": {
+                    "cross_covariance_policy": "independent",
+                    "frame_authority": "declared_not_surveyed",
+                    "ifc_sha256": "sha256:7407d51c47daded8ac49e1ad0e26137b154aaacd0244134e17c57a5d77c49890",
+                    "model_frame": "synthetic-declared-model-frame",
+                    "observation_sha256": "sha256:e606e4d8a1b9c5397fd70cf6e40976eefd27ec7f5f43a246befea0e77cf9c50b"
+                  },
+                  "result_world_digest": "eeb4e384f72ec50c78869eadc0d454f29bc8995683833b807fd721b1a8967159",
+                  "seq": 1,
+                  "verification": {
+                    "passed": true,
+                    "results": [
+                      {
+                        "detail": "1 edges",
+                        "invariant_id": "STRUCT-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "module"
+                      },
+                      {
+                        "detail": "2 nodes",
+                        "invariant_id": "STRUCT-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "spatial-tree"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "STRUCT-03",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "openings"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "GAUSS-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "belief"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "GAUSS-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "full"
+                      },
+                      {
+                        "detail": "jitter=0",
+                        "invariant_id": "GAUSS-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "belief"
+                      },
+                      {
+                        "detail": "diag >= 0",
+                        "invariant_id": "GAUSS-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "full"
+                      },
+                      {
+                        "detail": "3 vars",
+                        "invariant_id": "GAUSS-03",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "derived"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "CONS-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "nonneg"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "CONS-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "bounds"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "CONS-03",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "restatements"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "QTY-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "rollups"
+                      }
+                    ]
+                  },
+                  "verification_digest": "8e83a6e8b66cb179179dcf4eca170dadf1dd143db486b87df1f2722cf2db19dc"
+                }
+              ],
+              "format": "gat-execution-ledger",
+              "integrity": {
+                "algorithm": "sha256",
+                "head": "34f7d11f6cb27628bc007b6950ffc0656a3c31fc11158154c1b199fb2bfa3b15"
+              },
+              "runtime_contract": "gat-world-v1",
+              "schema_version": 1
+            },
+            "ledger_replay": {
+              "accepted": 1,
+              "events_replayed": 1,
+              "head": "34f7d11f6cb27628bc007b6950ffc0656a3c31fc11158154c1b199fb2bfa3b15",
+              "non_state": 0,
+              "rejected": 0,
+              "world_digest": "eeb4e384f72ec50c78869eadc0d454f29bc8995683833b807fd721b1a8967159"
+            },
+            "model_frame": "synthetic-declared-model-frame",
+            "native_error": null,
+            "observation_sha256": "sha256:e606e4d8a1b9c5397fd70cf6e40976eefd27ec7f5f43a246befea0e77cf9c50b",
+            "posterior": {
+              "belief_digest": "5a097ccfa0faea6783cd663f612c93a8c9487da668ca9f57f5c21bfd0aa0d10b",
+              "covariance": [
+                [
+                  1.9999999999999998e-05,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.00039999999999999996
+                ],
+                [
+                  0.0,
+                  2.5e-05,
+                  0.0,
+                  0.0001,
+                  0.0001,
+                  0.0002992
+                ],
+                [
+                  0.0,
+                  0.0,
+                  2.5e-05,
+                  0.000125,
+                  0.000125,
+                  0.00037400000000000004
+                ],
+                [
+                  0.0,
+                  0.0001,
+                  0.000125,
+                  0.001025,
+                  0.001025,
+                  0.0030668
+                ],
+                [
+                  0.0,
+                  0.0001,
+                  0.000125,
+                  0.001025,
+                  0.001025,
+                  0.0030668
+                ],
+                [
+                  0.00039999999999999996,
+                  0.0002992,
+                  0.00037400000000000004,
+                  0.0030668,
+                  0.0030668,
+                  0.017175865600000003
+                ]
+              ],
+              "mean": [
+                2.992,
+                5.0,
+                4.0,
+                20.0,
+                20.0,
+                59.84
+              ],
+              "quantities": [
+                {
+                  "global_id": "CIWSTOREY00000000000015",
+                  "ifc_class": "IfcBuildingStorey",
+                  "quantity": "ClearHeight",
+                  "role": "raw",
+                  "unit": "m"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "Length",
+                  "role": "raw",
+                  "unit": "m"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "Width",
+                  "role": "raw",
+                  "unit": "m"
+                },
+                {
+                  "global_id": "CIWSTOREY00000000000015",
+                  "ifc_class": "IfcBuildingStorey",
+                  "quantity": "TotalFloorArea",
+                  "role": "derived",
+                  "unit": "m2"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "FloorArea",
+                  "role": "derived",
+                  "unit": "m2"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "Volume",
+                  "role": "derived",
+                  "unit": "m3"
+                }
+              ],
+              "world_digest": "eeb4e384f72ec50c78869eadc0d454f29bc8995683833b807fd721b1a8967159"
+            },
+            "prior": {
+              "belief_digest": "48aca2408f9c7fa956fa68d949c06874603bb48a8097f2e5d986a3a7616b4d86",
+              "covariance": [
+                [
+                  0.0001,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.002
+                ],
+                [
+                  0.0,
+                  2.5e-05,
+                  0.0,
+                  0.0001,
+                  0.0001,
+                  0.00030000000000000003
+                ],
+                [
+                  0.0,
+                  0.0,
+                  2.5e-05,
+                  0.000125,
+                  0.000125,
+                  0.000375
+                ],
+                [
+                  0.0,
+                  0.0001,
+                  0.000125,
+                  0.001025,
+                  0.001025,
+                  0.003075
+                ],
+                [
+                  0.0,
+                  0.0001,
+                  0.000125,
+                  0.001025,
+                  0.001025,
+                  0.003075
+                ],
+                [
+                  0.002,
+                  0.00030000000000000003,
+                  0.000375,
+                  0.003075,
+                  0.003075,
+                  0.049225
+                ]
+              ],
+              "mean": [
+                3.0,
+                5.0,
+                4.0,
+                20.0,
+                20.0,
+                60.0
+              ],
+              "quantities": [
+                {
+                  "global_id": "CIWSTOREY00000000000015",
+                  "ifc_class": "IfcBuildingStorey",
+                  "quantity": "ClearHeight",
+                  "role": "raw",
+                  "unit": "m"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "Length",
+                  "role": "raw",
+                  "unit": "m"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "Width",
+                  "role": "raw",
+                  "unit": "m"
+                },
+                {
+                  "global_id": "CIWSTOREY00000000000015",
+                  "ifc_class": "IfcBuildingStorey",
+                  "quantity": "TotalFloorArea",
+                  "role": "derived",
+                  "unit": "m2"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "FloorArea",
+                  "role": "derived",
+                  "unit": "m2"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "Volume",
+                  "role": "derived",
+                  "unit": "m3"
+                }
+              ],
+              "world_digest": "4c6e12debe75e952072c789a2cff2f76d8ac15553ce4a69977e1a9e31317d60a"
+            },
+            "reason": "conditioned",
+            "status": "accepted",
+            "target": {
+              "global_id": "CIWSTOREY00000000000015",
+              "ifc_class": "IfcBuildingStorey",
+              "quantity": "ClearHeight"
+            },
+            "unit_context": {
+              "assumed": false,
+              "kind": "SI",
+              "name": "METRE",
+              "prefix": null,
+              "scale_to_metres": 1.0,
+              "source_step_id": 2
+            }
+          },
+          "authority": {
+            "state_admission": "not_performed",
+            "sensor_fusion": "not_performed",
+            "physical_truth": "not_established"
+          },
+          "result_id": "sha256:461eed90715547792fef410985831be44a9a44e2458641c19ee71730ba32319b"
+        },
+        "result_sha256": "sha256:33e485cfe31829173706841db2a722fd17de067a26fcbe82db79452cd9670f56",
+        "result_id": "sha256:461eed90715547792fef410985831be44a9a44e2458641c19ee71730ba32319b",
+        "numerical_result": {
+          "operation_id": "ciw.bim-quantity.v1",
+          "data": {
+            "geometry_authority": "QUANTITY_ONLY",
+            "ifc_sha256": "sha256:7407d51c47daded8ac49e1ad0e26137b154aaacd0244134e17c57a5d77c49890",
+            "invariants": {
+              "passed": true,
+              "results": [
+                {
+                  "detail": "1 edges",
+                  "invariant_id": "STRUCT-01",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "module"
+                },
+                {
+                  "detail": "2 nodes",
+                  "invariant_id": "STRUCT-02",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "spatial-tree"
+                },
+                {
+                  "detail": "",
+                  "invariant_id": "STRUCT-03",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "openings"
+                },
+                {
+                  "detail": "",
+                  "invariant_id": "GAUSS-01",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "belief"
+                },
+                {
+                  "detail": "",
+                  "invariant_id": "GAUSS-01",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "full"
+                },
+                {
+                  "detail": "jitter=0",
+                  "invariant_id": "GAUSS-02",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "belief"
+                },
+                {
+                  "detail": "diag >= 0",
+                  "invariant_id": "GAUSS-02",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "full"
+                },
+                {
+                  "detail": "3 vars",
+                  "invariant_id": "GAUSS-03",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "derived"
+                },
+                {
+                  "detail": "",
+                  "invariant_id": "CONS-01",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "nonneg"
+                },
+                {
+                  "detail": "",
+                  "invariant_id": "CONS-02",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "bounds"
+                },
+                {
+                  "detail": "",
+                  "invariant_id": "CONS-03",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "restatements"
+                },
+                {
+                  "detail": "",
+                  "invariant_id": "QTY-01",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "rollups"
+                }
+              ]
+            },
+            "ledger": {
+              "events": [
+                {
+                  "error_digest": null,
+                  "error_message": null,
+                  "error_type": null,
+                  "event_hash": "cafa1369e48118d1ece6fab9fd98d1891403151b3a9aa98bb820c128109a7b7e",
+                  "kind": "genesis",
+                  "operation": {
+                    "belief_digest": "48aca2408f9c7fa956fa68d949c06874603bb48a8097f2e5d986a3a7616b4d86",
+                    "configuration_digest": "df43caa94c08a9cc2b3ecca4c7d072c999ea4fae4bde264b5bef5656535cb230",
+                    "module_digest": "3c2685093dde1b4562207e7a802ded8387faf357b764923eb83faded2edd352f",
+                    "runtime_contract": "gat-world-v1"
+                  },
+                  "previous_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+                  "prior_world_digest": "4c6e12debe75e952072c789a2cff2f76d8ac15553ce4a69977e1a9e31317d60a",
+                  "provenance": {},
+                  "result_world_digest": "4c6e12debe75e952072c789a2cff2f76d8ac15553ce4a69977e1a9e31317d60a",
+                  "seq": 0,
+                  "verification": {
+                    "passed": true,
+                    "results": [
+                      {
+                        "detail": "1 edges",
+                        "invariant_id": "STRUCT-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "module"
+                      },
+                      {
+                        "detail": "2 nodes",
+                        "invariant_id": "STRUCT-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "spatial-tree"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "STRUCT-03",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "openings"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "GAUSS-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "belief"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "GAUSS-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "full"
+                      },
+                      {
+                        "detail": "jitter=0",
+                        "invariant_id": "GAUSS-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "belief"
+                      },
+                      {
+                        "detail": "diag >= 0",
+                        "invariant_id": "GAUSS-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "full"
+                      },
+                      {
+                        "detail": "3 vars",
+                        "invariant_id": "GAUSS-03",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "derived"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "CONS-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "nonneg"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "CONS-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "bounds"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "CONS-03",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "restatements"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "QTY-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "rollups"
+                      }
+                    ]
+                  },
+                  "verification_digest": "8e83a6e8b66cb179179dcf4eca170dadf1dd143db486b87df1f2722cf2db19dc"
+                },
+                {
+                  "error_digest": null,
+                  "error_message": null,
+                  "error_type": null,
+                  "event_hash": "34f7d11f6cb27628bc007b6950ffc0656a3c31fc11158154c1b199fb2bfa3b15",
+                  "kind": "transition",
+                  "operation": {
+                    "measurements": [
+                      {
+                        "noise_sigma": 0.005,
+                        "value": 2.99,
+                        "var": {
+                          "entity": {
+                            "global_id": "CIWSTOREY00000000000015",
+                            "ifc_class": "IfcBuildingStorey"
+                          },
+                          "quantity": "ClearHeight"
+                        }
+                      }
+                    ],
+                    "op": "observe_quantity"
+                  },
+                  "previous_hash": "cafa1369e48118d1ece6fab9fd98d1891403151b3a9aa98bb820c128109a7b7e",
+                  "prior_world_digest": "4c6e12debe75e952072c789a2cff2f76d8ac15553ce4a69977e1a9e31317d60a",
+                  "provenance": {
+                    "cross_covariance_policy": "independent",
+                    "frame_authority": "declared_not_surveyed",
+                    "ifc_sha256": "sha256:7407d51c47daded8ac49e1ad0e26137b154aaacd0244134e17c57a5d77c49890",
+                    "model_frame": "synthetic-declared-model-frame",
+                    "observation_sha256": "sha256:e606e4d8a1b9c5397fd70cf6e40976eefd27ec7f5f43a246befea0e77cf9c50b"
+                  },
+                  "result_world_digest": "eeb4e384f72ec50c78869eadc0d454f29bc8995683833b807fd721b1a8967159",
+                  "seq": 1,
+                  "verification": {
+                    "passed": true,
+                    "results": [
+                      {
+                        "detail": "1 edges",
+                        "invariant_id": "STRUCT-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "module"
+                      },
+                      {
+                        "detail": "2 nodes",
+                        "invariant_id": "STRUCT-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "spatial-tree"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "STRUCT-03",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "openings"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "GAUSS-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "belief"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "GAUSS-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "full"
+                      },
+                      {
+                        "detail": "jitter=0",
+                        "invariant_id": "GAUSS-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "belief"
+                      },
+                      {
+                        "detail": "diag >= 0",
+                        "invariant_id": "GAUSS-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "full"
+                      },
+                      {
+                        "detail": "3 vars",
+                        "invariant_id": "GAUSS-03",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "derived"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "CONS-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "nonneg"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "CONS-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "bounds"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "CONS-03",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "restatements"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "QTY-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "rollups"
+                      }
+                    ]
+                  },
+                  "verification_digest": "8e83a6e8b66cb179179dcf4eca170dadf1dd143db486b87df1f2722cf2db19dc"
+                }
+              ],
+              "format": "gat-execution-ledger",
+              "integrity": {
+                "algorithm": "sha256",
+                "head": "34f7d11f6cb27628bc007b6950ffc0656a3c31fc11158154c1b199fb2bfa3b15"
+              },
+              "runtime_contract": "gat-world-v1",
+              "schema_version": 1
+            },
+            "ledger_replay": {
+              "accepted": 1,
+              "events_replayed": 1,
+              "head": "34f7d11f6cb27628bc007b6950ffc0656a3c31fc11158154c1b199fb2bfa3b15",
+              "non_state": 0,
+              "rejected": 0,
+              "world_digest": "eeb4e384f72ec50c78869eadc0d454f29bc8995683833b807fd721b1a8967159"
+            },
+            "model_frame": "synthetic-declared-model-frame",
+            "native_error": null,
+            "observation_sha256": "sha256:e606e4d8a1b9c5397fd70cf6e40976eefd27ec7f5f43a246befea0e77cf9c50b",
+            "posterior": {
+              "belief_digest": "5a097ccfa0faea6783cd663f612c93a8c9487da668ca9f57f5c21bfd0aa0d10b",
+              "covariance": [
+                [
+                  1.9999999999999998e-05,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.00039999999999999996
+                ],
+                [
+                  0.0,
+                  2.5e-05,
+                  0.0,
+                  0.0001,
+                  0.0001,
+                  0.0002992
+                ],
+                [
+                  0.0,
+                  0.0,
+                  2.5e-05,
+                  0.000125,
+                  0.000125,
+                  0.00037400000000000004
+                ],
+                [
+                  0.0,
+                  0.0001,
+                  0.000125,
+                  0.001025,
+                  0.001025,
+                  0.0030668
+                ],
+                [
+                  0.0,
+                  0.0001,
+                  0.000125,
+                  0.001025,
+                  0.001025,
+                  0.0030668
+                ],
+                [
+                  0.00039999999999999996,
+                  0.0002992,
+                  0.00037400000000000004,
+                  0.0030668,
+                  0.0030668,
+                  0.017175865600000003
+                ]
+              ],
+              "mean": [
+                2.992,
+                5.0,
+                4.0,
+                20.0,
+                20.0,
+                59.84
+              ],
+              "quantities": [
+                {
+                  "global_id": "CIWSTOREY00000000000015",
+                  "ifc_class": "IfcBuildingStorey",
+                  "quantity": "ClearHeight",
+                  "role": "raw",
+                  "unit": "m"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "Length",
+                  "role": "raw",
+                  "unit": "m"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "Width",
+                  "role": "raw",
+                  "unit": "m"
+                },
+                {
+                  "global_id": "CIWSTOREY00000000000015",
+                  "ifc_class": "IfcBuildingStorey",
+                  "quantity": "TotalFloorArea",
+                  "role": "derived",
+                  "unit": "m2"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "FloorArea",
+                  "role": "derived",
+                  "unit": "m2"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "Volume",
+                  "role": "derived",
+                  "unit": "m3"
+                }
+              ],
+              "world_digest": "eeb4e384f72ec50c78869eadc0d454f29bc8995683833b807fd721b1a8967159"
+            },
+            "prior": {
+              "belief_digest": "48aca2408f9c7fa956fa68d949c06874603bb48a8097f2e5d986a3a7616b4d86",
+              "covariance": [
+                [
+                  0.0001,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.002
+                ],
+                [
+                  0.0,
+                  2.5e-05,
+                  0.0,
+                  0.0001,
+                  0.0001,
+                  0.00030000000000000003
+                ],
+                [
+                  0.0,
+                  0.0,
+                  2.5e-05,
+                  0.000125,
+                  0.000125,
+                  0.000375
+                ],
+                [
+                  0.0,
+                  0.0001,
+                  0.000125,
+                  0.001025,
+                  0.001025,
+                  0.003075
+                ],
+                [
+                  0.0,
+                  0.0001,
+                  0.000125,
+                  0.001025,
+                  0.001025,
+                  0.003075
+                ],
+                [
+                  0.002,
+                  0.00030000000000000003,
+                  0.000375,
+                  0.003075,
+                  0.003075,
+                  0.049225
+                ]
+              ],
+              "mean": [
+                3.0,
+                5.0,
+                4.0,
+                20.0,
+                20.0,
+                60.0
+              ],
+              "quantities": [
+                {
+                  "global_id": "CIWSTOREY00000000000015",
+                  "ifc_class": "IfcBuildingStorey",
+                  "quantity": "ClearHeight",
+                  "role": "raw",
+                  "unit": "m"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "Length",
+                  "role": "raw",
+                  "unit": "m"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "Width",
+                  "role": "raw",
+                  "unit": "m"
+                },
+                {
+                  "global_id": "CIWSTOREY00000000000015",
+                  "ifc_class": "IfcBuildingStorey",
+                  "quantity": "TotalFloorArea",
+                  "role": "derived",
+                  "unit": "m2"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "FloorArea",
+                  "role": "derived",
+                  "unit": "m2"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "Volume",
+                  "role": "derived",
+                  "unit": "m3"
+                }
+              ],
+              "world_digest": "4c6e12debe75e952072c789a2cff2f76d8ac15553ce4a69977e1a9e31317d60a"
+            },
+            "reason": "conditioned",
+            "status": "accepted",
+            "target": {
+              "global_id": "CIWSTOREY00000000000015",
+              "ifc_class": "IfcBuildingStorey",
+              "quantity": "ClearHeight"
+            },
+            "unit_context": {
+              "assumed": false,
+              "kind": "SI",
+              "name": "METRE",
+              "prefix": null,
+              "scale_to_metres": 1.0,
+              "source_step_id": 2
+            }
+          }
+        },
+        "numerical_result_id": "sha256:4d9d030d34fa297be0bdeb99ffc3d28b9a4f52608b4e9a81276ed1f5ebdc503d",
+        "transport_output": {
+          "sha256": "sha256:f2b31a40bd62460a47c4e5d8c3fab2f16c6626e0d63c8a13a8ca03083322b40e",
+          "byte_count": 8914,
+          "bytes_b64": "eyJnZW9tZXRyeV9hdXRob3JpdHkiOiJRVUFOVElUWV9PTkxZIiwiaWZjX3NoYTI1NiI6InNoYTI1Njo3NDA3ZDUxYzQ3ZGFkZWQ4YWM0OWUxYWQwZTI2MTM3YjE1NGFhYWNkMDI0NDEzNGUxN2M1N2E1ZDc3YzQ5ODkwIiwiaW52YXJpYW50cyI6eyJwYXNzZWQiOnRydWUsInJlc3VsdHMiOlt7ImRldGFpbCI6IjEgZWRnZXMiLCJpbnZhcmlhbnRfaWQiOiJTVFJVQ1QtMDEiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6Im1vZHVsZSJ9LHsiZGV0YWlsIjoiMiBub2RlcyIsImludmFyaWFudF9pZCI6IlNUUlVDVC0wMiIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0Ijoic3BhdGlhbC10cmVlIn0seyJkZXRhaWwiOiIiLCJpbnZhcmlhbnRfaWQiOiJTVFJVQ1QtMDMiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6Im9wZW5pbmdzIn0seyJkZXRhaWwiOiIiLCJpbnZhcmlhbnRfaWQiOiJHQVVTUy0wMSIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0IjoiYmVsaWVmIn0seyJkZXRhaWwiOiIiLCJpbnZhcmlhbnRfaWQiOiJHQVVTUy0wMSIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0IjoiZnVsbCJ9LHsiZGV0YWlsIjoiaml0dGVyPTAiLCJpbnZhcmlhbnRfaWQiOiJHQVVTUy0wMiIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0IjoiYmVsaWVmIn0seyJkZXRhaWwiOiJkaWFnID49IDAiLCJpbnZhcmlhbnRfaWQiOiJHQVVTUy0wMiIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0IjoiZnVsbCJ9LHsiZGV0YWlsIjoiMyB2YXJzIiwiaW52YXJpYW50X2lkIjoiR0FVU1MtMDMiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6ImRlcml2ZWQifSx7ImRldGFpbCI6IiIsImludmFyaWFudF9pZCI6IkNPTlMtMDEiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6Im5vbm5lZyJ9LHsiZGV0YWlsIjoiIiwiaW52YXJpYW50X2lkIjoiQ09OUy0wMiIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0IjoiYm91bmRzIn0seyJkZXRhaWwiOiIiLCJpbnZhcmlhbnRfaWQiOiJDT05TLTAzIiwicmVzaWR1YWwiOjAuMCwic3RhdHVzIjoiUEFTUyIsInN1YmplY3QiOiJyZXN0YXRlbWVudHMifSx7ImRldGFpbCI6IiIsImludmFyaWFudF9pZCI6IlFUWS0wMSIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0Ijoicm9sbHVwcyJ9XX0sImxlZGdlciI6eyJldmVudHMiOlt7ImVycm9yX2RpZ2VzdCI6bnVsbCwiZXJyb3JfbWVzc2FnZSI6bnVsbCwiZXJyb3JfdHlwZSI6bnVsbCwiZXZlbnRfaGFzaCI6ImNhZmExMzY5ZTQ4MTE4ZDFlY2U2ZmFiOWZkOThkMTg5MTQwMzE1MWIzYTlhYTk4YmI4MjBjMTI4MTA5YTdiN2UiLCJraW5kIjoiZ2VuZXNpcyIsIm9wZXJhdGlvbiI6eyJiZWxpZWZfZGlnZXN0IjoiNDhhY2EyNDA4ZjljN2ZhOTU2ZmE2OGQ5NDljMDY4NzQ2MDNiYjQ4YTgwOTdmMmU1ZDk4NmEzYTc2MTZiNGQ4NiIsImNvbmZpZ3VyYXRpb25fZGlnZXN0IjoiZGY0M2NhYTk0YzA4YTljYzJiM2VjY2E0YzdkMDcyYzk5OWVhNGZhZTRiZGUyNjRiNWJlZjU2NTY1MzVjYjIzMCIsIm1vZHVsZV9kaWdlc3QiOiIzYzI2ODUwOTNkZGUxYjQ1NjIyMDdlN2E4MDJkZWQ4Mzg3ZmFmMzU3Yjc2NDkyM2ViODNmYWRlZDJlZGQzNTJmIiwicnVudGltZV9jb250cmFjdCI6ImdhdC13b3JsZC12MSJ9LCJwcmV2aW91c19oYXNoIjoiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsInByaW9yX3dvcmxkX2RpZ2VzdCI6IjRjNmUxMmRlYmU3NWU5NTIwNzJjNzg5YTJjZmYyZjc2ZDhhYzE1NTUzY2U0YTY5OTc3ZTFhOWUzMTMxN2Q2MGEiLCJwcm92ZW5hbmNlIjp7fSwicmVzdWx0X3dvcmxkX2RpZ2VzdCI6IjRjNmUxMmRlYmU3NWU5NTIwNzJjNzg5YTJjZmYyZjc2ZDhhYzE1NTUzY2U0YTY5OTc3ZTFhOWUzMTMxN2Q2MGEiLCJzZXEiOjAsInZlcmlmaWNhdGlvbiI6eyJwYXNzZWQiOnRydWUsInJlc3VsdHMiOlt7ImRldGFpbCI6IjEgZWRnZXMiLCJpbnZhcmlhbnRfaWQiOiJTVFJVQ1QtMDEiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6Im1vZHVsZSJ9LHsiZGV0YWlsIjoiMiBub2RlcyIsImludmFyaWFudF9pZCI6IlNUUlVDVC0wMiIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0Ijoic3BhdGlhbC10cmVlIn0seyJkZXRhaWwiOiIiLCJpbnZhcmlhbnRfaWQiOiJTVFJVQ1QtMDMiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6Im9wZW5pbmdzIn0seyJkZXRhaWwiOiIiLCJpbnZhcmlhbnRfaWQiOiJHQVVTUy0wMSIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0IjoiYmVsaWVmIn0seyJkZXRhaWwiOiIiLCJpbnZhcmlhbnRfaWQiOiJHQVVTUy0wMSIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0IjoiZnVsbCJ9LHsiZGV0YWlsIjoiaml0dGVyPTAiLCJpbnZhcmlhbnRfaWQiOiJHQVVTUy0wMiIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0IjoiYmVsaWVmIn0seyJkZXRhaWwiOiJkaWFnID49IDAiLCJpbnZhcmlhbnRfaWQiOiJHQVVTUy0wMiIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0IjoiZnVsbCJ9LHsiZGV0YWlsIjoiMyB2YXJzIiwiaW52YXJpYW50X2lkIjoiR0FVU1MtMDMiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6ImRlcml2ZWQifSx7ImRldGFpbCI6IiIsImludmFyaWFudF9pZCI6IkNPTlMtMDEiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6Im5vbm5lZyJ9LHsiZGV0YWlsIjoiIiwiaW52YXJpYW50X2lkIjoiQ09OUy0wMiIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0IjoiYm91bmRzIn0seyJkZXRhaWwiOiIiLCJpbnZhcmlhbnRfaWQiOiJDT05TLTAzIiwicmVzaWR1YWwiOjAuMCwic3RhdHVzIjoiUEFTUyIsInN1YmplY3QiOiJyZXN0YXRlbWVudHMifSx7ImRldGFpbCI6IiIsImludmFyaWFudF9pZCI6IlFUWS0wMSIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0Ijoicm9sbHVwcyJ9XX0sInZlcmlmaWNhdGlvbl9kaWdlc3QiOiI4ZTgzYTZlOGI2NmNiMTc5MTc5ZGNmNGVjYTE3MGRhZGYxZGQxNDNkYjQ4NmI4N2RmMWYyNzIyY2YyZGIxOWRjIn0seyJlcnJvcl9kaWdlc3QiOm51bGwsImVycm9yX21lc3NhZ2UiOm51bGwsImVycm9yX3R5cGUiOm51bGwsImV2ZW50X2hhc2giOiIzNGY3ZDExZjZjYjI3NjI4YmMwMDdiNjk1MGZmYzA2NTZhM2MzMWZjMTExNTgxNTRjMWIxOTlmYjJiZmEzYjE1Iiwia2luZCI6InRyYW5zaXRpb24iLCJvcGVyYXRpb24iOnsibWVhc3VyZW1lbnRzIjpbeyJub2lzZV9zaWdtYSI6MC4wMDUsInZhbHVlIjoyLjk5LCJ2YXIiOnsiZW50aXR5Ijp7Imdsb2JhbF9pZCI6IkNJV1NUT1JFWTAwMDAwMDAwMDAwMDE1IiwiaWZjX2NsYXNzIjoiSWZjQnVpbGRpbmdTdG9yZXkifSwicXVhbnRpdHkiOiJDbGVhckhlaWdodCJ9fV0sIm9wIjoib2JzZXJ2ZV9xdWFudGl0eSJ9LCJwcmV2aW91c19oYXNoIjoiY2FmYTEzNjllNDgxMThkMWVjZTZmYWI5ZmQ5OGQxODkxNDAzMTUxYjNhOWFhOThiYjgyMGMxMjgxMDlhN2I3ZSIsInByaW9yX3dvcmxkX2RpZ2VzdCI6IjRjNmUxMmRlYmU3NWU5NTIwNzJjNzg5YTJjZmYyZjc2ZDhhYzE1NTUzY2U0YTY5OTc3ZTFhOWUzMTMxN2Q2MGEiLCJwcm92ZW5hbmNlIjp7ImNyb3NzX2NvdmFyaWFuY2VfcG9saWN5IjoiaW5kZXBlbmRlbnQiLCJmcmFtZV9hdXRob3JpdHkiOiJkZWNsYXJlZF9ub3Rfc3VydmV5ZWQiLCJpZmNfc2hhMjU2Ijoic2hhMjU2Ojc0MDdkNTFjNDdkYWRlZDhhYzQ5ZTFhZDBlMjYxMzdiMTU0YWFhY2QwMjQ0MTM0ZTE3YzU3YTVkNzdjNDk4OTAiLCJtb2RlbF9mcmFtZSI6InN5bnRoZXRpYy1kZWNsYXJlZC1tb2RlbC1mcmFtZSIsIm9ic2VydmF0aW9uX3NoYTI1NiI6InNoYTI1NjplNjA2ZTRkOGExYjljNTM5N2ZkNzBjZjZlNDA5NzZlZWZkMjdlYzdmNWY0M2EyNDZiZWZlYTBlNzdjZjljNTBiIn0sInJlc3VsdF93b3JsZF9kaWdlc3QiOiJlZWI0ZTM4NGY3MmVjNTBjNzg4NjllYWRjMGQ0NTRmMjliYzg5OTU2ODM4MzNiODA3ZmQ3MjFiMWE4OTY3MTU5Iiwic2VxIjoxLCJ2ZXJpZmljYXRpb24iOnsicGFzc2VkIjp0cnVlLCJyZXN1bHRzIjpbeyJkZXRhaWwiOiIxIGVkZ2VzIiwiaW52YXJpYW50X2lkIjoiU1RSVUNULTAxIiwicmVzaWR1YWwiOjAuMCwic3RhdHVzIjoiUEFTUyIsInN1YmplY3QiOiJtb2R1bGUifSx7ImRldGFpbCI6IjIgbm9kZXMiLCJpbnZhcmlhbnRfaWQiOiJTVFJVQ1QtMDIiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6InNwYXRpYWwtdHJlZSJ9LHsiZGV0YWlsIjoiIiwiaW52YXJpYW50X2lkIjoiU1RSVUNULTAzIiwicmVzaWR1YWwiOjAuMCwic3RhdHVzIjoiUEFTUyIsInN1YmplY3QiOiJvcGVuaW5ncyJ9LHsiZGV0YWlsIjoiIiwiaW52YXJpYW50X2lkIjoiR0FVU1MtMDEiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6ImJlbGllZiJ9LHsiZGV0YWlsIjoiIiwiaW52YXJpYW50X2lkIjoiR0FVU1MtMDEiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6ImZ1bGwifSx7ImRldGFpbCI6ImppdHRlcj0wIiwiaW52YXJpYW50X2lkIjoiR0FVU1MtMDIiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6ImJlbGllZiJ9LHsiZGV0YWlsIjoiZGlhZyA+PSAwIiwiaW52YXJpYW50X2lkIjoiR0FVU1MtMDIiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6ImZ1bGwifSx7ImRldGFpbCI6IjMgdmFycyIsImludmFyaWFudF9pZCI6IkdBVVNTLTAzIiwicmVzaWR1YWwiOjAuMCwic3RhdHVzIjoiUEFTUyIsInN1YmplY3QiOiJkZXJpdmVkIn0seyJkZXRhaWwiOiIiLCJpbnZhcmlhbnRfaWQiOiJDT05TLTAxIiwicmVzaWR1YWwiOjAuMCwic3RhdHVzIjoiUEFTUyIsInN1YmplY3QiOiJub25uZWcifSx7ImRldGFpbCI6IiIsImludmFyaWFudF9pZCI6IkNPTlMtMDIiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6ImJvdW5kcyJ9LHsiZGV0YWlsIjoiIiwiaW52YXJpYW50X2lkIjoiQ09OUy0wMyIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0IjoicmVzdGF0ZW1lbnRzIn0seyJkZXRhaWwiOiIiLCJpbnZhcmlhbnRfaWQiOiJRVFktMDEiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6InJvbGx1cHMifV19LCJ2ZXJpZmljYXRpb25fZGlnZXN0IjoiOGU4M2E2ZThiNjZjYjE3OTE3OWRjZjRlY2ExNzBkYWRmMWRkMTQzZGI0ODZiODdkZjFmMjcyMmNmMmRiMTlkYyJ9XSwiZm9ybWF0IjoiZ2F0LWV4ZWN1dGlvbi1sZWRnZXIiLCJpbnRlZ3JpdHkiOnsiYWxnb3JpdGhtIjoic2hhMjU2IiwiaGVhZCI6IjM0ZjdkMTFmNmNiMjc2MjhiYzAwN2I2OTUwZmZjMDY1NmEzYzMxZmMxMTE1ODE1NGMxYjE5OWZiMmJmYTNiMTUifSwicnVudGltZV9jb250cmFjdCI6ImdhdC13b3JsZC12MSIsInNjaGVtYV92ZXJzaW9uIjoxfSwibGVkZ2VyX3JlcGxheSI6eyJhY2NlcHRlZCI6MSwiZXZlbnRzX3JlcGxheWVkIjoxLCJoZWFkIjoiMzRmN2QxMWY2Y2IyNzYyOGJjMDA3YjY5NTBmZmMwNjU2YTNjMzFmYzExMTU4MTU0YzFiMTk5ZmIyYmZhM2IxNSIsIm5vbl9zdGF0ZSI6MCwicmVqZWN0ZWQiOjAsIndvcmxkX2RpZ2VzdCI6ImVlYjRlMzg0ZjcyZWM1MGM3ODg2OWVhZGMwZDQ1NGYyOWJjODk5NTY4MzgzM2I4MDdmZDcyMWIxYTg5NjcxNTkifSwibW9kZWxfZnJhbWUiOiJzeW50aGV0aWMtZGVjbGFyZWQtbW9kZWwtZnJhbWUiLCJuYXRpdmVfZXJyb3IiOm51bGwsIm9ic2VydmF0aW9uX3NoYTI1NiI6InNoYTI1NjplNjA2ZTRkOGExYjljNTM5N2ZkNzBjZjZlNDA5NzZlZWZkMjdlYzdmNWY0M2EyNDZiZWZlYTBlNzdjZjljNTBiIiwicG9zdGVyaW9yIjp7ImJlbGllZl9kaWdlc3QiOiI1YTA5N2NjZmEwZmFlYTY3ODNjZDY2M2Y2MTJjOTNhOGM5NDg3ZGE2NjhjYTlmNTdmNWMyMWJmZDBhYTBkMTBiIiwiY292YXJpYW5jZSI6W1sxLjk5OTk5OTk5OTk5OTk5OThlLTA1LDAuMCwwLjAsMC4wLDAuMCwwLjAwMDM5OTk5OTk5OTk5OTk5OTk2XSxbMC4wLDIuNWUtMDUsMC4wLDAuMDAwMSwwLjAwMDEsMC4wMDAyOTkyXSxbMC4wLDAuMCwyLjVlLTA1LDAuMDAwMTI1LDAuMDAwMTI1LDAuMDAwMzc0MDAwMDAwMDAwMDAwMDRdLFswLjAsMC4wMDAxLDAuMDAwMTI1LDAuMDAxMDI1LDAuMDAxMDI1LDAuMDAzMDY2OF0sWzAuMCwwLjAwMDEsMC4wMDAxMjUsMC4wMDEwMjUsMC4wMDEwMjUsMC4wMDMwNjY4XSxbMC4wMDAzOTk5OTk5OTk5OTk5OTk5NiwwLjAwMDI5OTIsMC4wMDAzNzQwMDAwMDAwMDAwMDAwNCwwLjAwMzA2NjgsMC4wMDMwNjY4LDAuMDE3MTc1ODY1NjAwMDAwMDAzXV0sIm1lYW4iOlsyLjk5Miw1LjAsNC4wLDIwLjAsMjAuMCw1OS44NF0sInF1YW50aXRpZXMiOlt7Imdsb2JhbF9pZCI6IkNJV1NUT1JFWTAwMDAwMDAwMDAwMDE1IiwiaWZjX2NsYXNzIjoiSWZjQnVpbGRpbmdTdG9yZXkiLCJxdWFudGl0eSI6IkNsZWFySGVpZ2h0Iiwicm9sZSI6InJhdyIsInVuaXQiOiJtIn0seyJnbG9iYWxfaWQiOiJDSVdTUEFDRTAwMDAwMDAwMDAwMzAwIiwiaWZjX2NsYXNzIjoiSWZjU3BhY2UiLCJxdWFudGl0eSI6Ikxlbmd0aCIsInJvbGUiOiJyYXciLCJ1bml0IjoibSJ9LHsiZ2xvYmFsX2lkIjoiQ0lXU1BBQ0UwMDAwMDAwMDAwMDMwMCIsImlmY19jbGFzcyI6IklmY1NwYWNlIiwicXVhbnRpdHkiOiJXaWR0aCIsInJvbGUiOiJyYXciLCJ1bml0IjoibSJ9LHsiZ2xvYmFsX2lkIjoiQ0lXU1RPUkVZMDAwMDAwMDAwMDAwMTUiLCJpZmNfY2xhc3MiOiJJZmNCdWlsZGluZ1N0b3JleSIsInF1YW50aXR5IjoiVG90YWxGbG9vckFyZWEiLCJyb2xlIjoiZGVyaXZlZCIsInVuaXQiOiJtMiJ9LHsiZ2xvYmFsX2lkIjoiQ0lXU1BBQ0UwMDAwMDAwMDAwMDMwMCIsImlmY19jbGFzcyI6IklmY1NwYWNlIiwicXVhbnRpdHkiOiJGbG9vckFyZWEiLCJyb2xlIjoiZGVyaXZlZCIsInVuaXQiOiJtMiJ9LHsiZ2xvYmFsX2lkIjoiQ0lXU1BBQ0UwMDAwMDAwMDAwMDMwMCIsImlmY19jbGFzcyI6IklmY1NwYWNlIiwicXVhbnRpdHkiOiJWb2x1bWUiLCJyb2xlIjoiZGVyaXZlZCIsInVuaXQiOiJtMyJ9XSwid29ybGRfZGlnZXN0IjoiZWViNGUzODRmNzJlYzUwYzc4ODY5ZWFkYzBkNDU0ZjI5YmM4OTk1NjgzODMzYjgwN2ZkNzIxYjFhODk2NzE1OSJ9LCJwcmlvciI6eyJiZWxpZWZfZGlnZXN0IjoiNDhhY2EyNDA4ZjljN2ZhOTU2ZmE2OGQ5NDljMDY4NzQ2MDNiYjQ4YTgwOTdmMmU1ZDk4NmEzYTc2MTZiNGQ4NiIsImNvdmFyaWFuY2UiOltbMC4wMDAxLDAuMCwwLjAsMC4wLDAuMCwwLjAwMl0sWzAuMCwyLjVlLTA1LDAuMCwwLjAwMDEsMC4wMDAxLDAuMDAwMzAwMDAwMDAwMDAwMDAwMDNdLFswLjAsMC4wLDIuNWUtMDUsMC4wMDAxMjUsMC4wMDAxMjUsMC4wMDAzNzVdLFswLjAsMC4wMDAxLDAuMDAwMTI1LDAuMDAxMDI1LDAuMDAxMDI1LDAuMDAzMDc1XSxbMC4wLDAuMDAwMSwwLjAwMDEyNSwwLjAwMTAyNSwwLjAwMTAyNSwwLjAwMzA3NV0sWzAuMDAyLDAuMDAwMzAwMDAwMDAwMDAwMDAwMDMsMC4wMDAzNzUsMC4wMDMwNzUsMC4wMDMwNzUsMC4wNDkyMjVdXSwibWVhbiI6WzMuMCw1LjAsNC4wLDIwLjAsMjAuMCw2MC4wXSwicXVhbnRpdGllcyI6W3siZ2xvYmFsX2lkIjoiQ0lXU1RPUkVZMDAwMDAwMDAwMDAwMTUiLCJpZmNfY2xhc3MiOiJJZmNCdWlsZGluZ1N0b3JleSIsInF1YW50aXR5IjoiQ2xlYXJIZWlnaHQiLCJyb2xlIjoicmF3IiwidW5pdCI6Im0ifSx7Imdsb2JhbF9pZCI6IkNJV1NQQUNFMDAwMDAwMDAwMDAzMDAiLCJpZmNfY2xhc3MiOiJJZmNTcGFjZSIsInF1YW50aXR5IjoiTGVuZ3RoIiwicm9sZSI6InJhdyIsInVuaXQiOiJtIn0seyJnbG9iYWxfaWQiOiJDSVdTUEFDRTAwMDAwMDAwMDAwMzAwIiwiaWZjX2NsYXNzIjoiSWZjU3BhY2UiLCJxdWFudGl0eSI6IldpZHRoIiwicm9sZSI6InJhdyIsInVuaXQiOiJtIn0seyJnbG9iYWxfaWQiOiJDSVdTVE9SRVkwMDAwMDAwMDAwMDAxNSIsImlmY19jbGFzcyI6IklmY0J1aWxkaW5nU3RvcmV5IiwicXVhbnRpdHkiOiJUb3RhbEZsb29yQXJlYSIsInJvbGUiOiJkZXJpdmVkIiwidW5pdCI6Im0yIn0seyJnbG9iYWxfaWQiOiJDSVdTUEFDRTAwMDAwMDAwMDAwMzAwIiwiaWZjX2NsYXNzIjoiSWZjU3BhY2UiLCJxdWFudGl0eSI6IkZsb29yQXJlYSIsInJvbGUiOiJkZXJpdmVkIiwidW5pdCI6Im0yIn0seyJnbG9iYWxfaWQiOiJDSVdTUEFDRTAwMDAwMDAwMDAwMzAwIiwiaWZjX2NsYXNzIjoiSWZjU3BhY2UiLCJxdWFudGl0eSI6IlZvbHVtZSIsInJvbGUiOiJkZXJpdmVkIiwidW5pdCI6Im0zIn1dLCJ3b3JsZF9kaWdlc3QiOiI0YzZlMTJkZWJlNzVlOTUyMDcyYzc4OWEyY2ZmMmY3NmQ4YWMxNTU1M2NlNGE2OTk3N2UxYTllMzEzMTdkNjBhIn0sInJlYXNvbiI6ImNvbmRpdGlvbmVkIiwic3RhdHVzIjoiYWNjZXB0ZWQiLCJ0YXJnZXQiOnsiZ2xvYmFsX2lkIjoiQ0lXU1RPUkVZMDAwMDAwMDAwMDAwMTUiLCJpZmNfY2xhc3MiOiJJZmNCdWlsZGluZ1N0b3JleSIsInF1YW50aXR5IjoiQ2xlYXJIZWlnaHQifSwidW5pdF9jb250ZXh0Ijp7ImFzc3VtZWQiOmZhbHNlLCJraW5kIjoiU0kiLCJuYW1lIjoiTUVUUkUiLCJwcmVmaXgiOm51bGwsInNjYWxlX3RvX21ldHJlcyI6MS4wLCJzb3VyY2Vfc3RlcF9pZCI6Mn19Cg=="
+        }
+      }
+    ],
+    "bundle_digest": "sha256:967fbc39f78f96d4f06e067b69490b9ab74d4e1af2fc8d1b167e8893d8db56fc",
+    "verification": {
+      "schema": "ciw.declared-workload-verification.v1",
+      "subject_ref": "sha256:967fbc39f78f96d4f06e067b69490b9ab74d4e1af2fc8d1b167e8893d8db56fc",
+      "outcome": "passed",
+      "independent": false,
+      "method": "same_runtime_fresh_occurrence_reproduction",
+      "runtime_digest": "sha256:e7c5122e0a35a72d6d8026fd0b689f326ba0f1ff885efd6808d5e01a1b586a79",
+      "reproduction": {
+        "runtime_ref": "cse",
+        "operation_id": "ciw.bim-quantity.v1",
+        "execution_id": "execution-03bf0e9c78354572a7ee2703c637fa9a",
+        "input_refs": [
+          "sha256:1c9bb7770d196a2c454f8e466a594f65762004758bfe9ab3a19b97326eb4d2d3"
+        ],
+        "request": {
+          "configuration": {
+            "cross_covariance": "explicit_independent_or_hold",
+            "frame_transform": "not_performed",
+            "geometry_authority": "QUANTITY_ONLY",
+            "observation_model": "native_raw_quantity",
+            "state_admission": "not_performed"
+          },
+          "experiment_id": "experiment.ifc-room.v1",
+          "ifc_bytes_b64": "SVNPLTEwMzAzLTIxOwpIRUFERVI7CkZJTEVfREVTQ1JJUFRJT04oKCdDSVcgZGVjbGFyZWQgcXVhbnRpdHkgZXhhbXBsZScpLCcyOzEnKTsKRklMRV9OQU1FKCdyb29tLmlmYycsJzIwMjYtMDktMjJUMDA6MDA6MDAnLCgnQ0lXJyksKCdDSVcnKSwnQ0lXJywnQ0lXJywnJyk7CkZJTEVfU0NIRU1BKCgnSUZDNCcpKTsKRU5EU0VDOwpEQVRBOwojMT1JRkNQUk9KRUNUKCdDSVdQUk9KRUNUMDAwMDAwMDAwMDAxJywkLCdRdWFudGl0eSBmaXh0dXJlJywkLCQsJCwkLCQsIzMpOwojMj1JRkNTSVVOSVQoKiwuTEVOR1RIVU5JVC4sJCwuTUVUUkUuKTsKIzM9SUZDVU5JVEFTU0lHTk1FTlQoKCMyKSk7CiM1PUlGQ0JVSUxESU5HKCdDSVdCVUlMRElORzAwMDAwMDAwMDAwNScsJCwnQnVpbGRpbmcnLCQsJCwjMTAsJCwkLCQsJCwkLCQpOwojMTA9SUZDTE9DQUxQTEFDRU1FTlQoJCwjMTEpOwojMTE9SUZDQVhJUzJQTEFDRU1FTlQzRCgjMTIsJCwkKTsKIzEyPUlGQ0NBUlRFU0lBTlBPSU5UKCgwLiwwLiwwLikpOwojMTU9SUZDQlVJTERJTkdTVE9SRVkoJ0NJV1NUT1JFWTAwMDAwMDAwMDAwMDE1JywkLCdMZXZlbCAxJywkLCQsIzIwLCQsJCwkLCQpOwojMjA9SUZDTE9DQUxQTEFDRU1FTlQoIzEwLCMyMSk7CiMyMT1JRkNBWElTMlBMQUNFTUVOVDNEKCMyMiwkLCQpOwojMjI9SUZDQ0FSVEVTSUFOUE9JTlQoKDAuLDAuLDAuKSk7CiMyNz1JRkNSRUxERUZJTkVTQllQUk9QRVJUSUVTKCdDSVdQUk9QRVJUSUVTMDAwMDAwMDAyNycsJCwkLCQsKCMxNSksIzI4KTsKIzI4PUlGQ0VMRU1FTlRRVUFOVElUWSgnQ0lXUVVBTlRJVFkwMDAwMDAwMDAwMjgnLCQsJ1F0b19TdG9yZXlCYXNlUXVhbnRpdGllcycsJCwkLCgjMjkpKTsKIzI5PUlGQ1FVQU5USVRZTEVOR1RIKCdDbGVhckhlaWdodCcsJCwkLDMuKTsKIzMwMD1JRkNTUEFDRSgnQ0lXU1BBQ0UwMDAwMDAwMDAwMDMwMCcsJCwnSW5zcGVjdGlvbiByb29tJywkLCQsIzMwMSwkLCQsJCwkLCQpOwojMzAxPUlGQ0xPQ0FMUExBQ0VNRU5UKCMyMCwjMzAyKTsKIzMwMj1JRkNBWElTMlBMQUNFTUVOVDNEKCMzMDMsJCwkKTsKIzMwMz1JRkNDQVJURVNJQU5QT0lOVCgoMC4sMC4sMC4pKTsKIzMwNT1JRkNRVUFOVElUWUxFTkdUSCgnTGVuZ3RoJywkLCQsNS4pOwojMzA2PUlGQ1FVQU5USVRZTEVOR1RIKCdXaWR0aCcsJCwkLDQuKTsKIzMwNz1JRkNFTEVNRU5UUVVBTlRJVFkoJ0NJV1FVQU5USVRZMDAwMDAwMDAwMzA3JywkLCdRdG9fU3BhY2VCYXNlUXVhbnRpdGllcycsJCwkLCgjMzA1LCMzMDYpKTsKIzMwOD1JRkNSRUxERUZJTkVTQllQUk9QRVJUSUVTKCdDSVdQUk9QRVJUSUVTMDAwMDAwMDMwOCcsJCwkLCQsKCMzMDApLCMzMDcpOwojNDAwPUlGQ1JFTEFHR1JFR0FURVMoJ0NJV0FHR1JFR0FURTAwMDAwMDAwNDAwJywkLCQsJCwjMSwoIzUpKTsKIzQwMT1JRkNSRUxBR0dSRUdBVEVTKCdDSVdBR0dSRUdBVEUwMDAwMDAwMDQwMScsJCwkLCQsIzUsKCMxNSkpOwojNDAyPUlGQ1JFTEFHR1JFR0FURVMoJ0NJV0FHR1JFR0FURTAwMDAwMDAwNDAyJywkLCQsJCwjMTUsKCMzMDApKTsKRU5EU0VDOwpFTkQtSVNPLTEwMzAzLTIxOwo=",
+          "model_frame": "synthetic-declared-model-frame",
+          "observation_bytes_b64": "ewogICJzY2hlbWEiOiAiY2l3LmJpbS1zY2FsYXItb2JzZXJ2YXRpb24udjEiLAogICJ2YWx1ZSI6IDIuOTksCiAgInZhcmlhbmNlIjogMi41ZS0wNSwKICAidW5pdCI6ICJtIiwKICAiZnJhbWUiOiAic3ludGhldGljLWRlY2xhcmVkLW1vZGVsLWZyYW1lIiwKICAiaWZjX3NoYTI1NiI6ICJzaGEyNTY6NzQwN2Q1MWM0N2RhZGVkOGFjNDllMWFkMGUyNjEzN2IxNTRhYWFjZDAyNDQxMzRlMTdjNTdhNWQ3N2M0OTg5MCIsCiAgImNyb3NzX2NvdmFyaWFuY2VfcG9saWN5IjogImluZGVwZW5kZW50IiwKICAiaWZjX2NsYXNzIjogIklmY0J1aWxkaW5nU3RvcmV5IiwKICAiZ2xvYmFsX2lkIjogIkNJV1NUT1JFWTAwMDAwMDAwMDAwMDE1IiwKICAicXVhbnRpdHkiOiAiQ2xlYXJIZWlnaHQiCn0K",
+          "schema": "ciw.bim-quantity-source.v1",
+          "target": {
+            "global_id": "CIWSTOREY00000000000015",
+            "ifc_class": "IfcBuildingStorey",
+            "quantity": "ClearHeight"
+          }
+        },
+        "request_sha256": "sha256:1c9bb7770d196a2c454f8e466a594f65762004758bfe9ab3a19b97326eb4d2d3",
+        "result": {
+          "schema": "ciw.declared-workload-result.v1",
+          "operation_id": "ciw.bim-quantity.v1",
+          "execution_ref": "execution-03bf0e9c78354572a7ee2703c637fa9a",
+          "input_refs": [
+            "sha256:1c9bb7770d196a2c454f8e466a594f65762004758bfe9ab3a19b97326eb4d2d3"
+          ],
+          "data": {
+            "geometry_authority": "QUANTITY_ONLY",
+            "ifc_sha256": "sha256:7407d51c47daded8ac49e1ad0e26137b154aaacd0244134e17c57a5d77c49890",
+            "invariants": {
+              "passed": true,
+              "results": [
+                {
+                  "detail": "1 edges",
+                  "invariant_id": "STRUCT-01",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "module"
+                },
+                {
+                  "detail": "2 nodes",
+                  "invariant_id": "STRUCT-02",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "spatial-tree"
+                },
+                {
+                  "detail": "",
+                  "invariant_id": "STRUCT-03",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "openings"
+                },
+                {
+                  "detail": "",
+                  "invariant_id": "GAUSS-01",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "belief"
+                },
+                {
+                  "detail": "",
+                  "invariant_id": "GAUSS-01",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "full"
+                },
+                {
+                  "detail": "jitter=0",
+                  "invariant_id": "GAUSS-02",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "belief"
+                },
+                {
+                  "detail": "diag >= 0",
+                  "invariant_id": "GAUSS-02",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "full"
+                },
+                {
+                  "detail": "3 vars",
+                  "invariant_id": "GAUSS-03",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "derived"
+                },
+                {
+                  "detail": "",
+                  "invariant_id": "CONS-01",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "nonneg"
+                },
+                {
+                  "detail": "",
+                  "invariant_id": "CONS-02",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "bounds"
+                },
+                {
+                  "detail": "",
+                  "invariant_id": "CONS-03",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "restatements"
+                },
+                {
+                  "detail": "",
+                  "invariant_id": "QTY-01",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "rollups"
+                }
+              ]
+            },
+            "ledger": {
+              "events": [
+                {
+                  "error_digest": null,
+                  "error_message": null,
+                  "error_type": null,
+                  "event_hash": "cafa1369e48118d1ece6fab9fd98d1891403151b3a9aa98bb820c128109a7b7e",
+                  "kind": "genesis",
+                  "operation": {
+                    "belief_digest": "48aca2408f9c7fa956fa68d949c06874603bb48a8097f2e5d986a3a7616b4d86",
+                    "configuration_digest": "df43caa94c08a9cc2b3ecca4c7d072c999ea4fae4bde264b5bef5656535cb230",
+                    "module_digest": "3c2685093dde1b4562207e7a802ded8387faf357b764923eb83faded2edd352f",
+                    "runtime_contract": "gat-world-v1"
+                  },
+                  "previous_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+                  "prior_world_digest": "4c6e12debe75e952072c789a2cff2f76d8ac15553ce4a69977e1a9e31317d60a",
+                  "provenance": {},
+                  "result_world_digest": "4c6e12debe75e952072c789a2cff2f76d8ac15553ce4a69977e1a9e31317d60a",
+                  "seq": 0,
+                  "verification": {
+                    "passed": true,
+                    "results": [
+                      {
+                        "detail": "1 edges",
+                        "invariant_id": "STRUCT-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "module"
+                      },
+                      {
+                        "detail": "2 nodes",
+                        "invariant_id": "STRUCT-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "spatial-tree"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "STRUCT-03",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "openings"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "GAUSS-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "belief"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "GAUSS-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "full"
+                      },
+                      {
+                        "detail": "jitter=0",
+                        "invariant_id": "GAUSS-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "belief"
+                      },
+                      {
+                        "detail": "diag >= 0",
+                        "invariant_id": "GAUSS-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "full"
+                      },
+                      {
+                        "detail": "3 vars",
+                        "invariant_id": "GAUSS-03",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "derived"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "CONS-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "nonneg"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "CONS-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "bounds"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "CONS-03",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "restatements"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "QTY-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "rollups"
+                      }
+                    ]
+                  },
+                  "verification_digest": "8e83a6e8b66cb179179dcf4eca170dadf1dd143db486b87df1f2722cf2db19dc"
+                },
+                {
+                  "error_digest": null,
+                  "error_message": null,
+                  "error_type": null,
+                  "event_hash": "34f7d11f6cb27628bc007b6950ffc0656a3c31fc11158154c1b199fb2bfa3b15",
+                  "kind": "transition",
+                  "operation": {
+                    "measurements": [
+                      {
+                        "noise_sigma": 0.005,
+                        "value": 2.99,
+                        "var": {
+                          "entity": {
+                            "global_id": "CIWSTOREY00000000000015",
+                            "ifc_class": "IfcBuildingStorey"
+                          },
+                          "quantity": "ClearHeight"
+                        }
+                      }
+                    ],
+                    "op": "observe_quantity"
+                  },
+                  "previous_hash": "cafa1369e48118d1ece6fab9fd98d1891403151b3a9aa98bb820c128109a7b7e",
+                  "prior_world_digest": "4c6e12debe75e952072c789a2cff2f76d8ac15553ce4a69977e1a9e31317d60a",
+                  "provenance": {
+                    "cross_covariance_policy": "independent",
+                    "frame_authority": "declared_not_surveyed",
+                    "ifc_sha256": "sha256:7407d51c47daded8ac49e1ad0e26137b154aaacd0244134e17c57a5d77c49890",
+                    "model_frame": "synthetic-declared-model-frame",
+                    "observation_sha256": "sha256:e606e4d8a1b9c5397fd70cf6e40976eefd27ec7f5f43a246befea0e77cf9c50b"
+                  },
+                  "result_world_digest": "eeb4e384f72ec50c78869eadc0d454f29bc8995683833b807fd721b1a8967159",
+                  "seq": 1,
+                  "verification": {
+                    "passed": true,
+                    "results": [
+                      {
+                        "detail": "1 edges",
+                        "invariant_id": "STRUCT-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "module"
+                      },
+                      {
+                        "detail": "2 nodes",
+                        "invariant_id": "STRUCT-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "spatial-tree"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "STRUCT-03",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "openings"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "GAUSS-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "belief"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "GAUSS-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "full"
+                      },
+                      {
+                        "detail": "jitter=0",
+                        "invariant_id": "GAUSS-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "belief"
+                      },
+                      {
+                        "detail": "diag >= 0",
+                        "invariant_id": "GAUSS-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "full"
+                      },
+                      {
+                        "detail": "3 vars",
+                        "invariant_id": "GAUSS-03",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "derived"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "CONS-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "nonneg"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "CONS-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "bounds"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "CONS-03",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "restatements"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "QTY-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "rollups"
+                      }
+                    ]
+                  },
+                  "verification_digest": "8e83a6e8b66cb179179dcf4eca170dadf1dd143db486b87df1f2722cf2db19dc"
+                }
+              ],
+              "format": "gat-execution-ledger",
+              "integrity": {
+                "algorithm": "sha256",
+                "head": "34f7d11f6cb27628bc007b6950ffc0656a3c31fc11158154c1b199fb2bfa3b15"
+              },
+              "runtime_contract": "gat-world-v1",
+              "schema_version": 1
+            },
+            "ledger_replay": {
+              "accepted": 1,
+              "events_replayed": 1,
+              "head": "34f7d11f6cb27628bc007b6950ffc0656a3c31fc11158154c1b199fb2bfa3b15",
+              "non_state": 0,
+              "rejected": 0,
+              "world_digest": "eeb4e384f72ec50c78869eadc0d454f29bc8995683833b807fd721b1a8967159"
+            },
+            "model_frame": "synthetic-declared-model-frame",
+            "native_error": null,
+            "observation_sha256": "sha256:e606e4d8a1b9c5397fd70cf6e40976eefd27ec7f5f43a246befea0e77cf9c50b",
+            "posterior": {
+              "belief_digest": "5a097ccfa0faea6783cd663f612c93a8c9487da668ca9f57f5c21bfd0aa0d10b",
+              "covariance": [
+                [
+                  1.9999999999999998e-05,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.00039999999999999996
+                ],
+                [
+                  0.0,
+                  2.5e-05,
+                  0.0,
+                  0.0001,
+                  0.0001,
+                  0.0002992
+                ],
+                [
+                  0.0,
+                  0.0,
+                  2.5e-05,
+                  0.000125,
+                  0.000125,
+                  0.00037400000000000004
+                ],
+                [
+                  0.0,
+                  0.0001,
+                  0.000125,
+                  0.001025,
+                  0.001025,
+                  0.0030668
+                ],
+                [
+                  0.0,
+                  0.0001,
+                  0.000125,
+                  0.001025,
+                  0.001025,
+                  0.0030668
+                ],
+                [
+                  0.00039999999999999996,
+                  0.0002992,
+                  0.00037400000000000004,
+                  0.0030668,
+                  0.0030668,
+                  0.017175865600000003
+                ]
+              ],
+              "mean": [
+                2.992,
+                5.0,
+                4.0,
+                20.0,
+                20.0,
+                59.84
+              ],
+              "quantities": [
+                {
+                  "global_id": "CIWSTOREY00000000000015",
+                  "ifc_class": "IfcBuildingStorey",
+                  "quantity": "ClearHeight",
+                  "role": "raw",
+                  "unit": "m"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "Length",
+                  "role": "raw",
+                  "unit": "m"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "Width",
+                  "role": "raw",
+                  "unit": "m"
+                },
+                {
+                  "global_id": "CIWSTOREY00000000000015",
+                  "ifc_class": "IfcBuildingStorey",
+                  "quantity": "TotalFloorArea",
+                  "role": "derived",
+                  "unit": "m2"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "FloorArea",
+                  "role": "derived",
+                  "unit": "m2"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "Volume",
+                  "role": "derived",
+                  "unit": "m3"
+                }
+              ],
+              "world_digest": "eeb4e384f72ec50c78869eadc0d454f29bc8995683833b807fd721b1a8967159"
+            },
+            "prior": {
+              "belief_digest": "48aca2408f9c7fa956fa68d949c06874603bb48a8097f2e5d986a3a7616b4d86",
+              "covariance": [
+                [
+                  0.0001,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.002
+                ],
+                [
+                  0.0,
+                  2.5e-05,
+                  0.0,
+                  0.0001,
+                  0.0001,
+                  0.00030000000000000003
+                ],
+                [
+                  0.0,
+                  0.0,
+                  2.5e-05,
+                  0.000125,
+                  0.000125,
+                  0.000375
+                ],
+                [
+                  0.0,
+                  0.0001,
+                  0.000125,
+                  0.001025,
+                  0.001025,
+                  0.003075
+                ],
+                [
+                  0.0,
+                  0.0001,
+                  0.000125,
+                  0.001025,
+                  0.001025,
+                  0.003075
+                ],
+                [
+                  0.002,
+                  0.00030000000000000003,
+                  0.000375,
+                  0.003075,
+                  0.003075,
+                  0.049225
+                ]
+              ],
+              "mean": [
+                3.0,
+                5.0,
+                4.0,
+                20.0,
+                20.0,
+                60.0
+              ],
+              "quantities": [
+                {
+                  "global_id": "CIWSTOREY00000000000015",
+                  "ifc_class": "IfcBuildingStorey",
+                  "quantity": "ClearHeight",
+                  "role": "raw",
+                  "unit": "m"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "Length",
+                  "role": "raw",
+                  "unit": "m"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "Width",
+                  "role": "raw",
+                  "unit": "m"
+                },
+                {
+                  "global_id": "CIWSTOREY00000000000015",
+                  "ifc_class": "IfcBuildingStorey",
+                  "quantity": "TotalFloorArea",
+                  "role": "derived",
+                  "unit": "m2"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "FloorArea",
+                  "role": "derived",
+                  "unit": "m2"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "Volume",
+                  "role": "derived",
+                  "unit": "m3"
+                }
+              ],
+              "world_digest": "4c6e12debe75e952072c789a2cff2f76d8ac15553ce4a69977e1a9e31317d60a"
+            },
+            "reason": "conditioned",
+            "status": "accepted",
+            "target": {
+              "global_id": "CIWSTOREY00000000000015",
+              "ifc_class": "IfcBuildingStorey",
+              "quantity": "ClearHeight"
+            },
+            "unit_context": {
+              "assumed": false,
+              "kind": "SI",
+              "name": "METRE",
+              "prefix": null,
+              "scale_to_metres": 1.0,
+              "source_step_id": 2
+            }
+          },
+          "authority": {
+            "state_admission": "not_performed",
+            "sensor_fusion": "not_performed",
+            "physical_truth": "not_established"
+          },
+          "result_id": "sha256:6579a6d1d3af1d6ce7a2f26638fbd4cec26e36626261b6536f2abdbc7f55a52b"
+        },
+        "result_sha256": "sha256:93bbbfdcc7209dfd385e6cf16d941d1e8566beec9f71af4a0b81cd3deeb56e21",
+        "result_id": "sha256:6579a6d1d3af1d6ce7a2f26638fbd4cec26e36626261b6536f2abdbc7f55a52b",
+        "numerical_result": {
+          "operation_id": "ciw.bim-quantity.v1",
+          "data": {
+            "geometry_authority": "QUANTITY_ONLY",
+            "ifc_sha256": "sha256:7407d51c47daded8ac49e1ad0e26137b154aaacd0244134e17c57a5d77c49890",
+            "invariants": {
+              "passed": true,
+              "results": [
+                {
+                  "detail": "1 edges",
+                  "invariant_id": "STRUCT-01",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "module"
+                },
+                {
+                  "detail": "2 nodes",
+                  "invariant_id": "STRUCT-02",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "spatial-tree"
+                },
+                {
+                  "detail": "",
+                  "invariant_id": "STRUCT-03",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "openings"
+                },
+                {
+                  "detail": "",
+                  "invariant_id": "GAUSS-01",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "belief"
+                },
+                {
+                  "detail": "",
+                  "invariant_id": "GAUSS-01",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "full"
+                },
+                {
+                  "detail": "jitter=0",
+                  "invariant_id": "GAUSS-02",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "belief"
+                },
+                {
+                  "detail": "diag >= 0",
+                  "invariant_id": "GAUSS-02",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "full"
+                },
+                {
+                  "detail": "3 vars",
+                  "invariant_id": "GAUSS-03",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "derived"
+                },
+                {
+                  "detail": "",
+                  "invariant_id": "CONS-01",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "nonneg"
+                },
+                {
+                  "detail": "",
+                  "invariant_id": "CONS-02",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "bounds"
+                },
+                {
+                  "detail": "",
+                  "invariant_id": "CONS-03",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "restatements"
+                },
+                {
+                  "detail": "",
+                  "invariant_id": "QTY-01",
+                  "residual": 0.0,
+                  "status": "PASS",
+                  "subject": "rollups"
+                }
+              ]
+            },
+            "ledger": {
+              "events": [
+                {
+                  "error_digest": null,
+                  "error_message": null,
+                  "error_type": null,
+                  "event_hash": "cafa1369e48118d1ece6fab9fd98d1891403151b3a9aa98bb820c128109a7b7e",
+                  "kind": "genesis",
+                  "operation": {
+                    "belief_digest": "48aca2408f9c7fa956fa68d949c06874603bb48a8097f2e5d986a3a7616b4d86",
+                    "configuration_digest": "df43caa94c08a9cc2b3ecca4c7d072c999ea4fae4bde264b5bef5656535cb230",
+                    "module_digest": "3c2685093dde1b4562207e7a802ded8387faf357b764923eb83faded2edd352f",
+                    "runtime_contract": "gat-world-v1"
+                  },
+                  "previous_hash": "0000000000000000000000000000000000000000000000000000000000000000",
+                  "prior_world_digest": "4c6e12debe75e952072c789a2cff2f76d8ac15553ce4a69977e1a9e31317d60a",
+                  "provenance": {},
+                  "result_world_digest": "4c6e12debe75e952072c789a2cff2f76d8ac15553ce4a69977e1a9e31317d60a",
+                  "seq": 0,
+                  "verification": {
+                    "passed": true,
+                    "results": [
+                      {
+                        "detail": "1 edges",
+                        "invariant_id": "STRUCT-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "module"
+                      },
+                      {
+                        "detail": "2 nodes",
+                        "invariant_id": "STRUCT-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "spatial-tree"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "STRUCT-03",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "openings"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "GAUSS-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "belief"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "GAUSS-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "full"
+                      },
+                      {
+                        "detail": "jitter=0",
+                        "invariant_id": "GAUSS-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "belief"
+                      },
+                      {
+                        "detail": "diag >= 0",
+                        "invariant_id": "GAUSS-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "full"
+                      },
+                      {
+                        "detail": "3 vars",
+                        "invariant_id": "GAUSS-03",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "derived"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "CONS-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "nonneg"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "CONS-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "bounds"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "CONS-03",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "restatements"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "QTY-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "rollups"
+                      }
+                    ]
+                  },
+                  "verification_digest": "8e83a6e8b66cb179179dcf4eca170dadf1dd143db486b87df1f2722cf2db19dc"
+                },
+                {
+                  "error_digest": null,
+                  "error_message": null,
+                  "error_type": null,
+                  "event_hash": "34f7d11f6cb27628bc007b6950ffc0656a3c31fc11158154c1b199fb2bfa3b15",
+                  "kind": "transition",
+                  "operation": {
+                    "measurements": [
+                      {
+                        "noise_sigma": 0.005,
+                        "value": 2.99,
+                        "var": {
+                          "entity": {
+                            "global_id": "CIWSTOREY00000000000015",
+                            "ifc_class": "IfcBuildingStorey"
+                          },
+                          "quantity": "ClearHeight"
+                        }
+                      }
+                    ],
+                    "op": "observe_quantity"
+                  },
+                  "previous_hash": "cafa1369e48118d1ece6fab9fd98d1891403151b3a9aa98bb820c128109a7b7e",
+                  "prior_world_digest": "4c6e12debe75e952072c789a2cff2f76d8ac15553ce4a69977e1a9e31317d60a",
+                  "provenance": {
+                    "cross_covariance_policy": "independent",
+                    "frame_authority": "declared_not_surveyed",
+                    "ifc_sha256": "sha256:7407d51c47daded8ac49e1ad0e26137b154aaacd0244134e17c57a5d77c49890",
+                    "model_frame": "synthetic-declared-model-frame",
+                    "observation_sha256": "sha256:e606e4d8a1b9c5397fd70cf6e40976eefd27ec7f5f43a246befea0e77cf9c50b"
+                  },
+                  "result_world_digest": "eeb4e384f72ec50c78869eadc0d454f29bc8995683833b807fd721b1a8967159",
+                  "seq": 1,
+                  "verification": {
+                    "passed": true,
+                    "results": [
+                      {
+                        "detail": "1 edges",
+                        "invariant_id": "STRUCT-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "module"
+                      },
+                      {
+                        "detail": "2 nodes",
+                        "invariant_id": "STRUCT-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "spatial-tree"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "STRUCT-03",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "openings"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "GAUSS-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "belief"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "GAUSS-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "full"
+                      },
+                      {
+                        "detail": "jitter=0",
+                        "invariant_id": "GAUSS-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "belief"
+                      },
+                      {
+                        "detail": "diag >= 0",
+                        "invariant_id": "GAUSS-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "full"
+                      },
+                      {
+                        "detail": "3 vars",
+                        "invariant_id": "GAUSS-03",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "derived"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "CONS-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "nonneg"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "CONS-02",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "bounds"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "CONS-03",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "restatements"
+                      },
+                      {
+                        "detail": "",
+                        "invariant_id": "QTY-01",
+                        "residual": 0.0,
+                        "status": "PASS",
+                        "subject": "rollups"
+                      }
+                    ]
+                  },
+                  "verification_digest": "8e83a6e8b66cb179179dcf4eca170dadf1dd143db486b87df1f2722cf2db19dc"
+                }
+              ],
+              "format": "gat-execution-ledger",
+              "integrity": {
+                "algorithm": "sha256",
+                "head": "34f7d11f6cb27628bc007b6950ffc0656a3c31fc11158154c1b199fb2bfa3b15"
+              },
+              "runtime_contract": "gat-world-v1",
+              "schema_version": 1
+            },
+            "ledger_replay": {
+              "accepted": 1,
+              "events_replayed": 1,
+              "head": "34f7d11f6cb27628bc007b6950ffc0656a3c31fc11158154c1b199fb2bfa3b15",
+              "non_state": 0,
+              "rejected": 0,
+              "world_digest": "eeb4e384f72ec50c78869eadc0d454f29bc8995683833b807fd721b1a8967159"
+            },
+            "model_frame": "synthetic-declared-model-frame",
+            "native_error": null,
+            "observation_sha256": "sha256:e606e4d8a1b9c5397fd70cf6e40976eefd27ec7f5f43a246befea0e77cf9c50b",
+            "posterior": {
+              "belief_digest": "5a097ccfa0faea6783cd663f612c93a8c9487da668ca9f57f5c21bfd0aa0d10b",
+              "covariance": [
+                [
+                  1.9999999999999998e-05,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.00039999999999999996
+                ],
+                [
+                  0.0,
+                  2.5e-05,
+                  0.0,
+                  0.0001,
+                  0.0001,
+                  0.0002992
+                ],
+                [
+                  0.0,
+                  0.0,
+                  2.5e-05,
+                  0.000125,
+                  0.000125,
+                  0.00037400000000000004
+                ],
+                [
+                  0.0,
+                  0.0001,
+                  0.000125,
+                  0.001025,
+                  0.001025,
+                  0.0030668
+                ],
+                [
+                  0.0,
+                  0.0001,
+                  0.000125,
+                  0.001025,
+                  0.001025,
+                  0.0030668
+                ],
+                [
+                  0.00039999999999999996,
+                  0.0002992,
+                  0.00037400000000000004,
+                  0.0030668,
+                  0.0030668,
+                  0.017175865600000003
+                ]
+              ],
+              "mean": [
+                2.992,
+                5.0,
+                4.0,
+                20.0,
+                20.0,
+                59.84
+              ],
+              "quantities": [
+                {
+                  "global_id": "CIWSTOREY00000000000015",
+                  "ifc_class": "IfcBuildingStorey",
+                  "quantity": "ClearHeight",
+                  "role": "raw",
+                  "unit": "m"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "Length",
+                  "role": "raw",
+                  "unit": "m"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "Width",
+                  "role": "raw",
+                  "unit": "m"
+                },
+                {
+                  "global_id": "CIWSTOREY00000000000015",
+                  "ifc_class": "IfcBuildingStorey",
+                  "quantity": "TotalFloorArea",
+                  "role": "derived",
+                  "unit": "m2"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "FloorArea",
+                  "role": "derived",
+                  "unit": "m2"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "Volume",
+                  "role": "derived",
+                  "unit": "m3"
+                }
+              ],
+              "world_digest": "eeb4e384f72ec50c78869eadc0d454f29bc8995683833b807fd721b1a8967159"
+            },
+            "prior": {
+              "belief_digest": "48aca2408f9c7fa956fa68d949c06874603bb48a8097f2e5d986a3a7616b4d86",
+              "covariance": [
+                [
+                  0.0001,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.0,
+                  0.002
+                ],
+                [
+                  0.0,
+                  2.5e-05,
+                  0.0,
+                  0.0001,
+                  0.0001,
+                  0.00030000000000000003
+                ],
+                [
+                  0.0,
+                  0.0,
+                  2.5e-05,
+                  0.000125,
+                  0.000125,
+                  0.000375
+                ],
+                [
+                  0.0,
+                  0.0001,
+                  0.000125,
+                  0.001025,
+                  0.001025,
+                  0.003075
+                ],
+                [
+                  0.0,
+                  0.0001,
+                  0.000125,
+                  0.001025,
+                  0.001025,
+                  0.003075
+                ],
+                [
+                  0.002,
+                  0.00030000000000000003,
+                  0.000375,
+                  0.003075,
+                  0.003075,
+                  0.049225
+                ]
+              ],
+              "mean": [
+                3.0,
+                5.0,
+                4.0,
+                20.0,
+                20.0,
+                60.0
+              ],
+              "quantities": [
+                {
+                  "global_id": "CIWSTOREY00000000000015",
+                  "ifc_class": "IfcBuildingStorey",
+                  "quantity": "ClearHeight",
+                  "role": "raw",
+                  "unit": "m"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "Length",
+                  "role": "raw",
+                  "unit": "m"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "Width",
+                  "role": "raw",
+                  "unit": "m"
+                },
+                {
+                  "global_id": "CIWSTOREY00000000000015",
+                  "ifc_class": "IfcBuildingStorey",
+                  "quantity": "TotalFloorArea",
+                  "role": "derived",
+                  "unit": "m2"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "FloorArea",
+                  "role": "derived",
+                  "unit": "m2"
+                },
+                {
+                  "global_id": "CIWSPACE00000000000300",
+                  "ifc_class": "IfcSpace",
+                  "quantity": "Volume",
+                  "role": "derived",
+                  "unit": "m3"
+                }
+              ],
+              "world_digest": "4c6e12debe75e952072c789a2cff2f76d8ac15553ce4a69977e1a9e31317d60a"
+            },
+            "reason": "conditioned",
+            "status": "accepted",
+            "target": {
+              "global_id": "CIWSTOREY00000000000015",
+              "ifc_class": "IfcBuildingStorey",
+              "quantity": "ClearHeight"
+            },
+            "unit_context": {
+              "assumed": false,
+              "kind": "SI",
+              "name": "METRE",
+              "prefix": null,
+              "scale_to_metres": 1.0,
+              "source_step_id": 2
+            }
+          }
+        },
+        "numerical_result_id": "sha256:4d9d030d34fa297be0bdeb99ffc3d28b9a4f52608b4e9a81276ed1f5ebdc503d",
+        "transport_output": {
+          "sha256": "sha256:f2b31a40bd62460a47c4e5d8c3fab2f16c6626e0d63c8a13a8ca03083322b40e",
+          "byte_count": 8914,
+          "bytes_b64": "eyJnZW9tZXRyeV9hdXRob3JpdHkiOiJRVUFOVElUWV9PTkxZIiwiaWZjX3NoYTI1NiI6InNoYTI1Njo3NDA3ZDUxYzQ3ZGFkZWQ4YWM0OWUxYWQwZTI2MTM3YjE1NGFhYWNkMDI0NDEzNGUxN2M1N2E1ZDc3YzQ5ODkwIiwiaW52YXJpYW50cyI6eyJwYXNzZWQiOnRydWUsInJlc3VsdHMiOlt7ImRldGFpbCI6IjEgZWRnZXMiLCJpbnZhcmlhbnRfaWQiOiJTVFJVQ1QtMDEiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6Im1vZHVsZSJ9LHsiZGV0YWlsIjoiMiBub2RlcyIsImludmFyaWFudF9pZCI6IlNUUlVDVC0wMiIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0Ijoic3BhdGlhbC10cmVlIn0seyJkZXRhaWwiOiIiLCJpbnZhcmlhbnRfaWQiOiJTVFJVQ1QtMDMiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6Im9wZW5pbmdzIn0seyJkZXRhaWwiOiIiLCJpbnZhcmlhbnRfaWQiOiJHQVVTUy0wMSIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0IjoiYmVsaWVmIn0seyJkZXRhaWwiOiIiLCJpbnZhcmlhbnRfaWQiOiJHQVVTUy0wMSIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0IjoiZnVsbCJ9LHsiZGV0YWlsIjoiaml0dGVyPTAiLCJpbnZhcmlhbnRfaWQiOiJHQVVTUy0wMiIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0IjoiYmVsaWVmIn0seyJkZXRhaWwiOiJkaWFnID49IDAiLCJpbnZhcmlhbnRfaWQiOiJHQVVTUy0wMiIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0IjoiZnVsbCJ9LHsiZGV0YWlsIjoiMyB2YXJzIiwiaW52YXJpYW50X2lkIjoiR0FVU1MtMDMiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6ImRlcml2ZWQifSx7ImRldGFpbCI6IiIsImludmFyaWFudF9pZCI6IkNPTlMtMDEiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6Im5vbm5lZyJ9LHsiZGV0YWlsIjoiIiwiaW52YXJpYW50X2lkIjoiQ09OUy0wMiIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0IjoiYm91bmRzIn0seyJkZXRhaWwiOiIiLCJpbnZhcmlhbnRfaWQiOiJDT05TLTAzIiwicmVzaWR1YWwiOjAuMCwic3RhdHVzIjoiUEFTUyIsInN1YmplY3QiOiJyZXN0YXRlbWVudHMifSx7ImRldGFpbCI6IiIsImludmFyaWFudF9pZCI6IlFUWS0wMSIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0Ijoicm9sbHVwcyJ9XX0sImxlZGdlciI6eyJldmVudHMiOlt7ImVycm9yX2RpZ2VzdCI6bnVsbCwiZXJyb3JfbWVzc2FnZSI6bnVsbCwiZXJyb3JfdHlwZSI6bnVsbCwiZXZlbnRfaGFzaCI6ImNhZmExMzY5ZTQ4MTE4ZDFlY2U2ZmFiOWZkOThkMTg5MTQwMzE1MWIzYTlhYTk4YmI4MjBjMTI4MTA5YTdiN2UiLCJraW5kIjoiZ2VuZXNpcyIsIm9wZXJhdGlvbiI6eyJiZWxpZWZfZGlnZXN0IjoiNDhhY2EyNDA4ZjljN2ZhOTU2ZmE2OGQ5NDljMDY4NzQ2MDNiYjQ4YTgwOTdmMmU1ZDk4NmEzYTc2MTZiNGQ4NiIsImNvbmZpZ3VyYXRpb25fZGlnZXN0IjoiZGY0M2NhYTk0YzA4YTljYzJiM2VjY2E0YzdkMDcyYzk5OWVhNGZhZTRiZGUyNjRiNWJlZjU2NTY1MzVjYjIzMCIsIm1vZHVsZV9kaWdlc3QiOiIzYzI2ODUwOTNkZGUxYjQ1NjIyMDdlN2E4MDJkZWQ4Mzg3ZmFmMzU3Yjc2NDkyM2ViODNmYWRlZDJlZGQzNTJmIiwicnVudGltZV9jb250cmFjdCI6ImdhdC13b3JsZC12MSJ9LCJwcmV2aW91c19oYXNoIjoiMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMDAwMCIsInByaW9yX3dvcmxkX2RpZ2VzdCI6IjRjNmUxMmRlYmU3NWU5NTIwNzJjNzg5YTJjZmYyZjc2ZDhhYzE1NTUzY2U0YTY5OTc3ZTFhOWUzMTMxN2Q2MGEiLCJwcm92ZW5hbmNlIjp7fSwicmVzdWx0X3dvcmxkX2RpZ2VzdCI6IjRjNmUxMmRlYmU3NWU5NTIwNzJjNzg5YTJjZmYyZjc2ZDhhYzE1NTUzY2U0YTY5OTc3ZTFhOWUzMTMxN2Q2MGEiLCJzZXEiOjAsInZlcmlmaWNhdGlvbiI6eyJwYXNzZWQiOnRydWUsInJlc3VsdHMiOlt7ImRldGFpbCI6IjEgZWRnZXMiLCJpbnZhcmlhbnRfaWQiOiJTVFJVQ1QtMDEiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6Im1vZHVsZSJ9LHsiZGV0YWlsIjoiMiBub2RlcyIsImludmFyaWFudF9pZCI6IlNUUlVDVC0wMiIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0Ijoic3BhdGlhbC10cmVlIn0seyJkZXRhaWwiOiIiLCJpbnZhcmlhbnRfaWQiOiJTVFJVQ1QtMDMiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6Im9wZW5pbmdzIn0seyJkZXRhaWwiOiIiLCJpbnZhcmlhbnRfaWQiOiJHQVVTUy0wMSIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0IjoiYmVsaWVmIn0seyJkZXRhaWwiOiIiLCJpbnZhcmlhbnRfaWQiOiJHQVVTUy0wMSIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0IjoiZnVsbCJ9LHsiZGV0YWlsIjoiaml0dGVyPTAiLCJpbnZhcmlhbnRfaWQiOiJHQVVTUy0wMiIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0IjoiYmVsaWVmIn0seyJkZXRhaWwiOiJkaWFnID49IDAiLCJpbnZhcmlhbnRfaWQiOiJHQVVTUy0wMiIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0IjoiZnVsbCJ9LHsiZGV0YWlsIjoiMyB2YXJzIiwiaW52YXJpYW50X2lkIjoiR0FVU1MtMDMiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6ImRlcml2ZWQifSx7ImRldGFpbCI6IiIsImludmFyaWFudF9pZCI6IkNPTlMtMDEiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6Im5vbm5lZyJ9LHsiZGV0YWlsIjoiIiwiaW52YXJpYW50X2lkIjoiQ09OUy0wMiIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0IjoiYm91bmRzIn0seyJkZXRhaWwiOiIiLCJpbnZhcmlhbnRfaWQiOiJDT05TLTAzIiwicmVzaWR1YWwiOjAuMCwic3RhdHVzIjoiUEFTUyIsInN1YmplY3QiOiJyZXN0YXRlbWVudHMifSx7ImRldGFpbCI6IiIsImludmFyaWFudF9pZCI6IlFUWS0wMSIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0Ijoicm9sbHVwcyJ9XX0sInZlcmlmaWNhdGlvbl9kaWdlc3QiOiI4ZTgzYTZlOGI2NmNiMTc5MTc5ZGNmNGVjYTE3MGRhZGYxZGQxNDNkYjQ4NmI4N2RmMWYyNzIyY2YyZGIxOWRjIn0seyJlcnJvcl9kaWdlc3QiOm51bGwsImVycm9yX21lc3NhZ2UiOm51bGwsImVycm9yX3R5cGUiOm51bGwsImV2ZW50X2hhc2giOiIzNGY3ZDExZjZjYjI3NjI4YmMwMDdiNjk1MGZmYzA2NTZhM2MzMWZjMTExNTgxNTRjMWIxOTlmYjJiZmEzYjE1Iiwia2luZCI6InRyYW5zaXRpb24iLCJvcGVyYXRpb24iOnsibWVhc3VyZW1lbnRzIjpbeyJub2lzZV9zaWdtYSI6MC4wMDUsInZhbHVlIjoyLjk5LCJ2YXIiOnsiZW50aXR5Ijp7Imdsb2JhbF9pZCI6IkNJV1NUT1JFWTAwMDAwMDAwMDAwMDE1IiwiaWZjX2NsYXNzIjoiSWZjQnVpbGRpbmdTdG9yZXkifSwicXVhbnRpdHkiOiJDbGVhckhlaWdodCJ9fV0sIm9wIjoib2JzZXJ2ZV9xdWFudGl0eSJ9LCJwcmV2aW91c19oYXNoIjoiY2FmYTEzNjllNDgxMThkMWVjZTZmYWI5ZmQ5OGQxODkxNDAzMTUxYjNhOWFhOThiYjgyMGMxMjgxMDlhN2I3ZSIsInByaW9yX3dvcmxkX2RpZ2VzdCI6IjRjNmUxMmRlYmU3NWU5NTIwNzJjNzg5YTJjZmYyZjc2ZDhhYzE1NTUzY2U0YTY5OTc3ZTFhOWUzMTMxN2Q2MGEiLCJwcm92ZW5hbmNlIjp7ImNyb3NzX2NvdmFyaWFuY2VfcG9saWN5IjoiaW5kZXBlbmRlbnQiLCJmcmFtZV9hdXRob3JpdHkiOiJkZWNsYXJlZF9ub3Rfc3VydmV5ZWQiLCJpZmNfc2hhMjU2Ijoic2hhMjU2Ojc0MDdkNTFjNDdkYWRlZDhhYzQ5ZTFhZDBlMjYxMzdiMTU0YWFhY2QwMjQ0MTM0ZTE3YzU3YTVkNzdjNDk4OTAiLCJtb2RlbF9mcmFtZSI6InN5bnRoZXRpYy1kZWNsYXJlZC1tb2RlbC1mcmFtZSIsIm9ic2VydmF0aW9uX3NoYTI1NiI6InNoYTI1NjplNjA2ZTRkOGExYjljNTM5N2ZkNzBjZjZlNDA5NzZlZWZkMjdlYzdmNWY0M2EyNDZiZWZlYTBlNzdjZjljNTBiIn0sInJlc3VsdF93b3JsZF9kaWdlc3QiOiJlZWI0ZTM4NGY3MmVjNTBjNzg4NjllYWRjMGQ0NTRmMjliYzg5OTU2ODM4MzNiODA3ZmQ3MjFiMWE4OTY3MTU5Iiwic2VxIjoxLCJ2ZXJpZmljYXRpb24iOnsicGFzc2VkIjp0cnVlLCJyZXN1bHRzIjpbeyJkZXRhaWwiOiIxIGVkZ2VzIiwiaW52YXJpYW50X2lkIjoiU1RSVUNULTAxIiwicmVzaWR1YWwiOjAuMCwic3RhdHVzIjoiUEFTUyIsInN1YmplY3QiOiJtb2R1bGUifSx7ImRldGFpbCI6IjIgbm9kZXMiLCJpbnZhcmlhbnRfaWQiOiJTVFJVQ1QtMDIiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6InNwYXRpYWwtdHJlZSJ9LHsiZGV0YWlsIjoiIiwiaW52YXJpYW50X2lkIjoiU1RSVUNULTAzIiwicmVzaWR1YWwiOjAuMCwic3RhdHVzIjoiUEFTUyIsInN1YmplY3QiOiJvcGVuaW5ncyJ9LHsiZGV0YWlsIjoiIiwiaW52YXJpYW50X2lkIjoiR0FVU1MtMDEiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6ImJlbGllZiJ9LHsiZGV0YWlsIjoiIiwiaW52YXJpYW50X2lkIjoiR0FVU1MtMDEiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6ImZ1bGwifSx7ImRldGFpbCI6ImppdHRlcj0wIiwiaW52YXJpYW50X2lkIjoiR0FVU1MtMDIiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6ImJlbGllZiJ9LHsiZGV0YWlsIjoiZGlhZyA+PSAwIiwiaW52YXJpYW50X2lkIjoiR0FVU1MtMDIiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6ImZ1bGwifSx7ImRldGFpbCI6IjMgdmFycyIsImludmFyaWFudF9pZCI6IkdBVVNTLTAzIiwicmVzaWR1YWwiOjAuMCwic3RhdHVzIjoiUEFTUyIsInN1YmplY3QiOiJkZXJpdmVkIn0seyJkZXRhaWwiOiIiLCJpbnZhcmlhbnRfaWQiOiJDT05TLTAxIiwicmVzaWR1YWwiOjAuMCwic3RhdHVzIjoiUEFTUyIsInN1YmplY3QiOiJub25uZWcifSx7ImRldGFpbCI6IiIsImludmFyaWFudF9pZCI6IkNPTlMtMDIiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6ImJvdW5kcyJ9LHsiZGV0YWlsIjoiIiwiaW52YXJpYW50X2lkIjoiQ09OUy0wMyIsInJlc2lkdWFsIjowLjAsInN0YXR1cyI6IlBBU1MiLCJzdWJqZWN0IjoicmVzdGF0ZW1lbnRzIn0seyJkZXRhaWwiOiIiLCJpbnZhcmlhbnRfaWQiOiJRVFktMDEiLCJyZXNpZHVhbCI6MC4wLCJzdGF0dXMiOiJQQVNTIiwic3ViamVjdCI6InJvbGx1cHMifV19LCJ2ZXJpZmljYXRpb25fZGlnZXN0IjoiOGU4M2E2ZThiNjZjYjE3OTE3OWRjZjRlY2ExNzBkYWRmMWRkMTQzZGI0ODZiODdkZjFmMjcyMmNmMmRiMTlkYyJ9XSwiZm9ybWF0IjoiZ2F0LWV4ZWN1dGlvbi1sZWRnZXIiLCJpbnRlZ3JpdHkiOnsiYWxnb3JpdGhtIjoic2hhMjU2IiwiaGVhZCI6IjM0ZjdkMTFmNmNiMjc2MjhiYzAwN2I2OTUwZmZjMDY1NmEzYzMxZmMxMTE1ODE1NGMxYjE5OWZiMmJmYTNiMTUifSwicnVudGltZV9jb250cmFjdCI6ImdhdC13b3JsZC12MSIsInNjaGVtYV92ZXJzaW9uIjoxfSwibGVkZ2VyX3JlcGxheSI6eyJhY2NlcHRlZCI6MSwiZXZlbnRzX3JlcGxheWVkIjoxLCJoZWFkIjoiMzRmN2QxMWY2Y2IyNzYyOGJjMDA3YjY5NTBmZmMwNjU2YTNjMzFmYzExMTU4MTU0YzFiMTk5ZmIyYmZhM2IxNSIsIm5vbl9zdGF0ZSI6MCwicmVqZWN0ZWQiOjAsIndvcmxkX2RpZ2VzdCI6ImVlYjRlMzg0ZjcyZWM1MGM3ODg2OWVhZGMwZDQ1NGYyOWJjODk5NTY4MzgzM2I4MDdmZDcyMWIxYTg5NjcxNTkifSwibW9kZWxfZnJhbWUiOiJzeW50aGV0aWMtZGVjbGFyZWQtbW9kZWwtZnJhbWUiLCJuYXRpdmVfZXJyb3IiOm51bGwsIm9ic2VydmF0aW9uX3NoYTI1NiI6InNoYTI1NjplNjA2ZTRkOGExYjljNTM5N2ZkNzBjZjZlNDA5NzZlZWZkMjdlYzdmNWY0M2EyNDZiZWZlYTBlNzdjZjljNTBiIiwicG9zdGVyaW9yIjp7ImJlbGllZl9kaWdlc3QiOiI1YTA5N2NjZmEwZmFlYTY3ODNjZDY2M2Y2MTJjOTNhOGM5NDg3ZGE2NjhjYTlmNTdmNWMyMWJmZDBhYTBkMTBiIiwiY292YXJpYW5jZSI6W1sxLjk5OTk5OTk5OTk5OTk5OThlLTA1LDAuMCwwLjAsMC4wLDAuMCwwLjAwMDM5OTk5OTk5OTk5OTk5OTk2XSxbMC4wLDIuNWUtMDUsMC4wLDAuMDAwMSwwLjAwMDEsMC4wMDAyOTkyXSxbMC4wLDAuMCwyLjVlLTA1LDAuMDAwMTI1LDAuMDAwMTI1LDAuMDAwMzc0MDAwMDAwMDAwMDAwMDRdLFswLjAsMC4wMDAxLDAuMDAwMTI1LDAuMDAxMDI1LDAuMDAxMDI1LDAuMDAzMDY2OF0sWzAuMCwwLjAwMDEsMC4wMDAxMjUsMC4wMDEwMjUsMC4wMDEwMjUsMC4wMDMwNjY4XSxbMC4wMDAzOTk5OTk5OTk5OTk5OTk5NiwwLjAwMDI5OTIsMC4wMDAzNzQwMDAwMDAwMDAwMDAwNCwwLjAwMzA2NjgsMC4wMDMwNjY4LDAuMDE3MTc1ODY1NjAwMDAwMDAzXV0sIm1lYW4iOlsyLjk5Miw1LjAsNC4wLDIwLjAsMjAuMCw1OS44NF0sInF1YW50aXRpZXMiOlt7Imdsb2JhbF9pZCI6IkNJV1NUT1JFWTAwMDAwMDAwMDAwMDE1IiwiaWZjX2NsYXNzIjoiSWZjQnVpbGRpbmdTdG9yZXkiLCJxdWFudGl0eSI6IkNsZWFySGVpZ2h0Iiwicm9sZSI6InJhdyIsInVuaXQiOiJtIn0seyJnbG9iYWxfaWQiOiJDSVdTUEFDRTAwMDAwMDAwMDAwMzAwIiwiaWZjX2NsYXNzIjoiSWZjU3BhY2UiLCJxdWFudGl0eSI6Ikxlbmd0aCIsInJvbGUiOiJyYXciLCJ1bml0IjoibSJ9LHsiZ2xvYmFsX2lkIjoiQ0lXU1BBQ0UwMDAwMDAwMDAwMDMwMCIsImlmY19jbGFzcyI6IklmY1NwYWNlIiwicXVhbnRpdHkiOiJXaWR0aCIsInJvbGUiOiJyYXciLCJ1bml0IjoibSJ9LHsiZ2xvYmFsX2lkIjoiQ0lXU1RPUkVZMDAwMDAwMDAwMDAwMTUiLCJpZmNfY2xhc3MiOiJJZmNCdWlsZGluZ1N0b3JleSIsInF1YW50aXR5IjoiVG90YWxGbG9vckFyZWEiLCJyb2xlIjoiZGVyaXZlZCIsInVuaXQiOiJtMiJ9LHsiZ2xvYmFsX2lkIjoiQ0lXU1BBQ0UwMDAwMDAwMDAwMDMwMCIsImlmY19jbGFzcyI6IklmY1NwYWNlIiwicXVhbnRpdHkiOiJGbG9vckFyZWEiLCJyb2xlIjoiZGVyaXZlZCIsInVuaXQiOiJtMiJ9LHsiZ2xvYmFsX2lkIjoiQ0lXU1BBQ0UwMDAwMDAwMDAwMDMwMCIsImlmY19jbGFzcyI6IklmY1NwYWNlIiwicXVhbnRpdHkiOiJWb2x1bWUiLCJyb2xlIjoiZGVyaXZlZCIsInVuaXQiOiJtMyJ9XSwid29ybGRfZGlnZXN0IjoiZWViNGUzODRmNzJlYzUwYzc4ODY5ZWFkYzBkNDU0ZjI5YmM4OTk1NjgzODMzYjgwN2ZkNzIxYjFhODk2NzE1OSJ9LCJwcmlvciI6eyJiZWxpZWZfZGlnZXN0IjoiNDhhY2EyNDA4ZjljN2ZhOTU2ZmE2OGQ5NDljMDY4NzQ2MDNiYjQ4YTgwOTdmMmU1ZDk4NmEzYTc2MTZiNGQ4NiIsImNvdmFyaWFuY2UiOltbMC4wMDAxLDAuMCwwLjAsMC4wLDAuMCwwLjAwMl0sWzAuMCwyLjVlLTA1LDAuMCwwLjAwMDEsMC4wMDAxLDAuMDAwMzAwMDAwMDAwMDAwMDAwMDNdLFswLjAsMC4wLDIuNWUtMDUsMC4wMDAxMjUsMC4wMDAxMjUsMC4wMDAzNzVdLFswLjAsMC4wMDAxLDAuMDAwMTI1LDAuMDAxMDI1LDAuMDAxMDI1LDAuMDAzMDc1XSxbMC4wLDAuMDAwMSwwLjAwMDEyNSwwLjAwMTAyNSwwLjAwMTAyNSwwLjAwMzA3NV0sWzAuMDAyLDAuMDAwMzAwMDAwMDAwMDAwMDAwMDMsMC4wMDAzNzUsMC4wMDMwNzUsMC4wMDMwNzUsMC4wNDkyMjVdXSwibWVhbiI6WzMuMCw1LjAsNC4wLDIwLjAsMjAuMCw2MC4wXSwicXVhbnRpdGllcyI6W3siZ2xvYmFsX2lkIjoiQ0lXU1RPUkVZMDAwMDAwMDAwMDAwMTUiLCJpZmNfY2xhc3MiOiJJZmNCdWlsZGluZ1N0b3JleSIsInF1YW50aXR5IjoiQ2xlYXJIZWlnaHQiLCJyb2xlIjoicmF3IiwidW5pdCI6Im0ifSx7Imdsb2JhbF9pZCI6IkNJV1NQQUNFMDAwMDAwMDAwMDAzMDAiLCJpZmNfY2xhc3MiOiJJZmNTcGFjZSIsInF1YW50aXR5IjoiTGVuZ3RoIiwicm9sZSI6InJhdyIsInVuaXQiOiJtIn0seyJnbG9iYWxfaWQiOiJDSVdTUEFDRTAwMDAwMDAwMDAwMzAwIiwiaWZjX2NsYXNzIjoiSWZjU3BhY2UiLCJxdWFudGl0eSI6IldpZHRoIiwicm9sZSI6InJhdyIsInVuaXQiOiJtIn0seyJnbG9iYWxfaWQiOiJDSVdTVE9SRVkwMDAwMDAwMDAwMDAxNSIsImlmY19jbGFzcyI6IklmY0J1aWxkaW5nU3RvcmV5IiwicXVhbnRpdHkiOiJUb3RhbEZsb29yQXJlYSIsInJvbGUiOiJkZXJpdmVkIiwidW5pdCI6Im0yIn0seyJnbG9iYWxfaWQiOiJDSVdTUEFDRTAwMDAwMDAwMDAwMzAwIiwiaWZjX2NsYXNzIjoiSWZjU3BhY2UiLCJxdWFudGl0eSI6IkZsb29yQXJlYSIsInJvbGUiOiJkZXJpdmVkIiwidW5pdCI6Im0yIn0seyJnbG9iYWxfaWQiOiJDSVdTUEFDRTAwMDAwMDAwMDAwMzAwIiwiaWZjX2NsYXNzIjoiSWZjU3BhY2UiLCJxdWFudGl0eSI6IlZvbHVtZSIsInJvbGUiOiJkZXJpdmVkIiwidW5pdCI6Im0zIn1dLCJ3b3JsZF9kaWdlc3QiOiI0YzZlMTJkZWJlNzVlOTUyMDcyYzc4OWEyY2ZmMmY3NmQ4YWMxNTU1M2NlNGE2OTk3N2UxYTllMzEzMTdkNjBhIn0sInJlYXNvbiI6ImNvbmRpdGlvbmVkIiwic3RhdHVzIjoiYWNjZXB0ZWQiLCJ0YXJnZXQiOnsiZ2xvYmFsX2lkIjoiQ0lXU1RPUkVZMDAwMDAwMDAwMDAwMTUiLCJpZmNfY2xhc3MiOiJJZmNCdWlsZGluZ1N0b3JleSIsInF1YW50aXR5IjoiQ2xlYXJIZWlnaHQifSwidW5pdF9jb250ZXh0Ijp7ImFzc3VtZWQiOmZhbHNlLCJraW5kIjoiU0kiLCJuYW1lIjoiTUVUUkUiLCJwcmVmaXgiOm51bGwsInNjYWxlX3RvX21ldHJlcyI6MS4wLCJzb3VyY2Vfc3RlcF9pZCI6Mn19Cg=="
+        }
+      },
+      "authority": {
+        "state_admission": "not_performed",
+        "sensor_fusion": "not_performed",
+        "physical_truth": "not_established"
+      },
+      "verification_id": "sha256:9c5e217e696488ab21adb451ae8a4c039825d0df0c47d00a6c5efa1f2fe63ca8"
+    }
+  },
+  "native_audit": {
+    "schema": "ciw.ifc-native-audit-occurrence.v1",
+    "execution_id": "execution-e9a7d0fdb71f4f9a83eba235e2c4e5a2",
+    "operation_id": "cse.ifc-audit.v1",
+    "input_ref": "sha256:7407d51c47daded8ac49e1ad0e26137b154aaacd0244134e17c57a5d77c49890",
+    "runtime_ref": "sha256:dd009c5439f46e3d81ebb032e7738070735a845a01e5d171ef4ce56beb1bb62a",
+    "bootstrap_ref": "sha256:f9611eea5539a4130e6a86cc69db0831ac79e18bedeb09158518974c999f69d0",
+    "transport_output": {
+      "sha256": "sha256:8547cbaa3b1c920815d6fe8fdab0f8ff8c76a1dea00edaf934cc438c3961a741",
+      "byte_count": 2663,
+      "bytes_b64": "eyJhZGFwdGVyX3Njb3BlIjp7ImNvdmVyYWdlX2JvdW5kYXJ5Ijoic3VwcG9ydGVkLXByb2R1Y3Qtc2NvcGUtb25seSIsIm9wdF9pbl9pZmNfcHJvZHVjdF90eXBlcyI6eyJJRkNCRUFNIjoiR0FUX1N0cnVjdHVyYWwifSwicmVxdWlyZWRfcXVhbnRpdGllcyI6eyJJRkNCVUlMRElOR1NUT1JFWSI6WyJDbGVhckhlaWdodCJdLCJJRkNET09SIjpbIldpZHRoIiwiSGVpZ2h0Il0sIklGQ09QRU5JTkdFTEVNRU5UIjpbIldpZHRoIiwiSGVpZ2h0Il0sIklGQ1NQQUNFIjpbIkxlbmd0aCIsIldpZHRoIl0sIklGQ1dBTEwiOlsiTGVuZ3RoIiwiV2lkdGgiXSwiSUZDV0FMTFNUQU5EQVJEQ0FTRSI6WyJMZW5ndGgiLCJXaWR0aCJdfSwic3VwcG9ydGVkX2lmY19wcm9kdWN0X3R5cGVzIjpbIklGQ0JVSUxESU5HU1RPUkVZIiwiSUZDRE9PUiIsIklGQ09QRU5JTkdFTEVNRU5UIiwiSUZDU1BBQ0UiLCJJRkNXQUxMIiwiSUZDV0FMTFNUQU5EQVJEQ0FTRSJdfSwiYXNzdXJhbmNlIjp7ImF1ZGl0X2F1dGhvcml6ZXNfZGVjaXNpb25zIjpmYWxzZSwicGFydGlhbF9pbmdlc3Rpb25fbWF5X2F1dGhvcml6ZSI6ZmFsc2UsInJlcXVpcmVzX2V4cGxpY2l0X2RlY2lzaW9uX3Njb3BlIjp0cnVlfSwiZW50aXRpZXMiOlt7ImF2YWlsYWJsZV9xdWFudGl0aWVzIjpbIkNsZWFySGVpZ2h0Il0sImNhbm9uaWNhbF9jbGFzcyI6IklmY0J1aWxkaW5nU3RvcmV5IiwiZ2xvYmFsX2lkIjoiQ0lXU1RPUkVZMDAwMDAwMDAwMDAwMTUiLCJoYXNfZ2VvbWV0cnlfcmVwcmVzZW50YXRpb24iOmZhbHNlLCJpZmNfdHlwZSI6IklGQ0JVSUxESU5HU1RPUkVZIiwiaXNzdWVzIjpbXSwibWlzc2luZ19xdWFudGl0aWVzIjpbXSwibmFtZSI6IkxldmVsIDEiLCJyZXF1aXJlZF9xdWFudGl0aWVzIjpbIkNsZWFySGVpZ2h0Il0sInN0YXR1cyI6IlJFQURZIiwic3RlcF9pZCI6MTV9LHsiYXZhaWxhYmxlX3F1YW50aXRpZXMiOlsiTGVuZ3RoIiwiV2lkdGgiXSwiY2Fub25pY2FsX2NsYXNzIjoiSWZjU3BhY2UiLCJnbG9iYWxfaWQiOiJDSVdTUEFDRTAwMDAwMDAwMDAwMzAwIiwiaGFzX2dlb21ldHJ5X3JlcHJlc2VudGF0aW9uIjpmYWxzZSwiaWZjX3R5cGUiOiJJRkNTUEFDRSIsImlzc3VlcyI6W10sIm1pc3NpbmdfcXVhbnRpdGllcyI6W10sIm5hbWUiOiJJbnNwZWN0aW9uIHJvb20iLCJyZXF1aXJlZF9xdWFudGl0aWVzIjpbIkxlbmd0aCIsIldpZHRoIl0sInN0YXR1cyI6IlJFQURZIiwic3RlcF9pZCI6MzAwfV0sImZvcm1hdCI6ImdhdC1pZmMtYXVkaXQtdjEiLCJpbnZlbnRvcnkiOnsiYmVhbV9nZW9tZXRyeSI6bnVsbCwiaW5zdGFuY2VfY291bnQiOjI1LCJvcGFxdWVfdHlwZV9jb3VudHMiOnt9LCJvcHRfaW5fcHJvZHVjdF9jYW5kaWRhdGVfY291bnRzIjp7IklGQ0JFQU0iOjB9LCJzdXBwb3J0ZWRfcHJvZHVjdF9jb3VudCI6Miwic3VwcG9ydGVkX3Byb2R1Y3Rfc3RhdHVzX2NvdW50cyI6eyJSRUFEWSI6Mn0sInR5cGVfY291bnRzIjp7IklGQ0FYSVMyUExBQ0VNRU5UM0QiOjMsIklGQ0JVSUxESU5HIjoxLCJJRkNCVUlMRElOR1NUT1JFWSI6MSwiSUZDQ0FSVEVTSUFOUE9JTlQiOjMsIklGQ0VMRU1FTlRRVUFOVElUWSI6MiwiSUZDTE9DQUxQTEFDRU1FTlQiOjMsIklGQ1BST0pFQ1QiOjEsIklGQ1FVQU5USVRZTEVOR1RIIjozLCJJRkNSRUxBR0dSRUdBVEVTIjozLCJJRkNSRUxERUZJTkVTQllQUk9QRVJUSUVTIjoyLCJJRkNTSVVOSVQiOjEsIklGQ1NQQUNFIjoxLCJJRkNVTklUQVNTSUdOTUVOVCI6MX19LCJpc3N1ZV9jb3VudHMiOnt9LCJtb2RlbF9pc3N1ZXMiOltdLCJwYXJzZSI6eyJkZXRhaWxzIjp7fSwiZXJyb3JfdHlwZSI6bnVsbCwibWVzc2FnZSI6bnVsbCwic3RhdHVzIjoiUEFTUyJ9LCJwaXBlbGluZSI6eyJjb21waWxhdGlvbiI6eyJkZXRhaWxzIjp7ImZ1bGxfdmFyaWFibGVzIjo2LCJyYXdfdmFyaWFibGVzIjozfSwiZXJyb3JfdHlwZSI6bnVsbCwibWVzc2FnZSI6bnVsbCwic3RhdHVzIjoiUEFTUyJ9LCJsb3dlcmluZyI6eyJkZXRhaWxzIjp7ImVudGl0eV9jb3VudCI6MiwicmVsYXRpb25zaGlwX2NvdW50IjoxfSwiZXJyb3JfdHlwZSI6bnVsbCwibWVzc2FnZSI6bnVsbCwic3RhdHVzIjoiUEFTUyJ9LCJwaXBlbGluZV9yZWFkeSI6dHJ1ZSwidmVyaWZpY2F0aW9uIjp7ImRldGFpbHMiOnsiZmFpbHVyZXMiOjAsInBhc3NlZCI6MTIsIndhcm5pbmdzIjowfSwiZXJyb3JfdHlwZSI6bnVsbCwibWVzc2FnZSI6bnVsbCwic3RhdHVzIjoiUEFTUyJ9LCJ3b3JsZF9kaWdlc3QiOiI0YzZlMTJkZWJlNzVlOTUyMDcyYzc4OWEyY2ZmMmY3NmQ4YWMxNTU1M2NlNGE2OTk3N2UxYTllMzEzMTdkNjBhIn0sInNjaGVtYSI6IklGQzQiLCJzb3VyY2UiOnsicGF0aCI6InNoYTI1Njo3NDA3ZDUxYzQ3ZGFkZWQ4YWM0OWUxYWQwZTI2MTM3YjE1NGFhYWNkMDI0NDEzNGUxN2M1N2E1ZDc3YzQ5ODkwIiwic2hhMjU2IjoiNzQwN2Q1MWM0N2RhZGVkOGFjNDllMWFkMGUyNjEzN2IxNTRhYWFjZDAyNDQxMzRlMTdjNTdhNWQ3N2M0OTg5MCIsInNpemVfYnl0ZXMiOjE1NjJ9LCJ1bml0cyI6W3siYWNjZXB0ZWRfYnlfY3VycmVudF9hZGFwdGVyIjp0cnVlLCJraW5kIjoiU0kiLCJuYW1lIjoiTUVUUkUiLCJub3JtYWxpemF0aW9uX3JlcXVpcmVkIjpmYWxzZSwicHJlZml4IjpudWxsLCJzY2FsZV90b19tZXRyZXMiOjEuMCwic3RlcF9pZCI6Mn1dfQo="
+    },
+    "data": {
+      "adapter_scope": {
+        "coverage_boundary": "supported-product-scope-only",
+        "opt_in_ifc_product_types": {
+          "IFCBEAM": "GAT_Structural"
+        },
+        "required_quantities": {
+          "IFCBUILDINGSTOREY": [
+            "ClearHeight"
+          ],
+          "IFCDOOR": [
+            "Width",
+            "Height"
+          ],
+          "IFCOPENINGELEMENT": [
+            "Width",
+            "Height"
+          ],
+          "IFCSPACE": [
+            "Length",
+            "Width"
+          ],
+          "IFCWALL": [
+            "Length",
+            "Width"
+          ],
+          "IFCWALLSTANDARDCASE": [
+            "Length",
+            "Width"
+          ]
+        },
+        "supported_ifc_product_types": [
+          "IFCBUILDINGSTOREY",
+          "IFCDOOR",
+          "IFCOPENINGELEMENT",
+          "IFCSPACE",
+          "IFCWALL",
+          "IFCWALLSTANDARDCASE"
+        ]
+      },
+      "assurance": {
+        "audit_authorizes_decisions": false,
+        "partial_ingestion_may_authorize": false,
+        "requires_explicit_decision_scope": true
+      },
+      "entities": [
+        {
+          "available_quantities": [
+            "ClearHeight"
+          ],
+          "canonical_class": "IfcBuildingStorey",
+          "global_id": "CIWSTOREY00000000000015",
+          "has_geometry_representation": false,
+          "ifc_type": "IFCBUILDINGSTOREY",
+          "issues": [],
+          "missing_quantities": [],
+          "name": "Level 1",
+          "required_quantities": [
+            "ClearHeight"
+          ],
+          "status": "READY",
+          "step_id": 15
+        },
+        {
+          "available_quantities": [
+            "Length",
+            "Width"
+          ],
+          "canonical_class": "IfcSpace",
+          "global_id": "CIWSPACE00000000000300",
+          "has_geometry_representation": false,
+          "ifc_type": "IFCSPACE",
+          "issues": [],
+          "missing_quantities": [],
+          "name": "Inspection room",
+          "required_quantities": [
+            "Length",
+            "Width"
+          ],
+          "status": "READY",
+          "step_id": 300
+        }
+      ],
+      "format": "gat-ifc-audit-v1",
+      "inventory": {
+        "beam_geometry": null,
+        "instance_count": 25,
+        "opaque_type_counts": {},
+        "opt_in_product_candidate_counts": {
+          "IFCBEAM": 0
+        },
+        "supported_product_count": 2,
+        "supported_product_status_counts": {
+          "READY": 2
+        },
+        "type_counts": {
+          "IFCAXIS2PLACEMENT3D": 3,
+          "IFCBUILDING": 1,
+          "IFCBUILDINGSTOREY": 1,
+          "IFCCARTESIANPOINT": 3,
+          "IFCELEMENTQUANTITY": 2,
+          "IFCLOCALPLACEMENT": 3,
+          "IFCPROJECT": 1,
+          "IFCQUANTITYLENGTH": 3,
+          "IFCRELAGGREGATES": 3,
+          "IFCRELDEFINESBYPROPERTIES": 2,
+          "IFCSIUNIT": 1,
+          "IFCSPACE": 1,
+          "IFCUNITASSIGNMENT": 1
+        }
+      },
+      "issue_counts": {},
+      "model_issues": [],
+      "parse": {
+        "details": {},
+        "error_type": null,
+        "message": null,
+        "status": "PASS"
+      },
+      "pipeline": {
+        "compilation": {
+          "details": {
+            "full_variables": 6,
+            "raw_variables": 3
+          },
+          "error_type": null,
+          "message": null,
+          "status": "PASS"
+        },
+        "lowering": {
+          "details": {
+            "entity_count": 2,
+            "relationship_count": 1
+          },
+          "error_type": null,
+          "message": null,
+          "status": "PASS"
+        },
+        "pipeline_ready": true,
+        "verification": {
+          "details": {
+            "failures": 0,
+            "passed": 12,
+            "warnings": 0
+          },
+          "error_type": null,
+          "message": null,
+          "status": "PASS"
+        },
+        "world_digest": "4c6e12debe75e952072c789a2cff2f76d8ac15553ce4a69977e1a9e31317d60a"
+      },
+      "schema": "IFC4",
+      "source": {
+        "path": "sha256:7407d51c47daded8ac49e1ad0e26137b154aaacd0244134e17c57a5d77c49890",
+        "sha256": "7407d51c47daded8ac49e1ad0e26137b154aaacd0244134e17c57a5d77c49890",
+        "size_bytes": 1562
+      },
+      "units": [
+        {
+          "accepted_by_current_adapter": true,
+          "kind": "SI",
+          "name": "METRE",
+          "normalization_required": false,
+          "prefix": null,
+          "scale_to_metres": 1.0,
+          "step_id": 2
+        }
+      ]
+    },
+    "authority": {
+      "state_admission": "not_performed",
+      "sensor_fusion": "not_performed",
+      "physical_truth": "not_established"
+    },
+    "record_digest": "sha256:1f8971d675b7b7b90f2f1d759aebe5c7c911916faf4ad2b3187dcd8c06f53513"
+  },
+  "records": {
+    "registry": {
+      "schema": "ciw.morphism-registry.v1",
+      "representations": {
+        "interop.ifc-declared-source.v1": {
+          "schema": "ciw.representation-spec.v1",
+          "representation_id": "interop.ifc-declared-source.v1",
+          "role": "TABLE",
+          "source_state_type": "ifc-declared-length-quantity",
+          "schema_id": "IFC STEP bounded quantity profile / ciw.state.v1",
+          "quantity_semantics": "one explicit declared IFC length quantity; logical source-object identity only",
+          "unit_semantics": "explicit project SI length units converted to metres",
+          "frame_semantics": "operator-declared frame; no surveyed transform",
+          "time_semantics": "logical before/after native conditioning; no physical acquisition timestamp claim",
+          "scale": {
+            "length_m": null,
+            "time_s": null,
+            "energy_j": null,
+            "resolution": null,
+            "label": "bounded scalar"
+          },
+          "uncertainty_semantics": "CSE declared prior policy and explicitly independent synthetic/user measurement; no calibration authentication",
+          "equivalence_contract": "TASK_SPECIFIC",
+          "preserved_queries": [
+            "logical-source-object-identity"
+          ],
+          "supported_interventions": [],
+          "recovery_route": null,
+          "provenance_refs": [],
+          "notes": "one explicit declared IFC length quantity; logical source-object identity only",
+          "claims": {
+            "representation_not_canonical_state": true,
+            "query_preservation_does_not_imply_intervention_preservation": true,
+            "execution_authority": false
+          },
+          "record_digest": "sha256:0c9f2053662c5b74cdd832d27dc0be5df309a5d2e0bc9a01a9c340ac550a5b61"
+        },
+        "interop.ifc-quantity-state.v1": {
+          "schema": "ciw.representation-spec.v1",
+          "representation_id": "interop.ifc-quantity-state.v1",
+          "role": "STATE",
+          "source_state_type": "ifc-declared-length-quantity",
+          "schema_id": "IFC STEP bounded quantity profile / ciw.state.v1",
+          "quantity_semantics": "one explicit declared IFC length quantity; logical source-object identity only",
+          "unit_semantics": "explicit project SI length units converted to metres",
+          "frame_semantics": "operator-declared frame; no surveyed transform",
+          "time_semantics": "logical before/after native conditioning; no physical acquisition timestamp claim",
+          "scale": {
+            "length_m": null,
+            "time_s": null,
+            "energy_j": null,
+            "resolution": null,
+            "label": "bounded scalar"
+          },
+          "uncertainty_semantics": "CSE declared prior policy and explicitly independent synthetic/user measurement; no calibration authentication",
+          "equivalence_contract": "TASK_SPECIFIC",
+          "preserved_queries": [
+            "logical-source-object-identity"
+          ],
+          "supported_interventions": [],
+          "recovery_route": null,
+          "provenance_refs": [],
+          "notes": "one explicit declared IFC length quantity; logical source-object identity only",
+          "claims": {
+            "representation_not_canonical_state": true,
+            "query_preservation_does_not_imply_intervention_preservation": true,
+            "execution_authority": false
+          },
+          "record_digest": "sha256:a62e0a73078a5dfdbb7b41f6016c6bb04f990a24b509ebe4a32be9fe6632df72"
+        }
+      },
+      "morphisms": {
+        "interop.ifc-quantity-conditioning.v1": {
+          "schema": "ciw.scientific-morphism.v1",
+          "morphism_id": "interop.ifc-quantity-conditioning.v1",
+          "kind": "TRANSFORM",
+          "domain_representation_id": "interop.ifc-declared-source.v1",
+          "codomain_representation_id": "interop.ifc-quantity-state.v1",
+          "semantic_capability": null,
+          "parameter_names": [],
+          "preconditions": [
+            "exact IFC bytes",
+            "unambiguous source quantity",
+            "explicit SI length units",
+            "independent observation with exact bindings"
+          ],
+          "validity": {
+            "assumptions": [
+              "one explicit declared IFC length quantity; logical source-object identity only"
+            ],
+            "operating_regime": [
+              "bounded declared scalar quantity"
+            ],
+            "failure_conditions": [
+              "unsupported or missing required IFC source data"
+            ]
+          },
+          "preservation": {
+            "queries": [
+              "logical-source-object-identity"
+            ],
+            "interventions": [],
+            "invariants": [
+              "logical source identity",
+              "metre units",
+              "declared frame label"
+            ],
+            "approximation_tolerance": null
+          },
+          "loss": {
+            "class": "TASK_SPECIFIC",
+            "description": "Only one target scalar is projected; remaining IFC content retained as evidence",
+            "metrics": {}
+          },
+          "uncertainty": {
+            "behavior": "PROPAGATE",
+            "method": "scalar independent-noise Gaussian conditioning"
+          },
+          "reversibility": "NONE",
+          "authority_requirements": [
+            "external admission authority review"
+          ],
+          "verification_requirements": [
+            "independent source links and RAW conditioning check"
+          ],
+          "provenance_refs": [],
+          "notes": "one explicit declared IFC length quantity; logical source-object identity only",
+          "claims": {
+            "typed_scientific_morphism": true,
+            "semantic_capability_is_execution_link_not_truth": true,
+            "finite_witness_required_for_empirical_claim": true,
+            "execution_authority": false
+          },
+          "record_digest": "sha256:00870f9d435c7e413e88c67c3fcdf9f88d7c823e5b45b1d426047194af672289"
+        }
+      },
+      "semantic_catalog_ref": "sha256:f830a533aa3aeb0b019c5fe53764e74847c625a05bde1c7efb42b80ef5d79d8d",
+      "claims": {
+        "describes_scientific_semantics": true,
+        "selects_engine": false,
+        "authorizes_execution": false,
+        "canonical_state_authority": false
+      },
+      "record_digest": "sha256:35c8f9c2ef02644e6aef6b744b7ced0bb6dbcb4ab267be41a346350eb47eb272"
+    },
+    "preservation_contract": {
+      "schema": "ciw.preservation-contract.v1",
+      "contract_id": "interop.ifc-quantity-preservation.v1",
+      "registry_ref": "sha256:35c8f9c2ef02644e6aef6b744b7ced0bb6dbcb4ab267be41a346350eb47eb272",
+      "morphism_id": "interop.ifc-quantity-conditioning.v1",
+      "morphism_ref": "sha256:00870f9d435c7e413e88c67c3fcdf9f88d7c823e5b45b1d426047194af672289",
+      "domain_representation_id": "interop.ifc-declared-source.v1",
+      "codomain_representation_id": "interop.ifc-quantity-state.v1",
+      "requires": [
+        "mapping.ifc-applicability.v1"
+      ],
+      "effects": [
+        {
+          "property_id": "identity.logical-source-object.v1",
+          "effect": "PRESERVE",
+          "output_property_id": "identity.logical-source-object.v1",
+          "transform_id": null,
+          "bound": null,
+          "notes": "one explicit declared IFC length quantity; logical source-object identity only"
+        },
+        {
+          "property_id": "quantity.metre-unit.v1",
+          "effect": "PRESERVE",
+          "output_property_id": "quantity.metre-unit.v1",
+          "transform_id": null,
+          "bound": null,
+          "notes": "one explicit declared IFC length quantity; logical source-object identity only"
+        },
+        {
+          "property_id": "frame.declared-label.v1",
+          "effect": "PRESERVE",
+          "output_property_id": "frame.declared-label.v1",
+          "transform_id": null,
+          "bound": null,
+          "notes": "one explicit declared IFC length quantity; logical source-object identity only"
+        },
+        {
+          "property_id": "quantity.declared-mean.v1",
+          "effect": "TRANSFORM",
+          "output_property_id": "quantity.declared-mean.v1",
+          "transform_id": "mapping.ifc-gaussian-conditioning.v1",
+          "bound": null,
+          "notes": "Verified only under stated independent-noise and source-prior assumptions"
+        },
+        {
+          "property_id": "uncertainty.declared-variance.v1",
+          "effect": "TRANSFORM",
+          "output_property_id": "uncertainty.declared-variance.v1",
+          "transform_id": "mapping.independent-noise-gaussian.v1",
+          "bound": null,
+          "notes": "Verified only under stated independent-noise and source-prior assumptions"
+        },
+        {
+          "property_id": "representation.unprojected-ifc-details.v1",
+          "effect": "FORGET",
+          "output_property_id": null,
+          "transform_id": null,
+          "bound": null,
+          "notes": "Not projected to target state; original complete bytes remain evidence"
+        }
+      ],
+      "notes": "one explicit declared IFC length quantity; logical source-object identity only",
+      "claims": {
+        "typed_preservation_contract": true,
+        "unmentioned_properties_are_unknown": true,
+        "does_not_upgrade_textual_morphism_claims": true,
+        "physical_validity_established": false,
+        "execution_authority": false,
+        "state_admission_authority": false
+      },
+      "record_digest": "sha256:018ca2d061908256fb1a523ba94a0435836b0382c623a8884bcc51bc6bd640d1"
+    },
+    "profile": {
+      "schema": "ciw.interoperability-profile.v1",
+      "profile_id": "interop.ifc-bounded-length-profile.v1",
+      "source_family": "STANDARD",
+      "standard_id": "standard.ifc.v1",
+      "source_profile_id": "interop.ifc-declared-length-subset.v1",
+      "source_system_id": "industrial.ifc-source.v1",
+      "source_schema_id": "IFC4 STEP; bounded declared-length subset only, no whole-standard conformance certification",
+      "registry_ref": "sha256:35c8f9c2ef02644e6aef6b744b7ced0bb6dbcb4ab267be41a346350eb47eb272",
+      "morphism_id": "interop.ifc-quantity-conditioning.v1",
+      "morphism_ref": "sha256:00870f9d435c7e413e88c67c3fcdf9f88d7c823e5b45b1d426047194af672289",
+      "source_representation_id": "interop.ifc-declared-source.v1",
+      "source_representation_ref": "sha256:0c9f2053662c5b74cdd832d27dc0be5df309a5d2e0bc9a01a9c340ac550a5b61",
+      "target_representation_id": "interop.ifc-quantity-state.v1",
+      "target_representation_ref": "sha256:a62e0a73078a5dfdbb7b41f6016c6bb04f990a24b509ebe4a32be9fe6632df72",
+      "preservation_contract_ref": "sha256:018ca2d061908256fb1a523ba94a0435836b0382c623a8884bcc51bc6bd640d1",
+      "mapping_id": "interop.cse-ifc-quantity.v1",
+      "mapping_assumptions": [
+        "one explicit declared IFC length quantity; logical source-object identity only",
+        "prior sigma is declared model policy",
+        "measurement noise independence is supplied"
+      ],
+      "uncertainty_semantics": "declared Gaussian covariance; not authenticated metrology",
+      "declared_loss_properties": [
+        "representation.unprojected-ifc-details.v1"
+      ],
+      "verification_requirements": [
+        "source STEP links",
+        "native execution bytes",
+        "independent RAW Gaussian check"
+      ],
+      "notes": "one explicit declared IFC length quantity; logical source-object identity only",
+      "claims": {
+        "external_representation_profile": true,
+        "standard_or_schema_conformance_established": false,
+        "semantic_preservation_established": false,
+        "physical_validity_established": false,
+        "provider_execution": false,
+        "canonical_state_mutated": false,
+        "state_admission_authority": false
+      },
+      "record_digest": "sha256:2325471a4e55e97f0411e90d4cadd713949bcdeac10df2ef408e535543107f41"
+    },
+    "ingress": {
+      "schema": "ciw.external-ingress.v1",
+      "ingress_id": "experiment.ifc-room.v1.ingress.v1",
+      "profile_ref": "sha256:2325471a4e55e97f0411e90d4cadd713949bcdeac10df2ef408e535543107f41",
+      "payload_ref": "sha256:7407d51c47daded8ac49e1ad0e26137b154aaacd0244134e17c57a5d77c49890",
+      "payload_media_type": "application/x-step",
+      "source_identity": {
+        "reference_id": "industrial.ifc-object.v1",
+        "namespace": "IFC GlobalId / exact whole-file occurrence",
+        "external_id": "CIWSTOREY00000000000015",
+        "object_kind": "BIM_OBJECT"
+      },
+      "mapping_parameters": {
+        "target": {
+          "ifc_class": "IfcBuildingStorey",
+          "global_id": "CIWSTOREY00000000000015",
+          "quantity": "ClearHeight"
+        },
+        "declared_frame": "synthetic-declared-model-frame",
+        "source_provenance": {
+          "kind": "SYNTHETIC_FIXTURE",
+          "source_uri": "repository:examples/bim-quantity/room.ifc",
+          "revision": "ciw.bim-quantity-source.v1",
+          "source_path": "examples/bim-quantity/room.ifc",
+          "license": "AGPL-3.0-or-later",
+          "sha256": "sha256:7407d51c47daded8ac49e1ad0e26137b154aaacd0244134e17c57a5d77c49890"
+        }
+      },
+      "mapping_evidence_refs": [
+        "sha256:29c2a048d3c745b3e8e8031620643aedc3b28c5f6cd5f294e5b678b55e71d9ed",
+        "sha256:1f8971d675b7b7b90f2f1d759aebe5c7c911916faf4ad2b3187dcd8c06f53513"
+      ],
+      "notes": "Declarative ingress retained beneath an actual pinned execution occurrence",
+      "claims": {
+        "external_payload_retained": true,
+        "mapping_executed": false,
+        "profile_conformance_established": false,
+        "semantic_preservation_established": false,
+        "identity_admission_performed": false,
+        "canonical_state_mutated": false
+      },
+      "record_digest": "sha256:56dd1c667f8b98e44b58fb270febc6a5f79e9aaf67942db8ae513eddada9d8a3"
+    },
+    "mapping_verification": {
+      "schema": "ciw.ifc-independent-mapping-verification.v1",
+      "verification_id": "experiment.ifc-room.v1.independent.v1",
+      "execution_ref": "sha256:461eed90715547792fef410985831be44a9a44e2458641c19ee71730ba32319b",
+      "native_session_ref": "sha256:967fbc39f78f96d4f06e067b69490b9ab74d4e1af2fc8d1b167e8893d8db56fc",
+      "audit_ref": "sha256:1f8971d675b7b7b90f2f1d759aebe5c7c911916faf4ad2b3187dcd8c06f53513",
+      "input_ref": "sha256:7407d51c47daded8ac49e1ad0e26137b154aaacd0244134e17c57a5d77c49890",
+      "observation_ref": "sha256:e606e4d8a1b9c5397fd70cf6e40976eefd27ec7f5f43a246befea0e77cf9c50b",
+      "output_ref": "sha256:f2b31a40bd62460a47c4e5d8c3fab2f16c6626e0d63c8a13a8ca03083322b40e",
+      "verifier_identity": {
+        "ifc_transition.py": "sha256:61f4312333840035ba9f4e67378bd22a2af45f0e21667b8ef5b14b93328e6059",
+        "ifc_subset_verifier.py": "sha256:8e8672db61a4fe78e2ab10ef09e411f01c9959601d77fd1c01a305b3e9913677",
+        "bim_quantity.py": "sha256:c79efea4770860532493fedd5b5c9e938c5b9f8b17f6a8e3cc0ceb2e5d9025d2",
+        "adapters/subprocess.py": "sha256:06e5d30990324e4e059e2191f2f3a0e6ba8d8ce847b196b0e05927811b4ef257",
+        "declared_workload.py": "sha256:d78641236802b296afff11be406791473a40276eb7de37a019bbf192daa03db6",
+        "control_contracts.py": "sha256:42c6198952d96ed2515460a7467c282415a16ff4910d8fb15179bb3a1421b3d5",
+        "control_plane.py": "sha256:7cfb5a7bc77fac535fd6dd9ff983e2222ae927f517716390a5f0a82a0d3f553e",
+        "core/covariance.py": "sha256:12151b40d863ccce85d60d2a94169587094d2468cd032cdc405d3d19985e9730",
+        "operations/runner.py": "sha256:39b41f190cc581d14ce77af864c9dcb2a6aed9ad695af6ea05c3d8ede37780d1",
+        "interop_ingress.py": "sha256:d224bd78c12f8defe04c6ac4acc0959619072b7d4e2aac43aa50026e20b8f928",
+        "industrial_transition.py": "sha256:605c597cb36907f17360b7027f4222037d1f8578266c7c564a1e64bbea4a22da",
+        "preservation_contracts.py": "sha256:2df824ad6686f341184c0aaaec661a653f088828966fbd9f478ab80db4a9bff9",
+        "representation_morphisms.py": "sha256:d7ee74216f6043fe29e9d0470009a6563e75ccad1b4d04bdf91f1580e2002190",
+        "semantic_capabilities.py": "sha256:2da419b9ff38569bad970b0be93158ecb351956e37487b6e97fdda2f7f54beab",
+        "telemetry.py": "sha256:95e102fb6f14bdcbc3a339ba74f0cab537ccabbb83f5f98d4bc76e3127d2b60e",
+        "exchange.py": "sha256:34dbce3bd326ea8450d9cc1b2b659c1068da2c395f33a56670b24df47c3bff88"
+      },
+      "source_inspection": {
+        "source_schema": "IFC4",
+        "length_units": [
+          {
+            "step_id": 2,
+            "kind": "SI",
+            "name": "METRE",
+            "prefix": null,
+            "scale_to_metres": 1.0,
+            "normalization_required": false,
+            "accepted_by_current_adapter": true
+          }
+        ],
+        "raw_quantity_inventory": [
+          {
+            "ifc_class": "IfcBuildingStorey",
+            "global_id": "CIWSTOREY00000000000015",
+            "quantity": "ClearHeight"
+          },
+          {
+            "ifc_class": "IfcSpace",
+            "global_id": "CIWSPACE00000000000300",
+            "quantity": "Length"
+          },
+          {
+            "ifc_class": "IfcSpace",
+            "global_id": "CIWSPACE00000000000300",
+            "quantity": "Width"
+          }
+        ],
+        "instance_count": 25,
+        "type_counts": {
+          "IFCAXIS2PLACEMENT3D": 3,
+          "IFCBUILDING": 1,
+          "IFCBUILDINGSTOREY": 1,
+          "IFCCARTESIANPOINT": 3,
+          "IFCELEMENTQUANTITY": 2,
+          "IFCLOCALPLACEMENT": 3,
+          "IFCPROJECT": 1,
+          "IFCQUANTITYLENGTH": 3,
+          "IFCRELAGGREGATES": 3,
+          "IFCRELDEFINESBYPROPERTIES": 2,
+          "IFCSIUNIT": 1,
+          "IFCSPACE": 1,
+          "IFCUNITASSIGNMENT": 1
+        },
+        "source_step_id": 15,
+        "source_ifc_type": "IFCBUILDINGSTOREY",
+        "target": {
+          "ifc_class": "IfcBuildingStorey",
+          "global_id": "CIWSTOREY00000000000015",
+          "quantity": "ClearHeight"
+        },
+        "quantity_step_id": 29,
+        "quantity_present": true,
+        "nominal_metres": 3.0,
+        "prior_sigma_metres": 0.01,
+        "unit_context": {
+          "scale_to_metres": 1.0,
+          "kind": "SI",
+          "name": "METRE",
+          "prefix": null,
+          "source_step_id": 2,
+          "assumed": false
+        }
+      },
+      "outcome": {
+        "mapping_status": "VERIFIED",
+        "reason": "raw_scalar_conditioning_verified",
+        "verified_raw_posterior_entries": 9,
+        "target_row": 0
+      },
+      "numerical_comparison_bound": {
+        "relative_tolerance": 2e-10,
+        "float64_ulp_allowance": 32,
+        "absolute_variance_floor": null
+      },
+      "scope": "one explicit declared IFC length quantity; logical source-object identity only",
+      "physical_validity_established": false,
+      "derived_output_independently_verified": false,
+      "dependency_binary_authentication": "not_established",
+      "state_admission_performed": false,
+      "record_digest": "sha256:29c2a048d3c745b3e8e8031620643aedc3b28c5f6cd5f294e5b678b55e71d9ed"
+    },
+    "ingress_verification": {
+      "schema": "ciw.external-ingress-verification.v1",
+      "verification_id": "experiment.ifc-room.v1.interop-verification.v1",
+      "profile_ref": "sha256:2325471a4e55e97f0411e90d4cadd713949bcdeac10df2ef408e535543107f41",
+      "ingress_ref": "sha256:56dd1c667f8b98e44b58fb270febc6a5f79e9aaf67942db8ae513eddada9d8a3",
+      "payload_ref": "sha256:7407d51c47daded8ac49e1ad0e26137b154aaacd0244134e17c57a5d77c49890",
+      "checks": [
+        {
+          "kind": "MAPPING_ASSUMPTIONS",
+          "status": "VERIFIED",
+          "method": "MAPPING_TEST",
+          "evidence_ref": "sha256:29c2a048d3c745b3e8e8031620643aedc3b28c5f6cd5f294e5b678b55e71d9ed",
+          "notes": "PROFILE_CONFORMANCE covers only this declared bounded subset; one explicit declared IFC length quantity; logical source-object identity only"
+        },
+        {
+          "kind": "PRESERVATION_PRECONDITIONS",
+          "status": "VERIFIED",
+          "method": "MAPPING_TEST",
+          "evidence_ref": "sha256:29c2a048d3c745b3e8e8031620643aedc3b28c5f6cd5f294e5b678b55e71d9ed",
+          "notes": "PROFILE_CONFORMANCE covers only this declared bounded subset; one explicit declared IFC length quantity; logical source-object identity only"
+        },
+        {
+          "kind": "PROFILE_CONFORMANCE",
+          "status": "VERIFIED",
+          "method": "MAPPING_TEST",
+          "evidence_ref": "sha256:29c2a048d3c745b3e8e8031620643aedc3b28c5f6cd5f294e5b678b55e71d9ed",
+          "notes": "PROFILE_CONFORMANCE covers only this declared bounded subset; one explicit declared IFC length quantity; logical source-object identity only"
+        },
+        {
+          "kind": "REPRESENTATION_MAPPING",
+          "status": "VERIFIED",
+          "method": "MAPPING_TEST",
+          "evidence_ref": "sha256:29c2a048d3c745b3e8e8031620643aedc3b28c5f6cd5f294e5b678b55e71d9ed",
+          "notes": "PROFILE_CONFORMANCE covers only this declared bounded subset; one explicit declared IFC length quantity; logical source-object identity only"
+        },
+        {
+          "kind": "SOURCE_IDENTITY",
+          "status": "VERIFIED",
+          "method": "EVIDENCE_CROSSCHECK",
+          "evidence_ref": "sha256:29c2a048d3c745b3e8e8031620643aedc3b28c5f6cd5f294e5b678b55e71d9ed",
+          "notes": "PROFILE_CONFORMANCE covers only this declared bounded subset; one explicit declared IFC length quantity; logical source-object identity only"
+        },
+        {
+          "kind": "UNCERTAINTY_HANDLING",
+          "status": "VERIFIED",
+          "method": "MAPPING_TEST",
+          "evidence_ref": "sha256:29c2a048d3c745b3e8e8031620643aedc3b28c5f6cd5f294e5b678b55e71d9ed",
+          "notes": "PROFILE_CONFORMANCE covers only this declared bounded subset; one explicit declared IFC length quantity; logical source-object identity only"
+        }
+      ],
+      "status": "VERIFIED",
+      "notes": "raw_scalar_conditioning_verified",
+      "claims": {
+        "profile_and_mapping_checks_retained": true,
+        "verification_is_not_physical_validation": true,
+        "verification_is_not_identity_admission": true,
+        "mapping_executed": false,
+        "canonical_state_mutated": false
+      },
+      "record_digest": "sha256:4ecc3b77b8b6a7f073920bcb5751c83fcb8b0d9ea68aab4e3fb2164691ad1333"
+    },
+    "qualification": {
+      "schema": "ciw.external-ingress-qualification.v1",
+      "profile_ref": "sha256:2325471a4e55e97f0411e90d4cadd713949bcdeac10df2ef408e535543107f41",
+      "ingress_ref": "sha256:56dd1c667f8b98e44b58fb270febc6a5f79e9aaf67942db8ae513eddada9d8a3",
+      "verification_ref": "sha256:4ecc3b77b8b6a7f073920bcb5751c83fcb8b0d9ea68aab4e3fb2164691ad1333",
+      "payload_ref": "sha256:7407d51c47daded8ac49e1ad0e26137b154aaacd0244134e17c57a5d77c49890",
+      "source_system_id": "industrial.ifc-source.v1",
+      "source_identity": {
+        "reference_id": "industrial.ifc-object.v1",
+        "namespace": "IFC GlobalId / exact whole-file occurrence",
+        "external_id": "CIWSTOREY00000000000015",
+        "object_kind": "BIM_OBJECT"
+      },
+      "source_representation_id": "interop.ifc-declared-source.v1",
+      "source_representation_ref": "sha256:0c9f2053662c5b74cdd832d27dc0be5df309a5d2e0bc9a01a9c340ac550a5b61",
+      "target_representation_id": "interop.ifc-quantity-state.v1",
+      "target_representation_ref": "sha256:a62e0a73078a5dfdbb7b41f6016c6bb04f990a24b509ebe4a32be9fe6632df72",
+      "morphism_ref": "sha256:00870f9d435c7e413e88c67c3fcdf9f88d7c823e5b45b1d426047194af672289",
+      "preservation_contract_ref": "sha256:018ca2d061908256fb1a523ba94a0435836b0382c623a8884bcc51bc6bd640d1",
+      "status": "QUALIFIED",
+      "reasons": [
+        "profile_mapping_and_preconditions_verified"
+      ],
+      "claims": {
+        "qualified_for_net_identity_and_semantic_workflow": true,
+        "mapping_executed": false,
+        "canonical_entity_created": false,
+        "state_admission_performed": false,
+        "physical_validity_established": false,
+        "canonical_state_mutated": false
+      },
+      "record_digest": "sha256:2d695b5c816eeb239a915676290eec19b5822515afdda37832839b51b2fe1220"
+    },
+    "source_state": {
+      "schema": "ciw.state.v1",
+      "identity": {
+        "model_id": "interop.ifc-quantity-model.v1",
+        "entity_id": "candidate:ifc-room",
+        "execution_id": null
+      },
+      "clock": {
+        "id": "declared-model-reference-no-acquisition-time",
+        "time_s": 0
+      },
+      "frame": "synthetic-declared-model-frame",
+      "variables": {
+        "ClearHeight": {
+          "value": 3.0,
+          "unit": "m"
+        }
+      },
+      "uncertainty": {
+        "schema": "covariance-artifact.v1",
+        "quantity_ids": [
+          "ClearHeight"
+        ],
+        "units": [
+          "m"
+        ],
+        "frame": "synthetic-declared-model-frame",
+        "reference_values": [
+          3.0
+        ],
+        "matrix": [
+          [
+            0.0001
+          ]
+        ],
+        "method": "native CSE imported/conditioned scalar covariance",
+        "basis": {
+          "kind": "estimated_state",
+          "id": "48aca2408f9c7fa956fa68d949c06874603bb48a8097f2e5d986a3a7616b4d86"
+        },
+        "provenance": {
+          "provider": "cse",
+          "source_evidence_ids": [
+            "sha256:7407d51c47daded8ac49e1ad0e26137b154aaacd0244134e17c57a5d77c49890",
+            "sha256:e606e4d8a1b9c5397fd70cf6e40976eefd27ec7f5f43a246befea0e77cf9c50b",
+            "sha256:29c2a048d3c745b3e8e8031620643aedc3b28c5f6cd5f294e5b678b55e71d9ed"
+          ],
+          "source_covariance_ids": []
+        },
+        "assumptions": [
+          "declared source prior sigma",
+          "noise independence supplied; calibration authenticity not established"
+        ],
+        "covariance_id": "sha256:6f04bc4b212574a6dac06124017ea2534dbbad221221a29a1f9e886c3cfd11eb"
+      },
+      "provenance": {
+        "provider": "cse",
+        "sources": [
+          "sha256:7407d51c47daded8ac49e1ad0e26137b154aaacd0244134e17c57a5d77c49890",
+          "sha256:e606e4d8a1b9c5397fd70cf6e40976eefd27ec7f5f43a246befea0e77cf9c50b",
+          "sha256:29c2a048d3c745b3e8e8031620643aedc3b28c5f6cd5f294e5b678b55e71d9ed"
+        ],
+        "semantics": "estimated"
+      },
+      "record_digest": "sha256:d526f797f8328926067fa3cc8c5e93fddcdf513b632fe44c3e92b8c48546c1e0"
+    },
+    "candidate_state": {
+      "schema": "ciw.state.v1",
+      "identity": {
+        "model_id": "interop.ifc-quantity-model.v1",
+        "entity_id": "candidate:ifc-room",
+        "execution_id": "execution-fb06c5e000f64eed8ec7290f9e737cd3"
+      },
+      "clock": {
+        "id": "declared-model-reference-no-acquisition-time",
+        "time_s": 0
+      },
+      "frame": "synthetic-declared-model-frame",
+      "variables": {
+        "ClearHeight": {
+          "value": 2.992,
+          "unit": "m"
+        }
+      },
+      "uncertainty": {
+        "schema": "covariance-artifact.v1",
+        "quantity_ids": [
+          "ClearHeight"
+        ],
+        "units": [
+          "m"
+        ],
+        "frame": "synthetic-declared-model-frame",
+        "reference_values": [
+          2.992
+        ],
+        "matrix": [
+          [
+            1.9999999999999998e-05
+          ]
+        ],
+        "method": "native CSE imported/conditioned scalar covariance",
+        "basis": {
+          "kind": "estimated_state",
+          "id": "5a097ccfa0faea6783cd663f612c93a8c9487da668ca9f57f5c21bfd0aa0d10b"
+        },
+        "provenance": {
+          "provider": "cse",
+          "source_evidence_ids": [
+            "sha256:7407d51c47daded8ac49e1ad0e26137b154aaacd0244134e17c57a5d77c49890",
+            "sha256:e606e4d8a1b9c5397fd70cf6e40976eefd27ec7f5f43a246befea0e77cf9c50b",
+            "sha256:29c2a048d3c745b3e8e8031620643aedc3b28c5f6cd5f294e5b678b55e71d9ed"
+          ],
+          "source_covariance_ids": []
+        },
+        "assumptions": [
+          "declared source prior sigma",
+          "noise independence supplied; calibration authenticity not established"
+        ],
+        "covariance_id": "sha256:089a3805b61f446b31094c6b36ca3ee081c65730b75b9027b7264d55fb85c29d"
+      },
+      "provenance": {
+        "provider": "cse",
+        "sources": [
+          "sha256:7407d51c47daded8ac49e1ad0e26137b154aaacd0244134e17c57a5d77c49890",
+          "sha256:e606e4d8a1b9c5397fd70cf6e40976eefd27ec7f5f43a246befea0e77cf9c50b",
+          "sha256:29c2a048d3c745b3e8e8031620643aedc3b28c5f6cd5f294e5b678b55e71d9ed"
+        ],
+        "semantics": "estimated"
+      },
+      "record_digest": "sha256:aba38f90e08f6b8bbfa69622e9e1a504b594479c5d47bed0fc960618fd9f998e"
+    },
+    "entity_binding": {
+      "schema": "ciw.entity-binding.v1",
+      "binding_id": "experiment.ifc-room.v1.binding.v1",
+      "canonical_entity_id": "candidate:ifc-room",
+      "references": [
+        {
+          "reference_id": "industrial.ifc-object.v1",
+          "system_id": "industrial.ifc-source.v1",
+          "namespace": "IFC GlobalId / exact whole-file occurrence",
+          "external_id": "CIWSTOREY00000000000015",
+          "object_kind": "BIM_OBJECT",
+          "evidence_ref": "sha256:2d695b5c816eeb239a915676290eec19b5822515afdda37832839b51b2fe1220"
+        },
+        {
+          "reference_id": "industrial.cse-quantity.v1",
+          "system_id": "industrial.cse-state.v1",
+          "namespace": "CSE logical IFC target",
+          "external_id": "IfcBuildingStorey:CIWSTOREY00000000000015:ClearHeight",
+          "object_kind": "SIMULATION_VARIABLE",
+          "evidence_ref": "sha256:29c2a048d3c745b3e8e8031620643aedc3b28c5f6cd5f294e5b678b55e71d9ed"
+        }
+      ],
+      "notes": "Logical source-object continuity; no physical-asset equivalence or entity admission",
+      "claims": {
+        "candidate_identity_map": true,
+        "canonical_entity_created": false,
+        "identity_admission_performed": false,
+        "canonical_state_mutated": false,
+        "execution_authority": false
+      },
+      "record_digest": "sha256:901dbd1725d7f671b32ff009a606b4a9d26eb1493c4fd500005eef53b7d9f058"
+    },
+    "identity_verification": {
+      "schema": "ciw.entity-binding-verification.v1",
+      "verification_id": "experiment.ifc-room.v1.identity-verification.v1",
+      "binding_ref": "sha256:901dbd1725d7f671b32ff009a606b4a9d26eb1493c4fd500005eef53b7d9f058",
+      "canonical_entity_id": "candidate:ifc-room",
+      "checks": [
+        {
+          "reference_id": "industrial.ifc-object.v1",
+          "status": "VERIFIED",
+          "method": "EXACT_IDENTIFIER",
+          "evidence_ref": "sha256:29c2a048d3c745b3e8e8031620643aedc3b28c5f6cd5f294e5b678b55e71d9ed",
+          "notes": "one explicit declared IFC length quantity; logical source-object identity only"
+        },
+        {
+          "reference_id": "industrial.cse-quantity.v1",
+          "status": "VERIFIED",
+          "method": "EXACT_IDENTIFIER",
+          "evidence_ref": "sha256:29c2a048d3c745b3e8e8031620643aedc3b28c5f6cd5f294e5b678b55e71d9ed",
+          "notes": "one explicit declared IFC length quantity; logical source-object identity only"
+        }
+      ],
+      "status": "VERIFIED",
+      "notes": "one explicit declared IFC length quantity; logical source-object identity only",
+      "claims": {
+        "cross_system_identity_checked": true,
+        "identity_verification_is_not_admission": true,
+        "canonical_entity_created": false,
+        "canonical_state_mutated": false,
+        "execution_authority": false
+      },
+      "record_digest": "sha256:0e36dec7cdf27d1ac60c923fe3293f6340c29fe40c7b110008d2cc6dfc778197"
+    },
+    "preservation_verification": {
+      "schema": "ciw.preservation-verification.v1",
+      "verification_id": "experiment.ifc-room.v1.preservation-verification.v1",
+      "contract_ref": "sha256:018ca2d061908256fb1a523ba94a0435836b0382c623a8884bcc51bc6bd640d1",
+      "source_state_ref": "sha256:d526f797f8328926067fa3cc8c5e93fddcdf513b632fe44c3e92b8c48546c1e0",
+      "candidate_state_ref": "sha256:aba38f90e08f6b8bbfa69622e9e1a504b594479c5d47bed0fc960618fd9f998e",
+      "checks": [
+        {
+          "kind": "REQUIRE",
+          "property_id": "mapping.ifc-applicability.v1",
+          "status": "VERIFIED",
+          "method": "EXACT_ALGEBRA",
+          "evidence_ref": "sha256:29c2a048d3c745b3e8e8031620643aedc3b28c5f6cd5f294e5b678b55e71d9ed",
+          "notes": "one explicit declared IFC length quantity; logical source-object identity only"
+        },
+        {
+          "kind": "PRESERVE",
+          "property_id": "identity.logical-source-object.v1",
+          "status": "VERIFIED",
+          "method": "EXACT_ALGEBRA",
+          "evidence_ref": "sha256:29c2a048d3c745b3e8e8031620643aedc3b28c5f6cd5f294e5b678b55e71d9ed",
+          "notes": "one explicit declared IFC length quantity; logical source-object identity only"
+        },
+        {
+          "kind": "PRESERVE",
+          "property_id": "quantity.metre-unit.v1",
+          "status": "VERIFIED",
+          "method": "EXACT_ALGEBRA",
+          "evidence_ref": "sha256:29c2a048d3c745b3e8e8031620643aedc3b28c5f6cd5f294e5b678b55e71d9ed",
+          "notes": "one explicit declared IFC length quantity; logical source-object identity only"
+        },
+        {
+          "kind": "PRESERVE",
+          "property_id": "frame.declared-label.v1",
+          "status": "VERIFIED",
+          "method": "EXACT_ALGEBRA",
+          "evidence_ref": "sha256:29c2a048d3c745b3e8e8031620643aedc3b28c5f6cd5f294e5b678b55e71d9ed",
+          "notes": "one explicit declared IFC length quantity; logical source-object identity only"
+        },
+        {
+          "kind": "TRANSFORM",
+          "property_id": "quantity.declared-mean.v1",
+          "status": "VERIFIED",
+          "method": "NUMERICAL_BOUND",
+          "evidence_ref": "sha256:29c2a048d3c745b3e8e8031620643aedc3b28c5f6cd5f294e5b678b55e71d9ed",
+          "notes": "one explicit declared IFC length quantity; logical source-object identity only"
+        },
+        {
+          "kind": "TRANSFORM",
+          "property_id": "uncertainty.declared-variance.v1",
+          "status": "VERIFIED",
+          "method": "NUMERICAL_BOUND",
+          "evidence_ref": "sha256:29c2a048d3c745b3e8e8031620643aedc3b28c5f6cd5f294e5b678b55e71d9ed",
+          "notes": "one explicit declared IFC length quantity; logical source-object identity only"
+        },
+        {
+          "kind": "FORGET",
+          "property_id": "representation.unprojected-ifc-details.v1",
+          "status": "VERIFIED",
+          "method": "EXACT_ALGEBRA",
+          "evidence_ref": "sha256:29c2a048d3c745b3e8e8031620643aedc3b28c5f6cd5f294e5b678b55e71d9ed",
+          "notes": "one explicit declared IFC length quantity; logical source-object identity only"
+        }
+      ],
+      "status": "VERIFIED",
+      "notes": "raw_scalar_conditioning_verified",
+      "claims": {
+        "typed_verification_receipt": true,
+        "method_classes_not_interchangeable": true,
+        "verification_is_not_admission": true,
+        "canonical_state_mutated": false,
+        "execution_authority": false
+      },
+      "record_digest": "sha256:bc2d28de3dfb668d07d812ee1317bc4126c199c98b12caa6630fe951846a7e37"
+    },
+    "preservation_gate": {
+      "schema": "ciw.preservation-admission-gate.v1",
+      "gate_id": "experiment.ifc-room.v1.gate.v1",
+      "contract_ref": "sha256:018ca2d061908256fb1a523ba94a0435836b0382c623a8884bcc51bc6bd640d1",
+      "verification_ref": "sha256:bc2d28de3dfb668d07d812ee1317bc4126c199c98b12caa6630fe951846a7e37",
+      "source_state_ref": "sha256:d526f797f8328926067fa3cc8c5e93fddcdf513b632fe44c3e92b8c48546c1e0",
+      "candidate_state_ref": "sha256:aba38f90e08f6b8bbfa69622e9e1a504b594479c5d47bed0fc960618fd9f998e",
+      "forbidden_forgets": [
+        "identity.logical-source-object.v1"
+      ],
+      "policy_violations": [],
+      "decision": "ELIGIBLE",
+      "reasons": [
+        "preservation_contract_verified_under_declared_loss_policy"
+      ],
+      "notes": "Eligibility for authority review only",
+      "claims": {
+        "eligibility_not_admission": true,
+        "state_admission_performed": false,
+        "canonical_state_mutated": false,
+        "execution_authority": false
+      },
+      "record_digest": "sha256:9793cf2df7bfcecea9db9cbeecfe69a3269942f6ec35addc5ee583b9b624b4b0"
+    },
+    "transition_envelope": {
+      "schema": "ciw.industrial-transition-envelope.v1",
+      "transition_id": "experiment.ifc-room.v1.transition.v1",
+      "source_state_ref": "sha256:d526f797f8328926067fa3cc8c5e93fddcdf513b632fe44c3e92b8c48546c1e0",
+      "candidate_state_ref": "sha256:aba38f90e08f6b8bbfa69622e9e1a504b594479c5d47bed0fc960618fd9f998e",
+      "canonical_entity_id": "candidate:ifc-room",
+      "entity_binding_ref": "sha256:901dbd1725d7f671b32ff009a606b4a9d26eb1493c4fd500005eef53b7d9f058",
+      "identity_verification_ref": "sha256:0e36dec7cdf27d1ac60c923fe3293f6340c29fe40c7b110008d2cc6dfc778197",
+      "preservation_contract_ref": "sha256:018ca2d061908256fb1a523ba94a0435836b0382c623a8884bcc51bc6bd640d1",
+      "preservation_verification_ref": "sha256:bc2d28de3dfb668d07d812ee1317bc4126c199c98b12caa6630fe951846a7e37",
+      "preservation_gate_ref": "sha256:9793cf2df7bfcecea9db9cbeecfe69a3269942f6ec35addc5ee583b9b624b4b0",
+      "proposer": {
+        "kind": "SOLVER",
+        "proposer_id": "cse",
+        "execution_ref": "sha256:461eed90715547792fef410985831be44a9a44e2458641c19ee71730ba32319b",
+        "notes": "Actual native conditioning occurrence"
+      },
+      "required_admission_authority": "authority.external-review.v1",
+      "readiness": "READY_FOR_AUTHORITY_REVIEW",
+      "reasons": [
+        "identity_and_semantic_continuity_established_for_review"
+      ],
+      "notes": "one explicit declared IFC length quantity; logical source-object identity only",
+      "claims": {
+        "proposal_not_canonical_state": true,
+        "identity_continuity_checked": true,
+        "semantic_continuity_checked": true,
+        "authority_review_required": true,
+        "state_admission_performed": false,
+        "canonical_state_mutated": false,
+        "execution_authority": false
+      },
+      "record_digest": "sha256:2524658907fd88474685a86ac5e530f64a732d5ad1d7bcbbea976fad813c3372"
+    }
+  },
+  "claims": {
+    "actual_mapping_execution_retained": true,
+    "independent_mapping_check_performed": true,
+    "independent_raw_conditioning_verified": true,
+    "full_ifc_standard_conformance_certified": false,
+    "physical_asset_equivalence_established": false,
+    "canonical_state_mutated": false,
+    "state_admission_performed": false
+  },
+  "record_digest": "sha256:95b448b2146842765054b5ac2053f4dbe765dc42250ab1be2016b41062f300fe"
+}

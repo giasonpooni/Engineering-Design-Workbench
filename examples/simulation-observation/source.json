@@ -1,0 +1,55 @@
+{
+  "schema": "ciw.simulated-mass-observation.v1",
+  "source_class": "simulated_observation",
+  "producer": {
+    "engine": "contract-fixture",
+    "version": "not-an-engine-run",
+    "source_revision": "0000000000000000000000000000000000000000",
+    "executable_sha256": "sha256:30fbf5a2b24a120db026f444a02f844072e7d2ec4dea1c4d0807f6f7435ffc17",
+    "execution_id": "execution-11111111111111111111111111111111",
+    "simulation_id": "simulation-22222222222222222222222222222222",
+    "state_owner": "contract-fixture",
+    "clock_owner": "contract-fixture",
+    "scenario_id": "sha256:90d6512c3e2a3ae71a378bfa7c741b3b8f864dcd04d386955b45f58ee81b95d5",
+    "model_id": "sha256:e4199ca583ce09709d6696e146c65e2ea6c6b32b5b444f8e3671d404736a994b",
+    "asset_ids": []
+  },
+  "clock": {
+    "tick": 1,
+    "ticks_per_second": 10,
+    "phase": "post_step"
+  },
+  "entity_ids": [
+    "reservoir-A",
+    "reservoir-B"
+  ],
+  "source_ids": [
+    "sensor-A.mass",
+    "sensor-B.mass"
+  ],
+  "unit": "kg",
+  "frame": "reservoir2.mass",
+  "values": [
+    51.0,
+    47.0
+  ],
+  "mask": [
+    true,
+    true
+  ],
+  "covariance": [
+    [
+      0.4,
+      0.1
+    ],
+    [
+      0.1,
+      0.9
+    ]
+  ],
+  "reference_values": [
+    51.0,
+    47.0
+  ],
+  "sensor_model_id": "sha256:ccbedbd53aeb5d5dccae9e74ca46069d63f155306a33298eb670ccb7096b205a"
+}

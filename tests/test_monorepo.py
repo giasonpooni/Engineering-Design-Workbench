@@ -385,3 +385,33 @@ def test_terminal_cache_and_metadata_names_cannot_exempt_source(checkout, relati
         path.chmod(0o755)
     with pytest.raises(ValueError, match="untracked file"):
         monorepo.verify_terminal_source(checkout)
+
+
+@pytest.mark.parametrize("relative", [
+    ".pytest_cache/shadow.unknown", ".pytest_cache/v/cache/unrecognized",
+    ".mypy_cache/3.12/shadow.unknown", ".ruff_cache/0.12.0/shadow.unknown",
+])
+@pytest.mark.parametrize("scope", ["import", "terminal"])
+def test_unknown_filenames_cannot_hide_source_inside_tool_caches(checkout, relative, scope):
+    boundary = (checkout / "instruments/measurement/calibration" if scope == "import"
+                else checkout / "src")
+    path = boundary / relative
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("unreviewed source with an unfamiliar suffix\n")
+    audit = monorepo.verify_imports if scope == "import" else monorepo.verify_terminal_source
+    with pytest.raises(ValueError, match="untracked"):
+        audit(checkout)
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="Windows does not expose POSIX executable mode bits")
+@pytest.mark.parametrize("scope", ["import", "terminal"])
+def test_named_cache_data_cannot_exempt_executable_files(checkout, scope):
+    boundary = (checkout / "instruments/measurement/calibration" if scope == "import"
+                else checkout / "src")
+    path = boundary / ".pytest_cache/v/cache/nodeids"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("unreviewed executable\n")
+    path.chmod(0o755)
+    audit = monorepo.verify_imports if scope == "import" else monorepo.verify_terminal_source
+    with pytest.raises(ValueError, match="untracked"):
+        audit(checkout)

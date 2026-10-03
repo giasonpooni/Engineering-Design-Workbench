@@ -1,0 +1,67 @@
+{
+  "axes": {
+    "initial_speed_m_per_s": [
+      1.0,
+      2.0,
+      3.0
+    ],
+    "yield_force_n": [
+      80.0,
+      100.0
+    ]
+  },
+  "base_request": {
+    "desired_observables": [
+      "force_time",
+      "impulse",
+      "restitution",
+      "energy_accounting",
+      "separation_time",
+      "plastic_work",
+      "residual_compression"
+    ],
+    "integration": {
+      "duration_factor": 1.5,
+      "method": "velocity_verlet",
+      "steps_per_contact": 1024
+    },
+    "model": {
+      "contact_law": "compression_only_elastic_perfectly_plastic",
+      "damping_n_s_per_m": 0.0,
+      "gravity_during_contact_m_per_s2": 0.0,
+      "initial_compression_m": 0.0,
+      "initial_plastic_compression_m": 0.0,
+      "initial_speed_m_per_s": 2.0,
+      "mass_kg": 1.0,
+      "stiffness_n_per_m": 10000.0,
+      "support": "fixed",
+      "yield_force_n": 100.0
+    },
+    "schema": "ciw.impact-crush-request.v1",
+    "scope": "unilateral_elastic_perfectly_plastic_crush",
+    "tolerances": {
+      "analytic_normalized": 0.001,
+      "energy_relative": 0.001,
+      "impulse_relative": 0.001,
+      "momentum_relative": 1e-10,
+      "refinement_normalized": 0.001,
+      "restitution_absolute": 0.001,
+      "separation_relative": 0.001
+    }
+  },
+  "requirements": [
+    {
+      "limit": 150.0,
+      "operator": "<=",
+      "quantity": "peak_force_n",
+      "unit": "N"
+    },
+    {
+      "limit": 0.045,
+      "operator": "<=",
+      "quantity": "residual_compression_m",
+      "unit": "m"
+    }
+  ],
+  "schema": "ciw.impact-sweep-request.v1"
+}

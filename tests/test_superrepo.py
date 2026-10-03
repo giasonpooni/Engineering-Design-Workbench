@@ -1,9 +1,11 @@
 """Coordinator evidence must be fresh, well formed and tied to one revision."""
+import errno
 import importlib.util
 from hashlib import sha256
 import json
 from pathlib import Path
 from subprocess import CalledProcessError, SubprocessError, TimeoutExpired
+import subprocess
 import sys
 from types import SimpleNamespace
 import uuid
@@ -47,9 +49,9 @@ def coordinator(monkeypatch):
     return module, state
 
 
-def _arguments(output):
+def _arguments(output, *, temp_root=None):
     return SimpleNamespace(group=["measurement"], output_dir=output,
-                           node_bin=None, cargo=None, full_reproduction=False)
+                           temp_root=temp_root, node_bin=None, cargo=None, full_reproduction=False)
 
 
 def _fresh_report(**overrides):
@@ -76,6 +78,167 @@ def _child(monkeypatch, coordinator, payload, *, returncode=0, after=None):
 
 def _report(output):
     return json.loads((output / "report.json").read_text())
+
+
+_TEMPFILE_PROBE = """
+import errno
+import json
+import os
+from pathlib import Path
+import sys
+import tempfile
+
+output = Path(sys.argv[1])
+report = json.loads(sys.argv[2])
+
+class FailingCleanup(tempfile.TemporaryDirectory):
+    @classmethod
+    def _rmtree(cls, name, **kwargs):
+        raise OSError(errno.ENOTEMPTY, "Injected persistent cleanup failure", name)
+
+temporary_directory = FailingCleanup if sys.argv[3] == "fail" else tempfile.TemporaryDirectory
+try:
+    with temporary_directory(prefix="superrepo-probe-") as directory:
+        report["temporary_directory"] = directory
+        report["temporary_environment"] = {name: os.environ.get(name) for name in ("TMPDIR", "TEMP", "TMP")}
+        (Path(directory) / "probe").write_text("child execution completed")
+except OSError as error:
+    report.update(status="failed", error={"type": type(error).__name__, "message": str(error), "errno": error.errno})
+output.mkdir(parents=True)
+(output / "report.json").write_text(json.dumps(report))
+sys.exit(0 if report["status"] == "passed" else 1)
+"""
+
+
+def _tempfile_child(monkeypatch, coordinator, *, cleanup_fails=False):
+    """Use a real child interpreter while keeping scientific gates out of this test."""
+    module, _ = coordinator
+
+    def run(command, **kwargs):
+        output = command[command.index("--output-dir") + 1]
+        return subprocess.run(
+            [sys.executable, "-c", _TEMPFILE_PROBE, output, json.dumps(_fresh_report()),
+             "fail" if cleanup_fails else "pass"], **kwargs)
+
+    monkeypatch.setattr(module, "subprocess", SimpleNamespace(run=run, SubprocessError=SubprocessError))
+
+
+def test_temp_root_places_real_child_tempfiles_and_overrides_inherited_scratch_paths(coordinator, monkeypatch, tmp_path):
+    module, _ = coordinator
+    inherited = tmp_path / "scratch"
+    inherited.mkdir()
+    private = tmp_path / "private"
+    private.mkdir()
+    for name in ("TMPDIR", "TEMP", "TMP"):
+        monkeypatch.setenv(name, str(inherited))
+    # The existing import/Git environment sanitation must still apply.
+    monkeypatch.setenv("PYTHONHOME", "untrusted-override")
+    _tempfile_child(monkeypatch, coordinator)
+    output = tmp_path / "evidence"
+    assert module.main(["check", "--group", "measurement", "--output-dir", str(output),
+                        "--temp-root", str(private / ".." / "private")]) == 0
+    aggregate = _report(output)
+    child = json.loads(Path(aggregate["groups"]["measurement"]["report"]).read_text())
+    assert aggregate["temp_root"] == str(private.resolve())
+    assert Path(child["temporary_directory"]).parent == private.resolve()
+    assert child["temporary_environment"] == {name: str(private.resolve()) for name in ("TMPDIR", "TEMP", "TMP")}
+    assert {name: module.os.environ[name] for name in ("TMPDIR", "TEMP", "TMP")} == {
+        name: str(inherited) for name in ("TMPDIR", "TEMP", "TMP")}
+    assert not Path(child["temporary_directory"]).exists()
+    assert list(private.iterdir()) == list(inherited.iterdir()) == []
+
+
+def test_default_temp_environment_is_preserved(coordinator, monkeypatch, tmp_path):
+    module, _ = coordinator
+    expected = {name: str(tmp_path / name) for name in ("TMPDIR", "TEMP", "TMP")}
+    for name, value in expected.items():
+        monkeypatch.setenv(name, value)
+    observed = {}
+
+    def run(command, **kwargs):
+        observed.update(kwargs["env"])
+        output = Path(command[command.index("--output-dir") + 1])
+        output.mkdir(parents=True)
+        (output / "report.json").write_text(json.dumps(_fresh_report()))
+        return SimpleNamespace(returncode=0)
+
+    monkeypatch.setattr(module, "subprocess", SimpleNamespace(run=run, SubprocessError=SubprocessError))
+    assert module.check(_arguments(tmp_path)) == 0
+    assert {name: observed[name] for name in expected} == expected
+    assert "temp_root" not in _report(tmp_path)
+
+
+@pytest.mark.parametrize("kind", ["missing", "file"])
+def test_temp_root_requires_an_existing_directory_before_child_execution(coordinator, monkeypatch, tmp_path, kind):
+    module, _ = coordinator
+    temp_root = tmp_path / "temp-root"
+    if kind == "file":
+        temp_root.write_text("not a directory")
+    monkeypatch.setattr(module, "subprocess", SimpleNamespace(
+        run=lambda *args, **kwargs: pytest.fail("Invalid temp root must not execute a child"),
+        SubprocessError=SubprocessError))
+    assert module.check(_arguments(tmp_path / "evidence", temp_root=temp_root)) == 1
+    aggregate = _report(tmp_path / "evidence")
+    assert aggregate["status"] == "failed"
+    assert aggregate["groups"] == {}
+    assert aggregate["error"] == {"type": "ValueError", "message": "--temp-root must be an existing directory"}
+
+
+def test_unusable_temp_root_fails_before_child_can_fall_back(coordinator, monkeypatch, tmp_path):
+    module, _ = coordinator
+    private = tmp_path / "private"
+    private.mkdir()
+
+    def unwritable(*args, **kwargs):
+        assert kwargs["dir"] == private.resolve()
+        raise PermissionError(errno.EACCES, "temp root is not writable", str(private))
+
+    monkeypatch.setattr(module, "tempfile", SimpleNamespace(TemporaryFile=unwritable))
+    monkeypatch.setattr(module, "subprocess", SimpleNamespace(
+        run=lambda *args, **kwargs: pytest.fail("Unusable temp root must not execute a child"),
+        SubprocessError=SubprocessError))
+    output = tmp_path / "evidence"
+    assert module.check(_arguments(output, temp_root=private)) == 1
+    aggregate = _report(output)
+    assert aggregate["status"] == "failed"
+    assert aggregate["groups"] == {}
+    assert aggregate["error"]["type"] == "PermissionError"
+    assert "not writable" in aggregate["error"]["message"]
+
+
+@pytest.mark.parametrize("retry_fails", [False, True], ids=["successful-retry", "persistent-cleanup-failure"])
+def test_temp_root_retry_retains_failed_evidence_and_fresh_identities(coordinator, monkeypatch, tmp_path, retry_fails):
+    module, _ = coordinator
+    private = tmp_path / "private"
+    private.mkdir()
+    output = tmp_path / "evidence"
+    _tempfile_child(monkeypatch, coordinator, cleanup_fails=True)
+    assert module.check(_arguments(output, temp_root=private)) == 1
+    previous = _report(output)
+    previous_lane = previous["groups"]["measurement"]
+    previous_path = Path(previous_lane["report"])
+    previous_bytes = previous_path.read_bytes()
+    assert previous["status"] == previous_lane["status"] == "failed"
+    assert previous_lane["error"]["type"] == "OSError"
+    assert previous_lane["error"]["errno"] == errno.ENOTEMPTY
+    assert "persistent cleanup failure" in previous_lane["error"]["message"]
+
+    _tempfile_child(monkeypatch, coordinator, cleanup_fails=retry_fails)
+    assert module.check(_arguments(output, temp_root=private)) == (1 if retry_fails else 0)
+    current = _report(output)
+    current_lane = current["groups"]["measurement"]
+    expected_status = "failed" if retry_fails else "passed"
+    assert current["status"] == current_lane["status"] == expected_status
+    if retry_fails:
+        assert current_lane["error"]["errno"] == errno.ENOTEMPTY
+    assert previous_path.read_bytes() == previous_bytes
+    assert previous_lane["report_sha256"] == sha256(previous_bytes).hexdigest()
+    assert current_lane["report_sha256"] == sha256(Path(current_lane["report"]).read_bytes()).hexdigest()
+    assert current["verification_id"] != previous["verification_id"]
+    assert current_lane["verification_id"] != previous_lane["verification_id"]
+    assert current_lane["report"] != previous_lane["report"]
+    assert current["terminal_source"] == previous["terminal_source"] == SOURCE
+    assert current_lane["terminal_source"] == previous_lane["terminal_source"] == SOURCE
 
 
 def test_old_same_revision_evidence_cannot_substitute_for_a_missing_child_report(coordinator, monkeypatch, tmp_path):

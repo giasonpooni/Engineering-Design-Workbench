@@ -9,6 +9,7 @@ import os
 from pathlib import Path
 import subprocess
 import sys
+import tempfile
 import uuid
 
 from monorepo import ROOT, git, load_manifest, verify_imports, verify_terminal_source
@@ -48,6 +49,16 @@ def check(args):
         run_output.mkdir(exist_ok=False)
         verification_ids = {report["verification_id"]}
         environment = _environment()
+        if args.temp_root is not None:
+            temp_root = args.temp_root.expanduser().resolve()
+            if not temp_root.is_dir():
+                raise ValueError("--temp-root must be an existing directory")
+            # Python's implicit temp-directory selection can silently fall back
+            # when a configured directory is unusable. Fail before execution.
+            with tempfile.TemporaryFile(dir=temp_root):
+                pass
+            report["temp_root"] = str(temp_root)
+            environment.update({name: str(temp_root) for name in ("TMPDIR", "TEMP", "TMP")})
         if args.node_bin:
             node_bin = args.node_bin.expanduser().resolve()
             if not node_bin.is_dir():
@@ -121,6 +132,7 @@ def main(argv=None):
     qualification = subcommands.add_parser("check", help="Run isolated original-package and composed-workflow gates")
     qualification.add_argument("--group", choices=list(GATES), action="append", help="Select lanes; repeat to combine. Default: all")
     qualification.add_argument("--output-dir", type=Path, default=ROOT / "results/superrepo")
+    qualification.add_argument("--temp-root", type=Path, help="Existing directory for child gates' temporary files and worktrees")
     qualification.add_argument("--cargo", type=Path, help="Trusted Cargo executable for the operations lane")
     qualification.add_argument("--node-bin", type=Path, help="Trusted directory containing Node 24 and npm")
     qualification.add_argument("--full-reproduction", action="store_true", help="Include original slow FlowState reproductions")

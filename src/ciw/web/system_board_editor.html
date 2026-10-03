@@ -1,0 +1,154 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="__CSP__">
+<title>NET | System Board</title>
+<style>__STYLE__</style>
+</head>
+<body>
+<header>
+  <div class="brand">NOTATION SYSTEMS <span>/ SYSTEM BOARD</span></div>
+  <div class="badges"><span>LOCAL</span><span>NO NETWORK</span><span>CANDIDATE EDITS ONLY</span></div>
+</header>
+<main>
+  <section class="intro">
+    <div>
+      <div class="eyebrow">MULTI-RESOLUTION COMPUTATIONAL INSTRUMENT</div>
+      <h1 id="title">System Board</h1>
+      <p>Navigate abstraction groups, inspect typed morphisms and stage one bounded parameter edit without mutating the retained Board.</p>
+    </div>
+    <dl class="identity">
+      <dt>Board</dt><dd id="board-id"></dd>
+      <dt>Model</dt><dd id="model-id"></dd>
+      <dt>Digest</dt><dd id="board-digest"></dd>
+    </dl>
+  </section>
+
+  <section class="toolbar" aria-label="Board controls">
+    <div class="nav">
+      <button type="button" id="back" disabled>← Up</button>
+      <div>
+        <span class="eyebrow">ABSTRACTION PATH</span>
+        <div id="breadcrumb" class="breadcrumb"></div>
+      </div>
+    </div>
+    <div class="filters">
+      <label for="edge-filter">Relations</label>
+      <select id="edge-filter">
+        <option value="EXECUTION">Execution only</option>
+        <option value="ALL">All declared relations</option>
+        <option value="DATAFLOW">Dataflow</option>
+        <option value="DEPENDENCY">Dependency</option>
+        <option value="SEMANTIC">Semantic</option>
+        <option value="SPATIAL">Spatial</option>
+        <option value="TEMPORAL">Temporal</option>
+        <option value="AUTHORITY">Authority</option>
+        <option value="SCALE">Scale</option>
+      </select>
+      <button type="button" id="fit">Fit graph</button>
+    </div>
+  </section>
+
+  <section class="status-strip" aria-label="Board status">
+    <article><span>VISIBLE</span><strong id="visible-count">0</strong><small>nodes / groups</small></article>
+    <article><span>LEVEL</span><strong id="level">0</strong><small>abstraction depth</small></article>
+    <article><span>DECLARED EDGES</span><strong id="edge-count">0</strong><small>current projection</small></article>
+    <article><span>STAGED NEEDLE</span><strong id="staged-status">NONE</strong><small>candidate only</small></article>
+  </section>
+
+  <div class="workspace">
+    <section class="graph-panel" aria-label="Interactive System Board graph">
+      <div class="graph-head">
+        <div>
+          <span class="eyebrow">ARCHITECTURE / RELATIONAL PROJECTION</span>
+          <h2 id="scope-title">Board</h2>
+        </div>
+        <div class="legend" aria-label="Node legend">
+          <span class="operation">● Operation</span>
+          <span class="state">● State</span>
+          <span class="model">● Model</span>
+          <span class="parameter">● Parameter</span>
+          <span class="representation">● Representation</span>
+          <span class="entity">● Entity</span>
+          <span class="group">◆ Group</span>
+        </div>
+      </div>
+      <div id="graph-scroll" class="graph-scroll" tabindex="0">
+        <svg id="board-svg" viewBox="0 0 900 520" role="img" aria-label="System Board nodes, groups and typed relations"></svg>
+      </div>
+      <p class="note">Dependency highlighting means declared recomputation reachability, not physical causality. Group collapse hides detail but does not delete it.</p>
+    </section>
+
+    <aside class="inspector" aria-label="Selected Board object">
+      <div class="inspector-head">
+        <span class="eyebrow">SELECTED OBJECT</span>
+        <h2 id="selection-title">Nothing selected</h2>
+        <p id="selection-subtitle">Select a node or enter a group.</p>
+      </div>
+
+      <section id="group-detail" class="detail hide">
+        <dl id="group-fields"></dl>
+        <button type="button" id="enter-group">Enter group</button>
+      </section>
+
+      <section id="node-detail" class="detail hide">
+        <dl id="node-fields"></dl>
+
+        <div class="detail-block">
+          <h3>Typed sockets</h3>
+          <div id="socket-list"></div>
+        </div>
+
+        <div class="detail-block">
+          <h3>Parameters</h3>
+          <div id="parameter-list"></div>
+        </div>
+
+        <div class="detail-block">
+          <h3>Scientific contracts</h3>
+          <div id="contract-list"></div>
+        </div>
+      </section>
+
+      <section class="candidate">
+        <div class="candidate-head">
+          <div>
+            <span class="eyebrow">VISUAL NEEDLE / EDIT INTENT</span>
+            <h3>Candidate parameter intervention</h3>
+          </div>
+          <button type="button" id="clear-edit" disabled>Clear</button>
+        </div>
+        <div id="candidate-empty" class="empty">Choose an exposed parameter and stage a replacement.</div>
+        <div id="candidate-body" class="hide">
+          <dl>
+            <dt>Target</dt><dd id="candidate-target"></dd>
+            <dt>Before</dt><dd id="candidate-before"></dd>
+            <dt>Replacement</dt><dd id="candidate-after"></dd>
+            <dt>Dependency closure</dt><dd id="candidate-closure"></dd>
+          </dl>
+          <p class="warning">The browser does not execute, accept, verify or admit this candidate. Python revalidates the exact Board identity and parameter domain.</p>
+          <button type="button" id="download-edit">Download edit spec</button>
+        </div>
+      </section>
+    </aside>
+  </div>
+
+  <section class="provenance">
+    <div>
+      <span class="eyebrow">BOARD CLAIMS</span>
+      <h2>Authority remains outside the visualizer</h2>
+    </div>
+    <dl id="claims"></dl>
+  </section>
+
+  <footer>
+    <span>NET SYSTEM BOARD VISUAL EDITOR V1</span>
+    <span>Visual projection + candidate edit specification · no provider execution</span>
+  </footer>
+</main>
+<script id="net-board" type="application/octet-stream">__DATA__</script>
+<script>__SCRIPT__</script>
+</body>
+</html>

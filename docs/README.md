@@ -55,6 +55,27 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 - [PLSR](PLSR.md), [registered heat proof](PROVED_HEAT.md), [Julia oscillator](JULIA_OSCILLATOR.md), and [Julia/SP1 direction](JULIA_SP1.md)
 - [Exchange inspection](EXCHANGE.md)
 
+## Bounded NET workflows
+
+These guides describe explicit operations and retained records. Optional native
+providers require their own pinned bindings and qualification; importing a guide
+or inspecting a record does not establish provider availability.
+
+| Need | Page |
+| --- | --- |
+| NET command plane and typed composition | [Control plane](NET_CONTROL_PLANE.md) · [Workflow algebra](WORKFLOW_ALGEBRA.md) |
+| Semantic capabilities, container composition and selective recomputation | [Semantic capabilities](SEMANTIC_CAPABILITIES.md) · [Containers](CONTAINER_CALCULUS.md) · [Needle](NEEDLE.md) |
+| Parameterized Boards, offline editing and live evidence views | [System Board](SYSTEM_BOARD.md) · [Offline editor](SYSTEM_BOARD_VISUAL.md) · [Evidence viewer](VISUAL_SYSTEM_BOARD.md) |
+| Preservation contracts, finite morphisms and evidence-bound expansion | [Preservation](PRESERVATION_CONTRACTS.md) · [Finite morphisms](FINITE_REPRESENTATION_PRESERVATION.md) · [Expansion](EVIDENCE_BOUND_EXPANSION.md) |
+| Visual gates and identity-preserving evidence projections | [Representation gates](VISUAL_REPRESENTATION_GATES.md) · [Evidence projection](VISUAL_EVIDENCE_PROJECTION.md) |
+| Bounded impact models, independent verification and finite scenarios | [Elastic contact](IMPACT_CONTACT_BENCHMARK.md) · [Crush](IMPACT_CRUSH_BENCHMARK.md) · [Plate](IMPACT_PLATE_BENCHMARK.md) · [Scenario envelope](IMPACT_SCENARIO_ENVELOPE.md) |
+| Cross-system transitions, interoperability and artifact provenance | [Transitions](INDUSTRIAL_SEMANTIC_TRANSITIONS.md) · [Interoperability](EXECUTABLE_INTEROPERABILITY.md) · [Provenance](ARTIFACT_PROVENANCE.md) |
+| Explicit workcells and agent transport boundaries | [Workcells](EXECUTABLE_WORKCELLS.md) · [Agent protocol](NET_AGENT_PROTOCOL.md) |
+| Separate native simulation owners and retained campaigns | [Installed adapters](INTERACTIVE_INSTALLED.md) · [Motion-study Godot owner](GODOT_STATEFUL_OWNER.md) · [Point-provider campaigns](GODOT_STATEFUL_CAMPAIGNS.md) |
+| Julia-authored kernels and native consumers | [Kernel export](OSCILLATOR_KERNEL_EXPORT.md) · [Consumers](OSCILLATOR_NATIVE_CONSUMERS.md) |
+| Computational objects and bounded annotation histories | [Objects](COMPUTATIONAL_OBJECTS.md) · [Annotations](ANNOTATIONS.md) · [Perspectives](HISTORICAL_PERSPECTIVE.md) |
+| Original research context and mathematical preservation limits | [Research foundations](RESEARCH_FOUNDATIONS.md) · [Representation problem](REPRESENTATION_PROBLEM.md) |
+
 ## Development and availability
 
 - [Engineering superrepo: module map, exact source histories and qualification commands](MONOREPO.md)

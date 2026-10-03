@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta http-equiv="Content-Security-Policy" content="__CSP__">
+<link rel="icon" href="data:,">
+<title>Notation Systems · System Board</title>
+<style>__STYLE__</style>
+</head>
+<body>
+<header class="topbar"><div class="brand"><span class="brand-mark">N∶</span><span>NOTATION SYSTEMS<span class="brand-sub">SCIENTIFIC WORKBENCH</span></span></div><span class="edition">SYSTEM BOARD <span class="version">V1</span></span><span id="mode-status" class="pill">Loading</span></header>
+<section class="heading"><div><div class="eyebrow">RETAINED EVIDENCE / TYPED OPERATIONS / VISUAL NOTATION</div><h1 id="board-title">Opening the Board</h1><p id="board-subtitle">One graph. Inspectable views. Explicit candidate changes.</p></div><div class="heading-actions"><button id="download-board">Export Board</button><button id="download-view">Export view</button><button id="run-baseline" class="primary" disabled>Run baseline</button></div></section>
+<main class="workspace">
+<aside class="sidebar"><div class="section-label">ABSTRACTION HIERARCHY</div><p class="muted small">Collapse the view, not the system.</p><div id="hierarchy"></div><div class="divider"></div><div class="section-label">INSTRUMENT BOUNDARY</div><div class="boundary-card"><span class="small muted">Board content identity</span><code id="board-digest"></code><span id="counts" class="small"></span></div><div class="boundary-card"><span class="small muted">Source evidence</span><code id="source-digest">Not supplied to viewer</code></div><div class="boundary-card"><span class="small muted">Representation gate</span><code id="science-status">Not configured</code><span class="small muted">Evidence projection</span><code id="evidence-status">Awaiting retained baseline</code></div><p class="small muted">No canonical-state admission.<br>No physical actuation.<br>Declared constraints are not proofs.</p><div class="legend"><span><i class="dot amber"></i>Executable dependency</span><span><i class="dot slate"></i>Descriptive relationship</span><span><i class="dot green"></i>Reused result</span></div></aside>
+<section class="board-area"><div class="board-toolbar"><div class="view-tabs" role="group" aria-label="Relationship view"><button data-mode="ALL" class="active">All relations</button><button data-mode="DEPENDENCY">Dependency</button><button data-mode="SCIENTIFIC">Scientific</button><button data-mode="AUTHORITY">Authority</button></div><div class="zoom-tools"><button id="zoom-out" aria-label="Zoom out">−</button><span id="zoom-label">100%</span><button id="zoom-in" aria-label="Zoom in">+</button><button id="fit-view">Reset</button></div></div>
+<div class="canvas-wrap"><svg id="canvas" viewBox="0 0 1040 650" role="img" aria-label="Interactive typed System Board"><defs><pattern id="dots" width="22" height="22" patternUnits="userSpaceOnUse"><circle cx="1" cy="1" r="0.7" fill="#333941"/></pattern><marker id="arrow" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8" fill="#768391"/></marker></defs><rect width="100%" height="100%" fill="url(#dots)"/><g id="stage"></g></svg><div class="canvas-hint">Drag nodes to arrange · Drag background to pan · Double-click a group to expand</div><div id="scene-count" class="scene-count"></div></div>
+<div class="run-strip"><div><span class="section-label">EXECUTION OBSERVATIONS</span><p id="run-summary">No provider execution in this view.</p></div><div class="run-actions"><button id="qualify-expansion" disabled>Verify retained expansion</button><button id="run-candidate" class="primary" disabled>Run candidate Needle</button></div></div><div id="delta-list" class="delta-list"></div>
+</section>
+<aside class="inspector"><div class="inspector-top"><span class="section-label">OBJECT INSPECTOR</span><span id="node-kind" class="tiny-pill">NO SELECTION</span></div><h2 id="node-title">Select an object</h2><code id="node-address" class="address"></code><div id="parameter-editor"></div><div id="preview-summary" class="preview-summary"></div><div id="metadata"></div></aside>
+</main>
+<section class="notation-panel"><div class="notation-heading"><span class="section-label">INSPECTABLE NOTATION</span><span id="action-label" class="muted small">View specification</span><button id="download-request" disabled>Export edit request</button></div><pre id="notation" tabindex="0"></pre></section>
+<footer><span id="status" role="status" aria-live="polite">Initializing local view…</span><span>VIEW ≠ EVIDENCE ≠ EXECUTION ≠ VERIFICATION</span></footer>
+<div id="payload" hidden>__DATA__</div><script>__SCRIPT__</script>
+</body></html>

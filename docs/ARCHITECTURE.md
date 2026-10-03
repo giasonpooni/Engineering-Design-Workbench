@@ -1,5 +1,87 @@
 # Executable architecture
 
+This page distinguishes the **implemented workbench architecture** from the
+broader research architecture being tested around it. For intellectual lineage,
+see [Research foundations and attribution](RESEARCH_FOUNDATIONS.md); for the
+mathematical organizing vocabulary, see
+[Research context](RESEARCH_CONTEXT.md).
+
+> **Research annotation — architectural adaptation.** The distinction between
+> canonical state and any one graph representation is motivated in part by
+> representation-independent structures in graph/matroid theory, especially the
+> graph/graphoid treatment of Novak and Gibbons. NET generalizes that lesson to
+> scientific representations; the cited graph-theoretic results do not by
+> themselves prove this software architecture.
+
+## Protected architectural identities
+
+The research direction extends the existing implementation rather than
+collapsing its identities. The following remain separate:
+
+\[
+\boxed{
+\text{evidence}
+\neq
+\text{canonical state}
+\neq
+\text{representation}
+\neq
+\text{execution/result}
+\neq
+\text{verification}
+}
+\]
+
+The current code already separates operation, execution, result and
+verification identities. The additional **canonical state / representation /
+morphism / control-plane** vocabulary is a research overlay unless an
+individual contract or PR states otherwise.
+
+## Research-layer architecture
+
+The intended extension is:
+
+~~~text
+evidence
+   │ admission
+   ▼
+canonical state
+   │
+   ├── graph / relational projection
+   ├── matrix / state-space projection
+   ├── spatial / spectral projection
+   └── rendered projection
+   │
+   ▼
+typed morphisms
+   │
+   ▼
+candidate experiment / intervention
+   │
+   ▼
+existing NET execution machinery
+   │
+   ▼
+observation → compare → verify → retain
+~~~
+
+A separate **Systemic Control Plane** may choose or propose representation,
+model, parameter, workflow and execution-backend configurations. It must not
+gain evidence-admission authority merely because it can reconfigure execution.
+
+> **Research annotation — project hypothesis.** A future representation should
+> declare which queries, interventions and invariants it preserves. For a
+> projection \(\pi\) and intervention \(N\), one useful condition to test is
+> \(\pi\circ N \simeq \bar N\circ\pi\). This is a NET research contract, not a
+> theorem claimed from the cited category-theory or graph-theory literature.
+
+> **Research annotation — established-to-adapted.** Hybrid network analysis
+> provides a concrete example in which alternative independent-variable choices
+> can yield different equation counts and a minimum topologically complete set.
+> NET uses this as motivation for investigating task-specific **operationally
+> complete coordinates**; it does not call arbitrary scientific reductions
+> "hybrid rank" without the required matroid/network structure.
+
 For the current public component inventory and integration boundaries, see the
 [Notation Systems stack map](STACK.md) and [this component's role](STACK_ROLE.md).
 
@@ -9,6 +91,30 @@ and their qualifications are listed in [INSTRUMENTS.md](INSTRUMENTS.md).
 The [execution responsibility map](EXECUTION_RESPONSIBILITIES.md) relates the
 implemented Python host to Julia, native providers and selected proof paths,
 and distinguishes future execution and equipment boundaries.
+
+## Interactive simulation and authoring targets
+
+Godot, Bevy and Blender are first-class optional integration targets for
+interactive simulation and computational authoring. This is a workload extension,
+not a requirement to install the engines, a new control plane or a replacement
+for existing scientific computation and engineering simulation workflows.
+The [interactive simulation guide](INTERACTIVE_SIMULATION.md) separates the
+current inspection/projector source from planned authoring and runtime adapters,
+and specifies the first all-three acceptance case.
+
+NET retains investigation and execution history. Each engine-owned simulation
+retains its own world and clock; provider-owned scientific simulations preserve
+the existing CIW/provider state-commit boundary. A new adapter must declare which
+mode it supports rather than silently transferring state ownership. Blender
+produces separately retained authoring artifacts, not implicit physical truth.
+Existing Godot and Bevy retained-record projectors remain projectors; they do not
+acquire game-state mutation or simulation authority through this extension.
+
+GSC representation, CSE/BIM estimation, CSR geometry and FSRT fluid operations
+are optional specialist capabilities, not compulsory stages in an engine tick.
+Their mathematics and implementations remain in their own repositories.
+The proposed adapters reuse the session, operation and execution boundaries below;
+no new operation, schema, CLI or engine qualification is established by this page.
 
 ## Components
 

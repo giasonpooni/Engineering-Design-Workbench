@@ -1,0 +1,36 @@
+/* C ABI wrapper. The two RHS expressions are emitted from the checked Julia AST.
+ * Callers supply valid, aligned storage of the stated lengths. Input/output aliasing
+ * is supported: all input scalars and both outputs are read/computed before stores.
+ * Failure leaves output untouched. No allocation, mutable globals, or Julia runtime.
+ */
+#include <stddef.h>
+#include <stdint.h>
+#include <float.h>
+#include <math.h>
+#include <fenv.h>
+#if defined(_WIN32)
+#define CIW_EXPORT __declspec(dllexport)
+#else
+#define CIW_EXPORT __attribute__((visibility("default")))
+#endif
+_Static_assert(FLT_RADIX == 2 && DBL_MANT_DIG == 53 && DBL_MAX_EXP == 1024,
+               "This profile requires IEEE binary64");
+CIW_EXPORT uint32_t ciw_oscillator_abi_v1(void) { return 1; }
+CIW_EXPORT const char *ciw_oscillator_source_sha256_v1(void) { return "@SOURCE_SHA256@"; }
+CIW_EXPORT int32_t ciw_oscillator_rhs_v1(const double *state, size_t state_len,
+                                      const double *parameters, size_t parameters_len,
+                                      double *out, size_t out_len) {
+    if (state == NULL || parameters == NULL || out == NULL) return 1;
+    if (state_len != 2 || parameters_len != 2 || out_len != 2) return 2;
+    const double q = state[0], v = state[1];
+    const double gamma = parameters[0], omega = parameters[1];
+    if (!isfinite(q) || !isfinite(v) || !isfinite(gamma) || !isfinite(omega)) return 3;
+    if (fabs(q) > 1e6 || fabs(v) > 1e6 || omega < DBL_EPSILON || omega > 20.0 ||
+        gamma < 0.0 || gamma > 0.5 * omega) return 4;
+    if (fegetround() != FE_TONEAREST) return 6;
+    const double dq = @RHS_Q@;
+    const double dv = @RHS_V@;
+    if (!isfinite(dq) || !isfinite(dv)) return 5;
+    out[0] = dq; out[1] = dv;
+    return 0;
+}

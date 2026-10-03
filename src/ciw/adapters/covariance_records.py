@@ -42,15 +42,20 @@ def _same(actual, expected):
 
 def validate_fsrt_payload(operation_id, data, run, parameters, selection):
     """Bind the additive covariance artifacts to the unchanged FSRT v1 record."""
-    from .fsrt_records import validate_payload as validate_legacy
     from ..investigation import _fsrt_inputs_v2
 
     _require(operation_id == FSRT_OPERATION, "Unsupported FSRT covariance operation")
+    validate_snapshot_covariance_payload(data, _fsrt_inputs_v2(run, parameters))
+
+
+def validate_snapshot_covariance_payload(data, expected):
+    """Read native v2 data against source-bound inputs without executing FSRT."""
+    from .fsrt_records import validate_snapshot_payload
+
     _require(isinstance(data, dict) and {"covariance_artifacts", "state_order"} <= data.keys(),
              "FSRT v2 requires ordered covariance artifacts")
     legacy = {key: value for key, value in data.items() if key not in {"covariance_artifacts", "state_order"}}
-    validate_legacy("fsrt.tank-reconstruct.v1", legacy, run, parameters, selection)
-    expected = _fsrt_inputs_v2(run, parameters)
+    validate_snapshot_payload(legacy, expected)
     observation = expected["observations"][0]
     observed = [index for index, present in enumerate(observation["mask"]) if present]
     _require(observed, "A successful FSRT covariance result requires an observed channel")

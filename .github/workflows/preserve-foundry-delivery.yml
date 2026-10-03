@@ -1,0 +1,109 @@
+name: Preserve Foundry delivery
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    paths:
+      - '.github/workflows/preserve-foundry-delivery.yml'
+      - 'scripts/preserve_foundry_delivery.py'
+      - 'scripts/tests/test_foundry_delivery.py'
+      - 'delivery/foundry-v1/local-overlay.tar.xz'
+      - 'docs/NET_FOUNDRY_DELIVERY.md'
+permissions: {}
+concurrency:
+  group: preserve-foundry-delivery-68
+  cancel-in-progress: false
+jobs:
+  preserve:
+    if: >-
+      github.repository == 'giasonpooni/Notations-Systems-Terminal' &&
+      github.event.pull_request.number == 68 &&
+      github.event.pull_request.head.repo.full_name == github.repository &&
+      github.event.pull_request.head.ref == 'feat/game-foundry-1792-v1-20260929'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 10
+    permissions:
+      actions: read
+      contents: write
+    env:
+      TARGET_BRANCH: feat/game-foundry-1792-v1-20260929
+      EXPECTED_HEAD: ${{ github.event.pull_request.head.sha }}
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          ref: ${{ github.event.pull_request.head.sha }}
+          persist-credentials: true
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Test preservation transport without running providers
+        run: python -m unittest discover -s scripts/tests -p test_foundry_delivery.py -v
+      - name: Determine whether complete delivery is already retained
+        id: state
+        shell: bash
+        run: |
+          set -euo pipefail
+          if test -e delivery/foundry-v1/retained; then
+            python - <<'PY'
+          import hashlib, json, pathlib, sys
+          sys.path.insert(0, 'scripts')
+          import preserve_foundry_delivery as preservation
+          root = pathlib.Path('delivery/foundry-v1/retained')
+          report = json.loads((root/'publication.json').read_text())
+          raw = (root/'NET_Foundry_1792_v1.zip').read_bytes()
+          assert hashlib.sha256(raw).hexdigest() == report['archive_sha256']
+          entries = {name.removeprefix(preservation.ROOT_NAME+'/'): data for name, data in preservation.read_zip(raw).items()}
+          preservation.verify_entries(entries)
+          assert (root/'qualification.json').read_bytes() == entries['evidence/native/qualification.json']
+          assert (root/'HANDOFF.md').read_bytes() == entries['README.md']
+          print('Existing 131-file delivery verified; no overwrite.')
+          PY
+            echo 'present=true' >> "$GITHUB_OUTPUT"
+          else
+            echo 'present=false' >> "$GITHUB_OUTPUT"
+          fi
+      - name: Download four exact original evidence artifacts
+        if: steps.state.outputs.present == 'false'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir "$RUNNER_TEMP/foundry-original-artifacts"
+          for artifact in 11015799398 11016491173 11015697994 11015997939; do
+            gh api "repos/$GITHUB_REPOSITORY/actions/artifacts/$artifact/zip" > "$RUNNER_TEMP/foundry-original-artifacts/$artifact.zip"
+          done
+      - name: Verify every original file and retain the complete bundle
+        if: steps.state.outputs.present == 'false'
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/preserve_foundry_delivery.py \
+            --artifact-dir "$RUNNER_TEMP/foundry-original-artifacts" \
+            --overlay delivery/foundry-v1/local-overlay.tar.xz \
+            --output-dir delivery/foundry-v1/retained
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('README.md')
+          raw = path.read_bytes()
+          marker = b'<!-- foundry-delivery-v1 -->'
+          if marker not in raw:
+              first, rest = raw.split(b'\n', 1)
+              note = b'\n<!-- foundry-delivery-v1 -->\n**Foundry v1 on this branch:** [implementation and complete retained delivery](docs/NET_FOUNDRY_DELIVERY.md). Source, installable wheel, patches, and original qualification evidence are committed to Git; this is not a main-branch merge or product release.\n<!-- /foundry-delivery-v1 -->\n'
+              path.write_bytes(first+b'\n'+note+rest)
+          PY
+      - name: Commit only retained delivery to the existing feature branch
+        if: steps.state.outputs.present == 'false'
+        shell: bash
+        run: |
+          set -euo pipefail
+          actual=$(git ls-remote --exit-code origin "refs/heads/$TARGET_BRANCH" | cut -f1)
+          test "$actual" = "$EXPECTED_HEAD" || { echo 'Branch advanced concurrently; refusing push.' >&2; exit 1; }
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- README.md delivery/foundry-v1/retained
+          git diff --cached --check
+          git commit -m 'chore: retain complete qualified Foundry v1 deliverable in Git'
+          git push origin "HEAD:refs/heads/$TARGET_BRANCH"
+          remote=$(git ls-remote --exit-code origin "refs/heads/$TARGET_BRANCH" | cut -f1)
+          test "$remote" = "$(git rev-parse HEAD)"
+          echo "Retained delivery committed and verified at $remote" >> "$GITHUB_STEP_SUMMARY"
