@@ -72,6 +72,13 @@ does not imply that a hosted demo or released game exists.
 | Core identity | Python package and CLI **`ciw`**; existing session and record contracts remain unchanged. |
 | Status | Active development with bounded scientific workflows and separately tracked native/interactive prototypes. |
 
+Use the [integration coverage matrix](docs/INTEGRATION_COVERAGE.md) to distinguish
+callable operations, required provider bindings and remaining qualification.
+The [2026-10-03 concerns audit](docs/CONCERNS_AUDIT_2026-10-03.md) checks the broader
+platform narrative against merged source. The [retained correction loop](docs/CORRECTION_LOOP.md)
+demonstrates local dependency review with preserved history and fresh results;
+its synthetic reference establishes workflow behavior, not physical calibration.
+
 ## Architecture
 
 NET owns investigation state, operation selection and retained execution

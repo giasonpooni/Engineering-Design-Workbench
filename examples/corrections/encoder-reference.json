@@ -1,0 +1,18 @@
+{
+  "schema": "ciw.reference-evidence.v1",
+  "origin": "synthetic_fixture",
+  "quantity_id": "encoder-position-at-300-counts",
+  "value": 0.998,
+  "unit": "m",
+  "coordinate_frame": "frame:carriage",
+  "observed_at": "2026-10-03T00:00:00Z",
+  "uncertainty": {
+    "status": "unspecified"
+  },
+  "context": {
+    "counts": 300,
+    "residual_bound_m": 0.0005,
+    "physical_acquisition": "not_performed",
+    "purpose": "withheld fixture value for a local correction workflow demonstration"
+  }
+}

@@ -106,6 +106,7 @@ class WorkbenchServer:
                 else:
                     # Numerical operations and disk IO do not block socket polling.
                     revision = self.session.workbench.revision
+                    correction_revision = self.session.correction_journal.revision
                     try:
                         response = await asyncio.to_thread(self.session.handle, request)
                         try:
@@ -118,6 +119,11 @@ class WorkbenchServer:
                             # an error. Notify observers of that revision as well.
                             await self._broadcast(envelope("workbench.changed", {
                                 "session_id": self.session.session_id,
+                            }))
+                        if self.session.correction_journal.revision != correction_revision:
+                            await self._broadcast(envelope("dependencies.changed", {
+                                "session_id": self.session.session_id,
+                                "revision": self.session.correction_journal.revision,
                             }))
         except ConnectionClosed:
             pass

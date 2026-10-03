@@ -273,6 +273,8 @@ class Session:
         # coerced into the legacy single-recording analysis schema.
         from .workbench import Workbench
         self.workbench = Workbench()
+        from .correction_journal import CorrectionJournal
+        self.correction_journal = CorrectionJournal()
         self._lock = threading.RLock()
         self._pending_operations = 0
         self.recording_file = _recording_file(self.run)
@@ -286,7 +288,36 @@ class Session:
             calibration = calibration_status(self.run, evaluated_at)
             if calibration:
                 snapshot["calibration"] = calibration
+            if self.correction_journal.revision:
+                snapshot["dependencies"] = self.dependency_status()
             return snapshot
+
+    def _artifact_graph(self) -> dict:
+        from .dependency_graph import artifact_graph
+        return artifact_graph(self.run, self.results, self.executions, self.workbench)
+
+    def dependency_status(self) -> dict:
+        """Inspect correction eligibility outside immutable scientific artifacts."""
+        with self._lock:
+            graph = self._artifact_graph()
+            return {"schema": "ciw.dependency-status.v1", "nodes": graph,
+                    **self.correction_journal.status(graph),
+                    "scope": "retained_catalog_links_and_explicit_operation_inputs",
+                    "physical_validation": "not_performed", "state_admission": "not_performed",
+                    "hardware_actuation": "not_performed"}
+
+    def _journal_action(self, kind: str, payload: dict) -> dict:
+        """Checkpoint the event and all its references before publishing it."""
+        from .correction_journal import CorrectionJournal
+        with self._lock:
+            graph = self._artifact_graph()
+            candidate = CorrectionJournal.restore(self.correction_journal.serialize(), graph)
+            method = {"claim.add": candidate.add_claim, "correction.propose": candidate.propose,
+                      "correction.review": candidate.review}[kind]
+            result = method(payload, graph)
+            write_json(self.output_dir / "workspace.json", self._workspace(candidate))
+            self.correction_journal = candidate
+            return result
 
     def _result_summaries(self) -> list[dict]:
         with self._lock:
@@ -327,6 +358,10 @@ class Session:
                 calibration = calibration_status(self.run, _evaluated_at(payload))
                 if calibration:
                     response["calibration"] = calibration
+            if kind == "result.get" and self.correction_journal.revision:
+                status = self.dependency_status()["artifact_status"].get(payload["result_id"])
+                if status is not None:
+                    response["dependency_status"] = status
             return response
         except (ProtocolError, AdapterRefusal) as exc:
             return envelope("error", {"code": exc.code, "message": str(exc)}, request_id)
@@ -342,6 +377,11 @@ class Session:
         if kind == "run.get":
             _keys(payload, set())
             return copy.deepcopy(self.run)
+        if kind == "dependency.inspect":
+            _keys(payload, set())
+            return self.dependency_status()
+        if kind in {"claim.add", "correction.propose", "correction.review"}:
+            return self._journal_action(kind, payload)
         if kind == "source.add":
             return self.workbench.add_source(payload)
         if kind == "source.list":
@@ -572,33 +612,44 @@ class Session:
             return {"workspace_file": str(path)}
         raise ProtocolError("unknown_command", f"Unknown request type: {kind}")
 
-    def save_workspace(self, path: Path) -> Path:
-        with self._lock:
-            workspace = {"workspace_version": 1, "saved_at": utc_now(), "run": self.run,
+    def _workspace(self, journal=None) -> dict:
+        """Capture a checkpoint while the caller holds the Session lock."""
+        journal = self.correction_journal if journal is None else journal
+        workspace = {"workspace_version": 1, "saved_at": utc_now(), "run": self.run,
                          "selection": self.selection, "results": list(self.results.values()),
                          "view_settings": {}}
-            if self.executions:
-                workspace["workspace_version"] = 2
-                workspace["executions"] = list(self.executions.values())
-            retained = self.workbench.serialize()
-            if retained["sources"] or retained["bundles"]:
-                workspace["workspace_version"] = 3
-                workspace["workbench"] = retained
-            return write_json(path, workspace)
+        if self.executions:
+            workspace["workspace_version"] = 2
+            workspace["executions"] = list(self.executions.values())
+        retained = self.workbench.serialize()
+        if retained["sources"] or retained["bundles"]:
+            workspace["workspace_version"] = 3
+            workspace["workbench"] = retained
+        if journal.revision:
+            workspace["workspace_version"] = 4
+            workspace["workbench"] = retained
+            workspace["correction_journal"] = journal.serialize()
+        return workspace
+
+    def save_workspace(self, path: Path) -> Path:
+        with self._lock:
+            return write_json(path, self._workspace())
 
     @classmethod
     def from_workspace(cls, path: Path, output_dir: Path | None = None) -> Session:
         """Reopen stored evidence/results without executing an analysis."""
         workspace = read_json(path)
-        if not isinstance(workspace, dict) or type(workspace.get("workspace_version")) is not int or workspace["workspace_version"] not in (1, 2, 3):
+        if not isinstance(workspace, dict) or type(workspace.get("workspace_version")) is not int or workspace["workspace_version"] not in (1, 2, 3, 4):
             raise ValueError("Unsupported workspace format")
         from .workbench import Workbench
-        if workspace["workspace_version"] == 3:
+        if workspace["workspace_version"] in (3, 4):
             retained_workbench = Workbench.restore(workspace.get("workbench"))
         else:
             if "workbench" in workspace:
                 raise ValueError("Retained workbench sources require workspace version 3")
             retained_workbench = Workbench()
+        if workspace["workspace_version"] < 4 and "correction_journal" in workspace:
+            raise ValueError("Retained correction journal requires workspace version 4")
         run = workspace.get("run")
         _validate_evidence(run)
         selection = workspace.get("selection")
@@ -659,11 +710,17 @@ class Session:
         native_results = {entry["result_id"] for entry in retained_workbench.native_result_summaries()}
         if (execution_ids | set(execution_map) | set(result_map)) & (native_occurrences | native_results):
             raise ValueError("Identity collision between recording operations and retained workflows")
+        from .correction_journal import CorrectionJournal
+        from .dependency_graph import artifact_graph
+        journal = (CorrectionJournal.restore(workspace.get("correction_journal"),
+                    artifact_graph(run, result_map, execution_map, retained_workbench))
+                   if workspace["workspace_version"] == 4 else CorrectionJournal())
         restored = cls(run, output_dir or Path(path).parent)
         restored.selection = copy.deepcopy(selection)
         restored.results = copy.deepcopy(result_map)
         restored.executions = copy.deepcopy(execution_map)
         restored.workbench = retained_workbench
+        restored.correction_journal = journal
         for result in restored.results.values():
             write_json(restored.output_dir / (result["result_id"] + ".json"), result)
         for execution in restored.executions.values():
