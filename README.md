@@ -122,6 +122,16 @@ branch and status rather than assuming its implementation has been merged into
 this checkout. Recorded qualification is scoped to its exact configuration;
 visual agreement, numerical agreement and physical validation are different claims.
 
+## Bounded atmospheric model
+
+`net atmosphere` retains a declared dry hydrostatic column with temperature,
+pressure, density, sound speed, viscosity and constant local ENU wind.
+Independent hydrostatic quadrature and typed preservation receipts qualify the
+numerical profile; exact-sample handoffs retain evidence identities and require
+fresh verification. [Atmospheric engine](docs/ATMOSPHERIC_ENGINE.md) documents
+the validity domain and expansion routes. Weather forecasting, measured physical
+validation and receiving-provider dynamics remain unestablished.
+
 ## Quickstart
 
 Use the [existing quickstart](TECHNICAL_REFERENCE.md#quickstart) for the exact
