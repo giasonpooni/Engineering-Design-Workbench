@@ -116,6 +116,9 @@ def _node(name: str, operation: str, dependencies: list[str] | None = None) -> d
 
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
+    if argv and argv[0] == "polymer":
+        from .polymer_cli import main as polymer_main
+        return polymer_main(argv[1:])
     if argv and argv[0] == "compose":
         from .workflow_cli import main as compose_main
         return compose_main(argv[1:])
