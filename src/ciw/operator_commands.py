@@ -21,6 +21,7 @@ COMMANDS = (
     ('lab', 'preservation_experiments', 'Run bounded shared-preservation experiments'),
     ('foundry', 'foundry_workflow', 'Run explicit foundry workflows and childhood compilation'),
     ('atmosphere', 'atmosphere_cli', 'Compile and independently check a bounded dry atmospheric column'),
+    ('geomatics', 'geomatics_cli', 'Run, inspect and reproduce bounded GIS, Earth observation and urban-analysis tools'),
     ('object', 'computational_cli', 'Inspect committed source, export bounded context, and compare retained observations'),
     ('semantic', 'semantic_cli', 'Compile stable semantic capabilities into existing NET experiments'),
     ('instrument', 'instrument_cli', 'Inspect portable instrument manifests and verification reports'),

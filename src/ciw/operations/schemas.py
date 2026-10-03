@@ -29,6 +29,8 @@ def validate_request_dependencies(operation_id: str, parameters: dict, retained:
 
 
 def validate_role(operation_id: str, role: str) -> None:
+    if operation_id.startswith('geomatics.') and role != 'backend':
+        raise ValueError('Geomatics reference operations require the backend role')
     expected = {"statistics.v1": "analysis", "spectrum.periodogram.v1": "analysis",
                 "fsrt.tank-reconstruct.v1": "state_estimator",
                 "fsrt.tank-reconstruct.v2": "state_estimator",
@@ -105,6 +107,8 @@ def validate_payload(operation_id: str, data: dict, run: dict, parameters: dict,
         from ..fluid_workflow import validate_payload as validator
     elif operation_id in {"atmosphere.compile.v1", "atmosphere.verify.v1"}:
         from ..atmosphere_workflow import validate_payload as validator
+    elif operation_id.startswith('geomatics.'):
+        from ..geomatics_workflow import validate_payload as validator
     elif operation_id in {"polymer.assess-cycle.v1", "polymer.copilot-context.v1",
                           "polymer.control-simulate.v1", "polymer.verify-cycle.v1"}:
         from ..polymer_workflow import validate_payload as validator
