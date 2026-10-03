@@ -1,0 +1,4 @@
+# The Nexus fork pins this nightly at its root; the adapter builds with
+# the same toolchain so host-side behavior matches the fork's own.
+[toolchain]
+channel = "nightly-2025-05-09"

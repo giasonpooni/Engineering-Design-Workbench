@@ -1,0 +1,23 @@
+# What the SDIST carries, which is not what the wheel carries and not
+# what setuptools includes by default.
+#
+# THE DEFECT THIS FILE EXISTS FOR. Without it, the sdist held all 13
+# `tests/test_*.py` and none of `tests/conftest.py`,
+# `tests/fixtures_time_series.py` or `tests/__init__.py` -- setuptools'
+# default sdist rules pick up test modules but not the support beside
+# them. Unpacking the released sdist and running `python -m pytest
+# tests/` then failed at COLLECTION, on the very command the README
+# gives contributors.
+#
+# It was invisible from every direction already checked: the wheel is
+# correct (it ships no tests at all, by design), the emitted tree is
+# correct, and `provenance-pool`'s sdist is correct -- but only because
+# it has no test helpers for the default rules to miss.
+include LICENSE
+include NOTICE
+include README.md
+include pyproject.toml
+recursive-include tests *.py
+graft renderer
+global-exclude __pycache__
+global-exclude *.py[cod]

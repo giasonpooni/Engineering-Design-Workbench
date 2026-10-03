@@ -1,0 +1,11 @@
+{
+  "schema": "invariant-corpus-v1",
+  "claim_scope": "computational-integrity-only",
+  "cites": "giasonpooni/Construction-State-Estimator-for-BIM",
+  "invariants": [
+    {"id": "plant.declared", "kind": "identity", "statement": "estimator only runs on a declared plant and measurement model."}
+  ],
+  "free_coordinates": [
+    {"id": "var.x", "quantity": "state", "needs": ["declared-H"]}
+  ]
+}

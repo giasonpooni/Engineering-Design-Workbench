@@ -1,0 +1,21 @@
+# The RISC Zero heat-diffusion guest: third backend, same kernel, same
+# commitment crates, same statement discipline. Built with the r0.1.97.0
+# toolchain (linked as `risc0`) for riscv32im-risc0-zkvm-elf.
+[package]
+name = "ste-guest-heat-risc0"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+risc0-zkvm = { path = "../../../notationsystems/risc0-zero/risc0/zkvm", default-features = false }
+execution-kernel = { path = "../../crates/execution-kernel" }
+execution-commitment = { path = "../../crates/execution-commitment" }
+execution-model = { path = "../../crates/execution-model" }
+
+[workspace]
+
+[profile.release]
+lto = true
+opt-level = 3
+codegen-units = 1

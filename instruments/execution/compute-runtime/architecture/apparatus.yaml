@@ -1,0 +1,92 @@
+# WHAT THIS APPARATUS IS, WITHIN THE COMPANY.
+#
+# Declared HERE, in this repository, by the party it describes. The
+# ecosystem register (architecture/exchange/ecosystem_register.yaml)
+# reads this file and reports its absence for any apparatus that has
+# none -- it does NOT fill one in. A role written on another party's
+# behalf would be a self-declaration that party is entitled to make and
+# this one is not, which is the same provenance-entitlement rule the
+# invariant register applies to every other claim.
+#
+# So the ecosystem becomes coherent by each apparatus declaring itself,
+# not by one of them writing a roster.
+extends: core@1.0.0
+
+apparatus: Scientific Computation Runtime
+# Retained compatibility label; display-name changes do not migrate identities.
+label: STE
+company: Notation Systems
+
+role: >-
+  the CORE the other apparatuses resolve against, and the computation
+  and warrant layer of the corpus. It declares the core schema version
+  (architecture/core.yaml), holds the canonical state and projection
+  machinery, carries the chemistry vertical's admission gates, and
+  produces the proof-bearing execution records that make a computed
+  result checkable by its consumer rather than trusted.
+
+supplies_which_half_of_the_company_claim: >-
+  "provenance-bearing computational corpora" has two halves and this
+  apparatus supplies the second. The corpus is acquired elsewhere; what
+  is added here is that a computed result carries what it was computed
+  from. COMPUTATION is never MEASUREMENT: no production path in this
+  repository mints the `measured` class, and that is a declared boundary
+  rather than a gap waiting to be closed.
+
+# CORRECTED BY MEASUREMENT, 2026-09-03. This row previously ended "...
+# and can be recomputed by the party reading it". That is true of ONE
+# path and weaker on the other, and the sentence did not distinguish
+# them -- an overclaim in a self-declaration, which is the kind this
+# repository has the least excuse for.
+#
+# architecture/recomputability.py ATTEMPTS the recomputation rather than
+# describing it, and architecture/exchange/recomputability.yaml records
+# what it got.
+recomputability:
+  measured_by: architecture/recomputability.py
+  record: architecture/exchange/recomputability.yaml
+  execution_path: >-
+    SELF_CONTAINED. An ExecutionSpecification carries the PROGRAM
+    ITSELF, not a name for it, and its identity is a commitment over
+    (program, configuration, input). A reader holding the record holds
+    everything the computation consumed -- which is why this path can be
+    proved at all, since a proof about a program nobody can exhibit
+    proves nothing a reader can check.
+  derivation_path: >-
+    NAMES_ITS_METHOD. A DerivedValue carries `method` as a STRING. It
+    says what was done and is part of the record's identity, so two
+    derivations by different methods are different facts and cannot be
+    confused downstream. It is not a definition: a reader cannot obtain
+    the method from the record, and recomputation requires the reader to
+    already possess it.
+  the_distinction: >-
+    provenance-bearing is not the same as self-sufficient. Both paths
+    are the first; only one is the second, and the claim above now says
+    only the first.
+  what_would_close_it: >-
+    carrying a DIGEST of the method's definition, as the execution path
+    carries the program, so a reader could at least check that the
+    method it holds is the method that ran. NOT DONE: it changes what a
+    DerivedValue is, which is a core-schema change under bend_protocol,
+    and it is a decision rather than a measurement.
+
+what_it_declares_for_the_others:
+  core_version: architecture/core.yaml
+  bend_protocol: >-
+    a core invariant changes only under a version increment, a re-run of
+    every declared vertical and probe, and an explicit statement of what
+    is no longer guaranteed.
+  derived_registers:
+    - architecture/exchange/invariant_register.yaml
+    - architecture/exchange/ecosystem_register.yaml
+
+what_it_does_not_claim:
+  not_the_acquisition_layer: >-
+    this repository does not acquire from real sources. Its scout
+    pipeline reads fixtures, and every rejection rate it has measured is
+    over PLANTED candidates -- which measures that the plants arrived,
+    not that any corpus is dirty.
+  not_a_roster: >-
+    this file describes ONE apparatus. The other two bind the same core
+    and each carries no role declaration; that absence is reported by
+    the ecosystem register and is theirs to close.

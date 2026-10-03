@@ -1,0 +1,19 @@
+out/
+out2/
+__pycache__/
+*.pyc
+.pytest_cache/
+.ruff_cache/
+*.egg-info/
+.venv/
+
+# Local development notes and coordination
+/AGENTS.md
+/CLAUDE.md
+/.agents/
+/.claude/
+/.codex/
+/docs/*HANDOFF*
+/docs/*ROADMAP*
+/internal/
+/private/

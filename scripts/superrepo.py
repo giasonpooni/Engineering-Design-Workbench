@@ -1,0 +1,133 @@
+"""Operate the consolidated engineering workspace without changing package boundaries."""
+from __future__ import annotations
+
+import argparse
+from datetime import datetime, timezone
+import json
+import os
+from pathlib import Path
+import subprocess
+import sys
+import uuid
+
+from monorepo import ROOT, git, load_manifest, verify_imports
+
+GATES = {
+    "measurement": "check_monorepo.py",
+    "inference": "check_monorepo_inference.py",
+    "math": "check_monorepo_math.py",
+    "flowstate": "check_monorepo_flowstate.py",
+    "operations": "check_monorepo_operations.py",
+    "surface": "check_monorepo_surface.py",
+    "web": "check_monorepo_web.py",
+}
+
+
+def check(args):
+    groups = list(dict.fromkeys(args.group or GATES))
+    output = args.output_dir.expanduser().resolve()
+    output.mkdir(parents=True, exist_ok=True)
+    report = {
+        "schema": "notations.superrepo-qualification.v1",
+        "verification_id": "verification:" + uuid.uuid4().hex,
+        "created_at": datetime.now(timezone.utc).isoformat(),
+        "terminal_revision": git(ROOT, "rev-parse", "HEAD").decode().strip(),
+        "independent_verification": False,
+        "admission": "not_performed",
+        "groups": {},
+        "status": "running",
+    }
+    try:
+        report["imports"] = verify_imports(ROOT)
+        run_output = output / report["verification_id"].split(":", 1)[1]
+        run_output.mkdir(exist_ok=False)
+        verification_ids = {report["verification_id"]}
+        environment = dict(os.environ)
+        if args.node_bin:
+            node_bin = args.node_bin.expanduser().resolve()
+            if not node_bin.is_dir():
+                raise ValueError("--node-bin must be an existing trusted toolchain directory")
+            environment["PATH"] = str(node_bin) + os.pathsep + environment.get("PATH", "")
+        for group in groups:
+            # Each invocation has fresh evidence paths; a previous passed
+            # report cannot stand in for a child that failed to write one.
+            group_output = run_output / group
+            command = [sys.executable, str(ROOT / "scripts" / GATES[group]),
+                       "--output-dir", str(group_output)]
+            if group == "operations" and args.cargo:
+                command += ["--cargo", str(args.cargo.expanduser().resolve())]
+            if group == "flowstate" and args.full_reproduction:
+                command += ["--full-reproduction"]
+            print("Qualifying " + group, flush=True)
+            process = subprocess.run(command, cwd=ROOT, env=environment, check=False)
+            evidence = group_output / "report.json"
+            result = {"exit_code": process.returncode, "report": str(evidence),
+                      "status": "failed"}
+            if evidence.is_file():
+                qualification = json.loads(evidence.read_text())
+                if not isinstance(qualification, dict):
+                    raise ValueError("Child qualification evidence must be an object: " + group)
+                schema = ("notations.monorepo-gate-report.v1" if group == "measurement"
+                          else "notations.monorepo-" + group + "-gate.v1")
+                if qualification.get("schema") != schema:
+                    raise ValueError("Unexpected child qualification schema: " + group)
+                result["verification_id"] = qualification.get("verification_id")
+                identity = result["verification_id"]
+                if (not isinstance(identity, str) or not identity.startswith("verification:")
+                        or len(identity.split(":", 1)[1]) != 32):
+                    raise ValueError("Child evidence lacks a fresh verification identity: " + group)
+                if uuid.UUID(hex=identity.split(":", 1)[1]).hex != identity.split(":", 1)[1] or identity in verification_ids:
+                    raise ValueError("Child evidence lacks a fresh verification identity: " + group)
+                verification_ids.add(identity)
+                if qualification.get("terminal_revision") != report["terminal_revision"]:
+                    raise ValueError("The repository revision changed during qualification")
+                if "error" in qualification:
+                    result["error"] = qualification["error"]
+                if process.returncode == 0 and qualification.get("status") == "passed":
+                    result["status"] = "passed"
+            else:
+                result["error"] = {"type": "MissingEvidence", "message": "The child did not write its qualification report"}
+            report["groups"][group] = result
+        report["post_execution_imports"] = verify_imports(ROOT)
+        if git(ROOT, "rev-parse", "HEAD").decode().strip() != report["terminal_revision"]:
+            raise ValueError("The repository revision changed during qualification")
+        report["status"] = "passed" if all(r["status"] == "passed" for r in report["groups"].values()) else "failed"
+    except (OSError, ValueError, subprocess.CalledProcessError) as error:
+        report.update(status="failed", error={"type": type(error).__name__, "message": str(error)})
+    finally:
+        (output / "report.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
+    print("Superrepo qualification " + report["status"] + ": " + str(output / "report.json"))
+    return 0 if report["status"] == "passed" else 1
+
+
+def main(argv=None):
+    parser = argparse.ArgumentParser(description=__doc__)
+    subcommands = parser.add_subparsers(dest="command", required=True)
+    inventory = subcommands.add_parser("list", help="List original package identities and execution pins")
+    inventory.add_argument("--json", action="store_true")
+    subcommands.add_parser("audit", help="Verify original histories, source bytes, licenses and execution bindings")
+    qualification = subcommands.add_parser("check", help="Run isolated original-package and composed-workflow gates")
+    qualification.add_argument("--group", choices=list(GATES), action="append", help="Select lanes; repeat to combine. Default: all")
+    qualification.add_argument("--output-dir", type=Path, default=ROOT / "results/superrepo")
+    qualification.add_argument("--cargo", type=Path, help="Trusted Cargo executable for the operations lane")
+    qualification.add_argument("--node-bin", type=Path, help="Trusted directory containing Node 24 and npm")
+    qualification.add_argument("--full-reproduction", action="store_true", help="Include original slow FlowState reproductions")
+    args = parser.parse_args(argv)
+    if args.command == "check":
+        return check(args)
+    if args.command == "audit":
+        print(json.dumps({"schema": "notations.monorepo-audit.v1", "imports": verify_imports(ROOT)}, indent=2))
+        return 0
+    modules = load_manifest(ROOT)["modules"]
+    if args.json:
+        print(json.dumps(modules, indent=2))
+    else:
+        print("ROLE\tPACKAGE\tVERSION\tBUILD\tPATH\tNET RUNTIME")
+        for module in modules:
+            print("\t".join(str(value) for value in (module["role"], module["distribution"], module["version"],
+                module.get("build_kind", "python"), module["path"], module["runtime_revision"] or "undeclared")))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

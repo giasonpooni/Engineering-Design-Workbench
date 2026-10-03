@@ -1,0 +1,20 @@
+# The SP1 heat-diffusion guest: second kernel, same layout, same
+# commitment crates, same toolchain and flags as guest-pairwise.
+[package]
+name = "ste-guest-heat"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+sp1-zkvm = { path = "../../../notationsystems/SP1-zero-knowledge-virtual-machine/crates/zkvm/entrypoint" }
+execution-kernel = { path = "../../crates/execution-kernel" }
+execution-commitment = { path = "../../crates/execution-commitment" }
+execution-model = { path = "../../crates/execution-model" }
+
+[workspace]
+
+[profile.release]
+lto = true
+opt-level = 3
+codegen-units = 1

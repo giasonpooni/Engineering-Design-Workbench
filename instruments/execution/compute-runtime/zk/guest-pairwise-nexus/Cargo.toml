@@ -1,0 +1,24 @@
+# The Nexus guest: the SAME pairwise-energy kernel and the SAME
+# commitment crates as the SP1 guest, compiled for a third target
+# (riscv32im-unknown-none-elf, Nexus's standard-toolchain target).
+# NOT a member of any workspace. Built with nightly-2025-05-09 (the
+# fork's pinned toolchain) and the fork's own linker script
+# (nexus-linker.x, copied verbatim from sdk/src/compile/linker-scripts/).
+[package]
+name = "ste-guest-pairwise-nexus"
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[dependencies]
+nexus-rt = { path = "../../../notationsystems/nexus-zkvm/runtime" }
+execution-kernel = { path = "../../crates/execution-kernel" }
+execution-commitment = { path = "../../crates/execution-commitment" }
+execution-model = { path = "../../crates/execution-model" }
+
+[workspace]
+
+[profile.release]
+lto = true
+opt-level = 3
+codegen-units = 1

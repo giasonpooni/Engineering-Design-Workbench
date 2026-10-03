@@ -1,0 +1,109 @@
+# The four immutable evidence classes and their invariants.
+# Executable form: evidence/classes.py; locks: tests/test_architecture_sync.py.
+extends: core@1.0.0
+
+classes:
+  measured:
+    meaning: a physical measurement by a declared instrument method
+    minted_by: []          # INSPECTED 2026-08-25 -- no production ingest
+                           # path mints this class in this repository;
+                           # COMPUTATION != MEASUREMENT is load-bearing.
+  asserted:
+    meaning: a source's claim, carried by extraction from a document
+    minted_by: [scout/extraction.py, scout/pipeline.py]
+  computed:
+    meaning: the result of a declared computation
+    minted_by: [execution/dispatcher.py]   # "simulation:*" -> materials/results.py
+  derived:
+    meaning: inference over other evidence
+    minted_by: [evidence/types.py::DerivedValue]
+
+# extraction_method prefix -> class (the executable map is authoritative;
+# this mirror exists so registry diffs surface vocabulary changes)
+prefix_map:
+  "measurement:": measured
+  "simulation:": computed
+  "model:": asserted        # a model-extracted claim is still the document's claim
+  "regex:": asserted
+  "fixture:": asserted
+  "human_transcription": asserted
+  "OCR": asserted
+  "fit:": derived
+
+# SCOPE AND OWNERSHIP. The four `identified` rows below are about the
+# MODEL/TRAINING lineage, which this repository does not hold: there is
+# no corpus assembly, no prediction path and no depth>1 derivation here.
+# The acquisition layer holds all of it and owns these invariants.
+#
+# Each therefore declares `scope: this_repository` and NAMES its owner
+# instead of stating a status for the invariant as such. The status that
+# follows is this repository's own state and nothing more.
+#
+# WHAT IS DELIBERATELY ABSENT: the owner's status. It is not written
+# down here at any version. The derived register resolves it from the
+# owner's live source on every run (`owner_status_resolved`), because a
+# transcribed status is exactly the artifact that went two corrections
+# stale in this project while every local suite in both repositories
+# stayed green. A pointer that resolves cannot do that; a copy always
+# can.
+invariants:
+  - id: class_assigned_at_ingest
+    rule: the evidence class is a total, fail-closed function of the
+          extraction_method declared at ingest; extraction_method is part
+          of the observation's content-addressed identity, so no mutation
+          or promotion path exists -- a different class is a different
+          observation
+    status: enforced
+    enforcement:
+      validator: evidence.classes.class_of
+      locks: tests/test_architecture_sync.py
+      failure_mode: fail_closed
+  - id: proposals_are_not_evidence
+    rule: optimizer output (ActionCandidate) has no write path into the
+          EvidencePool; a proposal may be proposed, evaluated, executed
+          and validated, and becomes evidence only by the execution's
+          OWN result entering through the admission seam as computed
+          evidence about the computation
+    status: enforced
+    enforcement:
+      validator: structural (no admissible type, no optimizer pool write)
+      locks: tests/test_architecture_sync.py
+      failure_mode: fail_closed
+  - id: no_circular_training
+    scope: this_repository
+    owner_elsewhere: DAQ
+    rule: a training corpus may not contain evidence derived from the
+          model being trained
+    status: identified      # no training-corpus assembly exists in this
+                            # repository; the enforcement point is any
+                            # future corpus builder, which must filter by
+                            # evidence class + lineage via evidence.classes
+    enforcement: {boundary: future corpus assembly, failure_mode: fail_closed}
+  - id: training_admissibility_declared
+    scope: this_repository
+    owner_elsewhere: DAQ
+    rule: admissibility for training is declared at ingest, never
+          inferred afterwards
+    status: identified      # same absent boundary as no_circular_training
+    enforcement: {boundary: future corpus assembly, failure_mode: fail_closed}
+  - id: generation_depth_bounded
+    scope: this_repository
+    owner_elsewhere: DAQ
+    rule: derived-over-derived beyond depth 2 requires a measured or
+          asserted ancestor
+    status: identified      # DerivedGrounding edges exist and make depth
+                            # computable; no depth>1 derivation is minted
+                            # today; enforcement point is admit_derived_grounding
+    enforcement: {boundary: evidence.admission.admit_derived_grounding,
+                  failure_mode: fail_closed}
+  - id: prediction_carries_uncertainty
+    scope: this_repository
+    owner_elsewhere: DAQ
+    rule: a prediction without calibrated uncertainty is inadmissible for
+          canonical assertion
+    status: identified      # Observation.confidence is required and
+                            # bounded today (partial); no prediction path
+                            # exists; materials/quantity.py provides the
+                            # typed-uncertainty form future predictions
+                            # must carry
+    enforcement: {boundary: prediction ingest (absent), failure_mode: fail_closed}

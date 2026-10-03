@@ -1,0 +1,17 @@
+# What the SDIST carries. Declared rather than left to setuptools'
+# defaults, which pick up `tests/test_*.py` and NOT support files beside
+# them -- a conftest, a shared fixture module, an __init__.
+#
+# This distribution has no such files today, so its sdist was correct
+# WITHOUT this file. That is accident, not agreement: the first conftest
+# anyone adds here would vanish from the sdist silently, and the released
+# suite would stop collecting while everything checked in this repository
+# stayed green. Its sibling `canonical-state` has a conftest, hit exactly
+# that, and is where the rule was found.
+include LICENSE
+include NOTICE
+include README.md
+include pyproject.toml
+recursive-include tests *.py
+global-exclude __pycache__
+global-exclude *.py[cod]

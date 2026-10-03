@@ -1,0 +1,607 @@
+{
+  "schema_version": "fsre-calibration-v1",
+  "n_seeds": 20,
+  "provenance": {
+    "python": "3.13.12",
+    "numpy": "2.5.3",
+    "platform": "Linux-6.18.44-fc-v33-x86_64-with-glibc2.39",
+    "machine": "x86_64",
+    "source_sha256": "33e4e335962bfce362c1a9fbc779463fe3c91490425cc4f05e926a12a8da79a6",
+    "git_head": "ec69c5a08c5ac8d3383964659cbbe6009f138a20",
+    "source_dirty": false,
+    "note": "git_head is HEAD at generation time (the parent of the commit containing these results); source_dirty covers src/, run_experiments.py, pyproject.toml and tests/ only"
+  },
+  "null": {
+    "closed_noise": {
+      "window": [
+        0,
+        600
+      ],
+      "n_seeds": 20,
+      "n_samples": 12000,
+      "mean": 0.599359910158629,
+      "q95": 2.5452014341556786,
+      "q99": 4.2843038389207875,
+      "q999": 6.206487470321402,
+      "exceedance": {
+        "chi2_1(0.95)": {
+          "empirical": 0.016,
+          "nominal": 0.05
+        },
+        "chi2_1(0.99)": {
+          "empirical": 0.0005,
+          "nominal": 0.01
+        },
+        "chi2_1(0.999)": {
+          "empirical": 0.0,
+          "nominal": 0.001
+        }
+      },
+      "lag1_autocorr": 0.9349396738306736,
+      "autocorr_time": 29.740700481500607,
+      "effective_samples": 403.487470224996
+    },
+    "closed_blackout_pumpbias": {
+      "window": [
+        0,
+        50
+      ],
+      "n_seeds": 20,
+      "n_samples": 1000,
+      "mean": 0.6442583386497417,
+      "q95": 2.0997684876088,
+      "q99": 3.0660730181455866,
+      "q999": 5.479034975542271,
+      "exceedance": {
+        "chi2_1(0.95)": {
+          "empirical": 0.005,
+          "nominal": 0.05
+        },
+        "chi2_1(0.99)": {
+          "empirical": 0.0,
+          "nominal": 0.01
+        },
+        "chi2_1(0.999)": {
+          "empirical": 0.0,
+          "nominal": 0.001
+        }
+      },
+      "lag1_autocorr": 0.7607173095683178,
+      "autocorr_time": 7.358314579261311,
+      "effective_samples": 135.9006861188569
+    },
+    "leak_stale_constraint": {
+      "window": [
+        0,
+        300
+      ],
+      "n_seeds": 20,
+      "n_samples": 6000,
+      "mean": 0.5697926676092083,
+      "q95": 2.234268645079759,
+      "q99": 4.854454021284613,
+      "q999": 9.837441533045098,
+      "exceedance": {
+        "chi2_1(0.95)": {
+          "empirical": 0.016166666666666666,
+          "nominal": 0.05
+        },
+        "chi2_1(0.99)": {
+          "empirical": 0.005333333333333333,
+          "nominal": 0.01
+        },
+        "chi2_1(0.999)": {
+          "empirical": 0.0008333333333333334,
+          "nominal": 0.001
+        }
+      },
+      "lag1_autocorr": 0.9005740203973704,
+      "autocorr_time": 19.11546688293434,
+      "effective_samples": 313.88194893406467
+    },
+    "bias_quant_delay": {
+      "window": [
+        0,
+        200
+      ],
+      "n_seeds": 20,
+      "n_samples": 4000,
+      "mean": 0.46311791249777207,
+      "q95": 1.599211027478094,
+      "q99": 3.575083040321482,
+      "q999": 8.858957824448945,
+      "exceedance": {
+        "chi2_1(0.95)": {
+          "empirical": 0.00975,
+          "nominal": 0.05
+        },
+        "chi2_1(0.99)": {
+          "empirical": 0.00325,
+          "nominal": 0.01
+        },
+        "chi2_1(0.999)": {
+          "empirical": 0.00025,
+          "nominal": 0.001
+        }
+      },
+      "lag1_autocorr": 0.85372867566078,
+      "autocorr_time": 12.6732200179016,
+      "effective_samples": 315.6261782206721
+    }
+  },
+  "threshold_sweep": [
+    {
+      "q": 0.95,
+      "debounce": 1,
+      "fa_rate": 0.016166666666666666,
+      "fa_max": 37,
+      "detected_within": 20,
+      "n": 20,
+      "median_delay": 44.5,
+      "median_censored": false,
+      "rmse": 1.0779184615907356,
+      "cov95": 0.5779166666666666,
+      "nz": 3.5395607332759176,
+      "held": 260.2
+    },
+    {
+      "q": 0.95,
+      "debounce": 3,
+      "fa_rate": 0.0115,
+      "fa_max": 33,
+      "detected_within": 20,
+      "n": 20,
+      "median_delay": 50.5,
+      "median_censored": false,
+      "rmse": 1.0816589243288872,
+      "cov95": 0.5751666666666667,
+      "nz": 3.5752305658470824,
+      "held": 255.8
+    },
+    {
+      "q": 0.95,
+      "debounce": 10,
+      "fa_rate": 0.005666666666666667,
+      "fa_max": 19,
+      "detected_within": 20,
+      "n": 20,
+      "median_delay": 59.0,
+      "median_censored": false,
+      "rmse": 1.0946190682115478,
+      "cov95": 0.5662499999999999,
+      "nz": 3.6863612634967042,
+      "held": 246.55
+    },
+    {
+      "q": 0.99,
+      "debounce": 1,
+      "fa_rate": 0.005333333333333333,
+      "fa_max": 20,
+      "detected_within": 20,
+      "n": 20,
+      "median_delay": 54.5,
+      "median_censored": false,
+      "rmse": 1.0897525958867553,
+      "cov95": 0.5691666666666667,
+      "nz": 3.646525120381471,
+      "held": 248.6
+    },
+    {
+      "q": 0.99,
+      "debounce": 3,
+      "fa_rate": 0.0036666666666666666,
+      "fa_max": 17,
+      "detected_within": 20,
+      "n": 20,
+      "median_delay": 58.0,
+      "median_censored": false,
+      "rmse": 1.0950273769157433,
+      "cov95": 0.5655833333333334,
+      "nz": 3.6903803215713102,
+      "held": 245.4
+    },
+    {
+      "q": 0.99,
+      "debounce": 10,
+      "fa_rate": 0.0016666666666666666,
+      "fa_max": 10,
+      "detected_within": 20,
+      "n": 20,
+      "median_delay": 65.0,
+      "median_censored": false,
+      "rmse": 1.1119416550832775,
+      "cov95": 0.5551666666666668,
+      "nz": 3.824772182249415,
+      "held": 237.75
+    },
+    {
+      "q": 0.999,
+      "debounce": 1,
+      "fa_rate": 0.0008333333333333333,
+      "fa_max": 4,
+      "detected_within": 20,
+      "n": 20,
+      "median_delay": 64.0,
+      "median_censored": false,
+      "rmse": 1.1110087733826666,
+      "cov95": 0.5548333333333334,
+      "nz": 3.8211601194564375,
+      "held": 237.05
+    },
+    {
+      "q": 0.999,
+      "debounce": 3,
+      "fa_rate": 0.0001666666666666667,
+      "fa_max": 1,
+      "detected_within": 20,
+      "n": 20,
+      "median_delay": 66.0,
+      "median_censored": false,
+      "rmse": 1.1167477503287735,
+      "cov95": 0.5514166666666667,
+      "nz": 3.8650430827218605,
+      "held": 234.8
+    },
+    {
+      "q": 0.999,
+      "debounce": 10,
+      "fa_rate": 0.0,
+      "fa_max": 0,
+      "detected_within": 20,
+      "n": 20,
+      "median_delay": 73.0,
+      "median_censored": false,
+      "rmse": 1.139887040188422,
+      "cov95": 0.5397500000000001,
+      "nz": 4.03447088625352,
+      "held": 227.75
+    }
+  ],
+  "cusum_null": {
+    "k": 0.5,
+    "hs": [
+      4.0,
+      6.0,
+      8.0,
+      10.0
+    ],
+    "shipped_h": 8.0,
+    "windows": {
+      "closed_noise": {
+        "window": [
+          0,
+          600
+        ],
+        "n_seeds": 20,
+        "n_steps_per_sensor": 12000,
+        "by_h": {
+          "4": {
+            "alarms": [
+              63,
+              34
+            ],
+            "seeds_with_alarm": [
+              19,
+              19
+            ],
+            "max_stat": [
+              5.617459246131487,
+              5.439831994469413
+            ]
+          },
+          "6": {
+            "alarms": [
+              7,
+              2
+            ],
+            "seeds_with_alarm": [
+              6,
+              2
+            ],
+            "max_stat": [
+              7.113782871452686,
+              6.728666829713621
+            ]
+          },
+          "8": {
+            "alarms": [
+              0,
+              0
+            ],
+            "seeds_with_alarm": [
+              0,
+              0
+            ],
+            "max_stat": [
+              7.546142962058273,
+              7.729427341370542
+            ]
+          },
+          "10": {
+            "alarms": [
+              0,
+              0
+            ],
+            "seeds_with_alarm": [
+              0,
+              0
+            ],
+            "max_stat": [
+              7.546142962058273,
+              7.729427341370542
+            ]
+          },
+          "inf": {
+            "alarms": [
+              0,
+              0
+            ],
+            "seeds_with_alarm": [
+              0,
+              0
+            ],
+            "max_stat": [
+              7.546142962058273,
+              7.729427341370542
+            ]
+          }
+        }
+      },
+      "closed_blackout_pumpbias": {
+        "window": [
+          0,
+          50
+        ],
+        "n_seeds": 20,
+        "n_steps_per_sensor": 1000,
+        "by_h": {
+          "4": {
+            "alarms": [
+              4,
+              4
+            ],
+            "seeds_with_alarm": [
+              4,
+              4
+            ],
+            "max_stat": [
+              4.418693638753391,
+              5.137425691407829
+            ]
+          },
+          "6": {
+            "alarms": [
+              1,
+              1
+            ],
+            "seeds_with_alarm": [
+              1,
+              1
+            ],
+            "max_stat": [
+              6.00291305002216,
+              6.049069132340784
+            ]
+          },
+          "8": {
+            "alarms": [
+              0,
+              0
+            ],
+            "seeds_with_alarm": [
+              0,
+              0
+            ],
+            "max_stat": [
+              6.042162319360976,
+              6.049069132340784
+            ]
+          },
+          "10": {
+            "alarms": [
+              0,
+              0
+            ],
+            "seeds_with_alarm": [
+              0,
+              0
+            ],
+            "max_stat": [
+              6.042162319360976,
+              6.049069132340784
+            ]
+          },
+          "inf": {
+            "alarms": [
+              0,
+              0
+            ],
+            "seeds_with_alarm": [
+              0,
+              0
+            ],
+            "max_stat": [
+              6.042162319360976,
+              6.049069132340784
+            ]
+          }
+        }
+      },
+      "leak_stale_constraint": {
+        "window": [
+          0,
+          300
+        ],
+        "n_seeds": 20,
+        "n_steps_per_sensor": 6000,
+        "by_h": {
+          "4": {
+            "alarms": [
+              23,
+              36
+            ],
+            "seeds_with_alarm": [
+              15,
+              16
+            ],
+            "max_stat": [
+              5.087156865726307,
+              5.9015496086976
+            ]
+          },
+          "6": {
+            "alarms": [
+              2,
+              4
+            ],
+            "seeds_with_alarm": [
+              2,
+              4
+            ],
+            "max_stat": [
+              7.0868789771203025,
+              6.628252632643415
+            ]
+          },
+          "8": {
+            "alarms": [
+              1,
+              1
+            ],
+            "seeds_with_alarm": [
+              1,
+              1
+            ],
+            "max_stat": [
+              8.163864789026565,
+              8.312427443350616
+            ]
+          },
+          "10": {
+            "alarms": [
+              0,
+              0
+            ],
+            "seeds_with_alarm": [
+              0,
+              0
+            ],
+            "max_stat": [
+              9.123287445475093,
+              8.312427443350616
+            ]
+          },
+          "inf": {
+            "alarms": [
+              0,
+              0
+            ],
+            "seeds_with_alarm": [
+              0,
+              0
+            ],
+            "max_stat": [
+              9.123287445475093,
+              8.312427443350616
+            ]
+          }
+        }
+      },
+      "bias_quant_delay": {
+        "window": [
+          0,
+          200
+        ],
+        "n_seeds": 20,
+        "n_steps_per_sensor": 4000,
+        "by_h": {
+          "4": {
+            "alarms": [
+              20,
+              19
+            ],
+            "seeds_with_alarm": [
+              14,
+              11
+            ],
+            "max_stat": [
+              5.550183743894767,
+              5.346797034008349
+            ]
+          },
+          "6": {
+            "alarms": [
+              0,
+              0
+            ],
+            "seeds_with_alarm": [
+              0,
+              0
+            ],
+            "max_stat": [
+              5.996584068587607,
+              5.9067738997243895
+            ]
+          },
+          "8": {
+            "alarms": [
+              0,
+              0
+            ],
+            "seeds_with_alarm": [
+              0,
+              0
+            ],
+            "max_stat": [
+              5.996584068587607,
+              5.9067738997243895
+            ]
+          },
+          "10": {
+            "alarms": [
+              0,
+              0
+            ],
+            "seeds_with_alarm": [
+              0,
+              0
+            ],
+            "max_stat": [
+              5.996584068587607,
+              5.9067738997243895
+            ]
+          },
+          "inf": {
+            "alarms": [
+              0,
+              0
+            ],
+            "seeds_with_alarm": [
+              0,
+              0
+            ],
+            "max_stat": [
+              5.996584068587607,
+              5.9067738997243895
+            ]
+          }
+        }
+      }
+    },
+    "total_alarms_by_h": {
+      "4": 203,
+      "6": 17,
+      "8": 2,
+      "10": 0
+    },
+    "total_sensor_steps": 46000,
+    "fa_rate_by_h": {
+      "4": 0.0044130434782608694,
+      "6": 0.00036956521739130437,
+      "8": 4.347826086956522e-05,
+      "10": 0.0
+    },
+    "smallest_h_zero_alarms": 10.0,
+    "shipped_h_alarms": 2
+  }
+}

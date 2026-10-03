@@ -1,0 +1,100 @@
+# Model/engine bindings. Two layers, kept distinct and both recorded:
+#
+#  A. RUNTIME EXECUTORS -- what this repository's code actually runs.
+#     INSPECTED 2026-08-25: all locally built deterministic engines; no
+#     hosted model API client, key, or call site exists anywhere in the
+#     runtime.
+#  B. ROLE BINDINGS -- the intended agent-role deployment
+#     (role -> binding -> adapter -> execution). NOT INSTANTIATED in
+#     this repository: there is no deployment to inspect, so snapshot
+#     identifiers are recorded as UNPINNED rather than invented.
+extends: core@1.0.0
+
+runtime_executors:
+  - id: execution-cli
+    kind: native deterministic engine (Rust, zero-dependency workspace)
+    pinning: built from in-repo source; integer-only kernels
+    behavioral_canary: exact expected outputs pinned in tests (integer
+      kernel results asserted exactly; re-run on every validation pass)
+  - id: guest-elfs (sp1/nexus/risc0)
+    kind: zkVM guest programs
+    pinning: stage-5 reproducible builds -- content-addressed recipes,
+      registry sha256, independent rebuild (verify_build)
+    attested_identity: AVAILABLE (hash-verifiable, rebuildable; the
+      stage-5 gate refuses unregistered artifacts at prove/verify/export)
+  - id: zk-hosts (sp1-host/nexus-host/risc0-host)
+    kind: prover/verifier drivers
+    pinning: built from pinned forks; SDK/circuit version embedded in
+      every proof and hard-checked at verification (VersionMismatch)
+  - id: gmx_d (GROMACS)
+    kind: external scientific engine (floating point)
+    pin_accepted: engine version line captured at descriptor build and
+      part of the program identity (a changed binary is a different
+      computation)
+    behavioral_canary: repeat-determinism check, same binary same machine
+    residual: behavioral drift behind a stable version line is
+      DETECTABLE BUT NOT PROVABLE; cross-machine bit-identity not claimed
+
+role_bindings:
+  status: not_instantiated_in_repository
+  intended_topology:
+    builder:   {vendor: anthropic, snapshot: UNPINNED, hosted: true}
+    scout:     {vendor: anthropic, snapshot: UNPINNED, hosted: true}
+    resolver:  {vendor: anthropic, snapshot: UNPINNED, hosted: true}
+    validator: {vendor: openai,    snapshot: UNPINNED, hosted: true}
+  rules:
+    - scout and resolver may share a vendor (proposal/resolution roles)
+    - validator remains vendor-independent from the proposing lineage
+    - snapshot identifiers are populated from the ACTUAL deployment at
+      instantiation time, never invented here
+    - vendor concurrence across bindings is not statistical independence
+
+snapshot_verification:
+  - id: pin_accepted
+    contract: startup call against the pinned identifier; fail_closed
+    detects: [deprecation, revocation, typo, misconfiguration]
+    limitation: does not detect served-weight substitution behind a
+      stable id
+    status: boundary implemented (architecture/snapshot_verification.py);
+      exercised against the deterministic runtime extractor; applies to
+      hosted bindings when instantiated
+  - id: behavioral_canary
+    contract: fixed in-repo fixtures at temperature 0, scored on
+      task-relevant STRUCTURED FIELDS (never raw output hashes);
+      committed noise floor and threshold; halt ingest + surface diff +
+      human re-pin on breach
+    status: boundary implemented and exercised against the deterministic
+      extractor (measured noise floor 0.0, threshold 0.0 -- exact,
+      because the reference extractor is deterministic); a hosted
+      binding must recalibrate its own noise floor with provenance
+    limitation: hosted inference is not bit-deterministic; drift behind
+      a stable identifier is DETECTABLE BUT NOT PROVABLE
+  - id: attested_identity
+    status: unavailable for hosted bindings; AVAILABLE for guest ELFs
+      (reproducible builds)
+    revisit_when: [vendor exposes attestable snapshot digest,
+                   open-weights binding instantiated]
+
+builder_lineage:
+  builder_authoring_binding: claude (anthropic) -- this session
+  proposing_binding: same
+  validator_authorship: the executable enforcement (tests, validators,
+    lints) is authored by the SAME binding that authors the proposals it
+    constrains
+  vendor_relationship: shared
+  review_record: in-repo test evidence + human review of pushed commits
+  unresolved: whether enforcement-code review must itself be
+    cross-vendor -- a process decision, FLAGGED, not defaulted
+
+migration:
+  inspected: EvidencePool has NO persistence layer; pools are
+    constructed per run and no serialized records exist -- greenfield in
+    the persistence sense (unclassified legacy count = 0)
+  registered_rules_for_when_persistence_lands:
+    legacy_class: unclassified
+    rules:
+      - unclassified records remain readable and retrievable
+      - unclassified records are inadmissible for canonical assertion and training
+      - classification produces a NEW record with provenance; legacy never mutated
+      - unclassified count is a reported metric
+    forbidden: [bypass flag, bulk auto-classification by inference]

@@ -1,0 +1,15 @@
+# The RISC Zero adapter workspace -- third proving ecosystem, third
+# isolated workspace. Same reasoning as zk/ (SP1) and zk/nexus/: the
+# substrate stays zero-dependency; adapters may not constrain each
+# other's dependency resolution; the arrow is adapter -> substrate only.
+[workspace]
+resolver = "2"
+members = ["risc0-adapter"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[profile.release]
+opt-level = 3

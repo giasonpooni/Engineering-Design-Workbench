@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "state-estimation-testbed"
+version = "0.3.0"
+description = "Instrument-exchange validation, declared-reference metrics and bound replay verification."
+requires-python = ">=3.11"
+dependencies = []
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]
+
+[tool.setuptools.packages.find]
+include = ["state_estimation_testbed*"]
+namespaces = false

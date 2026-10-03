@@ -78,6 +78,7 @@ or inspecting a record does not establish provider availability.
 
 ## Development and availability
 
+- [Engineering superrepo: module map, exact source histories and qualification commands](MONOREPO.md)
 - [Combined integration candidate and acceptance gates](INTEGRATION_CANDIDATE.md)
 - [Development guide](DEVELOPMENT.md)
 - [Development-window gap audit](DEVELOPMENT_GAPS.md)

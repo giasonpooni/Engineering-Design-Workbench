@@ -1,0 +1,175 @@
+# The canonical-state invariants: what the numbered set I1-I10 turns out
+# to be, measured against this tree.
+#
+# WHY THIS FILE EXISTS. architecture/invariants.yaml was treated as
+# "STE's invariant set" by a sibling's request and by this repository's
+# own answer to it. Both were wrong in the same way: that file registers
+# the EPISTEMIC layer -- evidence classes, provenance, admission,
+# doctrine, execution -- and the numbered set is about the
+# CANONICAL-STATE/PROJECTION core. They are two objects covering two
+# layers, and neither contains the other.
+#
+# THE RECONCILIATION, per numbered invariant, measured rather than
+# reconstructed. Every claim below was re-derived from the citations in
+# this tree. The acquisition layer built its own reconstruction from the
+# same documents; where this agrees with it, THAT IS NOT CONFIRMATION --
+# same source, same method, no independence. It is recorded as agreement
+# and nothing more.
+extends: core@1.0.0
+owner: STE
+
+relationship_to_architecture_invariants_yaml:
+  verdict: NAMES_THINGS_THE_YAML_DOES_NOT
+  not_superseded: >-
+    nothing replaced these. Four of them are enforced today by tests that
+    have never been retired.
+  not_a_subset: >-
+    containment fails in both directions. None of the six recoverable
+    numbered invariants has a counterpart among the 26 registered ids,
+    and none of the 26 was ever in the numbered set.
+  the_one_bridge: >-
+    I3's content -- nothing writes back into canonical state except
+    through validation -- is carried by the control_loop return edge in
+    architecture/invariants.yaml, which names canonical state explicitly
+    and is enforced and locked. That edge lives in the control_loop
+    block, not in the `invariants:` list, so it is not one of the 26.
+  what_that_means_practically: >-
+    citing architecture/invariants.yaml as "STE's invariants" loses the
+    canonical-state core entirely. That is not a defect in either file;
+    it is a gap nobody had stated, and stating it is this file.
+
+# ---------------------------------------------------------------------
+# Registered here because they are REAL and ENFORCED, under descriptive
+# ids rather than the brief's numbering. The numbering is recorded as
+# provenance, not adopted: this repository cannot verify what the brief
+# said, only what its own citations constrain.
+# ---------------------------------------------------------------------
+invariants:
+  - id: field_identity_is_the_key
+    numbered_as: I5
+    rule: a field's identity is its own key and never its value; the
+          identity does not change when the value does
+    recovery: fully -- eight citations, and the rule is stated verbatim
+              in core/canonical/state.py
+    status: enforced
+    enforcement:
+      validator: core.canonical.state (fields[key].id == key, checked on
+                 construction)
+      locks: tests/test_data_ingestion.py, tests/test_live_state_bridge.py
+      failure_mode: fail_closed
+
+  - id: edges_are_explicit_only
+    numbered_as: I4
+    rule: relationships in canonical state are stated, never inferred;
+          inference is marked downstream and never folded back
+    recovery: partially -- three citations agree, all on edges
+    status: enforced
+    enforcement:
+      validator: core.canonical.validation (an edge type the schema does
+                 not declare is refused)
+      locks: tests/test_canonical.py
+      failure_mode: fail_closed
+
+  - id: projection_is_deterministic
+    numbered_as: I6/I7
+    rule: the same (version, compiler version, config) always produces
+          the same projection, byte-equivalent and not merely equivalent
+    recovery: fully for the rule, partially for the split -- the two
+              numbers are cited together everywhere they appear, so
+              which half is which is not recoverable
+    status: enforced
+    enforcement:
+      validator: core.projection.project (pure over Version)
+      locks: tests/test_projection.py, tests/test_backends_threejs.py
+      failure_mode: fail_closed
+
+  - id: representation_never_enters_canonical_state
+    numbered_as: I8
+    rule: extrinsic representation state -- layout, viewport, render
+          config -- is never part of canonical state and no backend can
+          write back into it
+    recovery: partially -- three citations, consistent
+    status: enforced
+    enforcement:
+      validator: structural (backends hold no import of the canonical
+                 mutation surface)
+      locks: tests/test_backends_threejs.py, tests/test_architecture_boundaries.py
+      failure_mode: structural
+
+  - id: inference_never_produces_canonical_truth
+    numbered_as: I3
+    rule: a candidate becomes canonical only by passing validation;
+          inference never produces canonical truth on its own
+    recovery: partially -- two citations, both on the same idea
+    status: enforced
+    enforcement:
+      validator: core.canonical.validation.validate_candidate, and the
+                 control_loop return edge in architecture/invariants.yaml
+      locks: tests/test_architecture_boundaries.py, tests/test_architecture_sync.py
+      failure_mode: fail_closed
+    note: THE ONE BRIDGE between the two sets, recorded in both
+          directions so neither reads as complete without the other.
+
+# ---------------------------------------------------------------------
+# NOT registered, because a rule that cannot be stated cannot be
+# declared. Recorded so the gap is visible instead of inferred from
+# absence.
+# ---------------------------------------------------------------------
+unrecovered:
+  I1:
+    status: UNRECOVERABLE
+    cited: only inside the range `I1-I8` at docs/ARCHITECTURE_SPEC.md:71
+    what_the_range_constrains: >-
+      arrows point strictly downward/rightward from canonical state to
+      backends, and the only path back is the labelled feedback loop
+      through validation. I1 is somewhere in that idea and nothing
+      narrows it further.
+    what_would_recover_it: the brief. It is not in this repository at any
+                           path and is not vendored.
+  I2:
+    status: UNRECOVERABLE
+    cited: same range, same sentence, never individually.
+  I9:
+    status: NO_REFERENT
+    cited: nowhere in this repository -- not in a document, not in a
+           test, not in a source comment.
+  I10:
+    status: NO_REFERENT
+    cited: nowhere.
+
+the_cardinality:
+  claimed: >-
+    "Every one of the 10 invariants re-verified in Phase 12" --
+    docs/PHASE_13_ARCHITECTURE_INVESTIGATION.md:668, one sentence, once.
+  measured: >-
+    there is NO numbered invariant list anywhere in this repository. Not
+    a table, not a heading, not an enumeration. Two candidate lists were
+    checked and rejected: the anti-pattern table in the same document has
+    12 rows and is about anti-patterns, and no Phase 12 document
+    enumerating invariants exists.
+  verdict: >-
+    the "10" is RETRACTED as unsupported. Not corrected to eight: the
+    range is a single citation to an absent referent, so eight is not
+    established either, and swapping one unsupported number for another
+    would look like a fix.
+  what_is_established: >-
+    six numbered invariants are constrained by citations in this tree,
+    five of them well enough to state as rules. That is a floor, not a
+    total.
+
+the_citation_gap_this_found:
+  finding: >-
+    of I3 through I8, only I5 was cited by a TEST. I3, I6, I7 and I8 were
+    cited in implementation docstrings and nowhere else, and I4 in prose
+    only. Enforcement was real throughout; the machine-checkable link
+    from a named test to the invariant was absent.
+  it_is_the_same_defect_the_sibling_recorded_about_itself: >-
+    an enforcement claim naming a file that says nothing about the
+    invariant. Recorded here because it arrived in this repository by the
+    opposite route: not a claim without enforcement, but enforcement
+    without a claim.
+  repair: >-
+    the enforcing tests now cite the descriptive ids above, so the
+    register's evidence_cites_id bar is met by evidence rather than by
+    lowering it. Each citation was added only after reading the test and
+    confirming it enforces the property it is now credited with.

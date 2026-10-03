@@ -1,0 +1,25 @@
+{
+  "name": "payload-earth",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Geospatial State Visualization — read-only geographic entities, routes, flows, and temporal state",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "npm run check && vite build",
+    "preview": "vite preview",
+    "typecheck": "tsc --noEmit",
+    "test": "node --test tests/*.test.mjs",
+    "check": "node scripts/check-seam.mjs && node scripts/validate-provenance.mjs && npm test && tsc --noEmit"
+  },
+  "dependencies": {
+    "three": "^0.180.0",
+    "topojson-client": "^3.1.0"
+  },
+  "devDependencies": {
+    "@types/three": "^0.180.0",
+    "@types/topojson-client": "^3.1.5",
+    "typescript": "^5.6.3",
+    "vite": "^5.4.11"
+  }
+}
