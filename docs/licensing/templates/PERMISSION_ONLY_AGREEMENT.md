@@ -18,13 +18,13 @@ separate outreach.
 ## Permission Only Licensing Framework
 
 **Notation Systems Inc. — parent organization**  
-Notations Gaming · Notations Manufacturing · Notations Laboratories — operating division labels
+Notations Gaming · Notation Manufacturing · Notations Laboratories — child companies
 
-Version 1.0 | 2 October 2026
+Version 1.1 | 3 October 2026
 
 Use requires prior contact and an express signed written grant from the applicable Rights Holder. A request, acknowledgement or payment alone grants no permission. This framework provides a public rights notice, a business access agreement and a version-specific permission schedule.
 
-The issuing names identify the intended businesses or studios. They do not establish common ownership. Identify the actual legal person owning or controlling each work, and the legal person operating any trade name, before issuing a notice or signing a grant.
+Notation Systems Inc. is the declared parent and rights holder for project-owned original material. Its child companies are Notations Gaming, Notation Manufacturing and Notations Laboratories. Each notice and signed grant must identify the actual legal licensor, its rights and its authorized signatory. A child-company name or group relationship alone does not confer licensing authority or transfer rights.
 
 ## Public rights notice
 
@@ -44,7 +44,7 @@ Complete Schedules A and B and execute this Agreement before supplying controlle
 
 ### 1 Parties and defined materials
 
-This Agreement is between the Rights Holder identified in Schedule B and the Recipient identified there. Each additional Rights Holder must sign or be represented by an expressly authorized agent. A related company, studio or brand is not a party solely because its name appears in this framework.
+This Agreement is between the legal Rights Holder identified in Schedule B and the Recipient identified there. Each additional Rights Holder must sign or be represented by an expressly authorized agent whose principal and authority are identified. A child company, related company, studio or brand is not a party solely because its name appears in this framework. Group membership alone confers no authority to grant another person's rights or bind another group member.
 
 “Materials” means only the software, source or object code, documents, designs, models, datasets, audiovisual works, game assets or other items identified by version in Schedule A and incorporated into Schedule B. Restrictions apply to intellectual property rights owned or validly controlled by the Rights Holder and to lawful contractual obligations concerning controlled information. Third party materials and existing grants are identified separately.
 
@@ -118,12 +118,12 @@ This Agreement and executed schedules constitute the complete agreement for the 
 
 Complete this register for each release before applying a proprietary notice. Listing a business does not establish its chain of title. Attach additional asset records as needed; identify exact boundaries within a monorepo.
 
-| Issuing name | Legal identity to establish |
+| Group name and role | Legal identity and authority to establish |
 | --- | --- |
-| Notation Systems Inc. | Full legal name, jurisdiction, registered address and authority of signatory. |
-| Notations Gaming | Operating division label; identify the actual legal Rights Holder and its licensing authority. |
-| Notations Manufacturing | Operating division label; identify the actual legal Rights Holder and its licensing authority. |
-| Notations Laboratories | Operating division label; identify the actual legal Rights Holder and its licensing authority. |
+| Notation Systems Inc. — parent | Declared rights holder for project-owned original material; record full legal identity, jurisdiction, registered address, rights controlled and signatory authority. |
+| Notations Gaming — child company | Identify the actual legal licensor, rights controlled and authorized signer for a grant concerning this child company. |
+| Notation Manufacturing — child company | Identify the actual legal licensor, rights controlled and authorized signer for a grant concerning this child company. |
+| Notations Laboratories — child company | Identify the actual legal licensor, rights controlled and authorized signer for a grant concerning this child company. |
 
 ### Asset record
 
@@ -157,7 +157,7 @@ Keep ownership, grant, delivery and verification records separately linked. A ne
 
 ## Schedule B Written Permission Grant
 
-Grant ID: [COMPLETE]. Incorporates Permission Only Licensing Framework version 1.0 dated 2 October 2026, Business Access and Permission Agreement sections 1 to 14, and the attached Schedule A identified as [REGISTER ID AND VERSION].
+Grant ID: [COMPLETE]. Incorporates Permission Only Licensing Framework version 1.1 dated 3 October 2026, Business Access and Permission Agreement sections 1 to 14, and the attached Schedule A identified as [REGISTER ID AND VERSION].
 
 Rights Holder legal name, address and licensing authority: [COMPLETE]
 

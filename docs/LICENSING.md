@@ -68,7 +68,8 @@ a qualified legal review before publishing that combination.
 ## Original assets and permission requests
 
 The [asset permission policy](licensing/ORIGINAL_ASSETS.md) records the owner's
-originality declaration and Notation Systems Inc. as declared asset owner,
+originality declaration and Notation Systems Inc. as declared asset owner and
+parent of Notations Gaming, Notation Manufacturing and Notations Laboratories,
 separates authored assets from the reference corpus, and establishes exact-version
 enrollment and a request route. The [register](licensing/rights-register.json)
 contains no enrolled NET asset versions; no existing NET file is newly restricted.

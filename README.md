@@ -17,22 +17,28 @@ author → run → observe → compare → modify → check
 
 ## Organization
 
-**Notation Systems Inc.** is the parent organization.
+**Notation Systems Inc.** is the parent organization in the owner-declared group hierarchy.
 
-| Operating division | Focus |
+| Child company | Focus |
 | --- | --- |
 | **Notations Gaming** | Games, graphics and interactive worlds; replaces the Cartesian Graphics studio label. |
-| **Notations Manufacturing** | Industrial design, materials, manufacturing and production systems. |
+| **Notation Manufacturing** | Industrial design, materials, manufacturing and production systems. |
 | **Notations Laboratories** | Research, scientific computing, simulation and experimental validation. |
 
-NET is shared scientific and engineering infrastructure across these divisions.
+NET is shared scientific and engineering infrastructure across these companies.
 It composes investigations and declared operations while specialist providers
 retain their implementations and applications retain their live state.
 
 Evidence, operation, execution and verification identities remain separate.
 Game and simulation state do not acquire industrial evidence or canonical-state
-authority through shared tooling. Cross-division handoffs use explicit contracts
+authority through shared tooling. Cross-company handoffs use explicit contracts
 and the existing admission, execution and release boundaries.
+
+Notation Systems Inc. remains the declared rights holder for project-owned
+original material. A company name or group relationship alone does not transfer
+rights or confer signing authority. Each signed grant identifies its actual
+legal licensor, rights and authorized signer; see the
+[asset permission policy](docs/licensing/ORIGINAL_ASSETS.md).
 
 [notation.systems](https://notation.systems) presents the organization's work.
 Each repository retains its implementation, status and applicable licence.
