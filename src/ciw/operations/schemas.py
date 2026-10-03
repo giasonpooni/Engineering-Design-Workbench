@@ -28,7 +28,9 @@ def validate_role(operation_id: str, role: str) -> None:
                 "atmosphere.compile.v1": "backend",
                 "atmosphere.verify.v1": "verification",
                 "atmosphere.moist-compile.v1": "backend",
-                "atmosphere.moist-verify.v1": "verification"}.get(operation_id)
+                "atmosphere.moist-verify.v1": "verification",
+                "atmosphere.compare.v1": "backend",
+                "atmosphere.compare-verify.v1": "verification"}.get(operation_id)
     if expected is not None and role != expected:
         raise ValueError("Operation role contradicts the declared payload contract")
 
@@ -65,6 +67,8 @@ def validate_payload(operation_id: str, data: dict, run: dict, parameters: dict,
     elif operation_id in {"atmosphere.compile.v1", "atmosphere.verify.v1",
                           "atmosphere.moist-compile.v1", "atmosphere.moist-verify.v1"}:
         from ..atmosphere_workflow import validate_payload as validator
+    elif operation_id in {"atmosphere.compare.v1", "atmosphere.compare-verify.v1"}:
+        from ..atmosphere_comparison_workflow import validate_payload as validator
     else:
         validator = _VALIDATORS.get(operation_id)
         if validator is None:

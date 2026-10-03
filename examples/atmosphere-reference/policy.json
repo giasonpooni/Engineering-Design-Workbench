@@ -1,0 +1,11 @@
+{
+  "schema": "ciw.atmosphere-comparison-policy.v1",
+  "rule": "absolute_plus_relative_plus_reference_bound",
+  "thresholds": {
+    "liquid_water_saturation_pressure_pa": {
+      "absolute_tolerance": 0.0,
+      "relative_tolerance": 0.004
+    }
+  },
+  "record_digest": "sha256:957fa3ac22879e0e602326b8c2b6e4c8ffbe8ca4a0b65801f32ba99f8304b821"
+}

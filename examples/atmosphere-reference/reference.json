@@ -1,0 +1,36 @@
+{
+  "schema": "ciw.atmosphere-reference.v1",
+  "provenance": {
+    "kind": "published_reference",
+    "source_ref": "NISTIR 5078, Table 1, printed page 4 (PDF page 1)",
+    "source_url": "https://www.nist.gov/system/files/documents/srd/NISTIR5078-Tab1.pdf",
+    "independent_of_candidate": true
+  },
+  "context": {
+    "frame": "atmosphere.local_enu.v1",
+    "height_origin_m": 0.0,
+    "valid_time_utc": null,
+    "humidity_convention": "not_applicable"
+  },
+  "observations": [
+    {
+      "sample_index": 0,
+      "height_m": 0.0,
+      "quantities": {
+        "liquid_water_saturation_pressure_pa": {
+          "value": 3169.9,
+          "unit": "Pa",
+          "uncertainty": {
+            "kind": "rounding_bound",
+            "absolute_bound": 0.05,
+            "coverage_factor": null,
+            "reference": "NISTIR 5078 Table 1: 0.1 Pa display resolution; half-digit rounding bound"
+          },
+          "instrument_ref": null,
+          "calibration_ref": null
+        }
+      }
+    }
+  ],
+  "record_digest": "sha256:2cc55133f52386c4ad794559af791eeee05c936e1c2e10d9c1d9b6b594b42a5f"
+}
