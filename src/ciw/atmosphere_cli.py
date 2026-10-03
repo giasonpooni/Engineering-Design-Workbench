@@ -17,9 +17,8 @@ from .control_contracts import MAX_BYTES, json_tree, save_new
 from . import atmosphere_workflow as workflow
 
 
-def _regular_load(path: Path) -> dict:
+def _regular_bytes(path: Path) -> bytes:
     """Read bounded regular input without following links or blocking on a FIFO."""
-    from .session import loads_json
     path = Path(path)
     if not stat.S_ISREG(path.lstat().st_mode):
         raise ValueError("Atmosphere inputs must be regular files without symlinks")
@@ -31,7 +30,12 @@ def _regular_load(path: Path) -> dict:
         raw = stream.read(MAX_BYTES + 1)
     if not raw or len(raw) > MAX_BYTES:
         raise ValueError("Atmosphere input is empty or exceeds the 8 MiB budget")
-    value = loads_json(raw.decode("utf-8"))
+    return raw
+
+
+def _regular_load(path: Path) -> dict:
+    from .session import loads_json
+    value = loads_json(_regular_bytes(path).decode("utf-8"))
     json_tree(value)
     return value
 
@@ -58,6 +62,13 @@ def _comparison_main(argv: list[str]) -> int:
             command.add_argument("--output", type=Path, required=True)
     benchmark = commands.add_parser("benchmark")
     benchmark.add_argument("--output-dir", type=Path, required=True)
+    prepare = commands.add_parser("prepare", help="Prepare sealed reference and policy files from declared SI measurements")
+    prepare.add_argument("csv", type=Path)
+    prepare.add_argument("--declaration", type=Path, required=True)
+    prepare.add_argument("--output-dir", type=Path, required=True)
+    for name in ("preparation-inspect", "preparation-verify"):
+        command = commands.add_parser(name)
+        command.add_argument("directory", type=Path)
     args = parser.parse_args(argv)
     try:
         if args.command == "example":
@@ -90,6 +101,15 @@ def _comparison_main(argv: list[str]) -> int:
             result = comparison.run_benchmark(args.output_dir)
         elif args.command == "benchmark-inspect":
             result = comparison.inspect_benchmark(args.directory)
+        elif args.command == "prepare":
+            from .atmosphere_reference_preparation import prepare_files
+            result = prepare_files(args.csv, args.declaration, args.output_dir)
+        elif args.command == "preparation-inspect":
+            from .atmosphere_reference_preparation import inspect_preparation
+            result = inspect_preparation(args.directory)
+        elif args.command == "preparation-verify":
+            from .atmosphere_reference_preparation import verify_preparation
+            result = verify_preparation(args.directory)
         else:
             result = comparison.verify_benchmark(args.directory)
         print(json.dumps(result, indent=2, allow_nan=False))

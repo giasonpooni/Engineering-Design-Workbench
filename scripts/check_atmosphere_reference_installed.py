@@ -20,6 +20,128 @@ def _snapshot(directory: Path) -> dict[str, str]:
             for path in sorted(directory.rglob("*")) if path.is_file()}
 
 
+def _measurement_qualification(destination: Path, command) -> dict:
+    """Exercise authored CSV fixtures without claiming physical acquisition."""
+    headers = ("sample_index", "height_m", "quantity", "value", "unit", "uncertainty_kind",
+               "absolute_bound", "coverage_factor", "uncertainty_ref", "instrument_ref", "calibration_ref")
+    measurements = destination / "illustrative-measurements.csv"
+    with measurements.open("w", encoding="utf-8", newline="") as stream:
+        writer = csv.writer(stream)
+        writer.writerow(headers)
+        writer.writerow((0, 0, "temperature_k", 288.15, "K", "declared_expanded", 0.2, 2,
+                         "Illustrative expanded allowance, not a sensor certificate.",
+                         "fixture.thermometer", "fixture.calibration-declaration"))
+        writer.writerow((0, 0, "pressure_pa", 101325.0, "Pa", "declared_absolute_bound", 20, "",
+                         "Illustrative absolute allowance.", "fixture.barometer", "fixture.calibration-declaration"))
+    timestamp = "2026-10-03T07:00:00Z"
+    metadata = {
+        "schema": "ciw.atmosphere-measurement-import.v1",
+        "provenance": {"kind": "declared_measurements", "source_ref": "illustrative.authored-measurement-log",
+                       "source_url": None, "independent_of_candidate": True},
+        "context": {"frame": "atmosphere.local_enu.v1", "height_origin_m": 0,
+                    "valid_time_utc": timestamp, "humidity_convention": "not_applicable"},
+        "thresholds": {"temperature_k": {"absolute_tolerance": 0.1, "relative_tolerance": 0},
+                       "pressure_pa": {"absolute_tolerance": 1, "relative_tolerance": 0}}}
+
+    def prepare(name, declaration, csv_file=measurements):
+        declaration_file = destination / f"illustrative-{name}-declaration.json"
+        declaration_file.write_text(json.dumps(declaration), encoding="utf-8")
+        output = f"prepared-{name}"
+        created = command("compare", "prepare", csv_file.name, "--declaration", declaration_file.name,
+                          "--output-dir", output)
+        assert created["status"] == "prepared"
+        before = _snapshot(destination / output)
+        inspected = command("compare", "preparation-inspect", output)
+        checked = command("compare", "preparation-verify", output)
+        assert inspected["fresh_mapping_check"] is False and checked["fresh_mapping_check"] is True
+        assert checked["reference_evidence_id"] != checked["reference_digest"]
+        for key in ("physical_validation", "calibration_validation", "measurement_authenticity"):
+            assert checked["authority"][key] == "not_established"
+        assert checked["authority"]["state_admission"] == "not_performed"
+        assert checked["authority"]["hardware_actuation"] == "not_performed"
+        assert (destination / output / "measurements.csv").read_bytes() == csv_file.read_bytes()
+        assert _snapshot(destination / output) == before
+        return output, checked
+
+    prepared_name, checked = prepare("measurements", metadata)
+    preparation_before = _snapshot(destination / prepared_name)
+    assert checked["observation_count"] == 1 and checked["scalar_count"] == 2
+    invalid_csv = destination / "illustrative-invalid-units.csv"
+    invalid_csv.write_bytes(measurements.read_bytes().replace(b",K,", b",degC,"))
+    refused = command("compare", "prepare", invalid_csv.name, "--declaration", "illustrative-measurements-declaration.json",
+                      "--output-dir", "invalid-preparation", expected=1)
+    assert refused["status"] == "REFUSE" and not (destination / "invalid-preparation").exists()
+    profiles = {}
+    for profile in ("dry", "moist"):
+        prefix = () if profile == "dry" else ("moist",)
+        profile_preparation, profile_checked = prepared_name, checked
+        if profile == "moist":
+            moist_csv = destination / "illustrative-moist-measurements.csv"
+            moist_csv.write_bytes(measurements.read_bytes().replace(b",288.15,", b",298.15,"))
+            profile_preparation, profile_checked = prepare("moist-measurements", metadata, moist_csv)
+        request_file = destination / f"{profile}-declared-environment.json"
+        command(*prefix, "example", "--output", request_file.name)
+        request = json.loads(request_file.read_text(encoding="utf-8"))
+        request["sampling"]["height_m"] = [0.0, 100.0]
+        request["reference"]["context"] = {"source_kind": "declared_environment",
+                                            "source_ref": "fixture.declared-environment",
+                                            "valid_time_utc": timestamp}
+        request_file.write_text(json.dumps(request), encoding="utf-8")
+        original_name = f"{profile}-declared-atmosphere"
+        comparison_name = f"{profile}-declared-comparison"
+        assert command(*prefix, "run", request_file.name, "--output-dir", original_name)["status"] == "LOCAL"
+        before = _snapshot(destination / original_name)
+        compared = command("compare", "run", original_name, "--reference", f"{profile_preparation}/reference.json",
+                           "--policy", f"{profile_preparation}/policy.json", "--output-dir", comparison_name)
+        assert compared["status"] == "LOCAL" and compared["agreement_status"] == "PASS"
+        assert compared["reference_evidence_id"] == profile_checked["reference_evidence_id"]
+        comparison_before = _snapshot(destination / comparison_name)
+        assert command("compare", "verify", comparison_name)["verification_status"] == "PASS"
+        for format in ("json", "csv"):
+            assert command("compare", "export", comparison_name, "--format", format,
+                           "--output", f"{profile}-declared-comparison.{format}")["status"] == "exported"
+        exported = json.loads((destination / f"{profile}-declared-comparison.json").read_text(encoding="utf-8"))
+        claims = exported["comparison"]["claims"]
+        assert claims["independence_declared"] is True and claims["independence_established"] is False
+        assert claims["measurement_authenticity_established"] is False and claims["calibration_validation"] is False
+        assert claims["physical_validation"] == "not_established"
+        assert claims["state_admission_performed"] is False
+        assert _snapshot(destination / original_name) == before
+        assert _snapshot(destination / comparison_name) == comparison_before
+        profiles[profile] = {"agreement": "PASS", "numerical_verification": "PASS", "original_bundle_unchanged": True}
+
+    decisions = {}
+    for name, mismatch in (("time", "valid_time_utc"), ("frame", "frame"), ("disagreement", None)):
+        altered = json.loads(json.dumps(metadata))
+        csv_file = measurements
+        if mismatch:
+            altered["context"][mismatch] = "2026-10-03T08:00:00Z" if mismatch == "valid_time_utc" else "other.local_enu.v1"
+        else:
+            csv_file = destination / "illustrative-disagreement.csv"
+            csv_file.write_bytes(measurements.read_bytes().replace(b",288.15,", b",293.15,"))
+        prepared_case, _ = prepare(name, altered, csv_file)
+        comparison_name = f"declared-{name}"
+        compared = command("compare", "run", "dry-declared-atmosphere", "--reference", f"{prepared_case}/reference.json",
+                           "--policy", f"{prepared_case}/policy.json", "--output-dir", comparison_name, expected=2)
+        assert compared["status"] == ("REFUSE" if mismatch else "LOCAL")
+        assert command("compare", "verify", comparison_name, expected=2)["verification_status"] == "PASS"
+        if mismatch:
+            blocked = f"declared-{name}-blocked.json"
+            command("compare", "export", comparison_name, "--output", blocked, expected=1)
+            assert not (destination / blocked).exists()
+        else:
+            assert compared["agreement_status"] == "FAIL"
+            for format in ("json", "csv"):
+                command("compare", "export", comparison_name, "--format", format,
+                        "--output", f"declared-{name}.{format}", expected=2)
+        decisions[name] = {"qualification": compared["status"], "agreement": compared["agreement_status"],
+                           "numerical_verification": "PASS"}
+    assert _snapshot(destination / prepared_name) == preparation_before
+    return {"profiles": profiles, "decisions": decisions, "fresh_mapping_check": "PASS",
+            "raw_csv_retained_exactly": True, "invalid_units_refused_without_output": True,
+            "fixture_is_physical_measurement": False}
+
+
 def qualify(executable: Path, destination: Path) -> dict:
     executable = executable.resolve(strict=True)
     destination = destination.resolve()
@@ -45,6 +167,8 @@ def qualify(executable: Path, destination: Path) -> dict:
                    "seal(d); p.write_text(json.dumps(d,indent=2),encoding='utf-8')")
         subprocess.run([str(python), "-c", program, str(path)], cwd=destination,
                        text=True, capture_output=True, check=True, timeout=30)
+
+    measurement_qualification = _measurement_qualification(destination, command)
 
     profiles = {}
     for profile in ("dry", "moist"):
@@ -266,6 +390,7 @@ def qualify(executable: Path, destination: Path) -> dict:
     assert all(stat.S_ISREG(path.lstat().st_mode) or stat.S_ISDIR(path.lstat().st_mode)
                for path in destination.rglob("*"))
     qualification = {"status": "PASS", "profiles": profiles,
+                     "declared_measurement_preparation": measurement_qualification,
                      "published_reference_points": len(published_rows),
                      "distinct_published_case_occurrences": len(published_occurrences),
                      "published_reference_acceptance": "four points within a declared 0.4% allowance plus 0.05 Pa rounding bound",

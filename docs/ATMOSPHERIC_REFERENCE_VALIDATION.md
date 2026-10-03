@@ -67,6 +67,12 @@ physical-validation authority.
 
 ## Reference contract
 
+For corrected SI measurement logs, [measurement preparation](ATMOSPHERIC_MEASUREMENT_INGRESS.md)
+provides `net atmosphere compare prepare`, retains the original CSV and declared
+context, and writes sealed reference and policy files. Static inspection checks
+retained bindings; explicit preparation verification freshly checks the CSV
+mapping. Both preserve the authority limits below.
+
 The sealed reference schema is `ciw.atmosphere-reference.v1`. Its exact groups
 are `schema`, `provenance`, `context`, `observations` and `record_digest`.
 The separately sealed policy schema is

@@ -1,0 +1,3 @@
+sample_index,height_m,quantity,value,unit,uncertainty_kind,absolute_bound,coverage_factor,uncertainty_ref,instrument_ref,calibration_ref
+0,0,temperature_k,288.15,K,declared_expanded,0.2,2,illustrative uncertainty declaration; no assessed budget,illustrative.temperature-probe,
+0,0,pressure_pa,101325,Pa,declared_expanded,50,2,illustrative uncertainty declaration; no assessed budget,illustrative.pressure-probe,

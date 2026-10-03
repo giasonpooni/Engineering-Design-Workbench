@@ -1,0 +1,25 @@
+{
+  "schema": "ciw.atmosphere-measurement-import.v1",
+  "provenance": {
+    "kind": "declared_measurements",
+    "source_ref": "illustrative fixture; no acquired measurements",
+    "source_url": null,
+    "independent_of_candidate": false
+  },
+  "context": {
+    "frame": "atmosphere.local_enu.v1",
+    "height_origin_m": 0.0,
+    "valid_time_utc": "2026-10-03T12:00:00Z",
+    "humidity_convention": "not_applicable"
+  },
+  "thresholds": {
+    "temperature_k": {
+      "absolute_tolerance": 0.5,
+      "relative_tolerance": 0.0
+    },
+    "pressure_pa": {
+      "absolute_tolerance": 100.0,
+      "relative_tolerance": 0.0
+    }
+  }
+}

@@ -22,6 +22,7 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 | Dry hydrostatic atmospheric state, independent quadrature and typed provider handoffs | [Atmospheric engine](ATMOSPHERIC_ENGINE.md) (research branch increment) |
 | Unsaturated moist-air state, continuous humidity guard and frozen-composition handoffs | [Moist-air extension](ATMOSPHERIC_MOIST_AIR.md) (research branch increment) |
 | Declared reference comparisons, independent arithmetic and four-point NIST agreement | [Atmospheric reference validation](ATMOSPHERIC_REFERENCE_VALIDATION.md) (research branch increment) |
+| Bounded SI measurement CSV, retained input bindings and fresh mapping checks | [Atmospheric measurement preparation](ATMOSPHERIC_MEASUREMENT_INGRESS.md) (research branch increment) |
 | Elastic contact, independent impulse/energy checks and typed preservation | [Impact contact benchmark](IMPACT_CONTACT_BENCHMARK.md) (research branch increment) |
 | Irreversible crush state, plastic work and independent energy accounting | [Impact crush benchmark](IMPACT_CRUSH_BENCHMARK.md) (research branch increment) |
 | Finite parameter cases and separate numerical/design qualification | [Impact scenario envelope](IMPACT_SCENARIO_ENVELOPE.md) (research branch increment) |
