@@ -1,0 +1,173 @@
+{
+  "schema": "ciw.sensor-fusion-source.v1",
+  "experiment_id": "synthetic:angular-reconfiguration",
+  "configuration": {
+    "state": {
+      "quantity_ids": [
+        "heading"
+      ],
+      "units": [
+        "rad"
+      ],
+      "frame": "heading-plane",
+      "geometry": "so2_scalar_radians.v1",
+      "clock_id": "synthetic-clock"
+    },
+    "configurations": [
+      {
+        "name": "compass",
+        "sensors": [
+          {
+            "sensor_id": "compass",
+            "quantity_ids": [
+              "heading"
+            ],
+            "units": [
+              "rad"
+            ],
+            "frame": "heading-plane",
+            "matrix": [
+              [
+                1
+              ]
+            ],
+            "model_ref": "synthetic:compass-linear-map",
+            "calibration": {
+              "artifact_b64": "eyJnYWluIjoxLCJvZmZzZXQiOjAsIm9yaWdpbiI6InN5bnRoZXRpY19maXh0dXJlIiwicGh5c2ljYWxfdHJhY2VhYmlsaXR5Ijoibm90X2VzdGFibGlzaGVkIiwic2Vuc29yX2lkIjoiY29tcGFzcyJ9",
+              "valid_interval": [
+                0,
+                100
+              ],
+              "claim_scope": "caller_declared_not_verified"
+            }
+          }
+        ]
+      },
+      {
+        "name": "encoder",
+        "sensors": [
+          {
+            "sensor_id": "encoder",
+            "quantity_ids": [
+              "heading"
+            ],
+            "units": [
+              "rad"
+            ],
+            "frame": "heading-plane",
+            "matrix": [
+              [
+                1
+              ]
+            ],
+            "model_ref": "synthetic:encoder-linear-map",
+            "calibration": {
+              "artifact_b64": "eyJnYWluIjoxLCJvZmZzZXQiOjAsIm9yaWdpbiI6InN5bnRoZXRpY19maXh0dXJlIiwicGh5c2ljYWxfdHJhY2VhYmlsaXR5Ijoibm90X2VzdGFibGlzaGVkIiwic2Vuc29yX2lkIjoiZW5jb2RlciJ9",
+              "valid_interval": [
+                0,
+                100
+              ],
+              "claim_scope": "caller_declared_not_verified"
+            }
+          }
+        ]
+      }
+    ],
+    "noise_policy": {
+      "prior_measurement_crosscovariance": "declared_zero",
+      "process_measurement_crosscovariance": "declared_zero",
+      "process_prior_crosscovariance": "declared_zero",
+      "across_batches": "declared_independent",
+      "evidence_refs": [
+        "sha256:19e8481e740ef46fc5d4c5524acac6f268273d7d561a30fd48ec0f291ed157e4"
+      ]
+    }
+  },
+  "prior": {
+    "time": 0,
+    "mean": [
+      3.13
+    ],
+    "covariance": [
+      [
+        0.04
+      ]
+    ]
+  },
+  "batches": [
+    {
+      "time": 1,
+      "configuration_ref": "compass",
+      "dynamics": {
+        "matrix": [
+          [
+            1
+          ]
+        ],
+        "process_covariance": [
+          [
+            0.005
+          ]
+        ],
+        "model_ref": "synthetic:angular-random-walk-dt-1s"
+      },
+      "observations": [
+        {
+          "sensor_id": "compass",
+          "record_b64": "eyJhY3F1aXNpdGlvbl9pZCI6ImNvbXBhc3M6YWNxdWlzaXRpb246MSIsImNhbGlicmF0aW9uX3JlZiI6InNoYTI1NjoxNzk3Mzc5M2MyYmU3ODQ4MzMyMzVlOTQwMjhkYjU1MmYzZThlNTk4M2ZmZWJmOTBlYjAyN2RkOWQ2NDc0OGZkIiwiY2xvY2tfaWQiOiJzeW50aGV0aWMtY2xvY2siLCJmcmFtZSI6ImhlYWRpbmctcGxhbmUiLCJxdWFudGl0eV9pZHMiOlsiaGVhZGluZyJdLCJyYXdfZXZpZGVuY2VfYjY0IjoiZXlKaFkzRjFhWE5wZEdsdmJsOXBaQ0k2SW1OdmJYQmhjM002WVdOeGRXbHphWFJwYjI0Nk1TSXNJbTl5YVdkcGJpSTZJbk41Ym5Sb1pYUnBZMTltYVhoMGRYSmxJaXdpY21WaFpHbHVaeUk2TFRNdU1USXNJbk5sYm5OdmNsOXBaQ0k2SW1OdmJYQmhjM01pZlE9PSIsInNjaGVtYSI6ImNpdy5mdXNpb24tb2JzZXJ2YXRpb24udjEiLCJzZW5zb3JfaWQiOiJjb21wYXNzIiwidGltZSI6MSwidW5pdHMiOlsicmFkIl0sInZhbHVlcyI6Wy0zLjEyXX0="
+        }
+      ],
+      "measurement_noise": {
+        "channel_order": [
+          "compass/heading"
+        ],
+        "matrix": [
+          [
+            0.01
+          ]
+        ],
+        "cross_sensor_policy": "full_joint_declared",
+        "evidence_refs": [
+          "sha256:19e8481e740ef46fc5d4c5524acac6f268273d7d561a30fd48ec0f291ed157e4"
+        ]
+      }
+    },
+    {
+      "time": 2,
+      "configuration_ref": "encoder",
+      "dynamics": {
+        "matrix": [
+          [
+            1
+          ]
+        ],
+        "process_covariance": [
+          [
+            0.005
+          ]
+        ],
+        "model_ref": "synthetic:angular-random-walk-dt-1s"
+      },
+      "observations": [
+        {
+          "sensor_id": "encoder",
+          "record_b64": "eyJhY3F1aXNpdGlvbl9pZCI6ImVuY29kZXI6YWNxdWlzaXRpb246MiIsImNhbGlicmF0aW9uX3JlZiI6InNoYTI1Njo5NjFmNmI0Zjg3MTUwNmQ5YThiZjk4ZmQ4ZjU5NDVjODU0MmMwN2NmYWYyNGI4Mzc3ZmI5OTFiZmRlM2UzN2UxIiwiY2xvY2tfaWQiOiJzeW50aGV0aWMtY2xvY2siLCJmcmFtZSI6ImhlYWRpbmctcGxhbmUiLCJxdWFudGl0eV9pZHMiOlsiaGVhZGluZyJdLCJyYXdfZXZpZGVuY2VfYjY0IjoiZXlKaFkzRjFhWE5wZEdsdmJsOXBaQ0k2SW1WdVkyOWtaWEk2WVdOeGRXbHphWFJwYjI0Nk1pSXNJbTl5YVdkcGJpSTZJbk41Ym5Sb1pYUnBZMTltYVhoMGRYSmxJaXdpY21WaFpHbHVaeUk2TFRNdU1Td2ljMlZ1YzI5eVgybGtJam9pWlc1amIyUmxjaUo5Iiwic2NoZW1hIjoiY2l3LmZ1c2lvbi1vYnNlcnZhdGlvbi52MSIsInNlbnNvcl9pZCI6ImVuY29kZXIiLCJ0aW1lIjoyLCJ1bml0cyI6WyJyYWQiXSwidmFsdWVzIjpbLTMuMV19"
+        }
+      ],
+      "measurement_noise": {
+        "channel_order": [
+          "encoder/heading"
+        ],
+        "matrix": [
+          [
+            0.02
+          ]
+        ],
+        "cross_sensor_policy": "full_joint_declared",
+        "evidence_refs": [
+          "sha256:19e8481e740ef46fc5d4c5524acac6f268273d7d561a30fd48ec0f291ed157e4"
+        ]
+      }
+    }
+  ]
+}

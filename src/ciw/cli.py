@@ -286,6 +286,8 @@ def parser() -> argparse.ArgumentParser:
                         help="Bind role-named ppda/stfe/gsie/set/cbsr checkouts alongside the process stack")
     server.add_argument("--calibrated-window-stack-root", type=Path,
                         help="Bind tbrt/mcur/stfe/gsie/set for shared calibrated window estimation")
+    server.add_argument("--sensor-fusion-gsie-repo", type=Path,
+                        help="Bind pinned GSIE for retained reconfigurable sensor fusion")
     server.add_argument("--schematic-repo", type=Path, help="Bind pinned SRA declared schematic assessment")
     server.add_argument("--schematic-companions-root", type=Path, help="Bind pinned sra/jspt/plsr directories for selected schematic companion calls")
     server.add_argument("--construction-repo", type=Path, help="Bind pinned CSE quantity conditioning and ledger replay")
@@ -373,6 +375,16 @@ def parser() -> argparse.ArgumentParser:
         for role in ("fsrt", "tbrt", "mcur", "oit", "gsie", "cbsr", "fdir", "set"):
             action.add_argument("--" + role + "-repo", type=Path, required=True)
         action.add_argument("--output-dir", type=Path, required=True)
+    fusion = commands.add_parser("sensor-fusion", help="Create, inspect or replay declared sensor-fusion candidates")
+    fusion_actions = fusion.add_subparsers(dest="fusion_command", required=True)
+    fusion_create = fusion_actions.add_parser("create", help="Execute a retained configuration through pinned GSIE")
+    fusion_inspect = fusion_actions.add_parser("inspect", help="Inspect a retained bundle without executing GSIE")
+    fusion_replay = fusion_actions.add_parser("replay", help="Recompute retained inputs with fresh execution identities")
+    for action in (fusion_create, fusion_inspect, fusion_replay):
+        action.add_argument("--input", type=Path, required=True)
+    for action in (fusion_create, fusion_replay):
+        action.add_argument("--gsie-repo", type=Path, required=True)
+        action.add_argument("--output", type=Path, required=True, help="New bundle file; existing files are preserved")
     identified = commands.add_parser("identified-design", help="Identify dynamics and rank the next budgeted observation")
     identified_actions = identified.add_subparsers(dest="identified_command", required=True)
     identified_create = identified_actions.add_parser("create")
@@ -553,6 +565,34 @@ def main(argv: list[str] | None = None) -> int:
                 if args.output:
                     _write_new_proof_report(args.output, report)
                 print_json(report)
+        elif args.command == "sensor-fusion":
+            from .adapters.subprocess import _json
+            from .exchange import _read
+            from .sensor_fusion_workflow import SensorFusionWorkflow
+            workflow = SensorFusionWorkflow()
+            raw = _read(args.input, workflow.MAX_BYTES)
+            if args.fusion_command == "inspect":
+                bundle = _json(raw)
+                workflow._validate(bundle)
+                print_json({"status": "inspectable", "bundle": bundle,
+                            "numerical_replay": "not_performed_by_inspection",
+                            "state_admission": "not_performed"})
+            else:
+                if args.output.exists():
+                    raise ValueError("Use a new sensor-fusion bundle path to preserve previous occurrences")
+                bindings = {"gsie": args.gsie_repo}
+                if args.fusion_command == "create":
+                    bundle = workflow.create_session(raw, bindings)
+                    replay = None
+                else:
+                    replay = workflow.replay_session(_json(raw), bindings)
+                    bundle = replay["session"]
+                _write_new_proof_report(args.output, bundle)
+                print_json({"status": "completed", "bundle_file": str(args.output),
+                            "bundle_id": bundle["bundle_digest"],
+                            "operation_id": workflow.operation,
+                            "state_admission": "not_performed",
+                            **({"replay_receipt": replay["replay_receipt"]} if replay else {})})
         elif args.command == "julia-oscillator":
             from .julia_oscillator import workflow as julia_workflow
             if args.julia_command == "inspect":
@@ -675,6 +715,8 @@ def main(argv: list[str] | None = None) -> int:
             if args.calibrated_window_stack_root is not None:
                 from .calibrated_window import ROLES as WINDOW_ROLES
                 session.workbench.bind_workflow("calibrated-window", {role: args.calibrated_window_stack_root / role for role in WINDOW_ROLES})
+            if args.sensor_fusion_gsie_repo is not None:
+                session.workbench.bind_workflow("sensor-fusion", {"gsie": args.sensor_fusion_gsie_repo})
             if args.schematic_repo is not None:
                 session.workbench.bind_workflow("schematic-assessment", {"sra": args.schematic_repo})
             if args.schematic_companions_root is not None:

@@ -15,7 +15,7 @@ from threading import RLock
 
 from .adapters.protocol import AdapterRefusal
 from .adapters.subprocess import _json
-DECLARED_KINDS = frozenset({"schematic-assessment", "numerical-heat", "proved-heat", "schematic-companions", "bim-quantity", "acquired-dataset", "residual-monitor", "measurement-chain", "geometric-circle", "identified-stability", "flat-torus-reference", "curved-path-transfer", "covariance-geometry", "mesh-path", "translation-flow", "variational-free-energy", "energy-accuracy", "instrument-exchange", "thermal-observer", "machine-manifest", "julia-oscillator", "native-interop", "project-graph"})
+DECLARED_KINDS = frozenset({"schematic-assessment", "numerical-heat", "proved-heat", "schematic-companions", "bim-quantity", "acquired-dataset", "residual-monitor", "measurement-chain", "geometric-circle", "identified-stability", "flat-torus-reference", "curved-path-transfer", "covariance-geometry", "mesh-path", "translation-flow", "variational-free-energy", "energy-accuracy", "instrument-exchange", "thermal-observer", "machine-manifest", "julia-oscillator", "native-interop", "project-graph", "sensor-fusion"})
 REPRODUCED_KINDS = DECLARED_KINDS - {"proved-heat"}
 UPSTREAM_KINDS = {"identified-design": "calibrated-observable", "schematic-companions": "schematic-assessment",
                   "acquired-calibrated-window": "acquired-dataset", "identified-stability": "identified-design"}
@@ -52,6 +52,7 @@ OPERATIONS = {
     "julia-oscillator": "ciw.julia-oscillator.v1",
     "native-interop": "ciw.native-interop.v1",
     "project-graph": "ciw.project-graph.v1",
+    "sensor-fusion": "ciw.sensor-fusion.v1",
 }
 WORKFLOW_OPERATION_IDS = frozenset(OPERATIONS.values())
 from .candidate_evidence import OPERATIONS as CANDIDATE_OPERATIONS
@@ -63,6 +64,9 @@ _OVERHEAD = 4096
 
 
 def _workflow(kind):
+    if kind == "sensor-fusion":
+        from .sensor_fusion_workflow import SensorFusionWorkflow
+        return SensorFusionWorkflow()
     if kind == "project-graph":
         from .project_workflow import ProjectGraphWorkflow
         return ProjectGraphWorkflow()

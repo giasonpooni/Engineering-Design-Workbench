@@ -1,0 +1,324 @@
+{
+  "schema": "ciw.sensor-fusion-source.v1",
+  "experiment_id": "synthetic:tracking-reconfiguration",
+  "configuration": {
+    "state": {
+      "quantity_ids": [
+        "position",
+        "velocity"
+      ],
+      "units": [
+        "m",
+        "m/s"
+      ],
+      "frame": "track-axis",
+      "geometry": "euclidean.v1",
+      "clock_id": "synthetic-clock"
+    },
+    "configurations": [
+      {
+        "name": "position-and-velocity",
+        "sensors": [
+          {
+            "sensor_id": "position",
+            "quantity_ids": [
+              "position"
+            ],
+            "units": [
+              "m"
+            ],
+            "frame": "track-axis",
+            "matrix": [
+              [
+                1,
+                0
+              ]
+            ],
+            "model_ref": "synthetic:position-linear-map",
+            "calibration": {
+              "artifact_b64": "eyJnYWluIjoxLCJvZmZzZXQiOjAsIm9yaWdpbiI6InN5bnRoZXRpY19maXh0dXJlIiwicGh5c2ljYWxfdHJhY2VhYmlsaXR5Ijoibm90X2VzdGFibGlzaGVkIiwic2Vuc29yX2lkIjoicG9zaXRpb24ifQ==",
+              "valid_interval": [
+                0,
+                100
+              ],
+              "claim_scope": "caller_declared_not_verified"
+            }
+          },
+          {
+            "sensor_id": "velocity",
+            "quantity_ids": [
+              "velocity"
+            ],
+            "units": [
+              "m/s"
+            ],
+            "frame": "track-axis",
+            "matrix": [
+              [
+                0,
+                1
+              ]
+            ],
+            "model_ref": "synthetic:velocity-linear-map",
+            "calibration": {
+              "artifact_b64": "eyJnYWluIjoxLCJvZmZzZXQiOjAsIm9yaWdpbiI6InN5bnRoZXRpY19maXh0dXJlIiwicGh5c2ljYWxfdHJhY2VhYmlsaXR5Ijoibm90X2VzdGFibGlzaGVkIiwic2Vuc29yX2lkIjoidmVsb2NpdHkifQ==",
+              "valid_interval": [
+                0,
+                100
+              ],
+              "claim_scope": "caller_declared_not_verified"
+            }
+          }
+        ]
+      },
+      {
+        "name": "velocity-only",
+        "sensors": [
+          {
+            "sensor_id": "velocity",
+            "quantity_ids": [
+              "velocity"
+            ],
+            "units": [
+              "m/s"
+            ],
+            "frame": "track-axis",
+            "matrix": [
+              [
+                0,
+                1
+              ]
+            ],
+            "model_ref": "synthetic:velocity-linear-map",
+            "calibration": {
+              "artifact_b64": "eyJnYWluIjoxLCJvZmZzZXQiOjAsIm9yaWdpbiI6InN5bnRoZXRpY19maXh0dXJlIiwicGh5c2ljYWxfdHJhY2VhYmlsaXR5Ijoibm90X2VzdGFibGlzaGVkIiwic2Vuc29yX2lkIjoidmVsb2NpdHkifQ==",
+              "valid_interval": [
+                0,
+                100
+              ],
+              "claim_scope": "caller_declared_not_verified"
+            }
+          }
+        ]
+      }
+    ],
+    "noise_policy": {
+      "prior_measurement_crosscovariance": "declared_zero",
+      "process_measurement_crosscovariance": "declared_zero",
+      "process_prior_crosscovariance": "declared_zero",
+      "across_batches": "declared_independent",
+      "evidence_refs": [
+        "sha256:19e8481e740ef46fc5d4c5524acac6f268273d7d561a30fd48ec0f291ed157e4"
+      ]
+    }
+  },
+  "prior": {
+    "time": 0,
+    "mean": [
+      0,
+      1
+    ],
+    "covariance": [
+      [
+        1,
+        0
+      ],
+      [
+        0,
+        0.25
+      ]
+    ]
+  },
+  "batches": [
+    {
+      "time": 1,
+      "configuration_ref": "position-and-velocity",
+      "dynamics": {
+        "matrix": [
+          [
+            1,
+            1
+          ],
+          [
+            0,
+            1
+          ]
+        ],
+        "process_covariance": [
+          [
+            0.0033333333333333335,
+            0.005
+          ],
+          [
+            0.005,
+            0.01
+          ]
+        ],
+        "model_ref": "synthetic:constant-velocity-white-acceleration-dt-1s"
+      },
+      "observations": [
+        {
+          "sensor_id": "position",
+          "record_b64": "eyJhY3F1aXNpdGlvbl9pZCI6InBvc2l0aW9uOmFjcXVpc2l0aW9uOjEiLCJjYWxpYnJhdGlvbl9yZWYiOiJzaGEyNTY6YjM5YTVjMTljYmJmNzI3MWQwMTJkMWEyMjFmNzUzNGUwNDAyZTIyYjliMzJiZTZlMTZjMWI5ZTAzMmNiODc4OSIsImNsb2NrX2lkIjoic3ludGhldGljLWNsb2NrIiwiZnJhbWUiOiJ0cmFjay1heGlzIiwicXVhbnRpdHlfaWRzIjpbInBvc2l0aW9uIl0sInJhd19ldmlkZW5jZV9iNjQiOiJleUpoWTNGMWFYTnBkR2x2Ymw5cFpDSTZJbkJ2YzJsMGFXOXVPbUZqY1hWcGMybDBhVzl1T2pFaUxDSnZjbWxuYVc0aU9pSnplVzUwYUdWMGFXTmZabWw0ZEhWeVpTSXNJbkpsWVdScGJtY2lPakV1TVN3aWMyVnVjMjl5WDJsa0lqb2ljRzl6YVhScGIyNGlmUT09Iiwic2NoZW1hIjoiY2l3LmZ1c2lvbi1vYnNlcnZhdGlvbi52MSIsInNlbnNvcl9pZCI6InBvc2l0aW9uIiwidGltZSI6MSwidW5pdHMiOlsibSJdLCJ2YWx1ZXMiOlsxLjFdfQ=="
+        },
+        {
+          "sensor_id": "velocity",
+          "record_b64": "eyJhY3F1aXNpdGlvbl9pZCI6InZlbG9jaXR5OmFjcXVpc2l0aW9uOjEiLCJjYWxpYnJhdGlvbl9yZWYiOiJzaGEyNTY6NTA3NDZiOWQzMGUzMGFkMTRjYThmNTQzZGVjNmRmOWFlZWZkZjE3MDcxYmY4NmRhMzFhZTJjOGQxYWQwYzExZSIsImNsb2NrX2lkIjoic3ludGhldGljLWNsb2NrIiwiZnJhbWUiOiJ0cmFjay1heGlzIiwicXVhbnRpdHlfaWRzIjpbInZlbG9jaXR5Il0sInJhd19ldmlkZW5jZV9iNjQiOiJleUpoWTNGMWFYTnBkR2x2Ymw5cFpDSTZJblpsYkc5amFYUjVPbUZqY1hWcGMybDBhVzl1T2pFaUxDSnZjbWxuYVc0aU9pSnplVzUwYUdWMGFXTmZabWw0ZEhWeVpTSXNJbkpsWVdScGJtY2lPakV1TURJc0luTmxibk52Y2w5cFpDSTZJblpsYkc5amFYUjVJbjA9Iiwic2NoZW1hIjoiY2l3LmZ1c2lvbi1vYnNlcnZhdGlvbi52MSIsInNlbnNvcl9pZCI6InZlbG9jaXR5IiwidGltZSI6MSwidW5pdHMiOlsibS9zIl0sInZhbHVlcyI6WzEuMDJdfQ=="
+        }
+      ],
+      "measurement_noise": {
+        "channel_order": [
+          "position/position",
+          "velocity/velocity"
+        ],
+        "matrix": [
+          [
+            0.04,
+            0.002
+          ],
+          [
+            0.002,
+            0.01
+          ]
+        ],
+        "cross_sensor_policy": "full_joint_declared",
+        "evidence_refs": [
+          "sha256:19e8481e740ef46fc5d4c5524acac6f268273d7d561a30fd48ec0f291ed157e4"
+        ]
+      }
+    },
+    {
+      "time": 2,
+      "configuration_ref": "position-and-velocity",
+      "dynamics": {
+        "matrix": [
+          [
+            1,
+            1
+          ],
+          [
+            0,
+            1
+          ]
+        ],
+        "process_covariance": [
+          [
+            0.0033333333333333335,
+            0.005
+          ],
+          [
+            0.005,
+            0.01
+          ]
+        ],
+        "model_ref": "synthetic:constant-velocity-white-acceleration-dt-1s"
+      },
+      "observations": [],
+      "measurement_noise": null
+    },
+    {
+      "time": 3,
+      "configuration_ref": "velocity-only",
+      "dynamics": {
+        "matrix": [
+          [
+            1,
+            1
+          ],
+          [
+            0,
+            1
+          ]
+        ],
+        "process_covariance": [
+          [
+            0.0033333333333333335,
+            0.005
+          ],
+          [
+            0.005,
+            0.01
+          ]
+        ],
+        "model_ref": "synthetic:constant-velocity-white-acceleration-dt-1s"
+      },
+      "observations": [
+        {
+          "sensor_id": "velocity",
+          "record_b64": "eyJhY3F1aXNpdGlvbl9pZCI6InZlbG9jaXR5OmFjcXVpc2l0aW9uOjMiLCJjYWxpYnJhdGlvbl9yZWYiOiJzaGEyNTY6NTA3NDZiOWQzMGUzMGFkMTRjYThmNTQzZGVjNmRmOWFlZWZkZjE3MDcxYmY4NmRhMzFhZTJjOGQxYWQwYzExZSIsImNsb2NrX2lkIjoic3ludGhldGljLWNsb2NrIiwiZnJhbWUiOiJ0cmFjay1heGlzIiwicXVhbnRpdHlfaWRzIjpbInZlbG9jaXR5Il0sInJhd19ldmlkZW5jZV9iNjQiOiJleUpoWTNGMWFYTnBkR2x2Ymw5cFpDSTZJblpsYkc5amFYUjVPbUZqY1hWcGMybDBhVzl1T2pNaUxDSnZjbWxuYVc0aU9pSnplVzUwYUdWMGFXTmZabWw0ZEhWeVpTSXNJbkpsWVdScGJtY2lPakV1TURFc0luTmxibk52Y2w5cFpDSTZJblpsYkc5amFYUjVJbjA9Iiwic2NoZW1hIjoiY2l3LmZ1c2lvbi1vYnNlcnZhdGlvbi52MSIsInNlbnNvcl9pZCI6InZlbG9jaXR5IiwidGltZSI6MywidW5pdHMiOlsibS9zIl0sInZhbHVlcyI6WzEuMDFdfQ=="
+        }
+      ],
+      "measurement_noise": {
+        "channel_order": [
+          "velocity/velocity"
+        ],
+        "matrix": [
+          [
+            0.01
+          ]
+        ],
+        "cross_sensor_policy": "full_joint_declared",
+        "evidence_refs": [
+          "sha256:19e8481e740ef46fc5d4c5524acac6f268273d7d561a30fd48ec0f291ed157e4"
+        ]
+      }
+    },
+    {
+      "time": 4,
+      "configuration_ref": "position-and-velocity",
+      "dynamics": {
+        "matrix": [
+          [
+            1,
+            1
+          ],
+          [
+            0,
+            1
+          ]
+        ],
+        "process_covariance": [
+          [
+            0.0033333333333333335,
+            0.005
+          ],
+          [
+            0.005,
+            0.01
+          ]
+        ],
+        "model_ref": "synthetic:constant-velocity-white-acceleration-dt-1s"
+      },
+      "observations": [
+        {
+          "sensor_id": "position",
+          "record_b64": "eyJhY3F1aXNpdGlvbl9pZCI6InBvc2l0aW9uOmFjcXVpc2l0aW9uOjQiLCJjYWxpYnJhdGlvbl9yZWYiOiJzaGEyNTY6YjM5YTVjMTljYmJmNzI3MWQwMTJkMWEyMjFmNzUzNGUwNDAyZTIyYjliMzJiZTZlMTZjMWI5ZTAzMmNiODc4OSIsImNsb2NrX2lkIjoic3ludGhldGljLWNsb2NrIiwiZnJhbWUiOiJ0cmFjay1heGlzIiwicXVhbnRpdHlfaWRzIjpbInBvc2l0aW9uIl0sInJhd19ldmlkZW5jZV9iNjQiOiJleUpoWTNGMWFYTnBkR2x2Ymw5cFpDSTZJbkJ2YzJsMGFXOXVPbUZqY1hWcGMybDBhVzl1T2pRaUxDSnZjbWxuYVc0aU9pSnplVzUwYUdWMGFXTmZabWw0ZEhWeVpTSXNJbkpsWVdScGJtY2lPalF1TURVc0luTmxibk52Y2w5cFpDSTZJbkJ2YzJsMGFXOXVJbjA9Iiwic2NoZW1hIjoiY2l3LmZ1c2lvbi1vYnNlcnZhdGlvbi52MSIsInNlbnNvcl9pZCI6InBvc2l0aW9uIiwidGltZSI6NCwidW5pdHMiOlsibSJdLCJ2YWx1ZXMiOls0LjA1XX0="
+        },
+        {
+          "sensor_id": "velocity",
+          "record_b64": "eyJhY3F1aXNpdGlvbl9pZCI6InZlbG9jaXR5OmFjcXVpc2l0aW9uOjQiLCJjYWxpYnJhdGlvbl9yZWYiOiJzaGEyNTY6NTA3NDZiOWQzMGUzMGFkMTRjYThmNTQzZGVjNmRmOWFlZWZkZjE3MDcxYmY4NmRhMzFhZTJjOGQxYWQwYzExZSIsImNsb2NrX2lkIjoic3ludGhldGljLWNsb2NrIiwiZnJhbWUiOiJ0cmFjay1heGlzIiwicXVhbnRpdHlfaWRzIjpbInZlbG9jaXR5Il0sInJhd19ldmlkZW5jZV9iNjQiOiJleUpoWTNGMWFYTnBkR2x2Ymw5cFpDSTZJblpsYkc5amFYUjVPbUZqY1hWcGMybDBhVzl1T2pRaUxDSnZjbWxuYVc0aU9pSnplVzUwYUdWMGFXTmZabWw0ZEhWeVpTSXNJbkpsWVdScGJtY2lPakVzSW5ObGJuTnZjbDlwWkNJNkluWmxiRzlqYVhSNUluMD0iLCJzY2hlbWEiOiJjaXcuZnVzaW9uLW9ic2VydmF0aW9uLnYxIiwic2Vuc29yX2lkIjoidmVsb2NpdHkiLCJ0aW1lIjo0LCJ1bml0cyI6WyJtL3MiXSwidmFsdWVzIjpbMV19"
+        }
+      ],
+      "measurement_noise": {
+        "channel_order": [
+          "position/position",
+          "velocity/velocity"
+        ],
+        "matrix": [
+          [
+            0.04,
+            0.002
+          ],
+          [
+            0.002,
+            0.01
+          ]
+        ],
+        "cross_sensor_policy": "full_joint_declared",
+        "evidence_refs": [
+          "sha256:19e8481e740ef46fc5d4c5524acac6f268273d7d561a30fd48ec0f291ed157e4"
+        ]
+      }
+    }
+  ]
+}
