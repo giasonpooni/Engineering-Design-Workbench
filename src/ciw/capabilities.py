@@ -8,6 +8,7 @@ registry, and it does not register a composition schema.
 from __future__ import annotations
 
 from copy import deepcopy
+from .legibility_runtime import runtime_identity as legibility_runtime_identity
 
 
 SCHEMA = "ciw.capability-catalog.v1"
@@ -78,6 +79,17 @@ _CAPABILITIES = (
         role="analysis",
         runtime_identity={"provider": "ciw.oscillator", "version": "1"},
         notes="ciw analyze spectrum executes this operation only when invoked separately. Listing the id does not.",
+    ),
+    _record(
+        capability_id="legibility.compile.v1",
+        disposition="implemented",
+        kind="registered_operation",
+        summary="Compile identity-bound human, reasoning and vision records from retained evidence.",
+        command=["legibility", "compile"],
+        operation_id="legibility.compile.v1",
+        role="backend",
+        runtime_identity=legibility_runtime_identity(),
+        notes="Metadata consistency is separate from artifact bytes, signatures, issuer trust and physical validation.",
     ),
     _record(
         capability_id="learning.oscillator-rms",
