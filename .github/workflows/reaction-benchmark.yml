@@ -45,7 +45,7 @@ jobs:
           if (!$env:SCR_READ_TOKEN) { throw 'SCR_READ_TOKEN is required for the private pinned SCR checkout; this gate cannot qualify without it' }
       - uses: actions/checkout@v4
         with:
-          repository: atomtrapping/Notations-Compute-Runtime
+          repository: giasonpooni/Scientific-Computation-Runtime
           ref: ${{ steps.pin.outputs.revision }}
           path: .ciw-reaction-scr
           token: ${{ secrets.SCR_READ_TOKEN }}

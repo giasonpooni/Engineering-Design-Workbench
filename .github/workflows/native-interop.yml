@@ -41,7 +41,7 @@ jobs:
         run: test -n "$SCR_READ_TOKEN"
       - uses: actions/checkout@v4
         with:
-          repository: atomtrapping/Notations-Compute-Runtime
+          repository: giasonpooni/Scientific-Computation-Runtime
           ref: ${{ steps.pin.outputs.revision }}
           path: .ciw-scr-provider
           token: ${{ secrets.SCR_READ_TOKEN }}

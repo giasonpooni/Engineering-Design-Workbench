@@ -1,4 +1,4 @@
-name: Public measurement monorepo qualification
+name: Public engineering superrepo qualification
 
 on:
   push:
@@ -6,6 +6,12 @@ on:
     tags: ['**']
   pull_request:
   workflow_dispatch:
+    inputs:
+      flowstate_full_reproduction:
+        description: Also run the public FlowState slow reproduction lane
+        type: boolean
+        required: false
+        default: false
 
 permissions:
   contents: read
@@ -15,6 +21,33 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  source-history-and-migration-guards:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install original Terminal test dependencies
+        run: python -m pip install 'numpy==2.4.3' 'websockets==16.0' 'pytest==9.0.2'
+      - name: Audit preserved source histories and identities
+        run: |
+          mkdir -p results/monorepo-audit
+          python scripts/superrepo.py list --json > results/monorepo-audit/modules.json
+          python scripts/monorepo.py > results/monorepo-audit/source-audit.json
+          python -m pytest -q tests/test_monorepo.py tests/test_superrepo.py --junitxml results/monorepo-audit/migration-tests.xml
+      - name: Retain source audit and migration guards
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: monorepo-source-audit
+          path: results/monorepo-audit/
+          if-no-files-found: error
+
   independent-wheels-and-composition:
     runs-on: ubuntu-latest
     timeout-minutes: 20
@@ -40,4 +73,191 @@ jobs:
         with:
           name: monorepo-qualification-python-${{ matrix.python }}
           path: results/monorepo/
+          if-no-files-found: error
+
+  inference-and-public-process-replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install wheel build tooling
+        run: python -m pip install 'setuptools>=77' wheel
+      - name: Qualify public inference packages and full original process replay
+        run: python scripts/check_monorepo_inference.py --output-dir results/monorepo-inference
+      - name: Retain inference qualification evidence and sessions
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: monorepo-inference-python-${{ matrix.python }}
+          path: results/monorepo-inference/
+          if-no-files-found: error
+
+  mathematics-and-measurement-chain:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install wheel build tooling
+        run: python -m pip install 'setuptools>=77' wheel
+      - name: Qualify independent mathematical packages and exact measurement chains
+        run: python scripts/check_monorepo_math.py --output-dir results/monorepo-math
+      - name: Retain mathematical qualification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: monorepo-math-python-${{ matrix.python }}
+          path: results/monorepo-math/
+          if-no-files-found: error
+
+  flowstate-wheel-and-original-default-suite:
+    runs-on: ubuntu-latest
+    timeout-minutes: 75
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install wheel build tooling
+        run: python -m pip install 'setuptools>=77' wheel
+      - name: Qualify FlowState wheel and unchanged default source suite
+        run: python scripts/check_monorepo_flowstate.py --output-dir results/monorepo-flowstate
+      - name: Retain FlowState qualification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: monorepo-flowstate-python-${{ matrix.python }}
+          path: results/monorepo-flowstate/
+          if-no-files-found: error
+
+  flowstate-public-slow-reproduction:
+    if: github.event_name == 'workflow_dispatch' && inputs.flowstate_full_reproduction
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install wheel build tooling
+        run: python -m pip install 'setuptools>=77' wheel
+      - name: Run additional original public FlowState reproductions
+        run: python scripts/check_monorepo_flowstate.py --full-reproduction --output-dir results/monorepo-flowstate-full
+      - name: Retain full public reproduction evidence and private exclusions
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: monorepo-flowstate-public-full-python-3.12
+          path: results/monorepo-flowstate-full/
+          if-no-files-found: error
+
+  surface-science-lock-and-replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 120
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install wheel and original locked-lane tooling
+        run: python -m pip install 'setuptools>=77' wheel uv
+      - name: Qualify Surface science, regenerated artifacts, locked contracts and exact replay
+        run: python scripts/check_monorepo_surface.py --output-dir results/monorepo-surface
+      - name: Retain Surface qualification evidence and regenerated artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: monorepo-surface-python-${{ matrix.python }}
+          path: results/monorepo-surface/
+          if-no-files-found: error
+
+  operations-resources-and-bounded-cpu:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      RUSTUP_TOOLCHAIN: '1.90.0'
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install original bounded CPU toolchain
+        run: rustup toolchain install 1.90.0 --profile minimal
+      - name: Install wheel build tooling
+        run: python -m pip install 'setuptools>=77' wheel
+      - name: Qualify package, budget, composition and bounded CPU execution
+        run: python scripts/check_monorepo_operations.py --output-dir results/monorepo-operations
+      - name: Retain operations, resource and execution evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: monorepo-operations-python-${{ matrix.python }}-rust-1.90.0
+          path: results/monorepo-operations/
+          if-no-files-found: error
+
+  independent-locked-web-packages:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - name: Qualify original npm locks, hermetic tests, types and builds
+        run: python scripts/check_monorepo_web.py --output-dir results/monorepo-web
+      - name: Retain independent web package evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: monorepo-web-node-24
+          path: results/monorepo-web/
           if-no-files-found: error

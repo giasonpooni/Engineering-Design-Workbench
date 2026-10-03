@@ -43,21 +43,21 @@ jobs:
         run: python scripts/ci_provider_access.py configure
       - uses: actions/checkout@v4
         with:
-          repository: atomtrapping/Notations-Estimator-Bench
+          repository: giasonpooni/State-Estimation-Evaluation-Testbed
           token: ${{ env.CIW_PROVIDER_READ_TOKEN }}
           ref: 542e672be512bf43b61253f2b2a43cd967cb3062
           path: .exchange/set
           persist-credentials: false
       - uses: actions/checkout@v4
         with:
-          repository: atomtrapping/Notations-Data-Intake
+          repository: giasonpooni/Provenance-Preserving-Data-Acquisition
           token: ${{ env.CIW_PROVIDER_READ_TOKEN }}
           ref: a29845e13e55de30b24ae752b896058041d653e6
           path: .exchange/acquisition
           persist-credentials: false
       - uses: actions/checkout@v4
         with:
-          repository: atomtrapping/Notations-Compute-Runtime
+          repository: giasonpooni/Scientific-Computation-Runtime
           token: ${{ env.CIW_PROVIDER_READ_TOKEN }}
           ref: 5f0409743e0098a0691a88302a9b3dcdcbcf25fd
           path: .exchange/runtime

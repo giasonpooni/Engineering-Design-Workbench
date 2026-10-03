@@ -1,0 +1,41 @@
+name: Import reviewed native superrepo history
+
+on:
+  push:
+    branches: [transport/native-superrepo-20261003]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: native-superrepo-history-6989ffd2
+  cancel-in-progress: false
+
+jobs:
+  import-reviewed-history:
+    if: github.repository == 'atomtrapping/Notations-Systems-Terminal' && github.repository_id == '1377790873' && github.ref == 'refs/heads/transport/native-superrepo-20261003' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out the exact reviewed control commit
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+          sparse-checkout: .github/native-history-transport
+
+      - name: Verify the reviewed importer bytes
+        shell: bash
+        run: |
+          printf '%s  %s\n' 'ad56e67a14a3bb6f8b148635bb8e83d8fea90e5e0fd9833d08ed7796b79c5517' '.github/native-history-transport/import_history.py' | sha256sum --check --strict
+
+      - name: Fetch only fixed anonymous public prerequisites and verify native objects
+        shell: bash
+        run: python3 .github/native-history-transport/import_history.py prepare
+
+      - name: Push the exact original commit to its fixed new review branch
+        shell: bash
+        env:
+          NET_NATIVE_PUSH_TOKEN: ${{ github.token }}
+        run: python3 .github/native-history-transport/import_history.py publish
