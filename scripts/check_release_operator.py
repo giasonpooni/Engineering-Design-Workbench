@@ -127,6 +127,8 @@ def _readonly_guard():
                 cls, method, side_effect=AssertionError("Read-only inspection executed a workflow")))
     stack.enter_context(mock.patch(
         "ciw.operations.runner.execute", side_effect=AssertionError("Read-only inspection executed an operation")))
+    stack.enter_context(mock.patch(
+        "ciw.session.execute_operation", side_effect=AssertionError("Read-only inspection executed a Session operation")))
     return stack
 
 

@@ -109,6 +109,20 @@ class ReleaseOperatorJourneys(unittest.TestCase):
                         with self.assertRaisesRegex(AssertionError, "Read-only"):
                             getattr(cls(), method)(b"{}", {})
 
+    def test_readonly_guard_blocks_session_bound_execution_alias(self):
+        from ciw.instruments import make_demo_run
+        from ciw.session import Session
+        with tempfile.TemporaryDirectory() as directory:
+            session = Session(make_demo_run(), Path(directory) / "session")
+            executions = deepcopy(session.executions)
+            results = deepcopy(session.results)
+            with gate._readonly_guard(), self.assertRaisesRegex(AssertionError, "Session operation"):
+                session.handle({"protocol_version": 1, "request_id": "readonly-alias-probe",
+                                "type": "operation.execute",
+                                "payload": {"operation_id": "statistics.v1", "parameters": {}}})
+            self.assertEqual(session.executions, executions)
+            self.assertEqual(session.results, results)
+
     def test_fixture_sources_validate_under_existing_workflow_contracts(self):
         from ciw import machine_workflow, thermal_workflow, project_workflow
         validators = {
