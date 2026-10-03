@@ -1,0 +1,24 @@
+__pycache__/
+*.pyc
+.pytest_cache/
+crates/target/
+zk/target/
+zk/guest-pairwise/target/
+
+zk/guest-pairwise-nexus/target/
+zk/nexus/target/
+zk/guest-heat/target/
+zk/guest-heat-nexus/target/
+zk/artifacts/
+zk/guest-heat-risc0/target/
+zk/risc0/target/
+
+# Local working notes and authoring instructions
+/.private/
+/docs/private/
+/AGENTS.md
+/CLAUDE.md
+**/*HANDOFF*.md
+
+# Outer provider host build output
+/crates/execution-provider-host/target/

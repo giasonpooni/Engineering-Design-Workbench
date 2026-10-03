@@ -1,0 +1,23 @@
+# Presentation/query vocabulary -> the four immutable evidence classes.
+# The terms below are how humans ask; the four classes are what ingest
+# assigned. This map is TOTAL over the presentation vocabulary and
+# one-directional -- it never mints and never promotes.
+extends: core@1.0.0
+
+vocabulary_map:
+  reported:      {class: asserted}
+  observed:      {class: measured, requires: declared observation method}
+  measured:      {class: measured}
+  computed:      {class: computed}
+  simulated:     {class: computed}
+  inferred:      {class: derived}
+  predicted:     {class: computed, requires: calibrated uncertainty}
+  hypothesized:  {class: derived, note: never admissible for canonical assertion}
+  manufactured:  {class: measured, admissibility: singular_observation}
+
+not_a_class:
+  validated:
+    kind: status_on_claim
+    rule: expressed as a claim-level field, never as an evidence class;
+          keeping it out of the class vocabulary forecloses the
+          promotion path class_assigned_at_ingest forbids

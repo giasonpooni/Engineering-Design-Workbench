@@ -1,0 +1,25 @@
+{
+  "name": "polymer tensile strength study",
+  "process": "process-std-190c",
+  "formulations": [
+    "baseline",
+    "modified",
+    "high_filler"
+  ],
+  "property": "tensile_strength",
+  "criterion": {
+    "operator": ">=",
+    "target": 80.0
+  },
+  "contexts": [
+    {
+      "temperature_c": 25
+    },
+    {
+      "temperature_c": 80
+    },
+    {
+      "temperature_c": 120
+    }
+  ]
+}

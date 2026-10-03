@@ -1,0 +1,52 @@
+# THE CORE VERSION, DECLARED. This repository is the core the sibling
+# repositories resolve against, so the version is declared HERE and is
+# not inferable from anything else.
+#
+# WHY THIS FILE EXISTS. A previous revision set the core version by
+# reading this repository's own pyproject.toml. That was the wrong
+# referent, and it was wrong in a way that quietly weakens every
+# `Bent: zero` claim ever made against it:
+#
+#   a PACKAGE version moves on any release
+#   a CORE-SCHEMA version moves only under bend_protocol
+#
+# Coupling them means a routine release renumbers the core, and every
+# artifact pinning `extends: core@<version>` fails or silently re-pins
+# without a single invariant having changed meaning. `Bent: zero` would
+# then be asserted against a referent that can move without anyone
+# bending anything.
+#
+# The acquisition layer reached 1.0.0 by inspecting this repository's
+# packaging, which was the only evidence available to it at the time and
+# gave the right number for the wrong reason. This file makes the number
+# a DECLARATION, so the siblings resolve against a stated core rather
+# than an inferred one, and so the value can no longer move by release.
+name: core
+version: "1.0.0"
+
+referent:
+  what_it_versions: "the core schema and invariant semantics"
+  what_it_does_not_version: "this repository's package releases"
+  moves_only_under: bend_protocol
+  moves_on_release: false
+  derived_from_packaging: false
+
+bend_protocol:
+  trigger: "a core invariant must change to accommodate a vertical"
+  required:
+    - "core version increment"
+    - "re-run of every declared vertical"
+    - "re-run of every declared probe"
+    - "explicit statement of what is no longer guaranteed"
+  forbidden:
+    - "silent widening of a core schema to admit a vertical field"
+    - "vertical-local override of a core invariant"
+    - "a version change driven by anything other than a bend"
+
+resolved_by:
+  - repository: DAQ
+    binds: core@1.0.0
+    how: "architecture/core.yaml, by inspection of this repository"
+  - repository: SCL
+    binds: core@1.0.0
+    how: "architecture/*.yaml extends declarations"

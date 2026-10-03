@@ -1,0 +1,39 @@
+# The Rust execution substrate.
+#
+# ZERO DEPENDENCIES, DELIBERATELY. Two independent reasons:
+#
+#   1. This repository's Python side declares `dependencies = []`
+#      (`pyproject.toml`). The Rust side inherits that discipline rather
+#      than inventing a second one.
+#
+#   2. Phase 126 found that every zkVM substrate binds verifiability to a
+#      version -- SP1 hard-fails on version mismatch
+#      (`crates/sdk/src/prover.rs:154`), RISC Zero binds
+#      `verifier_parameters` into the receipt, Nexus embeds the memory
+#      layout in the proof. A CANONICAL identity must not inherit any of
+#      that. If `ProgramIdentity` depended on a crate, the identity of a
+#      program would depend on which crate version computed it.
+#
+# `tests/test_phase127_rust_semantic_boundary.py` enforces the empty
+# dependency set structurally: it is the strongest available guard
+# against a backend's serialization becoming our canonical one.
+[workspace]
+resolver = "2"
+exclude = ["execution-provider-host"]
+members = [
+    "execution-kernel",
+    "execution-serialization",
+    "execution-commitment",
+    "execution-model",
+    "execution-trace",
+    "execution-native",
+    "execution-cli",
+    "execution-verification",
+    "execution-core",
+]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+publish = false

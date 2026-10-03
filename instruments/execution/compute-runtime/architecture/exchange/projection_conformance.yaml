@@ -1,0 +1,57 @@
+"artifact": "projection_conformance"
+"excluded":
+  "__init__": "package marker"
+  "interface": "backends/neural and backends/simulation define PROTOCOLS and types, not a projection that produces output from canonical state. There is nothing to rebuild and nothing that could write. Listed with a reason rather than skipped, because a quiet omission and a considered exclusion look identical in a report"
+"extends": "core@1.0.0"
+"generated_by": "architecture/projection_conformance.py"
+"method":
+  "barrier": "BEHAVIOURAL, NOT GREPPED. The canonical layer's own fingerprint is taken before and after; a write moves it however it is spelled. A source search for `put_` tests SPELLING, and a mutant reaching the same method through getattr and a split string walked past exactly such a check in this repository"
+  "enumeration": "projections are DISCOVERED from the tree and the probe REFUSES if one is uncovered. A conformance report over the projections someone remembered is the shape already measured here once: every check passing, over a set that omitted the failing one"
+  "rebuild": "the projection is regenerated from the canonical layer alone and required to be identical, over a NON-EMPTY canonical state -- an empty one reproduces identically for the wrong reason"
+"owner": "STE"
+"projections":
+  - "detail": "SVG regenerated from the same IR is byte-identical, and the IR is unchanged after compiling -- measured, not assumed from the signature taking no pool"
+    "module": "backends/diagram/compiler.py"
+    "rebuilt_identically": true
+    "verdict": "REBUILDABLE"
+    "write_barrier_held": true
+  - "detail": "the analysis report regenerated from the same IR is equal, and the IR is unchanged after analysing"
+    "module": "backends/graph/analysis.py"
+    "rebuilt_identically": true
+    "verdict": "REBUILDABLE"
+    "write_barrier_held": true
+  - "detail": "the scene descriptor regenerated from the same IR is equal, and the IR is unchanged after compiling"
+    "module": "backends/threejs/compiler.py"
+    "rebuilt_identically": true
+    "verdict": "REBUILDABLE"
+    "write_barrier_held": true
+  - "detail": "pure: the projected state shares no mutable reference with the version, so it cannot reach back into canonical state without a write call at all"
+    "module": "core/projection/project.py"
+    "rebuilt_identically": true
+    "verdict": "REBUILDABLE"
+    "write_barrier_held": true
+  - "detail": "connectivity is a function of the graph, which is a function of the pool"
+    "module": "evidence/metrics.py"
+    "rebuilt_identically": true
+    "verdict": "REBUILDABLE"
+    "write_barrier_held": true
+  - "detail": "the graph is a pure function of the pool's referents and relationships; dropping it and rebuilding gives the same nodes and edges"
+    "module": "evidence/trust_graph.py"
+    "rebuilt_identically": true
+    "verdict": "REBUILDABLE"
+    "write_barrier_held": true
+  - "detail": "the module whose source contains a write-shaped line; the fingerprint says whether anything actually moved, which a grep cannot"
+    "module": "materials/analysis.py"
+    "rebuilt_identically": true
+    "verdict": "REBUILDABLE"
+    "write_barrier_held": true
+"summary":
+  "discovered": 7
+  "excluded_with_a_reason": 2
+  "not_rebuildable": 0
+  "probed": 7
+  "rebuildable": 7
+  "writes_upstream": 0
+"the_properties_being_measured": "the data-platform plan rests on two: NO SERVING PROJECTION WRITES CANONICAL TRUTH, and serving projections are REBUILDABLE from canonical state. Every layer above the canonical one is disposable only if both hold; where either fails, that projection carries state nothing can regenerate and the canonical layer is not canonical for it"
+"what_this_does_not_claim": "that a rebuildable projection is CORRECT, or that it will stay rebuildable at scale. It says the projection is a function of the canonical layer on this data, which is what makes it disposable -- not that the function is the right one. And every verdict here is REBUILDABLE, which is a fact about seven modules and not a guarantee about the eighth"
+"why_now": "both are checkable before any of the infrastructure exists, and that is the reason to check. A projection that turns out not to be rebuildable is a cheap finding today and an expensive one after a lakehouse has been built on the assumption"

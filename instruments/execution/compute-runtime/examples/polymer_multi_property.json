@@ -1,0 +1,15 @@
+{
+  "name": "polymer multi-property qualification",
+  "process": "process-std-190c",
+  "formulations": ["baseline", "modified"],
+  "criteria": [
+    {"property": "tensile_strength",    "operator": ">=", "target": 75.0,
+     "context": {"temperature_c": 25}},
+    {"property": "tensile_strength",    "operator": ">=", "target": 60.0,
+     "context": {"temperature_c": 100}},
+    {"property": "elongation_at_break", "operator": ">=", "target": 10.0,
+     "context": {"temperature_c": 25}},
+    {"property": "density",             "operator": "<=", "target": 1.2,
+     "context": {"temperature_c": 25}}
+  ]
+}

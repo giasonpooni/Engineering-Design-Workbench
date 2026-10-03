@@ -1,0 +1,84 @@
+# The Transformer Engine contract: scientific state transformation and
+# model computation, subordinate to the epistemic architecture.
+# Classification: Transformer contract (not core; core semantics
+# unchanged).
+extends: core@1.0.0
+
+contract: transformer_engine
+
+chain:
+  - canonical scientific state (structures/, evidence -- not owned here)
+  - TransformerRepresentation (typed tokens; identity ste.transformer.representation.v1)
+  - tensor encoding (a computational projection of the representation)
+  - AttentionModel (identity ste.transformer.model.v1 over the weights)
+  - ExecutionSpecification (STE boundary, unchanged; model params travel
+    inside the input payload, so spec identity covers model+data jointly)
+  - ExecutionResult -> Prediction (explicit uncertainty_kind; never evidence)
+  - validation / admissibility / acquisition (the loop's return edge)
+
+identity_separation:
+  model: ste.transformer.model.v1
+  representation: ste.transformer.representation.v1
+  specification: STE (unchanged)
+  computation: STE (unchanged)
+  operation: OperationTrace (unchanged)
+  verification: proof/warrant machinery (unchanged)
+
+boundaries:
+  ste: the ONLY execution path -- transformer computation is an
+    ExecutionSpecification against the registered attention kernel; no
+    TransformerExecution/Proof/Warrant/Evidence systems exist
+  scl: "INSPECTED 2026-08-25: no C++/CUDA package exists in this
+    repository; the computational substrate is the Rust native engine
+    (plus the external MD engine boundary); an accelerator path is a
+    future backend extension behind the same boundary, never a second
+    runtime"
+  evidence: no write path from transformer/ into the pool; the
+    minting-seam ratchet (tests/test_architecture_sync.py) enforces it
+    mechanically; a Prediction re-enters evidence only through
+    validation -> admissibility -> acquisition
+  proving: no guest is registered for the attention kernel; the stage-5
+    gate refuses attributably (locked by test)
+  fep: no concrete FEP machinery is required by this workload; none was
+    built (runtime/feedback_loop.py is the earlier projection-layer
+    loop, not an epistemic authority)
+
+invariants:
+  - id: prediction_is_not_evidence
+    rule: a Prediction has no conversion to an Observation and no pool
+          write path; model preference never becomes a truth claim
+    status: enforced
+    enforcement: {locks: tests/test_transformer_engine.py + the
+                  minting-seam ratchet, failure_mode: structural}
+  - id: prediction_carries_uncertainty_kind
+    rule: every Prediction declares its uncertainty posture explicitly
+          ("absent" is a declared fact); calibrated uncertainty remains
+          required for canonical assertion per evidence_class.yaml
+    status: enforced
+    enforcement: {validator: transformer.prediction.Prediction,
+                  failure_mode: fail_closed}
+  - id: transformer_reference_agreement
+    rule: the kernel's output agrees with an independent pure-Python
+          reference implementation of the committed semantics
+    status: enforced
+    enforcement: {locks: tests/test_transformer_engine.py,
+                  failure_mode: fail_closed}
+
+frontier:
+  engine_per_request_cost:
+    status: deferred
+    measured: ~35-37 us/item engine-side at B=256; 12,062 forwards/s
+    profiled: |
+      2026-08-25, differential (no instrumentation, no engine change).
+      spawn 2.15 ms/process (one-time); marginal per-request 11.43 us
+      fixed; input 12.7 us/KB; output hex+format 58.2 us/KB.
+      Real request (280 B in, 160 B out) at B=256 -- spawn 26%, fixed
+      bookkeeping 35%, output hex+format 28%, input parse 11%; sums to
+      32.7 us against 35-37 us measured independently, so the model is
+      sound. The hex hypothesis is real per BYTE but NOT dominant at
+      this workload; the largest marginal term is the fixed
+      per-request path.
+    plan_of_record: profiling DONE (above); if the gate opens, target
+      the fixed per-request path first and output formatting second;
+      all protocol/execution/identity/failure/verification semantics
+      preserved; benchmark before and after; stop if not meaningful

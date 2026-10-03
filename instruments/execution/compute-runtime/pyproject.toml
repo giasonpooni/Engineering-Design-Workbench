@@ -1,0 +1,10 @@
+[project]
+name = "deterministic-state-architecture"
+version = "1.0.0"
+description = "Versioned scientific state, declared computational workloads, and provenance-bearing execution"
+requires-python = ">=3.10"
+dependencies = []
+
+[tool.pytest.ini_options]
+testpaths = ["core", "morpho", "backends", "runtime", "tests"]
+python_files = ["test_*.py"]

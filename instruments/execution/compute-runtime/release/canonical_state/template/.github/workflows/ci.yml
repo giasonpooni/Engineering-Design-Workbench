@@ -1,0 +1,83 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    # The matrix is the point: this library declares zero dependencies,
+    # and the only way that claim stays true is if it is exercised on
+    # every supported interpreter and platform rather than asserted in
+    # a README.
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Install (no dependencies expected)
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install -e ".[dev]"
+      - name: Refuse a third-party runtime dependency
+        shell: python
+        run: |
+          import importlib.metadata as md
+          reqs = md.requires("canonical-state") or []
+          runtime = [r for r in reqs if "extra ==" not in r]
+          assert not runtime, f"runtime dependencies appeared: {runtime}"
+          print("zero runtime dependencies, as declared")
+      - run: python -m pytest tests/ -q
+
+  installed:
+    # WHAT THE SUITE ABOVE CANNOT SEE. It runs in a checkout, so the
+    # source is on the path and an installed copy is never exercised.
+    # That is how this release once built a wheel with 47 entries and
+    # none of them under `renderer/`, while the NOTICE said the three.js
+    # notice shipped with it. Build the wheel, install it somewhere
+    # else, and look.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Build a wheel and install it away from the source
+        run: |
+          python -m pip install --upgrade pip build
+          python -m build --wheel --outdir dist/
+          python -m pip install --no-deps --target /tmp/installed dist/*.whl
+      - name: Every module imports, and the page finds what it names
+        shell: python
+        run: |
+          import importlib, pathlib, re, sys
+          sys.path.insert(0, "/tmp/installed")
+          for module in (
+              "core.canonical.state", "core.canonical.version",
+              "core.canonical.validation", "core.canonical.delta",
+              "core.canonical.schema", "core.projection.project",
+              "morpho.compiler", "morpho.parser", "morpho.lexer", "morpho.ir",
+              "backends.threejs.compiler", "backends.diagram.compiler",
+              "backends.graph.analysis", "backends.simulation.interface",
+              "backends.neural.interface", "runtime.feedback_loop",
+              "adapters.json_adapter", "adapters.csv_adapter"):
+              importlib.import_module(module)
+          print("every module imports from the installed copy")
+
+          base = pathlib.Path(importlib.util.find_spec("renderer").origin).parent
+          page = (base / "index.html").read_text()
+          named = re.search(r'"three":\s*"([^"]+)"', page).group(1)
+          target = (base / named).resolve()
+          assert target.exists(), (
+              f"the installed page asks for {named} and the wheel did not "
+              f"carry it; the NOTICE says it ships")
+          assert (base / "vendor" / "THIRD_PARTY_NOTICES.md").exists(), (
+              "the third-party notice the NOTICE points at is not installed")
+          print(f"the page's {named} is installed ({target.stat().st_size:,} bytes)")

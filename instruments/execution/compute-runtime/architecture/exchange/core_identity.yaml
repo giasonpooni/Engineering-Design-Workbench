@@ -1,0 +1,73 @@
+"artifact": "core_identity"
+"bindings":
+  "DAQ":
+    "binds": "evidence_platform"
+    "digest_it_should_check": "sha256:41b191759ffaef4666d4d10a44bd18a4811baba77e7ba9ed671f875400d453f8"
+    "imports":
+      "evidence_platform": 294
+      "twin_compiler": 0
+  "SCL":
+    "binds": "evidence_platform"
+    "digest_it_should_check": "sha256:41b191759ffaef4666d4d10a44bd18a4811baba77e7ba9ed671f875400d453f8"
+    "imports":
+      "evidence_platform": 41
+      "twin_compiler": 0
+"core_version": "1.0.0"
+"deliberately_outside":
+  "architecture/core.yaml": "it declares the version this digest annotates. Hashing it would make the digest depend on the digest's own publication"
+  "architecture/exchange/": "derived artifacts. A projection is not a source, and a fixed point cannot be reached by an artifact that feeds itself"
+  "architecture/invariants.yaml": "invariant ROWS are added without bending; a registry that moved the core digest would move it on almost every commit"
+  "structures/, materials/, evidence/, scout/, execution/": "verticals and layers EXTEND the core; they never define it. A vertical that changed the core digest would mean the core had been widened to admit it, which is the thing bend_protocol forbids by name"
+"extends": "core@1.0.0"
+"generated_by": "architecture/core_identity.py"
+"how_a_party_checks_it": "core_identity.covers_what_is_bound(consumer_path, surface_name) first -- to establish the digest is about code the party actually imports -- then verify(digest, root, surface_name) over its own copy. BOTH arguments matter: checking a digest without checking its referent is what produced the defect above, and verify() without a surface name checks the twin track, which is not what any measured party binds"
+"owner": "STE"
+"surface_is_declared_not_globbed": "a glob would silently widen a track the first time a file was added beside these, and widening the core without a bend is what bend_protocol forbids. The evidence surface is the IDENTITY-BEARING modules only, not every file in six packages: a digest moving on any change to any of them would move on nearly every commit and distinguish nothing"
+"surfaces":
+  "evidence_platform":
+    "digest": "sha256:41b191759ffaef4666d4d10a44bd18a4811baba77e7ba9ed671f875400d453f8"
+    "empty_files": []
+    "files":
+      - "path": "evidence/admission.py"
+        "sha256": "5b125c55c7100e0c515bbdb59bb080da9d901403d25022c5ab2358eee4300b30"
+      - "path": "evidence/classes.py"
+        "sha256": "31abc1c189d8f0b7f2060d0ec9d80bf559c4c09defc4708ae47a9f939fb5de02"
+      - "path": "evidence/identity.py"
+        "sha256": "aaefc964c75f65cf910c00b22dd1fe228bbf9bbdc61cbddeb67528a231e16d35"
+      - "path": "evidence/pool.py"
+        "sha256": "3341c85160427636dc377a33b1a820c57369fe8ff211dd3508e526b47a6dd57a"
+      - "path": "evidence/types.py"
+        "sha256": "4c60db02e94db319dc170e07a8b2025256e4f29c4437b403ff8e5117134b94ee"
+  "twin_compiler":
+    "digest": "sha256:8a8c73f4cba45c70299ced9f4dddd870d430a94bc90c684363e330c2b010c560"
+    "empty_files":
+      - "core/__init__.py"
+      - "core/canonical/__init__.py"
+      - "core/projection/__init__.py"
+    "files":
+      - "path": "core/__init__.py"
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      - "path": "core/canonical/__init__.py"
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      - "path": "core/canonical/delta.py"
+        "sha256": "371edd34adb81b0fe852a70a1b16a4d36efa5d27355935f3d2d71a2a91a982c7"
+      - "path": "core/canonical/schema.py"
+        "sha256": "3078b3ff8f6acefa67b47bb4e9d3b078df094b5f5994eecba6ad1ad381d6c424"
+      - "path": "core/canonical/state.py"
+        "sha256": "2e52f08c10ab76318bd3cfb81c40fa658ad83082e5e2cd1fdef931f4d9f40713"
+      - "path": "core/canonical/validation.py"
+        "sha256": "92bafc98d28756cce8942bc0143e16da19bbfbf01a60f7256db0e13723bb923c"
+      - "path": "core/canonical/version.py"
+        "sha256": "629ec1599912c7381822e3580961062613df37e8a09cac1994a4277469bb4fee"
+      - "path": "core/projection/__init__.py"
+        "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+      - "path": "core/projection/project.py"
+        "sha256": "055bde598b836cb079a6262a930517438f4e817c74c3f3e81532219686f86cf1"
+"the_correction": "AN EARLIER VERSION OF THIS ARTIFACT PUBLISHED ONE DIGEST, over core/canonical and core/projection, described as the thing a binding party checks. Measured: the acquisition channel imports from this repository hundreds of times (291 measured 2026-09-03, 293 on 2026-09-05) and from those packages ZERO times; the compute layer imports 41 and zero. The digest covered exactly the code no binding party touches, and a change to evidence/types.py -- imported 125 times -- would not have moved it. That is the ORIGINAL CORE-VERSION DEFECT RECURRING: the right KIND of identity over the wrong BODY of code"
+"what_each_one_is_for":
+  "digest": "the IDENTITY -- which core that statement was made about"
+  "surface": "WHICH BODY OF CODE the identity is over, which is the part the first version got wrong"
+  "version": "the COMPATIBILITY statement -- what a party may rely on"
+"what_this_does_not_claim": "that a matching digest means two parties agree about anything beyond those bytes. It is an identity, not a warrant: it says which code, and says nothing about whether that code is right"
+"why_a_digest_as_well_as_a_version": "the version moves only under bend_protocol, so many different core commits legitimately carry the same label. THE ACQUISITION CHANNEL'S CENSUS OBSERVED EXACTLY THAT: two checkouts of this repository, on different commits, three days apart, both reporting 1.0.0, ancestry undeterminable from where it stood. It recorded the finding and said plainly it could not act on it -- naming which core a label refers to is this repository's act, because this repository declares the label"
+"why_there_are_two": "this repository holds TWO DISJOINT TRACKS. The acquisition channel's own reconnaissance says so, and import analysis confirms it: ZERO imports in either direction between {core, morpho, backends, runtime, adapters, renderer} and {evidence, scout, retrieval, materials, experiment, workbench}. Two unrelated projects sharing one repository, so one digest could never have been right for both"
