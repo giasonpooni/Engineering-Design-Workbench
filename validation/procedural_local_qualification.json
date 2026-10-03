@@ -30,6 +30,27 @@
       "errors": 0,
       "skipped": 0,
       "junit_sha256": "sha256:ac37edbec822bf293fd0ea7c8ba77c6e915cd7ec6929e2c1d22802121bdaa3e5"
+    },
+    "graphics-integrated-final": {
+      "tests": 822,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "junit_sha256": "sha256:ab70a087cc81b761015ee7bfd0188b5e3837e244cc299b5610629a1349d308b5"
+    },
+    "graphics-integrated-domain": {
+      "tests": 176,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "junit_sha256": "sha256:4a3d378ce46901da32debe4bcc7011456c357fa9f96dd2cd222108dbba73b57f"
+    },
+    "graphics-native-pins-clean": {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "junit_sha256": "sha256:7e2bd56a7fe04b0510f9a98e36bdccae7a446cb8856d0a9e07e2a3b5113499c4"
     }
   },
   "installed_cli": {
@@ -319,16 +340,26 @@
   },
   "wheel": {
     "filename": "computational_instrumentation_workbench-0.1.0-py3-none-any.whl",
-    "sha256": "sha256:dd1e35f02454bb2e67fadbb24e7670dcdbe8dcb3bdd26d4010aa26a234010ab7",
-    "all_366_installed_package_files_equal": true,
-    "graphics_source_equal": true
+    "sha256": "sha256:4129034e0a9c60feb46c1c2573777340f56233441992675bededead38c80198f",
+    "installed_package_files": 373,
+    "all_installed_package_files_equal": true,
+    "source_equal": true
   },
   "source_file_sha256": {
-    ".github/workflows/procedural-graphics.yml": "sha256:653d4ebcc3d205ac01694531ecb1dcf667d9d5766da5da6f052e83d8c198eafe",
+    ".github/workflows/operator-readiness.yml": "sha256:44754a79a5213e4579131ac061f6d087560a0fe649fe22f5955968e24b6366ed",
+    ".github/workflows/procedural-graphics.yml": "sha256:5b6ea71c8a70262fad19dc65e9d9e3a6a9ed475f037861764bab9ee129f5a971",
+    "scripts/check_operator_journey.py": "sha256:f0ddd227752588a9ff4332d8d6dfabd9c66e9b62fa8640230addb52f18b376ac",
     "scripts/check_procedural_installed.py": "sha256:5b791b42e1f60291a3f6f56021ae16b51a1a287393a1789b8d6cae2341ac7172",
     "src/ciw/graphics_notation.py": "sha256:9c838faaafcaddd7959ef10839fb7806ca0360c4e178874bc703748efb1fd592",
-    "src/ciw/net.py": "sha256:8b54617a8ce8ef42f71af5d28d9ae75b1ccac1c577a46cb45ad6473179f73be6",
+    "src/ciw/net.py": "sha256:caa2bfdf539940a58c7bc31fc6a3e01763b61e509276665ab1e4838c9e0a204d",
     "src/ciw/operations/schemas.py": "sha256:41a8823eba2fffde462a4abb034226c9eba6a70c0dd90ce4b061c9eeb692256c",
+    "src/ciw/operator_catalog.py": "sha256:35f7542b296119a6d8122fee6891f3dc83a6801b5d12cf0d75a8cc66e6139357",
+    "src/ciw/operator_commands.py": "sha256:06d00e9e2c3f3cdfcaf016f930d2f9a46b1d50159f320c1c17cc6b3d99571672",
+    "src/ciw/operator_doctor.py": "sha256:4b8d7d36324b73ff8beb46a567e266c9b14c919847fc5088399ed4a2a421e104",
+    "src/ciw/operator_examples/thermal-source.json": "sha256:417336de056e77f8b755227f3cba854e358ae34bc4135e1452d0a998fc79ea82",
+    "src/ciw/operator_provision.py": "sha256:bb3725e0279daf3b1554d47f404ea60184dda3866b5411fe0eefadee5a4e64d7",
+    "src/ciw/operator_start.py": "sha256:c26a40be485a24c3415a37b98fcc3f2eb14eae44cc89819b4d06423ebad5d602",
+    "src/ciw/operator_workbench.py": "sha256:1dcfa0f9a7504a76cd0b0da8c784b7c82122e372f881fd7791c2501ce66fa92e",
     "src/ciw/procedural_cli.py": "sha256:89d8520e180c1474178fb0c7055c48c1932783a93e61f43f96f4898cfeed17ae",
     "src/ciw/procedural_compiler.py": "sha256:4d8c152fe2ddb3cba19c572678e36ba87018caae222fa4b805708a95a40a99a9",
     "src/ciw/procedural_contract.py": "sha256:97e0d55eba32577ae894d612dd372d72e48613867575696447d5b269e90fa113",
@@ -338,10 +369,17 @@
     "src/ciw/procedural_texture.py": "sha256:120510ec4738bf7e56d11ff4839e87f622267886b6162e27c45b5d7e7626ea6b",
     "src/ciw/procedural_verification.py": "sha256:e0058872f397dae6b8def8456b6ecaad2535f0b2971265b111a65b59fd8f6023",
     "src/ciw/procedural_workflow.py": "sha256:d656aa70c35fab1b6b5d3b37eb0727e87fa975be0ace0a9c9253b87fb7fc0ffb",
+    "src/ciw/provider_checkouts.py": "sha256:c341fac9ee845693f165dc3c005f72a1f0692d13f797e8dc49bb256b30683d83",
+    "src/ciw/scientific_cli.py": "sha256:ae83f2de32648a60c3c42ca8689966cc9c323aa7dcb09e5d8dc22742b404be26",
     "src/ciw/session.py": "sha256:c9439fb4152a7d8f74d329b6da755893077703ce7e335a23e01fdd1d5d154b71",
     "src/ciw/web/procedural_workbench.css": "sha256:c1ae5d94c7d36a6f31d3bb21e0d2128699a5fe61f501d9566499aaddf047adcf",
     "src/ciw/web/procedural_workbench.html": "sha256:89d5112546ba2040739c6784f479e8b812124587b3fa2cf67fd3fbed808095fc",
     "src/ciw/web/procedural_workbench.js": "sha256:9e6bb5e9a5ff8beca82789472a565f997312a3737c64d55110dee727655742f7",
+    "tests/test_operator_catalog.py": "sha256:871c581a2be187092a808f35a524a32a27dda2db945a31162a1a5f5745bbebcf",
+    "tests/test_operator_doctor.py": "sha256:396814c72d469262371c618f00bdaff0e9ea553166c3951ed3200c3a364727d3",
+    "tests/test_operator_provision.py": "sha256:3eda36431aade9c8617e114bec08ba78f484295077bdb74d9bc7edcfaf0aa1a8",
+    "tests/test_operator_start.py": "sha256:ed7925fcc5320f0a888aea4fa515712efb899bef23a7006206d128b3d6043c4e",
+    "tests/test_operator_workbench.py": "sha256:b54d55ea2b5c7ac254d202f3f0705a3ae630fc32034300cc3158f83a159e1ba8",
     "tests/test_procedural_core.py": "sha256:cd13c535bd547f388ee17b5b30826bc6429c9d72cabc96ca39fa650965598e86",
     "tests/test_procedural_integration_audit.py": "sha256:fc1a047739903525c7ae5f66c64ea965b214412a96168cf9290b76a852a63af9",
     "tests/test_procedural_representation_verification.py": "sha256:b881689254c732fb893d4c783f9f82d86fccf70b0a35bc50a2b03387d52c36c5",
@@ -350,14 +388,14 @@
     "tests/test_procedural_workflow.py": "sha256:59b4709079169dd3045f599b64c0129a055e7a4be88ad67b9e65539add80d1f9",
     "validation/procedural_browser.cjs": "sha256:746dd83bdc375ea0017228880909688a33cce698ea41591ad7f7208890ac78fc"
   },
-  "source_fingerprint": "sha256:abe063b7b0ec6ee12e41fa88f1f69e623d834d01bdb57f7295374e2c987d5d87",
+  "source_fingerprint": "sha256:6a544cbc129a37ee8c764e79e3f4e69b12cd9fd2a3f31a388d02af3f2893f8ca",
   "screenshots_sha256": {
-    "high-contrast-desktop.png": "sha256:66ac429e6ae863932f45df44857a269640ac3f7e013cb9734f7a955136238735",
-    "high-contrast-mobile.png": "sha256:9eded0d457f4f7cf5821cb7d24a14afd985008761fe4705e7b4b7d8b6522e260",
-    "implicit-desktop.png": "sha256:5b21753bfc042ac52b3f4ae3044be23cc5aaf1408db1150a133f8ebc0e4ac681",
-    "shader-failure-cpu-fallback.png": "sha256:76f7f53987bede6d6dd08e9a5947b9fcc41a820075fd7054082172e2fcb84e83",
-    "surface-desktop.png": "sha256:809a1f30cade32ab9bc52ed12ba9de1b0d2e4ce9cf13aa13c6d1b4dc95d4ec59",
-    "texture-desktop.png": "sha256:6cf4d8d0d409f99cbbbca828528a6703f4dfe5a712e26d64cc844c9867b5798f"
+    "high-contrast-desktop.png": "sha256:ef5d4a1ed8435a3629ebd66d28dee78ae7c0400189b4bd3326a82e22ae2261d8",
+    "high-contrast-mobile.png": "sha256:97632a363d4408e8dbff33da89bd596b5388b33df1420ef6e70537a30bcd504b",
+    "implicit-desktop.png": "sha256:83eda7fe4019881ca5e1d0959826d048a6d6cb36911d8e46682eb4eefd5bcb29",
+    "shader-failure-cpu-fallback.png": "sha256:413911a1d5d4d405e7fb33dca86f1480eca770f138e55b828f1a0e6685662a1a",
+    "surface-desktop.png": "sha256:6a6953b73e99409079e75d70b1721b39060721489a0351fa2c32a0965d1a661d",
+    "texture-desktop.png": "sha256:06915713079851261a914368af36c4df0209b9ab6f03dda938377bd98111895b"
   },
   "ready_to_expose": [
     "bounded_implicit_mesh",
@@ -384,5 +422,181 @@
     "physical_material_validation_not_established",
     "state_admission_not_performed",
     "editable_polygon_tooling_and_unrestricted_GLSL_not_exposed"
-  ]
+  ],
+  "integration_main_commit": "d313351f96aad73fe40229b7d705b18c12e96b64",
+  "initial_implementation_commit": "caa28fd807deb07da4c7689a8423028e9504aaee",
+  "retained_runtime_audit": {
+    "schema": "ciw.procedural-runtime-qualification.v1",
+    "status": "PASS",
+    "installed_source_match": {
+      "net": "caa2bfdf539940a58c7bc31fc6a3e01763b61e509276665ab1e4838c9e0a204d",
+      "operator_commands": "06d00e9e2c3f3cdfcaf016f930d2f9a46b1d50159f320c1c17cc6b3d99571672",
+      "procedural_contract": "97e0d55eba32577ae894d612dd372d72e48613867575696447d5b269e90fa113",
+      "graphics_notation": "9c838faaafcaddd7959ef10839fb7806ca0360c4e178874bc703748efb1fd592",
+      "procedural_compiler": "4d8c152fe2ddb3cba19c572678e36ba87018caae222fa4b805708a95a40a99a9",
+      "procedural_surface": "8b51e2a8a8efe2e04168edd2b3d560c1b5d8e7f4c0a28fbbd62603f1caf8ceb6",
+      "procedural_texture": "120510ec4738bf7e56d11ff4839e87f622267886b6162e27c45b5d7e7626ea6b",
+      "procedural_verification": "e0058872f397dae6b8def8456b6ecaad2535f0b2971265b111a65b59fd8f6023",
+      "procedural_representation_verification": "a963a7dfb0a65b3acfd393b79a43c430b7e7207eb3045fccb48548138b40b1fb",
+      "procedural_workflow": "d656aa70c35fab1b6b5d3b37eb0727e87fa975be0ace0a9c9253b87fb7fc0ffb"
+    },
+    "expected_runtime": {
+      "procedural.generate.v1": {
+        "provider": "ciw.procedural.compiler",
+        "version": "1",
+        "code_sha256": "961f8211b4bf912962e2224b69c0aae72dd2919904bc24239d924b6b88617a43",
+        "source_normalization": "utf8_lf",
+        "scope": "declared_visual_procedural_artifact_only",
+        "environment": {
+          "python": "3.12.14",
+          "numpy": "2.4.3",
+          "floating_point": "binary64",
+          "zlib": "1.3.2",
+          "zlib_compiled": "1.3.2"
+        }
+      },
+      "procedural.verify.v1": {
+        "provider": "ciw.procedural.verifier",
+        "version": "1",
+        "code_sha256": "aaef49f345bec1e82b87e4ae05453b6e7d63017def6ab9e60b953c74c40096f7",
+        "source_normalization": "utf8_lf",
+        "scope": "declared_visual_procedural_artifact_only",
+        "environment": {
+          "python": "3.12.14",
+          "numpy": "2.4.3",
+          "floating_point": "binary64",
+          "zlib": "1.3.2",
+          "zlib_compiled": "1.3.2"
+        }
+      }
+    },
+    "retained_records": [
+      {
+        "file": "runs/run-142fac5b8d0c4106b27a08b018ddc1f9/result-5622718220a2491cabd07495a2397714.json",
+        "operation_id": "procedural.generate.v1",
+        "code_sha256": "961f8211b4bf912962e2224b69c0aae72dd2919904bc24239d924b6b88617a43"
+      },
+      {
+        "file": "runs/run-142fac5b8d0c4106b27a08b018ddc1f9/result-60604452eaba44328b86fb42a06e1e0f.json",
+        "operation_id": "procedural.verify.v1",
+        "code_sha256": "aaef49f345bec1e82b87e4ae05453b6e7d63017def6ab9e60b953c74c40096f7"
+      },
+      {
+        "file": "runs/run-27afa20e111146a2ba44539267985a42/result-904cc3652f2d4871888161b8a4dc78fc.json",
+        "operation_id": "procedural.generate.v1",
+        "code_sha256": "961f8211b4bf912962e2224b69c0aae72dd2919904bc24239d924b6b88617a43"
+      },
+      {
+        "file": "runs/run-27afa20e111146a2ba44539267985a42/result-d6c77b36dbd441119f9eef31b7baf184.json",
+        "operation_id": "procedural.verify.v1",
+        "code_sha256": "aaef49f345bec1e82b87e4ae05453b6e7d63017def6ab9e60b953c74c40096f7"
+      },
+      {
+        "file": "runs/run-299d430f5be445329d8dda5770c167f1/result-4988b98e30934a3b881b5846c171d439.json",
+        "operation_id": "procedural.verify.v1",
+        "code_sha256": "aaef49f345bec1e82b87e4ae05453b6e7d63017def6ab9e60b953c74c40096f7"
+      },
+      {
+        "file": "runs/run-299d430f5be445329d8dda5770c167f1/result-922aefe5ba324bdfa4b52182d8bb9185.json",
+        "operation_id": "procedural.generate.v1",
+        "code_sha256": "961f8211b4bf912962e2224b69c0aae72dd2919904bc24239d924b6b88617a43"
+      },
+      {
+        "file": "runs/run-499ddff84ac24640906bf64f86437c1b/result-82687b7c8b3d466abf29e8e76715d1c2.json",
+        "operation_id": "procedural.verify.v1",
+        "code_sha256": "aaef49f345bec1e82b87e4ae05453b6e7d63017def6ab9e60b953c74c40096f7"
+      },
+      {
+        "file": "runs/run-499ddff84ac24640906bf64f86437c1b/result-a95a9b55edfb43588121083769ea0722.json",
+        "operation_id": "procedural.generate.v1",
+        "code_sha256": "961f8211b4bf912962e2224b69c0aae72dd2919904bc24239d924b6b88617a43"
+      },
+      {
+        "file": "runs/run-6e9d18c28ed947788eef51566daec4d5/result-3497cec59f594065becf9ca5f28ad37c.json",
+        "operation_id": "procedural.verify.v1",
+        "code_sha256": "aaef49f345bec1e82b87e4ae05453b6e7d63017def6ab9e60b953c74c40096f7"
+      },
+      {
+        "file": "runs/run-6e9d18c28ed947788eef51566daec4d5/result-a565bbbf7e1643ac82d4ec6863d36497.json",
+        "operation_id": "procedural.generate.v1",
+        "code_sha256": "961f8211b4bf912962e2224b69c0aae72dd2919904bc24239d924b6b88617a43"
+      },
+      {
+        "file": "runs/run-d94f0faab7084d36970234f659ba4e95/result-92016a9ce7cd41319454c5285830417b.json",
+        "operation_id": "procedural.generate.v1",
+        "code_sha256": "961f8211b4bf912962e2224b69c0aae72dd2919904bc24239d924b6b88617a43"
+      },
+      {
+        "file": "runs/run-d94f0faab7084d36970234f659ba4e95/result-c1999da035074df39c086d6a61b4ddbe.json",
+        "operation_id": "procedural.verify.v1",
+        "code_sha256": "aaef49f345bec1e82b87e4ae05453b6e7d63017def6ab9e60b953c74c40096f7"
+      },
+      {
+        "file": "runs/run-127e4158ddee465cb44936972b472530/execution-0d684b6d81bf4ee38a2c8df4a0a14550.json",
+        "operation_id": "procedural.generate.v1",
+        "code_sha256": "961f8211b4bf912962e2224b69c0aae72dd2919904bc24239d924b6b88617a43"
+      },
+      {
+        "file": "runs/run-142fac5b8d0c4106b27a08b018ddc1f9/execution-0e4096aa43c84ac39931dba137e6ee69.json",
+        "operation_id": "procedural.generate.v1",
+        "code_sha256": "961f8211b4bf912962e2224b69c0aae72dd2919904bc24239d924b6b88617a43"
+      },
+      {
+        "file": "runs/run-142fac5b8d0c4106b27a08b018ddc1f9/execution-cdcb5c7c092b4f7080ad357ff02e3e2e.json",
+        "operation_id": "procedural.verify.v1",
+        "code_sha256": "aaef49f345bec1e82b87e4ae05453b6e7d63017def6ab9e60b953c74c40096f7"
+      },
+      {
+        "file": "runs/run-27afa20e111146a2ba44539267985a42/execution-1bdc4ce8ce2b48dba22f09e2fcf49a3d.json",
+        "operation_id": "procedural.generate.v1",
+        "code_sha256": "961f8211b4bf912962e2224b69c0aae72dd2919904bc24239d924b6b88617a43"
+      },
+      {
+        "file": "runs/run-27afa20e111146a2ba44539267985a42/execution-77597d08183149b8822ab30c5eb48237.json",
+        "operation_id": "procedural.verify.v1",
+        "code_sha256": "aaef49f345bec1e82b87e4ae05453b6e7d63017def6ab9e60b953c74c40096f7"
+      },
+      {
+        "file": "runs/run-299d430f5be445329d8dda5770c167f1/execution-5c984ea1a3d24b5ea7f9437e619b3a97.json",
+        "operation_id": "procedural.generate.v1",
+        "code_sha256": "961f8211b4bf912962e2224b69c0aae72dd2919904bc24239d924b6b88617a43"
+      },
+      {
+        "file": "runs/run-299d430f5be445329d8dda5770c167f1/execution-ad581039acd74ac5bd04814684f17a44.json",
+        "operation_id": "procedural.verify.v1",
+        "code_sha256": "aaef49f345bec1e82b87e4ae05453b6e7d63017def6ab9e60b953c74c40096f7"
+      },
+      {
+        "file": "runs/run-499ddff84ac24640906bf64f86437c1b/execution-0ca4550b09664ff5a6b7f09234e4fa02.json",
+        "operation_id": "procedural.verify.v1",
+        "code_sha256": "aaef49f345bec1e82b87e4ae05453b6e7d63017def6ab9e60b953c74c40096f7"
+      },
+      {
+        "file": "runs/run-499ddff84ac24640906bf64f86437c1b/execution-d004909990884034a5a668f612cca463.json",
+        "operation_id": "procedural.generate.v1",
+        "code_sha256": "961f8211b4bf912962e2224b69c0aae72dd2919904bc24239d924b6b88617a43"
+      },
+      {
+        "file": "runs/run-6e9d18c28ed947788eef51566daec4d5/execution-8cee290dbbd543ee940b15da95fae366.json",
+        "operation_id": "procedural.verify.v1",
+        "code_sha256": "aaef49f345bec1e82b87e4ae05453b6e7d63017def6ab9e60b953c74c40096f7"
+      },
+      {
+        "file": "runs/run-6e9d18c28ed947788eef51566daec4d5/execution-e7707ad747aa4d168a8c9a73df0a1297.json",
+        "operation_id": "procedural.generate.v1",
+        "code_sha256": "961f8211b4bf912962e2224b69c0aae72dd2919904bc24239d924b6b88617a43"
+      },
+      {
+        "file": "runs/run-d94f0faab7084d36970234f659ba4e95/execution-7e41565e1ae7439d895a59aeff26e5b7.json",
+        "operation_id": "procedural.generate.v1",
+        "code_sha256": "961f8211b4bf912962e2224b69c0aae72dd2919904bc24239d924b6b88617a43"
+      },
+      {
+        "file": "runs/run-d94f0faab7084d36970234f659ba4e95/execution-9967b22852264badb4f8348b2046de7e.json",
+        "operation_id": "procedural.verify.v1",
+        "code_sha256": "aaef49f345bec1e82b87e4ae05453b6e7d63017def6ab9e60b953c74c40096f7"
+      }
+    ],
+    "retained_record_count": 25
+  }
 }

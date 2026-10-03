@@ -107,18 +107,28 @@ from hypergraph evolution to fundamental physics.
 
 ## Quickstart
 
-Start with [Run NET with the installed public tools](docs/RUN_NET.md) for
-installation, dependency preflight and one checked path through analysis,
-impact, Legibility and atmospheric handoffs.
+Follow the [operator quickstart](docs/quickstart.md) to install, check and use the
+instrument. `net catalog` shows its command surfaces and scientific provider
+requirements; `net start --output-dir results/first-use-001` runs the bounded
+synthetic first-use check and retains its completion receipt. Start or resume
+one local investigation with `net workbench --output-dir results/workbench`.
 
-Python **3.11 or newer** is required. From a checkout:
+The [operator readiness guide](docs/OPERATOR_READINESS.md) explains exact public
+provider provisioning and specialist qualification. Scientific provider and
+engine dependencies remain optional and explicitly bound. Reading retained
+results must not silently launch a runtime or rerun an experiment.
+
+The [installed public-tool guide](docs/RUN_NET.md) adds checked paths through
+impact, signed Legibility and atmospheric handoffs. Python 3.11 or newer is
+required.
+
 
 ```sh
-python -m pip install -e .
-net demo --output-dir results/net-demo
-net providers --json
-net capabilities --json
-net science catalog
+python -m pip install .
+net doctor --profile core
+net catalog
+net start --output-dir results/first-use-001
+net workbench --output-dir results/workbench
 ```
 
 For the signed legibility demonstration:

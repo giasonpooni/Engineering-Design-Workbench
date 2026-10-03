@@ -178,12 +178,12 @@ The checked-in [local qualification record](../validation/procedural_local_quali
 | Gate | Passed locally |
 | --- | --- |
 | Untouched main baseline | 233 shared substrate tests |
-| Graphics and shared substrate | 764 tests, zero failures/errors/skips |
+| Graphics, unified operator navigation, and shared substrate | 822 tests, zero failures/errors/skips |
 | Existing impact, atmosphere, fluid, and workflow regressions | 176 tests, zero failures/errors/skips |
 | Isolated installed wheel | 47 CLI commands across five profiles, exports, replay, and resource/notation refusals |
 | Installed browser journey | 13 scenarios, zero uncaught browser errors; desktop and 390-pixel mobile |
 
-These results qualify the bounded local demo on Linux/Python 3.12.14 with Chromium 140.0.7339.186 and Playwright 1.62.1. The observed WebGL backend was ANGLE/SwiftShader; this establishes actual shader compilation and display through that API, without establishing a hardware GPU or general GPU/CPU pixel identity. The configured Linux/Windows and Python 3.11/3.12 CI matrix reports its own execution evidence separately.
+The integrated implementation uses main's shared command catalogue for `net graphics` help, discovery, and lazy dispatch. Its operator tests also reproduce eight original provider checkouts from retained Git history; checkout identity does not establish provider science. These results qualify the bounded local demo on Linux/Python 3.12.14 with Chromium 140.0.7339.186 and Playwright 1.62.1. The observed WebGL backend was ANGLE/SwiftShader; this establishes actual shader compilation and display through that API, without establishing a hardware GPU or general GPU/CPU pixel identity. The configured Linux/Windows and Python 3.11/3.12 CI matrix reports its own execution evidence separately.
 
 Source checks and wheel qualification are separate:
 
