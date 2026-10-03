@@ -12,7 +12,7 @@ def project(record, source, declaration, revision):
     object_kinds = {"schematic-assessment": "declared_schematic", "schematic-companions": "local_model_analysis",
                     "numerical-heat": "integer_numerical_field", "proved-heat": "proved_integer_numerical_field", "bim-quantity": "construction_quantity",
                     "acquired-dataset": "acquired_evidence", "thermal-observer": "thermal_observer_reference",
-                    "machine-manifest": "machine_manifest_reference", "project-graph": "project_graph_reference", "julia-oscillator": "julia_tsit5_trajectory", "native-interop": "native_computation"}
+                    "machine-manifest": "machine_manifest_reference", "project-graph": "project_graph_reference", "julia-oscillator": "julia_tsit5_trajectory", "native-interop": "native_computation", "sensor-fusion": "declared_sensor_fusion_candidate"}
     context = {"object_kind": object_kinds[kind],
                "owner": step["runtime_ref"], "configuration": native["configuration"],
                "covariance_status": "not_applicable", "sensor_fusion": "not_performed",
@@ -20,7 +20,47 @@ def project(record, source, declaration, revision):
     panels = []
     provenance = {"source_id": source["source_id"], "evidence_id": source["evidence_id"],
                   "result_id": step["result_id"], "execution_id": step["execution_id"]}
-    if kind == "native-interop":
+    if kind == "sensor-fusion":
+        state = data["state_contract"]
+        estimates = data["estimates"]
+        context.update(
+            summary="Reconfigured GSIE sensor-fusion candidates",
+            sensor_fusion="performed_under_declared_models",
+            covariance_status="full_declared_model_posterior",
+            uncertainty_scope="conditional_on_declared_models_and_noise",
+            state_contract=deepcopy(state),
+            initial_state_id=data["initial_state_id"],
+            authority=deepcopy(data["authority"]),
+            estimate_count=len(estimates),
+        )
+        for estimate in estimates:
+            basis = {
+                "frame": deepcopy(state["frame"]),
+                "geometry": state["geometry"],
+                "clock_id": state["clock_id"],
+                "time": estimate["time"],
+                "batch_index": estimate["batch_index"],
+                "configuration_id": estimate["configuration_id"],
+                "configuration_ref": estimate["configuration_ref"],
+                "epoch_index": estimate["epoch_index"],
+                "predecessor_state_id": estimate["predecessor_state_id"],
+                "predicted_state_id": estimate["predicted_state_id"],
+                "state_id": estimate["state_id"],
+                "diagnostics": deepcopy(estimate["diagnostics"]),
+                "observation_order": deepcopy(estimate["observation_order"]),
+                "uncertainty_scope": context["uncertainty_scope"],
+                "state_admission": "not_performed",
+            }
+            panels.append(_panel(
+                "state-" + str(estimate["batch_index"]),
+                "Fusion candidate at " + str(estimate["time"]),
+                state["quantity_ids"], estimate["mean"], state["units"],
+                estimate["covariance"],
+                {**provenance, "state_id": estimate["state_id"],
+                 "observation_refs": deepcopy(estimate["observation_refs"])},
+                **basis,
+            ))
+    elif kind == "native-interop":
         context.update(summary="Retained SCR native computation", profile=declaration["profile"],
                        provider=declaration["provider"], arithmetic=declaration["arithmetic"],
                        semantics=deepcopy(declaration["semantics"]), output=deepcopy(data["output"]),
@@ -153,4 +193,3 @@ def project(record, source, declaration, revision):
         "verification": native["verification"], "runtimes": native["runtimes"],
         "authority": {"read_only": True, "numerical_replay": "not_performed_by_inspection", "state_admission": "not_performed",
                       **({"cryptographic_verification": "not_performed_by_inspection"} if kind == "proved-heat" else {})}})
-

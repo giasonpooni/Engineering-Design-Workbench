@@ -1,0 +1,580 @@
+{
+  "schema": "ciw.sensor-fusion-ekf-source.v1",
+  "experiment_id": "synthetic:ekf-planar-range-tracking",
+  "configuration": {
+    "method": "jspt.analytic-gsie.error-state-ekf.v1",
+    "state": {
+      "quantity_ids": [
+        "position_x",
+        "position_y",
+        "velocity_x",
+        "velocity_y"
+      ],
+      "units": [
+        "m",
+        "m",
+        "m/s",
+        "m/s"
+      ],
+      "frame": "synthetic-planar-map",
+      "geometry": "euclidean.v1",
+      "clock_id": "synthetic-reference-clock"
+    },
+    "configurations": [
+      {
+        "name": "two-ranges",
+        "sensors": [
+          {
+            "sensor_id": "west",
+            "quantity_ids": [
+              "range"
+            ],
+            "units": [
+              "m"
+            ],
+            "frame": "synthetic-planar-map",
+            "model": {
+              "family": "planar-range.v1",
+              "parameters": {
+                "position_matrix": [
+                  [
+                    1,
+                    0,
+                    0,
+                    0
+                  ],
+                  [
+                    0,
+                    1,
+                    0,
+                    0
+                  ]
+                ],
+                "anchor": [
+                  0,
+                  0
+                ],
+                "minimum_range": 0.25
+              },
+              "evidence_b64": "eyJhbmNob3JfbSI6WzAsMF0sImNsYWltX3Njb3BlIjoiY2FsbGVyX2RlY2xhcmVkX21vZGVsX25vdF9waHlzaWNhbGx5X3ZhbGlkYXRlZCIsImRvbWFpbiI6InByb2plY3RlZCBzdGF0ZSBtdXN0IGV4Y2VlZCBkZWNsYXJlZCBtaW5pbXVtIHJhbmdlIiwib3JpZ2luIjoic3ludGhldGljX2ZpeHR1cmUiLCJwb3NpdGlvbl9vcmRlciI6WyJwb3NpdGlvbl94IiwicG9zaXRpb25feSJdLCJyZXNwb25zZSI6InRydWUgRXVjbGlkZWFuIHJhbmdlIGluIG1ldHJlczsgbm90IHNxdWFyZWQgcmFuZ2UiLCJzdXJ2ZXlfcmVsYXRpb24iOiJzeW50aGV0aWMgY29vcmRpbmF0ZXM7IG5vIHN1cnZleWVkIHBoeXNpY2FsIGFuY2hvciJ9"
+            },
+            "model_ref": "synthetic:planar-range-west",
+            "calibration": {
+              "artifact_b64": "eyJjb2VmZmljaWVudF91bmNlcnRhaW50eSI6ImRlY2xhcmVkX3plcm9fZm9yX2ZpeHR1cmUiLCJnYWluIjoxLCJvZmZzZXQiOjAsIm9yaWdpbiI6InN5bnRoZXRpY19maXh0dXJlIiwicGh5c2ljYWxfdHJhY2VhYmlsaXR5Ijoibm90X2VzdGFibGlzaGVkIiwic2Vuc29yX2lkIjoid2VzdCJ9",
+              "valid_interval": [
+                0,
+                100
+              ],
+              "claim_scope": "caller_declared_not_verified"
+            }
+          },
+          {
+            "sensor_id": "east",
+            "quantity_ids": [
+              "range"
+            ],
+            "units": [
+              "m"
+            ],
+            "frame": "synthetic-planar-map",
+            "model": {
+              "family": "planar-range.v1",
+              "parameters": {
+                "position_matrix": [
+                  [
+                    1,
+                    0,
+                    0,
+                    0
+                  ],
+                  [
+                    0,
+                    1,
+                    0,
+                    0
+                  ]
+                ],
+                "anchor": [
+                  20,
+                  0
+                ],
+                "minimum_range": 0.25
+              },
+              "evidence_b64": "eyJhbmNob3JfbSI6WzIwLDBdLCJjbGFpbV9zY29wZSI6ImNhbGxlcl9kZWNsYXJlZF9tb2RlbF9ub3RfcGh5c2ljYWxseV92YWxpZGF0ZWQiLCJkb21haW4iOiJwcm9qZWN0ZWQgc3RhdGUgbXVzdCBleGNlZWQgZGVjbGFyZWQgbWluaW11bSByYW5nZSIsIm9yaWdpbiI6InN5bnRoZXRpY19maXh0dXJlIiwicG9zaXRpb25fb3JkZXIiOlsicG9zaXRpb25feCIsInBvc2l0aW9uX3kiXSwicmVzcG9uc2UiOiJ0cnVlIEV1Y2xpZGVhbiByYW5nZSBpbiBtZXRyZXM7IG5vdCBzcXVhcmVkIHJhbmdlIiwic3VydmV5X3JlbGF0aW9uIjoic3ludGhldGljIGNvb3JkaW5hdGVzOyBubyBzdXJ2ZXllZCBwaHlzaWNhbCBhbmNob3IifQ=="
+            },
+            "model_ref": "synthetic:planar-range-east",
+            "calibration": {
+              "artifact_b64": "eyJjb2VmZmljaWVudF91bmNlcnRhaW50eSI6ImRlY2xhcmVkX3plcm9fZm9yX2ZpeHR1cmUiLCJnYWluIjoxLCJvZmZzZXQiOjAsIm9yaWdpbiI6InN5bnRoZXRpY19maXh0dXJlIiwicGh5c2ljYWxfdHJhY2VhYmlsaXR5Ijoibm90X2VzdGFibGlzaGVkIiwic2Vuc29yX2lkIjoiZWFzdCJ9",
+              "valid_interval": [
+                0,
+                100
+              ],
+              "claim_scope": "caller_declared_not_verified"
+            }
+          }
+        ]
+      },
+      {
+        "name": "east-only",
+        "sensors": [
+          {
+            "sensor_id": "east",
+            "quantity_ids": [
+              "range"
+            ],
+            "units": [
+              "m"
+            ],
+            "frame": "synthetic-planar-map",
+            "model": {
+              "family": "planar-range.v1",
+              "parameters": {
+                "position_matrix": [
+                  [
+                    1,
+                    0,
+                    0,
+                    0
+                  ],
+                  [
+                    0,
+                    1,
+                    0,
+                    0
+                  ]
+                ],
+                "anchor": [
+                  20,
+                  0
+                ],
+                "minimum_range": 0.25
+              },
+              "evidence_b64": "eyJhbmNob3JfbSI6WzIwLDBdLCJjbGFpbV9zY29wZSI6ImNhbGxlcl9kZWNsYXJlZF9tb2RlbF9ub3RfcGh5c2ljYWxseV92YWxpZGF0ZWQiLCJkb21haW4iOiJwcm9qZWN0ZWQgc3RhdGUgbXVzdCBleGNlZWQgZGVjbGFyZWQgbWluaW11bSByYW5nZSIsIm9yaWdpbiI6InN5bnRoZXRpY19maXh0dXJlIiwicG9zaXRpb25fb3JkZXIiOlsicG9zaXRpb25feCIsInBvc2l0aW9uX3kiXSwicmVzcG9uc2UiOiJ0cnVlIEV1Y2xpZGVhbiByYW5nZSBpbiBtZXRyZXM7IG5vdCBzcXVhcmVkIHJhbmdlIiwic3VydmV5X3JlbGF0aW9uIjoic3ludGhldGljIGNvb3JkaW5hdGVzOyBubyBzdXJ2ZXllZCBwaHlzaWNhbCBhbmNob3IifQ=="
+            },
+            "model_ref": "synthetic:planar-range-east",
+            "calibration": {
+              "artifact_b64": "eyJjb2VmZmljaWVudF91bmNlcnRhaW50eSI6ImRlY2xhcmVkX3plcm9fZm9yX2ZpeHR1cmUiLCJnYWluIjoxLCJvZmZzZXQiOjAsIm9yaWdpbiI6InN5bnRoZXRpY19maXh0dXJlIiwicGh5c2ljYWxfdHJhY2VhYmlsaXR5Ijoibm90X2VzdGFibGlzaGVkIiwic2Vuc29yX2lkIjoiZWFzdCJ9",
+              "valid_interval": [
+                0,
+                100
+              ],
+              "claim_scope": "caller_declared_not_verified"
+            }
+          }
+        ]
+      }
+    ],
+    "noise_policy": {
+      "prior_measurement_crosscovariance": "declared_zero",
+      "process_measurement_crosscovariance": "declared_zero",
+      "process_prior_crosscovariance": "declared_zero",
+      "across_batches": "declared_independent",
+      "evidence_refs": [
+        "sha256:0f40c1859c5155a3b3d8893e92b9d11434338a0cca628b87c631ecf6aca43c14"
+      ]
+    }
+  },
+  "prior": {
+    "time": 0,
+    "mean": [
+      10,
+      4,
+      0.5,
+      0.2
+    ],
+    "covariance": [
+      [
+        0.25,
+        0,
+        0,
+        0
+      ],
+      [
+        0,
+        0.25,
+        0,
+        0
+      ],
+      [
+        0,
+        0,
+        0.04,
+        0
+      ],
+      [
+        0,
+        0,
+        0,
+        0.04
+      ]
+    ]
+  },
+  "batches": [
+    {
+      "time": 1,
+      "configuration_ref": "two-ranges",
+      "dynamics": {
+        "model": {
+          "family": "affine.v1",
+          "parameters": {
+            "matrix": [
+              [
+                1,
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                1,
+                0,
+                1
+              ],
+              [
+                0,
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                1
+              ]
+            ],
+            "offset": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "evidence_b64": "eyJjbGFpbV9zY29wZSI6ImNhbGxlcl9kZWNsYXJlZF9tb2RlbF9ub3RfcGh5c2ljYWxseV92YWxpZGF0ZWQiLCJjb29yZGluYXRlX3VuaXRzIjpbIm0iLCJtIiwibS9zIiwibS9zIl0sIm1hdHJpeF9jb2VmZmljaWVudF91bml0cyI6InBvc2l0aW9uLXRvLXZlbG9jaXR5IGNvdXBsaW5nIGNhcnJpZXMgc2Vjb25kcyIsIm9yaWdpbiI6InN5bnRoZXRpY19maXh0dXJlIiwicGh5c2ljYWxfbW90aW9uX21vZGVsIjoibm90X3ZhbGlkYXRlZCIsInJlc3BvbnNlIjoiY29uc3RhbnQtdmVsb2NpdHkgZGlzY3JldGUgQ2FydGVzaWFuIHRyYW5zaXRpb24iLCJzYW1wbGVfaW50ZXJ2YWxfcyI6MX0="
+        },
+        "process_covariance": [
+          [
+            0.01,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0.01,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0.002,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0.002
+          ]
+        ],
+        "model_ref": "synthetic:planar-constant-velocity-dt-1s"
+      },
+      "observations": [
+        {
+          "sensor_id": "west",
+          "record_b64": "eyJhY3F1aXNpdGlvbl9pZCI6InN5bnRoZXRpYzpla2YtcGxhbmFyLXJhbmdlLXRyYWNraW5nOndlc3Q6MSIsImNhbGlicmF0aW9uX3JlZiI6InNoYTI1Njo4ZWM0ZTgxMmU2NmY4YTY3ODdlNjQwMmM1MTYxNTMzNTM4MjRjY2M2YjY5NDYxZGQzYzRmZTkxYTFjMDU1NzA2IiwiY2xvY2tfaWQiOiJzeW50aGV0aWMtcmVmZXJlbmNlLWNsb2NrIiwiZnJhbWUiOiJzeW50aGV0aWMtcGxhbmFyLW1hcCIsInF1YW50aXR5X2lkcyI6WyJyYW5nZSJdLCJyYXdfZXZpZGVuY2VfYjY0IjoiZXlKaFkzRjFhWE5wZEdsdmJsOXBaQ0k2SW5ONWJuUm9aWFJwWXpwbGEyWXRjR3hoYm1GeUxYSmhibWRsTFhSeVlXTnJhVzVuT25kbGMzUTZNU0lzSW1sdVpHbGpZWFJsWkY5MllXeDFaWE1pT2xzeE1TNHpNemc0TkRZd09UUTVPREkwTlRoZExDSnZjbWxuYVc0aU9pSnplVzUwYUdWMGFXTmZabWw0ZEhWeVpTSXNJbkJvZVhOcFkyRnNYMjFsWVhOMWNtVnRaVzUwSWpvaWJtOTBYM0JsY21admNtMWxaQ0lzSW5OcGJYVnNZWFJsWkY5emRHRjBaU0k2V3pFd0xqVXNOQzR5TERBdU5Td3dMakpkZlE9PSIsInNjaGVtYSI6ImNpdy5mdXNpb24tb2JzZXJ2YXRpb24udjEiLCJzZW5zb3JfaWQiOiJ3ZXN0IiwidGltZSI6MSwidW5pdHMiOlsibSJdLCJ2YWx1ZXMiOlsxMS4zMzg4NDYwOTQ5ODI0NThdfQ=="
+        },
+        {
+          "sensor_id": "east",
+          "record_b64": "eyJhY3F1aXNpdGlvbl9pZCI6InN5bnRoZXRpYzpla2YtcGxhbmFyLXJhbmdlLXRyYWNraW5nOmVhc3Q6MSIsImNhbGlicmF0aW9uX3JlZiI6InNoYTI1NjphYjUxMzg1OGEyM2NiY2ZiNzc4MjVmZmI1NjhjZWZmYjI4NzJkN2JlNTIyMWM5ZWQ5MTc5YjhlNzA2NTY5ZWU0IiwiY2xvY2tfaWQiOiJzeW50aGV0aWMtcmVmZXJlbmNlLWNsb2NrIiwiZnJhbWUiOiJzeW50aGV0aWMtcGxhbmFyLW1hcCIsInF1YW50aXR5X2lkcyI6WyJyYW5nZSJdLCJyYXdfZXZpZGVuY2VfYjY0IjoiZXlKaFkzRjFhWE5wZEdsdmJsOXBaQ0k2SW5ONWJuUm9aWFJwWXpwbGEyWXRjR3hoYm1GeUxYSmhibWRsTFhSeVlXTnJhVzVuT21WaGMzUTZNU0lzSW1sdVpHbGpZWFJsWkY5MllXeDFaWE1pT2xzeE1DNHpOamN3TVRFeE1UazJOakk0TmpaZExDSnZjbWxuYVc0aU9pSnplVzUwYUdWMGFXTmZabWw0ZEhWeVpTSXNJbkJvZVhOcFkyRnNYMjFsWVhOMWNtVnRaVzUwSWpvaWJtOTBYM0JsY21admNtMWxaQ0lzSW5OcGJYVnNZWFJsWkY5emRHRjBaU0k2V3pFd0xqVXNOQzR5TERBdU5Td3dMakpkZlE9PSIsInNjaGVtYSI6ImNpdy5mdXNpb24tb2JzZXJ2YXRpb24udjEiLCJzZW5zb3JfaWQiOiJlYXN0IiwidGltZSI6MSwidW5pdHMiOlsibSJdLCJ2YWx1ZXMiOlsxMC4zNjcwMTExMTk2NjI4NjZdfQ=="
+        }
+      ],
+      "measurement_noise": {
+        "channel_order": [
+          "west/range",
+          "east/range"
+        ],
+        "matrix": [
+          [
+            0.04,
+            0.008
+          ],
+          [
+            0.008,
+            0.09
+          ]
+        ],
+        "cross_sensor_policy": "full_joint_declared",
+        "evidence_refs": [
+          "sha256:0f40c1859c5155a3b3d8893e92b9d11434338a0cca628b87c631ecf6aca43c14"
+        ]
+      }
+    },
+    {
+      "time": 2,
+      "configuration_ref": "east-only",
+      "dynamics": {
+        "model": {
+          "family": "affine.v1",
+          "parameters": {
+            "matrix": [
+              [
+                1,
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                1,
+                0,
+                1
+              ],
+              [
+                0,
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                1
+              ]
+            ],
+            "offset": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "evidence_b64": "eyJjbGFpbV9zY29wZSI6ImNhbGxlcl9kZWNsYXJlZF9tb2RlbF9ub3RfcGh5c2ljYWxseV92YWxpZGF0ZWQiLCJjb29yZGluYXRlX3VuaXRzIjpbIm0iLCJtIiwibS9zIiwibS9zIl0sIm1hdHJpeF9jb2VmZmljaWVudF91bml0cyI6InBvc2l0aW9uLXRvLXZlbG9jaXR5IGNvdXBsaW5nIGNhcnJpZXMgc2Vjb25kcyIsIm9yaWdpbiI6InN5bnRoZXRpY19maXh0dXJlIiwicGh5c2ljYWxfbW90aW9uX21vZGVsIjoibm90X3ZhbGlkYXRlZCIsInJlc3BvbnNlIjoiY29uc3RhbnQtdmVsb2NpdHkgZGlzY3JldGUgQ2FydGVzaWFuIHRyYW5zaXRpb24iLCJzYW1wbGVfaW50ZXJ2YWxfcyI6MX0="
+        },
+        "process_covariance": [
+          [
+            0.01,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0.01,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0.002,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0.002
+          ]
+        ],
+        "model_ref": "synthetic:planar-constant-velocity-dt-1s"
+      },
+      "observations": [
+        {
+          "sensor_id": "east",
+          "record_b64": "eyJhY3F1aXNpdGlvbl9pZCI6InN5bnRoZXRpYzpla2YtcGxhbmFyLXJhbmdlLXRyYWNraW5nOmVhc3Q6MiIsImNhbGlicmF0aW9uX3JlZiI6InNoYTI1NjphYjUxMzg1OGEyM2NiY2ZiNzc4MjVmZmI1NjhjZWZmYjI4NzJkN2JlNTIyMWM5ZWQ5MTc5YjhlNzA2NTY5ZWU0IiwiY2xvY2tfaWQiOiJzeW50aGV0aWMtcmVmZXJlbmNlLWNsb2NrIiwiZnJhbWUiOiJzeW50aGV0aWMtcGxhbmFyLW1hcCIsInF1YW50aXR5X2lkcyI6WyJyYW5nZSJdLCJyYXdfZXZpZGVuY2VfYjY0IjoiZXlKaFkzRjFhWE5wZEdsdmJsOXBaQ0k2SW5ONWJuUm9aWFJwWXpwbGEyWXRjR3hoYm1GeUxYSmhibWRsTFhSeVlXTnJhVzVuT21WaGMzUTZNaUlzSW1sdVpHbGpZWFJsWkY5MllXeDFaWE1pT2xzNUxqazVOems0TXpneU9UQTVORFUxTmwwc0ltOXlhV2RwYmlJNkluTjViblJvWlhScFkxOW1hWGgwZFhKbElpd2ljR2g1YzJsallXeGZiV1ZoYzNWeVpXMWxiblFpT2lKdWIzUmZjR1Z5Wm05eWJXVmtJaXdpYzJsdGRXeGhkR1ZrWDNOMFlYUmxJanBiTVRFdU1DdzBMalFzTUM0MUxEQXVNbDE5Iiwic2NoZW1hIjoiY2l3LmZ1c2lvbi1vYnNlcnZhdGlvbi52MSIsInNlbnNvcl9pZCI6ImVhc3QiLCJ0aW1lIjoyLCJ1bml0cyI6WyJtIl0sInZhbHVlcyI6WzkuOTk3OTgzODI5MDk0NTU2XX0="
+        }
+      ],
+      "measurement_noise": {
+        "channel_order": [
+          "east/range"
+        ],
+        "matrix": [
+          [
+            0.09
+          ]
+        ],
+        "cross_sensor_policy": "full_joint_declared",
+        "evidence_refs": [
+          "sha256:0f40c1859c5155a3b3d8893e92b9d11434338a0cca628b87c631ecf6aca43c14"
+        ]
+      }
+    },
+    {
+      "time": 3,
+      "configuration_ref": "two-ranges",
+      "dynamics": {
+        "model": {
+          "family": "affine.v1",
+          "parameters": {
+            "matrix": [
+              [
+                1,
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                1,
+                0,
+                1
+              ],
+              [
+                0,
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                1
+              ]
+            ],
+            "offset": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "evidence_b64": "eyJjbGFpbV9zY29wZSI6ImNhbGxlcl9kZWNsYXJlZF9tb2RlbF9ub3RfcGh5c2ljYWxseV92YWxpZGF0ZWQiLCJjb29yZGluYXRlX3VuaXRzIjpbIm0iLCJtIiwibS9zIiwibS9zIl0sIm1hdHJpeF9jb2VmZmljaWVudF91bml0cyI6InBvc2l0aW9uLXRvLXZlbG9jaXR5IGNvdXBsaW5nIGNhcnJpZXMgc2Vjb25kcyIsIm9yaWdpbiI6InN5bnRoZXRpY19maXh0dXJlIiwicGh5c2ljYWxfbW90aW9uX21vZGVsIjoibm90X3ZhbGlkYXRlZCIsInJlc3BvbnNlIjoiY29uc3RhbnQtdmVsb2NpdHkgZGlzY3JldGUgQ2FydGVzaWFuIHRyYW5zaXRpb24iLCJzYW1wbGVfaW50ZXJ2YWxfcyI6MX0="
+        },
+        "process_covariance": [
+          [
+            0.01,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0.01,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0.002,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0.002
+          ]
+        ],
+        "model_ref": "synthetic:planar-constant-velocity-dt-1s"
+      },
+      "observations": [],
+      "measurement_noise": null
+    },
+    {
+      "time": 4,
+      "configuration_ref": "two-ranges",
+      "dynamics": {
+        "model": {
+          "family": "affine.v1",
+          "parameters": {
+            "matrix": [
+              [
+                1,
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                1,
+                0,
+                1
+              ],
+              [
+                0,
+                0,
+                1,
+                0
+              ],
+              [
+                0,
+                0,
+                0,
+                1
+              ]
+            ],
+            "offset": [
+              0,
+              0,
+              0,
+              0
+            ]
+          },
+          "evidence_b64": "eyJjbGFpbV9zY29wZSI6ImNhbGxlcl9kZWNsYXJlZF9tb2RlbF9ub3RfcGh5c2ljYWxseV92YWxpZGF0ZWQiLCJjb29yZGluYXRlX3VuaXRzIjpbIm0iLCJtIiwibS9zIiwibS9zIl0sIm1hdHJpeF9jb2VmZmljaWVudF91bml0cyI6InBvc2l0aW9uLXRvLXZlbG9jaXR5IGNvdXBsaW5nIGNhcnJpZXMgc2Vjb25kcyIsIm9yaWdpbiI6InN5bnRoZXRpY19maXh0dXJlIiwicGh5c2ljYWxfbW90aW9uX21vZGVsIjoibm90X3ZhbGlkYXRlZCIsInJlc3BvbnNlIjoiY29uc3RhbnQtdmVsb2NpdHkgZGlzY3JldGUgQ2FydGVzaWFuIHRyYW5zaXRpb24iLCJzYW1wbGVfaW50ZXJ2YWxfcyI6MX0="
+        },
+        "process_covariance": [
+          [
+            0.01,
+            0,
+            0,
+            0
+          ],
+          [
+            0,
+            0.01,
+            0,
+            0
+          ],
+          [
+            0,
+            0,
+            0.002,
+            0
+          ],
+          [
+            0,
+            0,
+            0,
+            0.002
+          ]
+        ],
+        "model_ref": "synthetic:planar-constant-velocity-dt-1s"
+      },
+      "observations": [
+        {
+          "sensor_id": "west",
+          "record_b64": "eyJhY3F1aXNpdGlvbl9pZCI6InN5bnRoZXRpYzpla2YtcGxhbmFyLXJhbmdlLXRyYWNraW5nOndlc3Q6NCIsImNhbGlicmF0aW9uX3JlZiI6InNoYTI1Njo4ZWM0ZTgxMmU2NmY4YTY3ODdlNjQwMmM1MTYxNTMzNTM4MjRjY2M2YjY5NDYxZGQzYzRmZTkxYTFjMDU1NzA2IiwiY2xvY2tfaWQiOiJzeW50aGV0aWMtcmVmZXJlbmNlLWNsb2NrIiwiZnJhbWUiOiJzeW50aGV0aWMtcGxhbmFyLW1hcCIsInF1YW50aXR5X2lkcyI6WyJyYW5nZSJdLCJyYXdfZXZpZGVuY2VfYjY0IjoiZXlKaFkzRjFhWE5wZEdsdmJsOXBaQ0k2SW5ONWJuUm9aWFJwWXpwbGEyWXRjR3hoYm1GeUxYSmhibWRsTFhSeVlXTnJhVzVuT25kbGMzUTZOQ0lzSW1sdVpHbGpZWFJsWkY5MllXeDFaWE1pT2xzeE1pNDVOVFF6T1RVMU16Y3hNakk0TVYwc0ltOXlhV2RwYmlJNkluTjViblJvWlhScFkxOW1hWGgwZFhKbElpd2ljR2g1YzJsallXeGZiV1ZoYzNWeVpXMWxiblFpT2lKdWIzUmZjR1Z5Wm05eWJXVmtJaXdpYzJsdGRXeGhkR1ZrWDNOMFlYUmxJanBiTVRJdU1DdzBMamd3TURBd01EQXdNREF3TURBd01Td3dMalVzTUM0eVhYMD0iLCJzY2hlbWEiOiJjaXcuZnVzaW9uLW9ic2VydmF0aW9uLnYxIiwic2Vuc29yX2lkIjoid2VzdCIsInRpbWUiOjQsInVuaXRzIjpbIm0iXSwidmFsdWVzIjpbMTIuOTU0Mzk1NTM3MTIyODFdfQ=="
+        },
+        {
+          "sensor_id": "east",
+          "record_b64": "eyJhY3F1aXNpdGlvbl9pZCI6InN5bnRoZXRpYzpla2YtcGxhbmFyLXJhbmdlLXRyYWNraW5nOmVhc3Q6NCIsImNhbGlicmF0aW9uX3JlZiI6InNoYTI1NjphYjUxMzg1OGEyM2NiY2ZiNzc4MjVmZmI1NjhjZWZmYjI4NzJkN2JlNTIyMWM5ZWQ5MTc5YjhlNzA2NTY5ZWU0IiwiY2xvY2tfaWQiOiJzeW50aGV0aWMtcmVmZXJlbmNlLWNsb2NrIiwiZnJhbWUiOiJzeW50aGV0aWMtcGxhbmFyLW1hcCIsInF1YW50aXR5X2lkcyI6WyJyYW5nZSJdLCJyYXdfZXZpZGVuY2VfYjY0IjoiZXlKaFkzRjFhWE5wZEdsdmJsOXBaQ0k2SW5ONWJuUm9aWFJwWXpwbGEyWXRjR3hoYm1GeUxYSmhibWRsTFhSeVlXTnJhVzVuT21WaGMzUTZOQ0lzSW1sdVpHbGpZWFJsWkY5MllXeDFaWE1pT2xzNUxqTXdPVFV5TXpBek1UYzFNalE0TWwwc0ltOXlhV2RwYmlJNkluTjViblJvWlhScFkxOW1hWGgwZFhKbElpd2ljR2g1YzJsallXeGZiV1ZoYzNWeVpXMWxiblFpT2lKdWIzUmZjR1Z5Wm05eWJXVmtJaXdpYzJsdGRXeGhkR1ZrWDNOMFlYUmxJanBiTVRJdU1DdzBMamd3TURBd01EQXdNREF3TURBd01Td3dMalVzTUM0eVhYMD0iLCJzY2hlbWEiOiJjaXcuZnVzaW9uLW9ic2VydmF0aW9uLnYxIiwic2Vuc29yX2lkIjoiZWFzdCIsInRpbWUiOjQsInVuaXRzIjpbIm0iXSwidmFsdWVzIjpbOS4zMDk1MjMwMzE3NTI0ODJdfQ=="
+        }
+      ],
+      "measurement_noise": {
+        "channel_order": [
+          "west/range",
+          "east/range"
+        ],
+        "matrix": [
+          [
+            0.04,
+            0.008
+          ],
+          [
+            0.008,
+            0.09
+          ]
+        ],
+        "cross_sensor_policy": "full_joint_declared",
+        "evidence_refs": [
+          "sha256:0f40c1859c5155a3b3d8893e92b9d11434338a0cca628b87c631ecf6aca43c14"
+        ]
+      }
+    }
+  ]
+}

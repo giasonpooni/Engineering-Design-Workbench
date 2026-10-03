@@ -1,0 +1,392 @@
+{
+  "schema": "ciw.sensor-fusion-ekf-source.v1",
+  "experiment_id": "synthetic:ekf-two-capacity-thermal",
+  "configuration": {
+    "method": "jspt.analytic-gsie.error-state-ekf.v1",
+    "state": {
+      "quantity_ids": [
+        "core_temperature",
+        "shell_temperature"
+      ],
+      "units": [
+        "K",
+        "K"
+      ],
+      "frame": "synthetic-two-capacity-thermal",
+      "geometry": "euclidean.v1",
+      "clock_id": "synthetic-reference-clock"
+    },
+    "configurations": [
+      {
+        "name": "core-and-shell",
+        "sensors": [
+          {
+            "sensor_id": "core",
+            "quantity_ids": [
+              "core_temperature"
+            ],
+            "units": [
+              "K"
+            ],
+            "frame": "synthetic-two-capacity-thermal",
+            "model": {
+              "family": "affine.v1",
+              "parameters": {
+                "matrix": [
+                  [
+                    1,
+                    0
+                  ]
+                ],
+                "offset": [
+                  0
+                ]
+              },
+              "evidence_b64": "eyJjbGFpbV9zY29wZSI6ImNhbGxlcl9kZWNsYXJlZF9tb2RlbF9ub3RfcGh5c2ljYWxseV92YWxpZGF0ZWQiLCJvcmlnaW4iOiJzeW50aGV0aWNfZml4dHVyZSIsInBoeXNpY2FsX2NhbGlicmF0aW9uIjoibm90X2VzdGFibGlzaGVkIiwicmVzcG9uc2UiOiJkaXJlY3Qgc3ludGhldGljIGNvcmUgdGhlcm1vbWV0ZXIiLCJ1bml0IjoiSyJ9"
+            },
+            "model_ref": "synthetic:thermal-core-thermometer",
+            "calibration": {
+              "artifact_b64": "eyJjb2VmZmljaWVudF91bmNlcnRhaW50eSI6ImRlY2xhcmVkX3plcm9fZm9yX2ZpeHR1cmUiLCJnYWluIjoxLCJvZmZzZXQiOjAsIm9yaWdpbiI6InN5bnRoZXRpY19maXh0dXJlIiwicGh5c2ljYWxfdHJhY2VhYmlsaXR5Ijoibm90X2VzdGFibGlzaGVkIiwic2Vuc29yX2lkIjoiY29yZSJ9",
+              "valid_interval": [
+                0,
+                100
+              ],
+              "claim_scope": "caller_declared_not_verified"
+            }
+          },
+          {
+            "sensor_id": "shell",
+            "quantity_ids": [
+              "shell_temperature"
+            ],
+            "units": [
+              "K"
+            ],
+            "frame": "synthetic-two-capacity-thermal",
+            "model": {
+              "family": "affine.v1",
+              "parameters": {
+                "matrix": [
+                  [
+                    0,
+                    1
+                  ]
+                ],
+                "offset": [
+                  0
+                ]
+              },
+              "evidence_b64": "eyJjbGFpbV9zY29wZSI6ImNhbGxlcl9kZWNsYXJlZF9tb2RlbF9ub3RfcGh5c2ljYWxseV92YWxpZGF0ZWQiLCJvcmlnaW4iOiJzeW50aGV0aWNfZml4dHVyZSIsInBoeXNpY2FsX2NhbGlicmF0aW9uIjoibm90X2VzdGFibGlzaGVkIiwicmVzcG9uc2UiOiJkaXJlY3Qgc3ludGhldGljIHNoZWxsIHRoZXJtb21ldGVyIiwidW5pdCI6IksifQ=="
+            },
+            "model_ref": "synthetic:thermal-shell-thermometer",
+            "calibration": {
+              "artifact_b64": "eyJjb2VmZmljaWVudF91bmNlcnRhaW50eSI6ImRlY2xhcmVkX3plcm9fZm9yX2ZpeHR1cmUiLCJnYWluIjoxLCJvZmZzZXQiOjAsIm9yaWdpbiI6InN5bnRoZXRpY19maXh0dXJlIiwicGh5c2ljYWxfdHJhY2VhYmlsaXR5Ijoibm90X2VzdGFibGlzaGVkIiwic2Vuc29yX2lkIjoic2hlbGwifQ==",
+              "valid_interval": [
+                0,
+                100
+              ],
+              "claim_scope": "caller_declared_not_verified"
+            }
+          }
+        ]
+      },
+      {
+        "name": "shell-only",
+        "sensors": [
+          {
+            "sensor_id": "shell",
+            "quantity_ids": [
+              "shell_temperature"
+            ],
+            "units": [
+              "K"
+            ],
+            "frame": "synthetic-two-capacity-thermal",
+            "model": {
+              "family": "affine.v1",
+              "parameters": {
+                "matrix": [
+                  [
+                    0,
+                    1
+                  ]
+                ],
+                "offset": [
+                  0
+                ]
+              },
+              "evidence_b64": "eyJjbGFpbV9zY29wZSI6ImNhbGxlcl9kZWNsYXJlZF9tb2RlbF9ub3RfcGh5c2ljYWxseV92YWxpZGF0ZWQiLCJvcmlnaW4iOiJzeW50aGV0aWNfZml4dHVyZSIsInBoeXNpY2FsX2NhbGlicmF0aW9uIjoibm90X2VzdGFibGlzaGVkIiwicmVzcG9uc2UiOiJkaXJlY3Qgc3ludGhldGljIHNoZWxsIHRoZXJtb21ldGVyIiwidW5pdCI6IksifQ=="
+            },
+            "model_ref": "synthetic:thermal-shell-thermometer",
+            "calibration": {
+              "artifact_b64": "eyJjb2VmZmljaWVudF91bmNlcnRhaW50eSI6ImRlY2xhcmVkX3plcm9fZm9yX2ZpeHR1cmUiLCJnYWluIjoxLCJvZmZzZXQiOjAsIm9yaWdpbiI6InN5bnRoZXRpY19maXh0dXJlIiwicGh5c2ljYWxfdHJhY2VhYmlsaXR5Ijoibm90X2VzdGFibGlzaGVkIiwic2Vuc29yX2lkIjoic2hlbGwifQ==",
+              "valid_interval": [
+                0,
+                100
+              ],
+              "claim_scope": "caller_declared_not_verified"
+            }
+          }
+        ]
+      }
+    ],
+    "noise_policy": {
+      "prior_measurement_crosscovariance": "declared_zero",
+      "process_measurement_crosscovariance": "declared_zero",
+      "process_prior_crosscovariance": "declared_zero",
+      "across_batches": "declared_independent",
+      "evidence_refs": [
+        "sha256:c0ffd6a76942fc48c80060dd2e9c74d9bcdaa7924432de97ec99504dad1313f6"
+      ]
+    }
+  },
+  "prior": {
+    "time": 0,
+    "mean": [
+      420,
+      385
+    ],
+    "covariance": [
+      [
+        4,
+        1
+      ],
+      [
+        1,
+        3
+      ]
+    ]
+  },
+  "batches": [
+    {
+      "time": 5,
+      "configuration_ref": "core-and-shell",
+      "dynamics": {
+        "model": {
+          "family": "affine.v1",
+          "parameters": {
+            "matrix": [
+              [
+                0.9626355090033301,
+                0.036195002164506065
+              ],
+              [
+                0.09048750541126513,
+                0.8517883148745302
+              ]
+            ],
+            "offset": [
+              0.7351923824301423,
+              16.940555104533672
+            ]
+          },
+          "evidence_b64": "eyJCZCI6W1swLjAwNDkwNDQ1OTE0MTAxNjQ5NiwwLjAwMTE2OTQ4ODgzMjE2MzgxNl0sWzAuMDAwMjMzODk3NzY2NDMyNzYyOSwwLjA1NzcyNDE3OTcxNDIwNDUxNV1dLCJhdXRob3JpbmdfcHJvdmlkZXIiOiJjaXcudGhlcm1hbF9yZWZlcmVuY2UubW9kZWxfbWF0cmljZXMiLCJjbGFpbV9zY29wZSI6ImNhbGxlcl9kZWNsYXJlZF9tb2RlbF9ub3RfcGh5c2ljYWxseV92YWxpZGF0ZWQiLCJkaXNjcmV0aXphdGlvbiI6ImV4YWN0X2NvbnN0YW50X2lucHV0X3plcm9fb3JkZXJfaG9sZCIsImlucHV0X29yZGVyIjpbImhlYXRfcG93ZXIiLCJhbWJpZW50X3RlbXBlcmF0dXJlIl0sImlucHV0X3VuaXRzIjpbIlciLCJLIl0sImlucHV0cyI6WzgwLDI5My4xNV0sIm9mZnNldF9kZWZpbml0aW9uIjoiQmQgKiBpbnB1dHMiLCJvcmlnaW4iOiJzeW50aGV0aWNfZml4dHVyZSIsInBhcmFtZXRlcl91bmNlcnRhaW50eSI6ImRlY2xhcmVkX3plcm9fZm9yX2ZpeHR1cmUiLCJwaHlzaWNhbF92YWxpZGF0aW9uIjoibm90X2VzdGFibGlzaGVkOyBtb2RlbCBwYXJhbWV0ZXJzIGFuZCBtZWFzdXJlbWVudHMgYXJlIHN5bnRoZXRpYyIsInJjX21vZGVsIjp7ImNhcGFjaXRpZXNfal9wZXJfayI6WzEwMDAsNDAwXSwiY29uZHVjdGFuY2VzX3dfcGVyX2siOls4LDVdLCJpbnB1dF9vcmRlciI6WyJoZWF0X3Bvd2VyIiwiYW1iaWVudF90ZW1wZXJhdHVyZSJdLCJpbnB1dF91bml0cyI6WyJXIiwiSyJdLCJvYnNlcnZhdGlvbl9tYXRyaXgiOltbMSwwXSxbMCwxXV0sInNlbnNvcl9vcmRlciI6WyJjb3JlIiwic2hlbGwiXSwic2Vuc29yX3VuaXRzIjpbIksiLCJLIl0sInN0YXRlX29yZGVyIjpbImNvcmVfdGVtcGVyYXR1cmUiLCJzaGVsbF90ZW1wZXJhdHVyZSJdLCJzdGF0ZV91bml0cyI6WyJLIiwiSyJdfSwic2FtcGxlX2ludGVydmFsX3MiOjV9"
+        },
+        "process_covariance": [
+          [
+            0.04,
+            0.01
+          ],
+          [
+            0.01,
+            0.03
+          ]
+        ],
+        "model_ref": "synthetic:thermal-rc-zoh-input-step-1"
+      },
+      "observations": [
+        {
+          "sensor_id": "core",
+          "record_b64": "eyJhY3F1aXNpdGlvbl9pZCI6InN5bnRoZXRpYzpla2YtdHdvLWNhcGFjaXR5LXRoZXJtYWw6Y29yZTo1IiwiY2FsaWJyYXRpb25fcmVmIjoic2hhMjU2OjMxY2IzZjYwMGI0MGM1OGI1ZTAzYmY0ZTNiZjBhM2M3ODUxZWZiMWYxNjAwNWMxYTJmNGZmNDEwMjdiMWM3MzUiLCJjbG9ja19pZCI6InN5bnRoZXRpYy1yZWZlcmVuY2UtY2xvY2siLCJmcmFtZSI6InN5bnRoZXRpYy10d28tY2FwYWNpdHktdGhlcm1hbCIsInF1YW50aXR5X2lkcyI6WyJjb3JlX3RlbXBlcmF0dXJlIl0sInJhd19ldmlkZW5jZV9iNjQiOiJleUpoWTNGMWFYTnBkR2x2Ymw5cFpDSTZJbk41Ym5Sb1pYUnBZenBsYTJZdGRIZHZMV05oY0dGamFYUjVMWFJvWlhKdFlXdzZZMjl5WlRvMUlpd2lhVzVrYVdOaGRHVmtYM1poYkhWbGN5STZXelF5TUM0d01ETTJNakkxTURRd01ESTBObDBzSW05eWFXZHBiaUk2SW5ONWJuUm9aWFJwWTE5bWFYaDBkWEpsSWl3aWNHaDVjMmxqWVd4ZmJXVmhjM1Z5WlcxbGJuUWlPaUp1YjNSZmNHVnlabTl5YldWa0lpd2ljMmx0ZFd4aGRHVmtYM04wWVhSbElqcGJOREU1TGprd016WXlNalV3TkRBd01qUTBMRE00TWk0eE1qSTFNRGMzT1RRME9UVTVObDE5Iiwic2NoZW1hIjoiY2l3LmZ1c2lvbi1vYnNlcnZhdGlvbi52MSIsInNlbnNvcl9pZCI6ImNvcmUiLCJ0aW1lIjo1LCJ1bml0cyI6WyJLIl0sInZhbHVlcyI6WzQyMC4wMDM2MjI1MDQwMDI0Nl19"
+        },
+        {
+          "sensor_id": "shell",
+          "record_b64": "eyJhY3F1aXNpdGlvbl9pZCI6InN5bnRoZXRpYzpla2YtdHdvLWNhcGFjaXR5LXRoZXJtYWw6c2hlbGw6NSIsImNhbGlicmF0aW9uX3JlZiI6InNoYTI1Njo0NzNjNDhhZTAwZmFkNjU1Y2U4YzM2OGQ5NGZjZGZlNjQ4NzJiZjI2NWVkYmExYTlkZTY5MTliNWJkYTliYTc2IiwiY2xvY2tfaWQiOiJzeW50aGV0aWMtcmVmZXJlbmNlLWNsb2NrIiwiZnJhbWUiOiJzeW50aGV0aWMtdHdvLWNhcGFjaXR5LXRoZXJtYWwiLCJxdWFudGl0eV9pZHMiOlsic2hlbGxfdGVtcGVyYXR1cmUiXSwicmF3X2V2aWRlbmNlX2I2NCI6ImV5SmhZM0YxYVhOcGRHbHZibDlwWkNJNkluTjViblJvWlhScFl6cGxhMll0ZEhkdkxXTmhjR0ZqYVhSNUxYUm9aWEp0WVd3NmMyaGxiR3c2TlNJc0ltbHVaR2xqWVhSbFpGOTJZV3gxWlhNaU9sc3pPREl1TURBeU5UQTNOemswTkRrMU9UVmRMQ0p2Y21sbmFXNGlPaUp6ZVc1MGFHVjBhV05mWm1sNGRIVnlaU0lzSW5Cb2VYTnBZMkZzWDIxbFlYTjFjbVZ0Wlc1MElqb2libTkwWDNCbGNtWnZjbTFsWkNJc0luTnBiWFZzWVhSbFpGOXpkR0YwWlNJNld6UXhPUzQ1TURNMk1qSTFNRFF3TURJME5Dd3pPREl1TVRJeU5UQTNOemswTkRrMU9UWmRmUT09Iiwic2NoZW1hIjoiY2l3LmZ1c2lvbi1vYnNlcnZhdGlvbi52MSIsInNlbnNvcl9pZCI6InNoZWxsIiwidGltZSI6NSwidW5pdHMiOlsiSyJdLCJ2YWx1ZXMiOlszODIuMDAyNTA3Nzk0NDk1OTVdfQ=="
+        }
+      ],
+      "measurement_noise": {
+        "channel_order": [
+          "core/core_temperature",
+          "shell/shell_temperature"
+        ],
+        "matrix": [
+          [
+            0.09,
+            0.01
+          ],
+          [
+            0.01,
+            0.16
+          ]
+        ],
+        "cross_sensor_policy": "full_joint_declared",
+        "evidence_refs": [
+          "sha256:c0ffd6a76942fc48c80060dd2e9c74d9bcdaa7924432de97ec99504dad1313f6"
+        ]
+      }
+    },
+    {
+      "time": 10,
+      "configuration_ref": "shell-only",
+      "dynamics": {
+        "model": {
+          "family": "affine.v1",
+          "parameters": {
+            "matrix": [
+              [
+                0.9626355090033301,
+                0.036195002164506065
+              ],
+              [
+                0.09048750541126513,
+                0.8517883148745302
+              ]
+            ],
+            "offset": [
+              0.6371031996098124,
+              16.935877149205016
+            ]
+          },
+          "evidence_b64": "eyJCZCI6W1swLjAwNDkwNDQ1OTE0MTAxNjQ5NiwwLjAwMTE2OTQ4ODgzMjE2MzgxNl0sWzAuMDAwMjMzODk3NzY2NDMyNzYyOSwwLjA1NzcyNDE3OTcxNDIwNDUxNV1dLCJhdXRob3JpbmdfcHJvdmlkZXIiOiJjaXcudGhlcm1hbF9yZWZlcmVuY2UubW9kZWxfbWF0cmljZXMiLCJjbGFpbV9zY29wZSI6ImNhbGxlcl9kZWNsYXJlZF9tb2RlbF9ub3RfcGh5c2ljYWxseV92YWxpZGF0ZWQiLCJkaXNjcmV0aXphdGlvbiI6ImV4YWN0X2NvbnN0YW50X2lucHV0X3plcm9fb3JkZXJfaG9sZCIsImlucHV0X29yZGVyIjpbImhlYXRfcG93ZXIiLCJhbWJpZW50X3RlbXBlcmF0dXJlIl0sImlucHV0X3VuaXRzIjpbIlciLCJLIl0sImlucHV0cyI6WzYwLDI5My4xNV0sIm9mZnNldF9kZWZpbml0aW9uIjoiQmQgKiBpbnB1dHMiLCJvcmlnaW4iOiJzeW50aGV0aWNfZml4dHVyZSIsInBhcmFtZXRlcl91bmNlcnRhaW50eSI6ImRlY2xhcmVkX3plcm9fZm9yX2ZpeHR1cmUiLCJwaHlzaWNhbF92YWxpZGF0aW9uIjoibm90X2VzdGFibGlzaGVkOyBtb2RlbCBwYXJhbWV0ZXJzIGFuZCBtZWFzdXJlbWVudHMgYXJlIHN5bnRoZXRpYyIsInJjX21vZGVsIjp7ImNhcGFjaXRpZXNfal9wZXJfayI6WzEwMDAsNDAwXSwiY29uZHVjdGFuY2VzX3dfcGVyX2siOls4LDVdLCJpbnB1dF9vcmRlciI6WyJoZWF0X3Bvd2VyIiwiYW1iaWVudF90ZW1wZXJhdHVyZSJdLCJpbnB1dF91bml0cyI6WyJXIiwiSyJdLCJvYnNlcnZhdGlvbl9tYXRyaXgiOltbMSwwXSxbMCwxXV0sInNlbnNvcl9vcmRlciI6WyJjb3JlIiwic2hlbGwiXSwic2Vuc29yX3VuaXRzIjpbIksiLCJLIl0sInN0YXRlX29yZGVyIjpbImNvcmVfdGVtcGVyYXR1cmUiLCJzaGVsbF90ZW1wZXJhdHVyZSJdLCJzdGF0ZV91bml0cyI6WyJLIiwiSyJdfSwic2FtcGxlX2ludGVydmFsX3MiOjV9"
+        },
+        "process_covariance": [
+          [
+            0.04,
+            0.01
+          ],
+          [
+            0.01,
+            0.03
+          ]
+        ],
+        "model_ref": "synthetic:thermal-rc-zoh-input-step-2"
+      },
+      "observations": [
+        {
+          "sensor_id": "shell",
+          "record_b64": "eyJhY3F1aXNpdGlvbl9pZCI6InN5bnRoZXRpYzpla2YtdHdvLWNhcGFjaXR5LXRoZXJtYWw6c2hlbGw6MTAiLCJjYWxpYnJhdGlvbl9yZWYiOiJzaGEyNTY6NDczYzQ4YWUwMGZhZDY1NWNlOGMzNjhkOTRmY2RmZTY0ODcyYmYyNjVlZGJhMWE5ZGU2OTE5YjViZGE5YmE3NiIsImNsb2NrX2lkIjoic3ludGhldGljLXJlZmVyZW5jZS1jbG9jayIsImZyYW1lIjoic3ludGhldGljLXR3by1jYXBhY2l0eS10aGVybWFsIiwicXVhbnRpdHlfaWRzIjpbInNoZWxsX3RlbXBlcmF0dXJlIl0sInJhd19ldmlkZW5jZV9iNjQiOiJleUpoWTNGMWFYTnBkR2x2Ymw5cFpDSTZJbk41Ym5Sb1pYUnBZenBsYTJZdGRIZHZMV05oY0dGamFYUjVMWFJvWlhKdFlXdzZjMmhsYkd3Nk1UQWlMQ0pwYm1ScFkyRjBaV1JmZG1Gc2RXVnpJanBiTXpnd0xqSTVPVE01TlRRMU1qWTBPVjBzSW05eWFXZHBiaUk2SW5ONWJuUm9aWFJwWTE5bWFYaDBkWEpsSWl3aWNHaDVjMmxqWVd4ZmJXVmhjM1Z5WlcxbGJuUWlPaUp1YjNSZmNHVnlabTl5YldWa0lpd2ljMmx0ZFd4aGRHVmtYM04wWVhSbElqcGJOREU0TGpZNE1qRTJOVFUzTnpneU1EY3NNemd3TGpReE9UTTVOVFExTWpZME9WMTkiLCJzY2hlbWEiOiJjaXcuZnVzaW9uLW9ic2VydmF0aW9uLnYxIiwic2Vuc29yX2lkIjoic2hlbGwiLCJ0aW1lIjoxMCwidW5pdHMiOlsiSyJdLCJ2YWx1ZXMiOlszODAuMjk5Mzk1NDUyNjQ5XX0="
+        }
+      ],
+      "measurement_noise": {
+        "channel_order": [
+          "shell/shell_temperature"
+        ],
+        "matrix": [
+          [
+            0.16
+          ]
+        ],
+        "cross_sensor_policy": "full_joint_declared",
+        "evidence_refs": [
+          "sha256:c0ffd6a76942fc48c80060dd2e9c74d9bcdaa7924432de97ec99504dad1313f6"
+        ]
+      }
+    },
+    {
+      "time": 15,
+      "configuration_ref": "core-and-shell",
+      "dynamics": {
+        "model": {
+          "family": "affine.v1",
+          "parameters": {
+            "matrix": [
+              [
+                0.9626355090033301,
+                0.036195002164506065
+              ],
+              [
+                0.09048750541126513,
+                0.8517883148745302
+              ]
+            ],
+            "offset": [
+              0.34283565114882264,
+              16.92184328321905
+            ]
+          },
+          "evidence_b64": "eyJCZCI6W1swLjAwNDkwNDQ1OTE0MTAxNjQ5NiwwLjAwMTE2OTQ4ODgzMjE2MzgxNl0sWzAuMDAwMjMzODk3NzY2NDMyNzYyOSwwLjA1NzcyNDE3OTcxNDIwNDUxNV1dLCJhdXRob3JpbmdfcHJvdmlkZXIiOiJjaXcudGhlcm1hbF9yZWZlcmVuY2UubW9kZWxfbWF0cmljZXMiLCJjbGFpbV9zY29wZSI6ImNhbGxlcl9kZWNsYXJlZF9tb2RlbF9ub3RfcGh5c2ljYWxseV92YWxpZGF0ZWQiLCJkaXNjcmV0aXphdGlvbiI6ImV4YWN0X2NvbnN0YW50X2lucHV0X3plcm9fb3JkZXJfaG9sZCIsImlucHV0X29yZGVyIjpbImhlYXRfcG93ZXIiLCJhbWJpZW50X3RlbXBlcmF0dXJlIl0sImlucHV0X3VuaXRzIjpbIlciLCJLIl0sImlucHV0cyI6WzAsMjkzLjE1XSwib2Zmc2V0X2RlZmluaXRpb24iOiJCZCAqIGlucHV0cyIsIm9yaWdpbiI6InN5bnRoZXRpY19maXh0dXJlIiwicGFyYW1ldGVyX3VuY2VydGFpbnR5IjoiZGVjbGFyZWRfemVyb19mb3JfZml4dHVyZSIsInBoeXNpY2FsX3ZhbGlkYXRpb24iOiJub3RfZXN0YWJsaXNoZWQ7IG1vZGVsIHBhcmFtZXRlcnMgYW5kIG1lYXN1cmVtZW50cyBhcmUgc3ludGhldGljIiwicmNfbW9kZWwiOnsiY2FwYWNpdGllc19qX3Blcl9rIjpbMTAwMCw0MDBdLCJjb25kdWN0YW5jZXNfd19wZXJfayI6WzgsNV0sImlucHV0X29yZGVyIjpbImhlYXRfcG93ZXIiLCJhbWJpZW50X3RlbXBlcmF0dXJlIl0sImlucHV0X3VuaXRzIjpbIlciLCJLIl0sIm9ic2VydmF0aW9uX21hdHJpeCI6W1sxLDBdLFswLDFdXSwic2Vuc29yX29yZGVyIjpbImNvcmUiLCJzaGVsbCJdLCJzZW5zb3JfdW5pdHMiOlsiSyIsIksiXSwic3RhdGVfb3JkZXIiOlsiY29yZV90ZW1wZXJhdHVyZSIsInNoZWxsX3RlbXBlcmF0dXJlIl0sInN0YXRlX3VuaXRzIjpbIksiLCJLIl19LCJzYW1wbGVfaW50ZXJ2YWxfcyI6NX0="
+        },
+        "process_covariance": [
+          [
+            0.04,
+            0.01
+          ],
+          [
+            0.01,
+            0.03
+          ]
+        ],
+        "model_ref": "synthetic:thermal-rc-zoh-input-step-3"
+      },
+      "observations": [],
+      "measurement_noise": null
+    },
+    {
+      "time": 20,
+      "configuration_ref": "core-and-shell",
+      "dynamics": {
+        "model": {
+          "family": "affine.v1",
+          "parameters": {
+            "matrix": [
+              [
+                0.9626355090033301,
+                0.036195002164506065
+              ],
+              [
+                0.09048750541126513,
+                0.8517883148745302
+              ]
+            ],
+            "offset": [
+              0.34283565114882264,
+              16.92184328321905
+            ]
+          },
+          "evidence_b64": "eyJCZCI6W1swLjAwNDkwNDQ1OTE0MTAxNjQ5NiwwLjAwMTE2OTQ4ODgzMjE2MzgxNl0sWzAuMDAwMjMzODk3NzY2NDMyNzYyOSwwLjA1NzcyNDE3OTcxNDIwNDUxNV1dLCJhdXRob3JpbmdfcHJvdmlkZXIiOiJjaXcudGhlcm1hbF9yZWZlcmVuY2UubW9kZWxfbWF0cmljZXMiLCJjbGFpbV9zY29wZSI6ImNhbGxlcl9kZWNsYXJlZF9tb2RlbF9ub3RfcGh5c2ljYWxseV92YWxpZGF0ZWQiLCJkaXNjcmV0aXphdGlvbiI6ImV4YWN0X2NvbnN0YW50X2lucHV0X3plcm9fb3JkZXJfaG9sZCIsImlucHV0X29yZGVyIjpbImhlYXRfcG93ZXIiLCJhbWJpZW50X3RlbXBlcmF0dXJlIl0sImlucHV0X3VuaXRzIjpbIlciLCJLIl0sImlucHV0cyI6WzAsMjkzLjE1XSwib2Zmc2V0X2RlZmluaXRpb24iOiJCZCAqIGlucHV0cyIsIm9yaWdpbiI6InN5bnRoZXRpY19maXh0dXJlIiwicGFyYW1ldGVyX3VuY2VydGFpbnR5IjoiZGVjbGFyZWRfemVyb19mb3JfZml4dHVyZSIsInBoeXNpY2FsX3ZhbGlkYXRpb24iOiJub3RfZXN0YWJsaXNoZWQ7IG1vZGVsIHBhcmFtZXRlcnMgYW5kIG1lYXN1cmVtZW50cyBhcmUgc3ludGhldGljIiwicmNfbW9kZWwiOnsiY2FwYWNpdGllc19qX3Blcl9rIjpbMTAwMCw0MDBdLCJjb25kdWN0YW5jZXNfd19wZXJfayI6WzgsNV0sImlucHV0X29yZGVyIjpbImhlYXRfcG93ZXIiLCJhbWJpZW50X3RlbXBlcmF0dXJlIl0sImlucHV0X3VuaXRzIjpbIlciLCJLIl0sIm9ic2VydmF0aW9uX21hdHJpeCI6W1sxLDBdLFswLDFdXSwic2Vuc29yX29yZGVyIjpbImNvcmUiLCJzaGVsbCJdLCJzZW5zb3JfdW5pdHMiOlsiSyIsIksiXSwic3RhdGVfb3JkZXIiOlsiY29yZV90ZW1wZXJhdHVyZSIsInNoZWxsX3RlbXBlcmF0dXJlIl0sInN0YXRlX3VuaXRzIjpbIksiLCJLIl19LCJzYW1wbGVfaW50ZXJ2YWxfcyI6NX0="
+        },
+        "process_covariance": [
+          [
+            0.04,
+            0.01
+          ],
+          [
+            0.01,
+            0.03
+          ]
+        ],
+        "model_ref": "synthetic:thermal-rc-zoh-input-step-4"
+      },
+      "observations": [
+        {
+          "sensor_id": "core",
+          "record_b64": "eyJhY3F1aXNpdGlvbl9pZCI6InN5bnRoZXRpYzpla2YtdHdvLWNhcGFjaXR5LXRoZXJtYWw6Y29yZToyMCIsImNhbGlicmF0aW9uX3JlZiI6InNoYTI1NjozMWNiM2Y2MDBiNDBjNThiNWUwM2JmNGUzYmYwYTNjNzg1MWVmYjFmMTYwMDVjMWEyZjRmZjQxMDI3YjFjNzM1IiwiY2xvY2tfaWQiOiJzeW50aGV0aWMtcmVmZXJlbmNlLWNsb2NrIiwiZnJhbWUiOiJzeW50aGV0aWMtdHdvLWNhcGFjaXR5LXRoZXJtYWwiLCJxdWFudGl0eV9pZHMiOlsiY29yZV90ZW1wZXJhdHVyZSJdLCJyYXdfZXZpZGVuY2VfYjY0IjoiZXlKaFkzRjFhWE5wZEdsdmJsOXBaQ0k2SW5ONWJuUm9aWFJwWXpwbGEyWXRkSGR2TFdOaGNHRmphWFI1TFhSb1pYSnRZV3c2WTI5eVpUb3lNQ0lzSW1sdVpHbGpZWFJsWkY5MllXeDFaWE1pT2xzME1UVXVOekU0T1RJeU5qQTRNVGM0T0Ywc0ltOXlhV2RwYmlJNkluTjViblJvWlhScFkxOW1hWGgwZFhKbElpd2ljR2g1YzJsallXeGZiV1ZoYzNWeVpXMWxiblFpT2lKdWIzUmZjR1Z5Wm05eWJXVmtJaXdpYzJsdGRXeGhkR1ZrWDNOMFlYUmxJanBiTkRFMUxqWXhPRGt5TWpZd09ERTNPRGMyTERNM055NHpOak0zTmpBME56VTBOVEV6WFgwPSIsInNjaGVtYSI6ImNpdy5mdXNpb24tb2JzZXJ2YXRpb24udjEiLCJzZW5zb3JfaWQiOiJjb3JlIiwidGltZSI6MjAsInVuaXRzIjpbIksiXSwidmFsdWVzIjpbNDE1LjcxODkyMjYwODE3ODhdfQ=="
+        },
+        {
+          "sensor_id": "shell",
+          "record_b64": "eyJhY3F1aXNpdGlvbl9pZCI6InN5bnRoZXRpYzpla2YtdHdvLWNhcGFjaXR5LXRoZXJtYWw6c2hlbGw6MjAiLCJjYWxpYnJhdGlvbl9yZWYiOiJzaGEyNTY6NDczYzQ4YWUwMGZhZDY1NWNlOGMzNjhkOTRmY2RmZTY0ODcyYmYyNjVlZGJhMWE5ZGU2OTE5YjViZGE5YmE3NiIsImNsb2NrX2lkIjoic3ludGhldGljLXJlZmVyZW5jZS1jbG9jayIsImZyYW1lIjoic3ludGhldGljLXR3by1jYXBhY2l0eS10aGVybWFsIiwicXVhbnRpdHlfaWRzIjpbInNoZWxsX3RlbXBlcmF0dXJlIl0sInJhd19ldmlkZW5jZV9iNjQiOiJleUpoWTNGMWFYTnBkR2x2Ymw5cFpDSTZJbk41Ym5Sb1pYUnBZenBsYTJZdGRIZHZMV05oY0dGamFYUjVMWFJvWlhKdFlXdzZjMmhsYkd3Nk1qQWlMQ0pwYm1ScFkyRjBaV1JmZG1Gc2RXVnpJanBiTXpjM0xqSTBNemMyTURRM05UUTFNVEkzWFN3aWIzSnBaMmx1SWpvaWMzbHVkR2hsZEdsalgyWnBlSFIxY21VaUxDSndhSGx6YVdOaGJGOXRaV0Z6ZFhKbGJXVnVkQ0k2SW01dmRGOXdaWEptYjNKdFpXUWlMQ0p6YVcxMWJHRjBaV1JmYzNSaGRHVWlPbHMwTVRVdU5qRTRPVEl5TmpBNE1UYzROellzTXpjM0xqTTJNemMyTURRM05UUTFNVE5kZlE9PSIsInNjaGVtYSI6ImNpdy5mdXNpb24tb2JzZXJ2YXRpb24udjEiLCJzZW5zb3JfaWQiOiJzaGVsbCIsInRpbWUiOjIwLCJ1bml0cyI6WyJLIl0sInZhbHVlcyI6WzM3Ny4yNDM3NjA0NzU0NTEyN119"
+        }
+      ],
+      "measurement_noise": {
+        "channel_order": [
+          "core/core_temperature",
+          "shell/shell_temperature"
+        ],
+        "matrix": [
+          [
+            0.09,
+            0.01
+          ],
+          [
+            0.01,
+            0.16
+          ]
+        ],
+        "cross_sensor_policy": "full_joint_declared",
+        "evidence_refs": [
+          "sha256:c0ffd6a76942fc48c80060dd2e9c74d9bcdaa7924432de97ec99504dad1313f6"
+        ]
+      }
+    }
+  ]
+}
