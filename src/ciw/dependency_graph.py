@@ -36,6 +36,7 @@ def _legibility_input_refs(parameters):
 
 def artifact_graph(run: dict, results: dict, executions: dict, workbench) -> dict:
     """Return nodes keyed by their existing identity, without invoking providers."""
+    from .operations.schemas import dependency_result_ids
     nodes = {run["evidence_id"]: {
         "kind": "evidence", "dependencies": [], "run_id": run["run_id"],
     }}
@@ -56,6 +57,7 @@ def artifact_graph(run: dict, results: dict, executions: dict, workbench) -> dic
             source_kind=source["kind"], evidence_id=source["evidence_id"], label=source["label"])
     for execution in executions.values():
         deps = [execution["evidence_id"]]
+        deps.extend(dependency_result_ids(execution["operation_id"], execution.get("parameters", {})))
         upstream = execution.get("parameters", {}).get("source_result_id")
         if upstream is not None:
             deps.append(upstream)
@@ -63,6 +65,7 @@ def artifact_graph(run: dict, results: dict, executions: dict, workbench) -> dic
             operation_id=execution["operation_id"], outcome=execution["status"])
     for result in results.values():
         deps = [result["evidence_id"]]
+        deps.extend(dependency_result_ids(result["operation_id"], result.get("parameters", {})))
         upstream = result.get("parameters", {}).get("source_result_id")
         if upstream is not None:
             deps.append(upstream)

@@ -93,6 +93,23 @@ integrity is separately unassessed. The impact import currently accepts its
 documented Session-v2 contract and refuses correction-journal v4 workspaces
 whose dependency eligibility has not been qualified by that adapter.
 
+## Plan daily irrigation
+
+The installed [agriculture and irrigation instrument](IRRIGATION.md) accepts declared
+weather and calibrated root-zone observations. It retains a bounded daily soil-water
+balance and pump-budget schedule with a separate numerical audit:
+
+```text
+net irrigation example --output irrigation-request.json
+net irrigation run irrigation-request.json --output-dir results/irrigation
+net irrigation verify results/irrigation --output irrigation-audit.json
+net irrigation report results/irrigation --output irrigation-review.html
+```
+
+Read the planning status and observation holds before using a schedule. The profile
+performs a computational planning exercise; physical validation and hardware
+actuation are not established by its numerical checks.
+
 ## Select additional tools explicitly
 
 The [instrument catalogue](INSTRUMENTS.md), [integration coverage](INTEGRATION_COVERAGE.md)

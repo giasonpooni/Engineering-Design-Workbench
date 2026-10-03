@@ -1,0 +1,150 @@
+{
+  "schema": "ciw.irrigation-request.v1",
+  "scope": "daily_root_zone_bucket_fao56_v1",
+  "source": {
+    "kind": "synthetic",
+    "source_ref": "synthetic:two-zone-irrigation-first-run"
+  },
+  "as_of": "2026-10-03T00:00:00Z",
+  "max_age_hours": 6.0,
+  "coverage_factor": 2.0,
+  "weather": [
+    {
+      "date": "2026-10-03",
+      "weather_ref": "synthetic:fao56-example18-intermediates",
+      "temp_min_c": 12.3,
+      "temp_max_c": 21.5,
+      "temp_mean_c": 16.9,
+      "pressure_kpa": 100.12350828341812,
+      "net_radiation_mj_m2_day": 13.28,
+      "soil_heat_flux_mj_m2_day": 0.0,
+      "wind_2m_m_s": 2.077641875466511,
+      "saturation_vapour_pressure_kpa": 1.9974855625338357,
+      "actual_vapour_pressure_kpa": 1.4086238018595982,
+      "rainfall_mm": 0.0,
+      "runoff_mm": 0.0
+    },
+    {
+      "date": "2026-10-04",
+      "weather_ref": "synthetic:fao56-example18-intermediates",
+      "temp_min_c": 12.3,
+      "temp_max_c": 21.5,
+      "temp_mean_c": 16.9,
+      "pressure_kpa": 100.12350828341812,
+      "net_radiation_mj_m2_day": 13.28,
+      "soil_heat_flux_mj_m2_day": 0.0,
+      "wind_2m_m_s": 2.077641875466511,
+      "saturation_vapour_pressure_kpa": 1.9974855625338357,
+      "actual_vapour_pressure_kpa": 1.4086238018595982,
+      "rainfall_mm": 0.0,
+      "runoff_mm": 0.0
+    },
+    {
+      "date": "2026-10-05",
+      "weather_ref": "synthetic:fao56-example18-intermediates",
+      "temp_min_c": 12.3,
+      "temp_max_c": 21.5,
+      "temp_mean_c": 16.9,
+      "pressure_kpa": 100.12350828341812,
+      "net_radiation_mj_m2_day": 13.28,
+      "soil_heat_flux_mj_m2_day": 0.0,
+      "wind_2m_m_s": 2.077641875466511,
+      "saturation_vapour_pressure_kpa": 1.9974855625338357,
+      "actual_vapour_pressure_kpa": 1.4086238018595982,
+      "rainfall_mm": 0.0,
+      "runoff_mm": 0.0
+    }
+  ],
+  "zones": [
+    {
+      "zone_id": "tomato-east",
+      "parameter_ref": "synthetic:tomato-silty-soil-parameters",
+      "area_m2": 1000.0,
+      "theta_fc": 0.32,
+      "theta_wp": 0.12,
+      "root_depth_m": 0.8,
+      "crop_coefficient": 1.2,
+      "depletion_fraction": 0.4,
+      "target_depletion_mm": 32.0,
+      "max_daily_net_mm": 50.0,
+      "capillary_rise_mm_per_day": 0.0,
+      "soil_measurements": {
+        "measurand": "root_zone_mean_volumetric_water_content",
+        "unit": "m^3/m^3",
+        "covariance_unit": "(m^3/m^3)^2",
+        "observations": [
+          {
+            "observation_id": "tomato-east-soil-1",
+            "calibrated_theta_m3_m3": 0.22,
+            "calibration_ref": "synthetic:calibration-tomato-east",
+            "clock_ref": "synthetic:utc-model-clock",
+            "observed_at": "2026-10-02T23:00:00Z",
+            "calibrated_until": "2026-11-01T00:00:00Z"
+          }
+        ],
+        "covariance": [
+          [
+            4e-06
+          ]
+        ]
+      }
+    },
+    {
+      "zone_id": "tomato-west",
+      "parameter_ref": "synthetic:tomato-silty-soil-parameters",
+      "area_m2": 1000.0,
+      "theta_fc": 0.32,
+      "theta_wp": 0.12,
+      "root_depth_m": 0.8,
+      "crop_coefficient": 1.2,
+      "depletion_fraction": 0.4,
+      "target_depletion_mm": 32.0,
+      "max_daily_net_mm": 50.0,
+      "capillary_rise_mm_per_day": 0.0,
+      "soil_measurements": {
+        "measurand": "root_zone_mean_volumetric_water_content",
+        "unit": "m^3/m^3",
+        "covariance_unit": "(m^3/m^3)^2",
+        "observations": [
+          {
+            "observation_id": "tomato-west-soil-1",
+            "calibrated_theta_m3_m3": 0.26,
+            "calibration_ref": "synthetic:calibration-tomato-west",
+            "clock_ref": "synthetic:utc-model-clock",
+            "observed_at": "2026-10-02T23:00:00Z",
+            "calibrated_until": "2026-11-01T00:00:00Z"
+          }
+        ],
+        "covariance": [
+          [
+            4e-06
+          ]
+        ]
+      }
+    }
+  ],
+  "pump": {
+    "rate_m3_h": 10.0,
+    "available_hours_per_day": 6.0,
+    "water_budget_m3_per_day": 60.0,
+    "efficiency": 0.8,
+    "parameter_ref": "synthetic:bounded-pump-and-application-efficiency"
+  },
+  "telemetry": [
+    {
+      "telemetry_id": "east-flow-closed",
+      "zone_id": "tomato-east",
+      "observed_at": "2026-10-02T23:30:00Z",
+      "calibrated_until": "2026-11-01T00:00:00Z",
+      "calibration_ref": "synthetic:flow-pressure-calibration",
+      "clock_ref": "synthetic:utc-model-clock",
+      "commanded_open": false,
+      "expected_flow_m3_h": 0.0,
+      "observed_flow_m3_h": 0.0,
+      "flow_tolerance_m3_h": 0.1,
+      "expected_pressure_kpa": 200.0,
+      "observed_pressure_kpa": 180.0,
+      "pressure_tolerance_kpa": 30.0
+    }
+  ]
+}

@@ -144,6 +144,9 @@ def validate_execution(execution: dict, run: dict, revision: int, results: dict)
                         "fluid.wave.simulate.v1", "fluid.wave.verify.v1"}:
         from ..fluid_workflow import validate_runtime
         validate_runtime(operation_id, runtime, allow_absent=execution.get("status") == "refused")
+    if operation_id in {"irrigation.plan.v1", "irrigation.verify.v1"}:
+        from ..irrigation_workflow import validate_runtime
+        validate_runtime(operation_id, runtime, allow_absent=execution.get("status") == "refused")
     try:
         timestamp = datetime.fromisoformat(execution["created_at"])
         if timestamp.tzinfo is None or timestamp.utcoffset() is None:
