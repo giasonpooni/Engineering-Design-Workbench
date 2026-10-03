@@ -176,7 +176,7 @@ provider source and recorded interpreter/dependency identity.
 | Global retained result bytes | 32 MiB |
 | Completed jobs and idle session lifetime | 3,600 seconds |
 | HTTP request body / declared source | 32 KiB / 256 KiB |
-| Concurrent HTTP connections / request deadline | 32 / 5 seconds |
+| Concurrent HTTP connections / socket inactivity timeout | 32 / 5 seconds |
 | Worker combined output | 8 MiB |
 | Worker wall / CPU limit | 45 seconds / 30 seconds |
 | Worker address space / output file size | 2,048 MiB / 8 MiB |
