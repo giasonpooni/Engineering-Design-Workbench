@@ -28,6 +28,27 @@ real Session compilation operation. Its coupon SVG is a diagram, not a specimen
 photograph. The image annotation has its own normalized image frame; no transform
 to the physical fixture frame is established.
 
+All subcommands are also available as `net legibility ...`. For a fresh offline
+review after transporting a bundle, use:
+
+```sh
+net legibility review results/legibility-demo \
+  --trust results/legibility-demo/demo-trust.json --expected-version 1 \
+  --output results/legibility-demo/fresh-review.html
+net legibility compare previous/bundle.json current/bundle.json
+```
+
+`review` rechecks retained artifact bytes, exports and the envelope using the
+supplied trust and expectations. It does not reuse `verification.json`. It writes
+a new HTML file and prints the fresh JSON report; verification failures return
+exit code 2 even when a diagnostic HTML file can be generated. Existing output
+files are never overwritten. Review cannot establish source dependency currency;
+use Session dependency inspection for corrected scientific inputs.
+
+Comparison checks intact source bundles for one object and reports changes by
+explicit IDs. It does not verify signatures or artifact bytes; run `verify` on
+both directories when those checks are required. See [comparison](LEGIBILITY_COMPARISON.md).
+
 The demo generates an ephemeral key, discards its private bytes and exports a
 **demonstration trust anchor**. That same-run anchor tests explicit key matching;
 it does not establish organizational issuer identity. Operator trust must come
@@ -108,6 +129,13 @@ status is an imported declaration; physical validation is not assessed and no
 fresh numerical verification is claimed. Other native receipt identity forms
 can remain evidence references rather than being coerced into UUID event IDs.
 
+The impact adapter currently rejects other workspace versions, including v4
+workspaces carrying retained correction journals. Their dependency eligibility
+requires an explicit adapter extension. Within a current Session, a compiled
+representation's declared result and execution dependencies participate in
+correction propagation. The sealed representation bytes remain historical;
+signature integrity does not establish that its dependencies are current.
+
 ## Supply a real source and signing key
 
 ```sh
@@ -151,8 +179,7 @@ profiles and preservation checks. Primary design references:
 
 ## Validation and next experiments
 
-Run `python -m pytest tests/test_legibility.py tests/test_legibility_workflow.py
-tests/test_legibility_impact_import.py tests/test_capabilities.py tests/test_protocol.py`. The dedicated workflow runs
+Run `python -m pytest tests/test_legibility*.py tests/test_capabilities.py tests/test_protocol.py`. The dedicated workflow runs
 the boundary tests and installed-wheel demo/verification on Linux and Windows,
 Python 3.11 and 3.12. A configured workflow is not evidence that remote CI ran.
 
@@ -168,3 +195,14 @@ vision recognition across pose/light/occlusion, physical experiment integration,
 cross-tool export preservation and standards interoperability remain acceptance
 experiments. This build supplies their common identity and verification path;
 it does not report unmeasured improvements.
+
+## Supported operator scope
+
+The usable v1 workflow is local contract compilation, optional operator signing,
+byte/export inspection, fresh offline review and version comparison. Actual NET
+elastic, crush and modal-plate execution outputs are exercised through retained
+workspace import in the operator tests. Arbitrary scientific instruments can
+supply a validated contract and explicit artifact map; automatic result adapters
+are currently limited to the documented impact workspace-v2 pair. Correction
+journals, general vision detection, live key revocation and cross-language
+signature interoperability are not qualified by this workflow.

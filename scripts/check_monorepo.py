@@ -7,6 +7,7 @@ workflow, admit scientific state, or claim physical calibration or validation.
 from __future__ import annotations
 
 import argparse
+from contextlib import ExitStack, contextmanager
 from datetime import datetime, timezone
 from email.parser import BytesParser
 from hashlib import sha256
@@ -41,7 +42,7 @@ SCOPE = (
 def _environment() -> dict[str, str]:
     environment = dict(os.environ)
     for key in ("PYTHONPATH", "PYTHONHOME", "PYTEST_ADDOPTS", "PYTEST_PLUGINS",
-                "GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_OBJECT_DIRECTORY",
+                "GIT_DIR", "GIT_COMMON_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_OBJECT_DIRECTORY",
                 "GIT_ALTERNATE_OBJECT_DIRECTORIES"):
         environment.pop(key, None)
     environment["PYTHONNOUSERSITE"] = "1"
@@ -82,13 +83,19 @@ def _copy_source(source: Path, target: Path) -> None:
         ".pytest_cache", ".venv", ".venv*"))
 
 
-def _set_checkout(supplied: Path | None, temporary: Path, log: Path) -> Path:
-    checkout = supplied.expanduser().resolve() if supplied else temporary / "set-checkout"
-    if supplied is None:
-        _run(["git", "-c", "core.autocrlf=false", "clone", "--no-checkout",
-              SET_REPOSITORY, checkout], cwd=temporary, log=log, timeout=180)
-        _run(["git", "-C", checkout, "-c", "core.autocrlf=false", "checkout",
-              "--detach", SET_REVISION], cwd=temporary, log=log)
+@contextmanager
+def _set_checkout(supplied: Path | None, temporary: Path, log: Path):
+    """Bind the legacy exchange pin locally unless an external root is explicit."""
+    if supplied is not None:
+        yield _validate_set_checkout(supplied, temporary, log)
+        return
+    with provider_worktrees(root=ROOT, roles=["set"],
+                           overrides={"set": SET_REVISION}) as providers:
+        yield _validate_set_checkout(providers["set"], temporary, log)
+
+
+def _validate_set_checkout(checkout: Path, temporary: Path, log: Path) -> Path:
+    checkout = checkout.expanduser().resolve()
     if Path(_git(checkout, "rev-parse", "--show-toplevel")).resolve() != checkout:
         raise ValueError("--set-root must be the standalone dependency repository root")
     if _git(checkout, "rev-parse", "HEAD") != SET_REVISION:
@@ -306,17 +313,18 @@ def _qualify(args, report: dict, output: Path, log: Path) -> None:
         raise ValueError("Initial measurement gate binds exactly calibration and clock providers")
     report["imports"] = verify_imports(root=ROOT)
     report["modules"] = manifest["modules"]
-    with tempfile.TemporaryDirectory(prefix="notations-monorepo-gate-") as directory:
+    with tempfile.TemporaryDirectory(prefix="notations-monorepo-gate-") as directory, ExitStack() as contexts:
         temporary = Path(directory)
         environment = temporary / "venv"
         venv.EnvBuilder(with_pip=True).create(environment)
         python = environment / ("Scripts/python.exe" if os.name == "nt" else "bin/python")
         _run([python, "-I", "-m", "pip", "install", "setuptools>=77", "wheel", *DEPENDENCIES],
              cwd=temporary, log=log)
-        set_checkout = _set_checkout(args.set_root, temporary, log)
+        set_checkout = contexts.enter_context(_set_checkout(args.set_root, temporary, log))
         report["external_dependency"] = {"repository": SET_REPOSITORY,
             "revision": SET_REVISION, "source_tree": _git(set_checkout, "rev-parse", "HEAD^{tree}"),
-            "migrated": False}
+            "migrated": True,
+            "binding_route": "retained_history_worktree" if args.set_root is None else "external_checkout"}
         build = temporary / "build-sources"
         build.mkdir()
         terminal = build / "terminal"
@@ -393,7 +401,7 @@ def _qualify(args, report: dict, output: Path, log: Path) -> None:
 def main(argv=None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--set-root", type=Path,
-                        help=f"Standalone SET dependency checkout at exact revision {SET_REVISION}")
+                        help=f"Explicit standalone SET checkout at exact revision {SET_REVISION}; default uses retained local history")
     parser.add_argument("--output-dir", type=Path, default=ROOT / "results/monorepo",
                         help="Retained gate report, JUnit, example outputs and command log")
     args = parser.parse_args(argv)

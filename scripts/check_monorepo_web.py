@@ -21,10 +21,10 @@ import uuid
 
 if __package__:
     from .check_monorepo import _copy_source, _git
-    from .monorepo import ROOT, load_manifest, provider_worktrees, verify_imports
+    from .monorepo import ROOT, load_manifest, provider_worktrees, verify_imports, verify_terminal_source
 else:
     from check_monorepo import _copy_source, _git
-    from monorepo import ROOT, load_manifest, provider_worktrees, verify_imports
+    from monorepo import ROOT, load_manifest, provider_worktrees, verify_imports, verify_terminal_source
 
 ROLES = frozenset({"gsv", "framemapper"})
 SCOPE = ("Independent public web package tests, type checks and production builds; "
@@ -153,7 +153,12 @@ def main(argv=None) -> int:
               "terminal_revision": _git(ROOT, "rev-parse", "HEAD"),
               "claim_scope": SCOPE, "log": str(log), "minimum_node": "24"}
     try:
+        report["terminal_source"] = verify_terminal_source(root=ROOT)
+        if report["terminal_source"]["revision"] != report["terminal_revision"]:
+            raise ValueError("Terminal revision changed before qualification")
         qualify(report, output, log)
+        if verify_terminal_source(root=ROOT) != report["terminal_source"]:
+            raise ValueError("Terminal source identity changed during qualification")
     except Exception as error:
         report.update(status="failed", error={"type": type(error).__name__, "message": str(error)})
         print("Public web gate failed:", error)

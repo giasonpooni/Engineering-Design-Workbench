@@ -116,12 +116,18 @@ def _node(name: str, operation: str, dependencies: list[str] | None = None) -> d
 
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
+    if argv and argv[0] == "legibility":
+        from .legibility_cli import main as legibility_main
+        return legibility_main(argv[1:])
     if argv and argv[0] == "compose":
         from .workflow_cli import main as compose_main
         return compose_main(argv[1:])
     if argv and argv[0] == "dsp":
         from .dsp_workflow import main as dsp_main
         return dsp_main(argv[1:])
+    if argv and argv[0] == "atmosphere":
+        from .atmosphere_cli import main as atmosphere_main
+        return atmosphere_main(argv[1:])
     if argv and argv[0] == "impact":
         from .impact_cli import main as impact_main
         return impact_main(argv[1:])
@@ -217,11 +223,13 @@ def main(argv: list[str] | None = None) -> int:
         return science_main(argv[1:])
     parser = argparse.ArgumentParser(prog="net", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
+    commands.add_parser("legibility", help="Compile, verify, review and compare versioned scientific objects")
     commands.add_parser("compose", help="Compile typed wiring and checked stages into existing NET graphs")
     commands.add_parser("dsp", help="Run and inspect the bounded specialist DSP instrument")
     commands.add_parser("impact", help="Run the bounded elastic contact benchmark with independent verification")
     commands.add_parser("lab", help="Run bounded shared-preservation experiments")
     commands.add_parser("foundry", help="Run explicit foundry workflows and childhood compilation")
+    commands.add_parser("atmosphere", help="Compile and independently check a bounded dry atmospheric column")
     commands.add_parser("object", help="Inspect committed source, export bounded context, and compare retained observations")
     commands.add_parser("semantic", help="Compile stable semantic capabilities into existing NET experiments")
     commands.add_parser("instrument", help="Inspect portable instrument manifests and verification reports")

@@ -70,6 +70,8 @@ def _check_exports(directory, bundle, report):
 def _publish(destination, contract, artifacts, *, run=None, private_key=None, demo=False):
     from .legibility_view import render_html
     destination = Path(destination)
+    # Reject invalid metadata/bytes before creating a publication directory.
+    compile_bundle(contract, artifacts=artifacts)
     destination.mkdir(parents=True, exist_ok=False)
     payload = compile_in_session(run, contract, destination / "compilation") if run is not None else None
     bundle = payload["result"]["data"] if payload else compile_bundle(contract)
@@ -137,14 +139,15 @@ def parser():
     sign.add_argument("bundle", type=Path)
     sign.add_argument("--private-key", type=Path, required=True)
     sign.add_argument("--output", type=Path, required=True)
-    for action in ("inspect", "verify"):
+    for action in ("inspect", "verify", "review"):
         verify = actions.add_parser(action, help="Check retained bytes and explicitly supplied trust/current version")
         verify.add_argument("directory", type=Path)
         verify.add_argument("--trust", type=Path)
         verify.add_argument("--expected-object-id")
         verify.add_argument("--expected-version")
         verify.add_argument("--expected-source-digest")
-        verify.add_argument("--output", type=Path)
+        verify.add_argument("--output", type=Path, required=action == "review",
+                            help="New HTML file for review; JSON report for inspect/verify")
     keygen = actions.add_parser("keygen", help="Generate an operator-owned local key; never overwrite an existing key")
     keygen.add_argument("--private-key", type=Path, required=True)
     keygen.add_argument("--trust", type=Path, required=True)
@@ -213,7 +216,11 @@ def main(argv=None):
             _check_exports(args.directory, bundle, result)
             if args.output:
                 with args.output.open("x", encoding="utf-8") as stream:
-                    json.dump(result, stream, indent=2, allow_nan=False)
+                    if args.action == "review":
+                        from .legibility_view import render_html
+                        stream.write(render_html(bundle, result))
+                    else:
+                        json.dump(result, stream, indent=2, allow_nan=False)
             print(json.dumps(result, indent=2, allow_nan=False))
             failed = (not result["content_intact"] or result["artifact_status"] != "verified" or result["export_status"] != "verified"
                       or result["signature_valid"] is False

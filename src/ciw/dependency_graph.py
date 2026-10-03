@@ -2,11 +2,36 @@
 
 Edges come from retained catalog links and explicit operation inputs. They do
 not authenticate observations, establish a physical claim, or grant authority.
-Unresolved native input references are reported rather than guessed.
+Unresolved native and legibility input references are reported rather than
+guessed. Declared references project current dependency use; their presence
+does not authenticate a referenced execution, verification, or qualification.
 """
 from __future__ import annotations
 
 from copy import deepcopy
+
+
+def _legibility_input_refs(parameters):
+    """Read only reference slots in the closed representation contract.
+
+    Labels, property values, assumptions, relation names and target versions
+    are not computational identities. References outside this Session remain
+    unresolved; no artifact or verification authority is invented for them.
+    """
+    from .legibility import validate_contract
+
+    contract = validate_contract(parameters["contract"])
+    bindings = contract["bindings"]
+    refs = {bindings["evidence_id"], bindings["execution_id"]}
+    if bindings["verification_id"] is not None:
+        refs.add(bindings["verification_id"])
+    semantics = contract["semantics"]
+    refs.update(relation["target_id"] for relation in semantics["relationships"])
+    for declaration in [*semantics["properties"], *contract["claims"]]:
+        refs.update(declaration["evidence_refs"])
+    for field in ("calibration_refs", "verification_refs"):
+        refs.update(contract["qualification"][field])
+    return refs
 
 
 def artifact_graph(run: dict, results: dict, executions: dict, workbench) -> dict:
@@ -66,6 +91,19 @@ def artifact_graph(run: dict, results: dict, executions: dict, workbench) -> dic
         if bundle["upstream_bundle_id"] is not None:
             deps.append(bundle["upstream_bundle_id"])
         add(bundle["bundle_id"], "bundle", deps, source_kind=bundle["kind"])
+    # Resolve the representation's declared inputs only after native and
+    # recording outputs have all been allocated. A refused compilation has no
+    # result and no validated contract, so it contributes no inferred edges.
+    for result in results.values():
+        if result["operation_id"] != "legibility.compile.v1":
+            continue
+        refs = _legibility_input_refs(result["parameters"])
+        for identity in (result["execution_id"], result["result_id"]):
+            node = nodes[identity]
+            node["dependencies"] = sorted(set(node["dependencies"]) | {ref for ref in refs if ref in nodes})
+            unresolved = sorted(refs - nodes.keys())
+            if unresolved:
+                node["unresolved_input_refs"] = unresolved
     for execution in retained["executions"]:
         node = nodes[execution["execution_id"]]
         refs = execution["input_refs"]
