@@ -78,6 +78,10 @@ unestablished.
 
 ## Quickstart
 
+Start with [Run NET with the installed public tools](docs/RUN_NET.md) for
+installation, dependency preflight and one checked path through analysis,
+impact, Legibility and atmospheric handoffs.
+
 Python **3.11 or newer** is required. From a checkout:
 
 ```sh
