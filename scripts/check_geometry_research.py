@@ -59,7 +59,7 @@ def main():
             path = (args.stack_root / role).resolve() if args.stack_root else temporary / role
             if not args.stack_root:
                 call(["git", "-c", "core.autocrlf=false", "clone", "--quiet", "--no-checkout",
-                    "https://github.com/giasonpooni/" + repository + ".git", str(path)])
+                    "https://github.com/atomtrapping/" + repository + ".git", str(path)])
                 call(["git", "-C", str(path), "-c", "core.autocrlf=false", "checkout", "--quiet", "--detach", by_role[role]["revision"]])
             providers[role] = exact_source(path, by_role[role])
         build = temporary / "build"

@@ -24,9 +24,9 @@ import xml.etree.ElementTree as ET
 import zipfile
 
 if __package__:
-    from .monorepo import ROOT, load_manifest, provider_worktrees, verify_imports
+    from .monorepo import ROOT, load_manifest, provider_worktrees, verify_imports, verify_terminal_source
 else:
-    from monorepo import ROOT, load_manifest, provider_worktrees, verify_imports
+    from monorepo import ROOT, load_manifest, provider_worktrees, verify_imports, verify_terminal_source
 
 SET_REVISION = "bd261a765281a95312f7c91a3857233476294c5b"
 SET_REPOSITORY = "https://github.com/giasonpooni/Notations-Estimator-Bench.git"
@@ -207,7 +207,9 @@ def execute():
         refs = [evidence_id] if role == 'tbrt' else [evidence_id, steps[0]['result_id']]
         result = {'schema': RESULT_SCHEMA, 'operation_id': operations[role],
             'execution_ref': execution_id, 'input_refs': refs, 'data': output}
-        result_id = 'result:sha256:' + digest(result)
+        result_id = 'result:' + digest(result)
+        assert result_id.startswith('result:sha256:')
+        assert len(result_id.removeprefix('result:sha256:')) == 64
         steps.append({'operation_id': operations[role], 'execution_id': execution_id,
             'input_refs': refs, 'request_sha256': digest(supplied),
             'result_id': result_id, 'data': output})
@@ -295,6 +297,9 @@ print(json.dumps({'composition': 'passed', 'refusals': sorted(refusals), 'runs':
 
 
 def _qualify(args, report: dict, output: Path, log: Path) -> None:
+    report["terminal_source"] = verify_terminal_source(root=ROOT)
+    if report["terminal_source"]["revision"] != report["terminal_revision"]:
+        raise ValueError("Terminal revision changed before qualification")
     manifest = load_manifest(root=ROOT)
     modules = {module["role"]: module for module in manifest["modules"] if module["role"] in {"mcur", "tbrt"}}
     if set(modules) != {"tbrt", "mcur"}:
@@ -381,6 +386,8 @@ def _qualify(args, report: dict, output: Path, log: Path) -> None:
             _run([python, "-I", "-c", _COMPOSITION, configuration], cwd=temporary, log=log)
             report["composition"] = json.loads(composition_path.read_text())
         report["post_execution_imports"] = verify_imports(root=ROOT)
+        if verify_terminal_source(root=ROOT) != report["terminal_source"]:
+            raise ValueError("Terminal source identity changed during qualification")
 
 
 def main(argv=None) -> int:

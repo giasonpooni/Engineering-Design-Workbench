@@ -7,6 +7,12 @@ experiments, designs, numerical operations, visualizations and evidence.
 Physics, chemistry and engineering are supported domains; the workbench does
 not replace the domain repository that owns a model or solver.
 
+NET is shared infrastructure for Notation Systems Inc.'s physical and virtual
+systems direction across Notations Laboratories, Notations Manufacturing and
+Notations Gaming. The existing Session, controller and registries remain the
+composition substrate; scientific providers and interactive applications retain
+their own numerical and live-state responsibilities.
+
 The product is an instrument for its operator. The engineer defines the
 question, assumptions, objectives, constraints and standard of evidence. Python
 provides the current workbench shell and session services; Julia, GPU runtimes,
@@ -70,9 +76,9 @@ The executable persistence and admission rules are in
 | Terminal and Python API | Authoritative local session, operation dispatch, saved workspaces and replay. |
 | Optional Godot client | Read-only 2D/3D representations of supported retained data; it is not a second state store. |
 | Provider processes | Explicitly pinned numerical engines invoked outside the session lock. |
-| Julia direction | The bounded Tsit5 oscillator provider seam is registered with retained replay and a Python oracle. Its inspection view now includes equations, assumptions and a bounded offline what-if preview; the generated Julia environment and Godot headless gates remain explicit. Broader JuliaControl/JuMP scientific-core work is still planned. |
+| Julia direction | The bounded Tsit5 oscillator seam and native `control-oscillator.v1` (ControlSystemsBase) / `design-qp.v1` (JuMP/HiGHS) profiles are registered. Retained runtime identity and independent reference checks remain profile-specific; a general shared plant/sensor model and broader scientific core remain planned. See [coverage](INTEGRATION_COVERAGE.md). |
 | GPU and machine interfaces | Captured through bounded providers and host-side telemetry; deadline-critical protection remains local to the machine. |
-| MCP and agents | Optional tools at the workbench boundary. They propose or inspect work; deterministic contracts decide acceptance. |
+| MCP and agents | MCP remains planned. The local structured API supplies a boundary for future optional assistance; deterministic contracts decide acceptance. A WebSocket interface is not an MCP implementation. |
 
 The workbench currently has twenty-six registered workflow kinds in the shared
 session. Their exact status, commands and limits are maintained in

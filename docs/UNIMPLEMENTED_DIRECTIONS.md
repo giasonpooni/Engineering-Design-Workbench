@@ -127,7 +127,9 @@ These are responsibilities, not six new services or a completed universal librar
 Extensions reuse existing providers and the CIW/SCR interfaces. Python remains
 responsible for the shared session and records; Julia and C/C++ supply selected
 scientific calculations; Rust supplies supported native execution and checks.
-JuMP and JuliaControl remain candidate extensions. SP1 applies only to selected
+Bounded ControlSystemsBase and JuMP/HiGHS profiles are implemented through
+`ciw.native-interop.v1`; general control/design coverage and shared plant/sensor
+interoperability remain research extensions. SP1 applies only to selected
 registered computations, not automatically to Julia output or physical truth.
 See [Julia/SP1 contracts](docs/JULIA_SP1.md) and [integration coverage](docs/INTEGRATION_COVERAGE.md).
 

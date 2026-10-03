@@ -87,7 +87,7 @@ def main():
                 destination.symlink_to(existing, target_is_directory=True)
             else:
                 call(["git", "clone", "--quiet", "--no-checkout",
-                      "https://github.com/giasonpooni/" + repository + ".git", str(destination)])
+                      "https://github.com/atomtrapping/" + repository + ".git", str(destination)])
                 call(["git", "-C", str(destination), "-c", "core.autocrlf=false", "checkout", "--quiet", "--detach", revision])
                 tree = exact_source(destination, revision)
             checked.append((destination, revision, tree))

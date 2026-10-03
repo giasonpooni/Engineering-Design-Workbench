@@ -57,6 +57,14 @@ a `ciw.spatial-view.v1` packet respectively. Its only broadcast is
 
 ## Commands
 
+The additive [correction journal](CORRECTION_LOOP.md) supplies `claim.add`,
+`correction.propose`, `correction.review` and `dependency.inspect` under this
+same protocol version. Correction status stays outside sealed result payloads;
+an accepted local dependency review creates no scientific verification or
+execution authority. Journal mutations send `dependencies.changed`; clients
+fetch the authoritative projection. Workspaces with a journal use version 4,
+while versions 1–3 remain readable.
+
 | Type | Payload | Response payload |
 | --- | --- | --- |
 | `session.get` | `{}` | `{session_id, run: RUN_METADATA, selection: SELECTION, results: [RESULT_SUMMARY]}` |

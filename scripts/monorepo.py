@@ -241,6 +241,62 @@ def verify_imports(root=ROOT):
     return result
 
 
+def verify_terminal_source(root=ROOT):
+    """Bind the actual tracked checkout and executable source paths to HEAD.
+
+    This audit reads committed objects, the index and actual file bytes rather
+    than trusting Git status, which can hide changes behind index flags. Gate
+    output may live outside the executable source directories; generated Python
+    caches and package metadata are also permitted within those directories.
+    """
+    root = Path(root).resolve()
+    if Path(os.fsdecode(git(root, "rev-parse", "--show-toplevel")).strip()).resolve() != root:
+        raise ValueError("Terminal source must be a Git repository root")
+    if git(root, "rev-parse", "--show-object-format").strip() != b"sha1":
+        raise ValueError("Terminal source qualification requires SHA-1 Git objects")
+    revision = git(root, "rev-parse", "HEAD").decode().strip()
+    tree = git(root, "rev-parse", revision + "^{tree}").decode().strip()
+    entries = []
+    for entry in git(root, "ls-tree", "-r", "-z", revision).split(b"\0"):
+        if not entry:
+            continue
+        metadata, raw_name = entry.split(b"\t", 1)
+        mode, kind, expected = metadata.decode("ascii").split()
+        if kind != "blob" or mode not in {"100644", "100755"}:
+            raise ValueError("Terminal tracked source must retain regular-file types")
+        entries.append((raw_name, mode, expected))
+    committed_index = sorted((name, mode, expected, "0") for name, mode, expected in entries)
+    observed_index = []
+    for entry in git(root, "ls-files", "--stage", "-z").split(b"\0"):
+        if entry:
+            metadata, raw_name = entry.split(b"\t", 1)
+            mode, expected, stage = metadata.decode("ascii").split()
+            observed_index.append((raw_name, mode, expected, stage))
+    if sorted(observed_index) != committed_index:
+        raise ValueError("Terminal index differs from the reported source revision")
+    for raw_name, mode, expected in entries:
+        path = root / os.fsdecode(raw_name)
+        if path.is_symlink() or not path.is_file() or path.resolve() != path:
+            raise ValueError("Terminal tracked source changed type or traverses a symlink")
+        if os.name == "posix" and bool(path.stat().st_mode & 0o111) != (mode == "100755"):
+            raise ValueError("Terminal tracked executable mode differs from its source revision")
+        data = path.read_bytes()
+        if sha1(b"blob " + str(len(data)).encode("ascii") + b"\0" + data).hexdigest() != expected:
+            raise ValueError("Terminal tracked working bytes differ from the reported source revision")
+    # Do not apply exclude-standard: ignored shadow modules are executable too.
+    for raw_name in git(root, "ls-files", "--others", "-z", "--", "src", "scripts", "tests").split(b"\0"):
+        if not raw_name:
+            continue
+        parts = Path(os.fsdecode(raw_name)).parts
+        if any(part in _CACHES or part.startswith(".venv") or part.endswith(".egg-info")
+               for part in parts[1:-1]):
+            continue
+        raise ValueError("Terminal executable source contains an untracked file: " + os.fsdecode(raw_name))
+    if git(root, "rev-parse", "HEAD").decode().strip() != revision:
+        raise ValueError("Terminal source revision changed during qualification")
+    return {"revision": revision, "source_tree": tree}
+
+
 @contextmanager
 def provider_worktrees(root=ROOT, revisions="runtime", roles=None, overrides=None):
     """Yield explicit original-pin bindings, then remove their Git worktrees."""

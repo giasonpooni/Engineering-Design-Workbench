@@ -68,7 +68,7 @@ jobs:
         run: |
           stack="$RUNNER_TEMP/proved-heat-stack"
           mkdir -p "$stack/notationsystems"
-          git -c core.autocrlf=false clone --no-checkout https://github.com/giasonpooni/Scientific-Computation-Runtime.git "$stack/scr"
+          git -c core.autocrlf=false clone --no-checkout https://github.com/atomtrapping/Notations-Compute-Runtime.git "$stack/scr"
           git -C "$stack/scr" -c core.autocrlf=false checkout --detach a59aba283b0304faeeb3e5d305087e7709e171ca
           git -c core.autocrlf=false clone --no-checkout https://github.com/succinctlabs/sp1.git "$stack/notationsystems/SP1-zero-knowledge-virtual-machine"
           git -C "$stack/notationsystems/SP1-zero-knowledge-virtual-machine" -c core.autocrlf=false checkout --detach b38b61209e45e969289e70d5cf79dc763460bc41

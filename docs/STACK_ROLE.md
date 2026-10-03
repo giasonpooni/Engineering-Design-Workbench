@@ -1,10 +1,11 @@
 # Computational Instrumentation Workbench (CIW) in the Notation-Systems-Workbench stack
 
-The public repository is [Notation-Systems-Workbench](https://github.com/giasonpooni/Notation-Systems-Workbench).
+The public repository is [Notation-Systems-Workbench](https://github.com/atomtrapping/Notations-Systems-Terminal).
 Its distribution package is `computational-instrumentation-workbench`, its
 Python import is `ciw`, and its command-line entry point is `ciw`.
-Notation Systems develops computational instrumentation and evidence infrastructure for industrial and cyber-physical systems.
-This component owns **operation, inspection and replay**. The [stack map](https://github.com/giasonpooni/Notation-Systems-Workbench/blob/main/docs/STACK.md) locates all public components and distinguishes implemented paths from specifications and scaffolds.
+Notation Systems Inc. is a scientific computing and systems engineering company developing computational instruments, software and interactive environments for understanding and building physical and virtual systems.
+The shared development direction connects measurement, state estimation and sensor fusion, scientific modelling, simulation and execution. This component contributes through the current boundary below; the expanded company scope does not imply new implemented capabilities.
+This component owns **operation, inspection and replay**. The [stack map](https://github.com/atomtrapping/Notations-Systems-Terminal/blob/main/docs/STACK.md) locates all public components and distinguishes implemented paths from specifications and scaffolds.
 
 ## Current boundary
 
@@ -37,7 +38,7 @@ Private customer state, deployment configuration and calibration knowledge are o
 
 ## Read-only exchange path
 
-CIW's [instrument-exchange inspector](https://github.com/giasonpooni/Notation-Systems-Workbench/blob/main/docs/EXCHANGE.md)
+CIW's [instrument-exchange inspector](https://github.com/atomtrapping/Notations-Systems-Terminal/blob/main/docs/EXCHANGE.md)
 checks supported `notation.instrument.*.v1` acquisition/runtime artifacts with
 an explicitly pinned State Estimation Evaluation Testbed validator. It retains
 full or explicitly unknown covariance and reports content/reference checks.

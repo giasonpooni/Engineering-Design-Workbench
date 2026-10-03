@@ -54,7 +54,7 @@ def main() -> int:
             for role, repository in REPOSITORIES.items():
                 path = providers / role
                 call(["git", "clone", "--no-checkout", "--filter=blob:none",
-                      "https://github.com/giasonpooni/" + repository + ".git", str(path)])
+                      "https://github.com/atomtrapping/" + repository + ".git", str(path)])
                 call(["git", "-C", str(path), "-c", "core.autocrlf=false", "checkout",
                       "--detach", pins[role]["revision"]])
         for role, pin in pins.items():

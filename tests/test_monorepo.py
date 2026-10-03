@@ -179,3 +179,45 @@ def test_retained_side_history_cannot_authorize_a_different_module():
     with pytest.raises(subprocess.CalledProcessError):
         with monorepo.provider_worktrees(roles=["jspt"], overrides={"jspt": "f863bdd69d49224e0cdc871943bbb052e5b0a975"}):
             pytest.fail("A reviewed side branch grants no authority to an unrelated provider")
+def test_terminal_source_identity_allows_gate_output_and_runtime_caches(checkout):
+    output = checkout / "results/monorepo/report.json"
+    output.parent.mkdir(parents=True)
+    output.write_text('{"status":"running"}\n')
+    cache = checkout / "src/ciw/__pycache__/local.pyc"
+    cache.parent.mkdir(parents=True)
+    cache.write_bytes(b"runtime cache")
+    expected = {
+        "revision": monorepo.git(checkout, "rev-parse", "HEAD").decode().strip(),
+        "source_tree": monorepo.git(checkout, "rev-parse", "HEAD^{tree}").decode().strip(),
+    }
+    assert monorepo.verify_terminal_source(checkout) == expected
+
+
+def test_terminal_source_byte_changes_cannot_hide_behind_index_flags(checkout):
+    relative = "src/ciw/__init__.py"
+    monorepo.git(checkout, "update-index", "--assume-unchanged", relative)
+    path = checkout / relative
+    path.write_bytes(path.read_bytes() + b"\n# changed executable source\n")
+    with pytest.raises(ValueError, match="working bytes differ"):
+        monorepo.verify_terminal_source(checkout)
+
+
+def test_terminal_source_rejects_staged_metadata_with_restored_working_bytes(checkout):
+    path = checkout / "pyproject.toml"
+    original = path.read_bytes()
+    path.write_bytes(original + b"\n# staged build metadata drift\n")
+    monorepo.git(checkout, "add", "pyproject.toml")
+    path.write_bytes(original)
+    with pytest.raises(ValueError, match="index differs"):
+        monorepo.verify_terminal_source(checkout)
+
+
+@pytest.mark.parametrize("relative", [
+    "src/ciw/ignored_shadow.py", "scripts/ignored_shadow.py", "tests/ignored_shadow.py",
+])
+def test_terminal_source_rejects_ignored_executable_shadow_files(checkout, relative):
+    exclude = checkout / ".git/info/exclude"
+    exclude.write_text(exclude.read_text() + "\n" + relative + "\n")
+    (checkout / relative).write_text("raise RuntimeError('untracked executable source')\n")
+    with pytest.raises(ValueError, match="untracked file"):
+        monorepo.verify_terminal_source(checkout)

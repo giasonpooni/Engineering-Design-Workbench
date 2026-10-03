@@ -1,6 +1,6 @@
 {
   "rci": {
-    "repository": "https://github.com/giasonpooni/Retrofitted-Computational-Instrumentation",
+    "repository": "https://github.com/atomtrapping/Notations-Metrology-Adapter",
     "revision": "f863bdd69d49224e0cdc871943bbb052e5b0a975",
     "module": "instrument_chain.ciw_adapter",
     "historical": [
@@ -11,7 +11,7 @@
     ]
   },
   "fsrt": {
-    "repository": "https://github.com/giasonpooni/Fluid-State-Reconstruction-Testbed",
+    "repository": "https://github.com/atomtrapping/Notations-FlowState",
     "revision": "09a756dd9cdd3a9bb6cb14b5cd498f6259937ac2",
     "module": "set_lcm.bridge.ciw",
     "historical": [
@@ -22,12 +22,12 @@
     ]
   },
   "jspt": {
-    "repository": "https://github.com/giasonpooni/Jacobian-Sensitivity-Propagation-Testbed",
+    "repository": "https://github.com/atomtrapping/Notations-Sensitivity-Testbed",
     "revision": "d910f5a1d7f6dd5f2dd87dfca66990f714f97b18",
     "module": "sensitivity.ciw_adapter"
   },
   "gte": {
-    "repository": "https://github.com/giasonpooni/Geometric-Telemetry-Engine",
+    "repository": "https://github.com/atomtrapping/Notations-Telemetry-Engine",
     "revision": "e55b8be2b3ba05f7e6c6a31807c77b3e42700f07",
     "module": "geodesic_telemetry.ciw_adapter"
   }

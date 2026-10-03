@@ -21,7 +21,7 @@ Use Python 3.11 or newer and install CIW's declared environment:
 
 ```sh
 python -m pip install -e '.[dev]'
-git clone https://github.com/giasonpooni/Geometric-Telemetry-Engine.git ../gte
+git clone https://github.com/atomtrapping/Notations-Telemetry-Engine.git ../gte
 python -c "import json,subprocess; p=json.load(open('src/ciw/adapter-runtimes.json'))['gte']; subprocess.run(['git','-C','../gte','checkout','--detach',p['revision']],check=True)"
 ```
 
@@ -78,7 +78,7 @@ a GTE viewport contract, a fitted curve, or a measurement.
 ## Input and output specifications
 
 The authoritative exact schema and mathematics are in
-[GTE's contract](https://github.com/giasonpooni/Geometric-Telemetry-Engine/blob/main/docs/CONTRACT.md).
+[GTE's contract](https://github.com/atomtrapping/Notations-Telemetry-Engine/blob/main/docs/CONTRACT.md).
 
 | Contract | Delivered scope |
 | --- | --- |

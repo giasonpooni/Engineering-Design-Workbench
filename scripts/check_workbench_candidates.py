@@ -48,7 +48,7 @@ def main():
             if npm is None:
                 raise RuntimeError("npm must be available to build the pinned ESM provider")
             esm = temporary / "esm"
-            call(["git", "clone", "--quiet", "--no-checkout", "https://github.com/" + pin["repository"] + ".git", str(esm)])
+            call(["git", "clone", "--quiet", "--no-checkout", "https://github.com/" + pin["repository"].replace("giasonpooni/", "atomtrapping/", 1) + ".git", str(esm)])
             call(["git", "-C", str(esm), "checkout", "--quiet", "--detach", pin["revision"]])
             call([npm, "ci", "--ignore-scripts"], cwd=esm)
             call([npm, "run", "instrument:workbench:build"], cwd=esm)
@@ -60,7 +60,7 @@ def main():
             pins = json.loads((root / "src/ciw/telemetry-runtimes.json").read_text())
             for role, repository in TELEMETRY_REPOSITORIES.items():
                 path = providers / role
-                call(["git", "clone", "--quiet", "--no-checkout", "https://github.com/giasonpooni/" + repository + ".git", str(path)])
+                call(["git", "clone", "--quiet", "--no-checkout", "https://github.com/atomtrapping/" + repository + ".git", str(path)])
                 call(["git", "-C", str(path), "checkout", "--quiet", "--detach", pins[role]["revision"]])
         wheels = temporary / "wheels"
         call([sys.executable, "-m", "pip", "wheel", "--no-deps", "--no-build-isolation", str(root), "--wheel-dir", str(wheels)])

@@ -21,12 +21,24 @@ rights. See the [controlling licence](../../LICENSE) and
 - [Public rights notice template](templates/PERMISSION_ONLY_NOTICE.md)
 - [Business agreement and schedules template](templates/PERMISSION_ONLY_AGREEMENT.md)
 
-The owner supplied Notation Systems Inc., Cartesian Graphics Ltd., and Giason
-Pooni Studios as issuing names, stated that assets are original with a reference-only
-corpus, and expressly selected Notation Systems Inc. as legal asset owner on
-2 October 2026. The policy records this declaration separately from independent
+The historical 2 October 2026 declaration supplied Notation Systems Inc.,
+Cartesian Graphics Ltd., and Giason Pooni Studios as issuing names, stated that
+assets are original with a reference-only corpus, and expressly selected
+Notation Systems Inc. as legal asset owner.
+The policy records this declaration separately from independent
 title verification; it creates no assignment or corporate-status certification.
 Per-asset authority, prior grants and source rights remain relevant.
+
+The owner identified the current group on 3 October 2026 as
+**Notation Systems Inc.** as parent, with **Notations Gaming**,
+**Notation Manufacturing** and **Notations Laboratories** as child companies.
+Notation Systems Inc. remains the declared rights holder for project-owned
+original material. Each notice and signed grant must identify the actual legal
+licensor, its rights and its authorized signatory. A child-company name or group
+relationship alone does not confer licensing authority or transfer rights.
+The historical declaration and audit remain dated records; existing creator
+credits and third-party notices are preserved. The group names record the
+owner's declaration and do not certify incorporation or title.
 
 ## Audit disposition
 
