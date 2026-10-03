@@ -54,4 +54,6 @@ def default_registry() -> OperationRegistry:
             lambda run, parameters, name=operation_id: adapters().execute(name, run, parameters),
             lambda: {"provider": "ciw.oscillator", "version": "1"},
         ))
+    from ..legibility_workflow import operation as legibility_operation
+    registry.register(legibility_operation())
     return registry

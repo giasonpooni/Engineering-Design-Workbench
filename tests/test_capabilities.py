@@ -14,6 +14,7 @@ INDEXED = (
     "synthetic-oscillator-demo",
     "statistics.v1",
     "spectrum.periodogram.v1",
+    "legibility.compile.v1",
     "learning.oscillator-rms",
     "doctor.preflight",
     "linear-response.library",

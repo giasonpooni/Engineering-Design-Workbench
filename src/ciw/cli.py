@@ -209,6 +209,7 @@ async def watch_remote(url: str) -> None:
 def parser() -> argparse.ArgumentParser:
     root = argparse.ArgumentParser(prog="ciw", description="Computational Instrumentation Workbench")
     commands = root.add_subparsers(dest="command", required=True)
+    commands.add_parser("legibility", help="Compile and verify synchronized specimen representations")
     from .doctor import PROFILES
     doctor = commands.add_parser("doctor", help="Inspect explicit local provider identities without running or installing them")
     doctor.add_argument("--profile", choices=PROFILES, default="core")
@@ -504,6 +505,10 @@ def parser() -> argparse.ArgumentParser:
 
 
 def main(argv: list[str] | None = None) -> int:
+    command_line = list(sys.argv[1:] if argv is None else argv)
+    if command_line and command_line[0] == "legibility":
+        from .legibility_cli import main as legibility_main
+        return legibility_main(command_line[1:])
     args = parser().parse_args(argv)
     try:
         if args.command == "doctor":
@@ -880,4 +885,3 @@ def main(argv: list[str] | None = None) -> int:
     except (OSError, ValueError, RuntimeError, TimeoutError, WebSocketException) as exc:
         print(f"ciw: {exc}", file=sys.stderr)
         return 2
-
