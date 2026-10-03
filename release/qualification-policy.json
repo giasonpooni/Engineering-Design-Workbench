@@ -2,7 +2,7 @@
   "schema_version": 1,
   "repository": "atomtrapping/Notations-Systems-Terminal",
   "scope": "Initial public software baseline only. CI metadata and artifact presence do not establish scientific qualification.",
-  "audited_workflow_commit": "ffad7dba2b258339b27170e071c0de431f6f2aef",
+  "audited_workflow_commit": "e31c60024273e9348e18667162b765f5ae337b82",
   "required_workflows": [
     {
       "path": ".github/workflows/monorepo.yml",
