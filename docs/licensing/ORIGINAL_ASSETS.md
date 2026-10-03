@@ -15,9 +15,12 @@ the legal asset owner on 2 October 2026. This is an owner-supplied declaration,
 not an independently verified assignment, corporate-status check or worldwide
 legal clearance. It does not itself transfer rights.
 
-Cartesian Graphics Ltd. and Giason Pooni Studios are additional issuing names.
-Their names alone do not make them owners, co-licensors or contracting parties.
-Existing creator credits and third-party rights are preserved.
+The current organization is Notation Systems Inc. as parent, with Notations
+Gaming, Notations Manufacturing and Notations Laboratories as operating
+division labels. Notations Gaming replaces the Cartesian Graphics studio label.
+Division labels alone do not make them separate legal entities, owners,
+co-licensors or contracting parties. Existing creator credits and third-party
+rights are preserved.
 
 Reference images, recordings, publications, scans, source prose and other
 external expression retain their own rights. Research, possession, links,

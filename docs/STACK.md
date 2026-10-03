@@ -4,7 +4,9 @@ The concise provider and loose-tool map is [SYSTEMS_CATALOG.md](SYSTEMS_CATALOG.
 This page remains the detailed responsibility, boundary and numerical-foundation
 reference.
 
-Notation Systems develops computational instrumentation and evidence infrastructure for industrial and cyber-physical systems. The engineering mandate is to build a programmable laboratory that connects source observations, explicit mathematical models, computation, experiment design, qualified apparatus interfaces, inspection and governed state while retaining the evidence needed to reproduce, challenge and revise a result.
+Notation Systems Inc. is the parent organization for Notations Gaming, Notations Manufacturing and Notations Laboratories. The computational instrumentation and evidence stack is shared infrastructure across these operating divisions. Notations Gaming replaces the Cartesian Graphics studio label.
+
+Notation Systems Inc. develops computational instrumentation and evidence infrastructure for industrial and cyber-physical systems. The engineering mandate is to build a programmable laboratory that connects source observations, explicit mathematical models, computation, experiment design, qualified apparatus interfaces, inspection and governed state while retaining the evidence needed to reproduce, challenge and revise a result.
 
 The intended end-to-end loop is **question -> model -> computation -> prepared experiment -> supported physical execution -> observation -> revised model or design**. The computational loop is the current substrate; physical sensing and apparatus participation enter only through separately implemented and qualified profiles. A reasoning model may propose work through the same boundaries, but it receives no independent execution, equipment-control or admission authority.
 
