@@ -55,6 +55,8 @@ def validate_role(operation_id: str, role: str) -> None:
                 "polymer.copilot-context.v1": "backend",
                 "polymer.control-simulate.v1": "backend",
                 "polymer.verify-cycle.v1": "verification"}.get(operation_id)
+    if operation_id == "signal.pipeline.v1":
+        expected = "backend"
     if expected is not None and role != expected:
         raise ValueError("Operation role contradicts the declared payload contract")
 
@@ -78,6 +80,8 @@ def validate_payload(operation_id: str, data: dict, run: dict, parameters: dict,
     finite_tree(data, "operation data")
     if operation_id in {"statistics.v1", "spectrum.periodogram.v1"}:
         from ..adapters.oscillator_records import validate_payload as validator
+    elif operation_id == "signal.pipeline.v1":
+        from ..dsp_pipeline import validate_payload as validator
     elif operation_id == "fsrt.tank-reconstruct.v1":
         from ..adapters.fsrt_records import validate_payload as validator
     elif operation_id == "fsrt.tank-reconstruct.v2":

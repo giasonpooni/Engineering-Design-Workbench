@@ -1,0 +1,17 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "streaming-telemetry-dsp-extension"
+version = "0.1.0"
+description = "Declared signal conditioning and synthetic diagnostic pipelines extending STFE"
+requires-python = ">=3.11"
+license = {text = "MPL-2.0"}
+dependencies = ["streaming-telemetry-feature-extraction==0.1.0"]
+
+[project.optional-dependencies]
+dsp = ["numpy>=1.26,<3", "scipy==1.17.0"]
+
+[tool.setuptools]
+packages = ["stfe_dsp"]

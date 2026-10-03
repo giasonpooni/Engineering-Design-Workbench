@@ -1,5 +1,9 @@
 # DSP instrument through the original NET workbench
 
+For the additive Python/SciPy signal-conditioning pipeline and synthetic
+pump diagnostics, see [DSP_PIPELINE.md](DSP_PIPELINE.md). This document describes
+the original native FIR interface, whose operation and contracts remain intact.
+
 The first DSP instrument is a caller-owned causal FIR filter in the existing
 Scientific Computation Runtime (SCR). NET retains the original Session,
 OperationRegistry, CapabilityRegistry, graph runner and observation format.
