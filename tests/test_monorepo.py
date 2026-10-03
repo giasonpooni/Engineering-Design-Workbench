@@ -18,14 +18,18 @@ spec.loader.exec_module(monorepo)
 @pytest.fixture
 def checkout(tmp_path):
     path = tmp_path / "monorepo"
-    subprocess.run(["git", "clone", "--quiet", "--local", "--no-hardlinks", str(ROOT), str(path)], check=True)
+    # Only immutable source objects are shared; each test owns its refs and index.
+    subprocess.run(["git", "clone", "--quiet", "--shared", str(ROOT), str(path)], check=True)
     # Gate sources may still be staged during development; copy just helper metadata.
     (path / "instruments/manifest.json").write_bytes((ROOT / "instruments/manifest.json").read_bytes())
     return path
 
 
 def test_both_imports_and_original_runtime_commits_remain_verifiable():
-    assert set(monorepo.verify_imports()) == {"mcur", "tbrt", "oit", "gsie", "cbsr", "fdir", "set"}
+    assert set(monorepo.verify_imports()) == {
+        "mcur", "tbrt", "oit", "gsie", "cbsr", "fdir", "set", "fsrt", "edspt", "sidt",
+        "jspt", "rci", "stfe", "tsde", "csg", "sra", "ywir", "cse", "scr", "gsv", "framemapper",
+    }
     with monorepo.provider_worktrees(roles=["mcur", "tbrt"]) as providers:
         bindings = []
         for role, path in providers.items():
@@ -101,11 +105,11 @@ def test_worktrees_are_removed_when_execution_fails():
 
 
 def test_all_registered_runtime_bindings_use_unchanged_NET_pins():
-    pins = json.loads((ROOT / "src/ciw/calibrated-observable-runtimes.json").read_text())
     with monorepo.provider_worktrees() as providers:
-        assert len(providers) == 7
+        assert len(providers) == 19
+        assert {"gsv", "framemapper"}.isdisjoint(providers)
         for role, path in providers.items():
-            pin = pins[role]
+            pin = monorepo.runtime_pin(role)
             adapter = PinnedSubprocessAdapter(path, pin["revision"], pin["module"], source_root=pin["source_root"])
             assert adapter.runtime_identity()["revision"] == pin["revision"]
 
@@ -130,6 +134,7 @@ def test_source_override_cannot_bind_an_unrelated_terminal_commit():
 
 def test_first_wave_history_remains_an_ancestor():
     monorepo.git(ROOT, "merge-base", "--is-ancestor", "4b9fd7a13e58122644d91467ba1639a5745a087e", "HEAD")
+    monorepo.git(ROOT, "merge-base", "--is-ancestor", "9d8509d4a929920204a79531ba829c27e4a2e321", "HEAD")
 
 
 def test_manifest_cannot_relabel_an_imported_license(checkout):
@@ -140,3 +145,37 @@ def test_manifest_cannot_relabel_an_imported_license(checkout):
     path.write_text(json.dumps(manifest))
     with pytest.raises(ValueError, match="original per-module license"):
         monorepo.load_manifest(checkout)
+
+
+@pytest.mark.parametrize("role", ["gsv", "framemapper"])
+def test_views_do_not_acquire_an_invented_scientific_runtime_pin(role):
+    assert monorepo.runtime_pin(role) is None
+    with pytest.raises(ValueError, match="full source commit identities"):
+        with monorepo.provider_worktrees(roles=[role]):
+            pytest.fail("A representation without a NET runtime declaration must not execute as a provider")
+
+
+def test_reviewed_side_history_remains_distinct_from_current_metrology_source():
+    revision = "f863bdd69d49224e0cdc871943bbb052e5b0a975"
+    module = next(m for m in monorepo.load_manifest()["modules"] if m["role"] == "rci")
+    with pytest.raises(subprocess.CalledProcessError):
+        monorepo.git(ROOT, "merge-base", "--is-ancestor", revision, module["import_revision"])
+    with monorepo.provider_worktrees(roles=["rci"]) as providers:
+        assert monorepo.git(providers["rci"], "rev-parse", "HEAD").decode().strip() == revision
+    assert module["version"] == "0.2.0"
+
+
+def test_manifest_cannot_add_unrelated_history_to_authorize_source_execution(checkout):
+    path = checkout / "instruments/manifest.json"
+    manifest = json.loads(path.read_text())
+    module = next(m for m in manifest["modules"] if m["role"] == "rci")
+    module["additional_history_roots"].append("55d67d42beea95d7ce98af935b48bd84df5e9b4b")
+    path.write_text(json.dumps(manifest))
+    with pytest.raises(ValueError, match="reviewed declaration"):
+        monorepo.load_manifest(checkout)
+
+
+def test_retained_side_history_cannot_authorize_a_different_module():
+    with pytest.raises(subprocess.CalledProcessError):
+        with monorepo.provider_worktrees(roles=["jspt"], overrides={"jspt": "f863bdd69d49224e0cdc871943bbb052e5b0a975"}):
+            pytest.fail("A reviewed side branch grants no authority to an unrelated provider")

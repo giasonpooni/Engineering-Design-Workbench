@@ -54,6 +54,7 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 
 ## Development and availability
 
+- [Engineering superrepo: module map, exact source histories and qualification commands](MONOREPO.md)
 - [Combined integration candidate and acceptance gates](INTEGRATION_CANDIDATE.md)
 - [Development guide](DEVELOPMENT.md)
 - [Development-window gap audit](DEVELOPMENT_GAPS.md)

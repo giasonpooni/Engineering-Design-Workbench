@@ -38,7 +38,7 @@ does not imply that a hosted demo or released game exists.
 ## Architecture
 
 NET owns investigation state, operation selection and retained execution
-history. Specialist repositories retain their mathematics and implementations.
+history. Specialist modules retain their mathematics and implementations.
 SCR remains the shared native-execution foundation where registered; evidence
 handoff and verification retain their separate authority.
 
@@ -47,14 +47,17 @@ worlds. NET requests supported operations and inspects explicit observations;
 it does not impose one universal scene tree or ECS model on those applications.
 A project does not have to use every tool.
 
-The [Geospatial Systems Compiler](https://github.com/giasonpooni/Geospatial-Systems-Compiler),
-[Curved Surface Runtime](https://github.com/giasonpooni/Curved-Surface-Runtime), and
-[State Estimator for BIM](https://github.com/giasonpooni/State-Estimator-for-BIM)
-remain independently scoped projects, not capabilities absorbed into NET.
+The [engineering superrepo](docs/MONOREPO.md) co-locates 21 public modules
+across composition, execution, measurement, inference, mathematics, domain
+tools, representations and resources. Each keeps its package, original source
+history, tests, licence and release boundary. The root Terminal package retains
+its existing interfaces; declared provider revisions remain explicit.
 
-The [incremental engineering monorepo migration](docs/MONOREPO.md) records the
-measurement and inference imports, retained history, seven independent packages
-and qualification through the existing provider authority boundaries.
+Use `python scripts/superrepo.py list` to inspect the module registry,
+`python scripts/superrepo.py audit` to verify source preservation, and
+`python scripts/superrepo.py check --output-dir results/superrepo` to run the
+independent public qualification lanes. The migration guide records exact
+commands, selected snapshots, dependency requirements and qualification limits.
 
 ## Explore the work
 

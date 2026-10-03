@@ -2,7 +2,7 @@
 
 Current independent wheels, historical exchange dependencies, and the original
 eight-provider execution pins are separate identities. Public FlowState remains
-an external provider. Two original CBSR checks against an unprovisioned GTE are
+a retained public provider history. Two original CBSR checks against an unprovisioned GTE are
 retained as explicitly unqualified skips; every other test must execute.
 """
 from __future__ import annotations
@@ -105,10 +105,9 @@ def _worktree(repository: Path, revision: str, path: Path, temporary: Path, log:
 
 
 def _flowstate(supplied: Path | None, temporary: Path, log: Path) -> Path:
-    repository = supplied.expanduser().resolve() if supplied else temporary / "flowstate-source"
-    if supplied is None:
-        _run(["git", "-c", "core.autocrlf=false", "clone", "--no-checkout",
-              FLOWSTATE_REPOSITORY, repository], cwd=temporary, log=log, timeout=180)
+    repository = supplied.expanduser().resolve() if supplied else ROOT
+    # The unchanged scientific pins are now available in the cumulative history.
+    # Explicit external repositories remain supported for standalone consumers.
     if Path(_git(repository, "rev-parse", "--show-toplevel")).resolve() != repository:
         raise ValueError("--flowstate-root must be a standalone Git repository root")
     for revision in (FLOWSTATE_REVISION, CBSR_FLOWSTATE_REVISION):
@@ -258,11 +257,11 @@ def _qualify(args, report: dict, output: Path, log: Path) -> None:
     if sys.version_info < (3, 12):
         raise ValueError("Full inference composition requires Python >=3.12, as declared by pinned public FlowState")
     manifest = load_manifest(root=ROOT)
-    modules = {module["role"]: module for module in manifest["modules"]}
+    modules = {module["role"]: module for module in manifest["modules"] if module["role"] in ROLES}
     if set(modules) != ROLES:
         raise ValueError("Inference gate requires the seven declared public module imports")
     report["imports"] = verify_imports(root=ROOT)
-    report["modules"] = manifest["modules"]
+    report["modules"] = list(modules.values())
     with tempfile.TemporaryDirectory(prefix="notations-inference-gate-") as directory, ExitStack() as contexts:
         temporary = Path(directory)
         python = _environment_python(temporary / "current-venv", temporary, log, build=True)
@@ -281,7 +280,9 @@ def _qualify(args, report: dict, output: Path, log: Path) -> None:
             temporary / "cbsr-public-flowstate", temporary, log))
         report["external_dependencies"] = {
             "flowstate": {"repository": FLOWSTATE_REPOSITORY, "repository_id": FLOWSTATE_REPOSITORY_ID,
-                "visibility": "public", "migrated": False, "runtime_revision": FLOWSTATE_REVISION,
+                "visibility": "public", "migrated": True,
+                "binding_route": "external_public_repository" if args.flowstate_root else "retained_monorepo_history",
+                "runtime_revision": FLOWSTATE_REVISION,
                 "runtime_tree": _git(flowstate, "rev-parse", FLOWSTATE_REVISION + "^{tree}"),
                 "distribution": flowstate_project["name"], "version": flowstate_project["version"],
                 "requires_python": flowstate_project["requires-python"], "license": flowstate_project["license"],
