@@ -16,6 +16,7 @@ COMMANDS = (
     ('rewrite', 'rewrite_cli', 'Retain bounded typed hypergraph transformations and replay checks'),
     ('compose', 'workflow_cli', 'Compile typed wiring and checked stages into existing NET graphs'),
     ('fluid', 'fluid_cli', 'Run and independently check bounded synthetic reservoir and surface-wave models'),
+    ('irrigation', 'irrigation_cli', 'Plan and audit daily agricultural water balances and bounded pump schedules'),
     ('dsp', 'dsp_workflow', 'Run and inspect the bounded specialist DSP instrument'),
     ('impact', 'impact_cli', 'Run the bounded elastic contact benchmark with independent verification'),
     ('lab', 'preservation_experiments', 'Run bounded shared-preservation experiments'),

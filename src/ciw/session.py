@@ -165,6 +165,9 @@ def _validate_evidence(run: dict) -> None:
     elif run["instrument"] in {"fluid-reservoir-configuration-declaration.v1", "fluid-wave-configuration-declaration.v1"}:
         from .fluid_workflow import source_request
         source_request(run)
+    elif run["instrument"] == "irrigation-configuration-declaration.v1":
+        from .irrigation_workflow import source_request
+        source_request(run)
 
 
 def _recording_file(run: dict) -> str:
@@ -702,6 +705,8 @@ class Session:
         validate_atmosphere_dependencies(result_map)
         from .fluid_workflow import validate_result_dependencies as validate_fluid_dependencies
         validate_fluid_dependencies(result_map)
+        from .irrigation_workflow import validate_result_dependencies as validate_irrigation_dependencies
+        validate_irrigation_dependencies(result_map)
         from .polymer_workflow import validate_result_dependencies as validate_polymer_dependencies
         validate_polymer_dependencies(result_map)
         from .leakage_workflow import validate_result_dependencies as validate_leakage_dependencies
