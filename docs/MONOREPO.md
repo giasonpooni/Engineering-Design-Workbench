@@ -65,6 +65,7 @@ branch or tag.
 
 | Module | Selected source | Additional retained history and reason |
 | --- | --- | --- |
+| ClockSync | `13c5fe75c7e829c24bae12fcf8386d4831224d4e` | Native instrument pin `edb4e5b99ec0ce384437e1c0f1c820ef04598e33` is retained as an original Git parent for the existing instrument gate. The normal calibrated-process runtime `40507060ca7a9126a9d641999b994a757eef3bfd` remains unchanged. |
 | Estimator Bench | `928ae6a76d4f853aa8306fef8207f81244b7066f` | Public calibrated-window replay history `2f838f4e196f453efc3a59045b0b3ec4b5680296` is retained as an original Git parent. Its exact replay provider remains distinct from the normal SET runtime `5e7bda36f521a5c1b0082b512f35e29803bffafc`. |
 | Surface | `1f7bbe380651e8df82db1760d880330aee3dc229` | Default `e8f0938ab243a1905792ba2c43439cb4f40cd4be` is retained; its documentation migration fails original documentation assertions. The selected snapshot preserves the unchanged passing source tests. Native micro-tool pin `0b00e837c2df3206a3d38b497799f85b72de80f7` is retained as a separate original parent for the existing NET gate. |
 | FlowState | `3144e3e694419b0c8579938e8d28523174e36abd` | Default `e13e46facc125682776f165ce1b0460b4ff9410a` is retained; its README rename fails the original package identity assertion. The immediate parent retains identical numerical source, tests, locks and fixtures. |
@@ -86,7 +87,7 @@ temporary, standalone detached worktrees from retained history. Existing
 commit, file bytes and interpreter still determine executable identity. An
 imported directory or the superrepo's `HEAD` does not substitute for that pin.
 Explicit external provider checkout support remains available.
-The CSR micro-tool and DSP lanes retain their original pins and native test
+The ClockSync instrument, CSR micro-tool and DSP lanes retain their original pins and native test
 contracts through reviewed side histories. Provider source bytes are checked
 before and after execution; changes to upstream repository visibility do not
 change the tested revision or authorize a replacement.

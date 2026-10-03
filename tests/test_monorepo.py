@@ -276,6 +276,7 @@ def test_calibrated_window_bindings_preserve_exact_sources_and_cleanup_on_failur
 
 
 @pytest.mark.parametrize("role, revision", [
+    ("tbrt", "edb4e5b99ec0ce384437e1c0f1c820ef04598e33"),
     ("set", "2f838f4e196f453efc3a59045b0b3ec4b5680296"),
     ("csg", "0b00e837c2df3206a3d38b497799f85b72de80f7"),
     ("scr", "91a6d3b37f28623332acd485e9f8a12953acf71e"),
@@ -343,6 +344,7 @@ def test_manifest_cannot_add_unrelated_history_to_authorize_source_execution(che
 
 
 @pytest.mark.parametrize("revision", [
+    "edb4e5b99ec0ce384437e1c0f1c820ef04598e33",
     "f863bdd69d49224e0cdc871943bbb052e5b0a975",
     "2f838f4e196f453efc3a59045b0b3ec4b5680296",
     "0b00e837c2df3206a3d38b497799f85b72de80f7",
