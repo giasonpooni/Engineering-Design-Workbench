@@ -2,12 +2,12 @@
   "schema_version": 1,
   "repository": "atomtrapping/Notations-Systems-Terminal",
   "scope": "Initial public software baseline only. CI metadata and artifact presence do not establish scientific qualification.",
-  "audited_workflow_commit": "ffad7dba2b258339b27170e071c0de431f6f2aef",
   "required_workflows": [
     {
       "path": ".github/workflows/monorepo.yml",
       "jobs": [
-        "source-history-and-migration-guards",
+        "source-history-and-migration-guards (ubuntu-latest)",
+        "source-history-and-migration-guards (windows-latest)",
         "independent-wheels-and-composition (3.11)",
         "independent-wheels-and-composition (3.12)",
         "inference-and-public-process-replay (3.12)",
@@ -23,7 +23,8 @@
         "independent-locked-web-packages"
       ],
       "artifacts": [
-        "monorepo-source-audit",
+        "monorepo-source-audit-ubuntu-latest",
+        "monorepo-source-audit-windows-latest",
         "monorepo-qualification-python-3.11",
         "monorepo-qualification-python-3.12",
         "monorepo-inference-python-3.12",
@@ -87,8 +88,8 @@
     {
       "path": ".github/workflows/calibrated-observable.yml",
       "jobs": [
-        "process-experiment (3.11)",
-        "process-experiment (3.12)"
+        "process-experiment (3.12)",
+        "process-experiment (3.13)"
       ],
       "artifacts": [],
       "allowed_skipped_jobs": [],
@@ -127,5 +128,10 @@
       "allowed_skipped_jobs": [],
       "excluded_jobs": {}
     }
+  ],
+  "audited_workflow_commits": [
+    "ffad7dba2b258339b27170e071c0de431f6f2aef",
+    "231a058f3bef00fd9b11db348979b889d5c81e90",
+    "a9d7c9b1c0ac97175b260d327bc42a6ef4a5c67b"
   ]
 }

@@ -4,14 +4,16 @@
   "observed_date": "2026-10-03",
   "observed_main_sha": "ffad7dba2b258339b27170e071c0de431f6f2aef",
   "candidate_sha": null,
-  "status": "candidate_not_selected",
+  "status": "integration_in_progress",
   "decision_status": "proposed_in_this_change",
   "pr_state_changes_performed": false,
   "scope": "21-import public research baseline; no 23-instrument or physical-validity claim",
   "prerequisite_prs": [
     135,
     137,
-    144
+    144,
+    124,
+    128
   ],
   "blockers": [
     {
@@ -130,16 +132,16 @@
       "number": 128,
       "title": "Finish legibility operator workflow and verified impact imports",
       "head_sha": "1dac5a4822e9116fd5bbfa67d83d5b7d35401068",
-      "disposition": "defer",
-      "rationale": "Qualify the existing installed impact and Legibility path before this expansion.",
+      "disposition": "prerequisite",
+      "rationale": "Operator review/comparison increment included in the completion pass; verify installed impact import and identity boundaries.",
       "url": "https://github.com/atomtrapping/Notations-Systems-Terminal/pull/128"
     },
     {
       "number": 124,
       "title": "Add typed scientific composition, source revisions, and startup studies",
       "head_sha": "6cbb4691a177f31fd18ffff4541b4cc0131f4904",
-      "disposition": "defer",
-      "rationale": "Broad composition/OCI changes and old-head evidence need separate reconciliation.",
+      "disposition": "prerequisite",
+      "rationale": "Typed composition foundation included in the completion pass; retain public OCI and installed evidence on the integrated candidate.",
       "url": "https://github.com/atomtrapping/Notations-Systems-Terminal/pull/124"
     },
     {
@@ -213,6 +215,16 @@
       "disposition": "superseded_candidate",
       "rationale": "Current README has been rewritten; preserve useful remaining editorial details selectively.",
       "url": "https://github.com/atomtrapping/Notations-Systems-Terminal/pull/53"
+    }
+  ],
+  "integrated_inputs": [
+    {
+      "pr": 135,
+      "head_sha": "231a058f3bef00fd9b11db348979b889d5c81e90"
+    },
+    {
+      "pr": 137,
+      "head_sha": "a9d7c9b1c0ac97175b260d327bc42a6ef4a5c67b"
     }
   ]
 }
