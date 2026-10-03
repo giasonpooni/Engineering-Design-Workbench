@@ -1,0 +1,93 @@
+name: One-time exact native monorepo transfer
+
+on:
+  push:
+    branches: [transport/monorepo-aa4981b5-20261003]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: native-monorepo-transfer-aa4981b5
+  cancel-in-progress: false
+
+jobs:
+  audit:
+    if: github.repository == 'atomtrapping/Notations-Systems-Terminal' && github.ref == 'refs/heads/transport/monorepo-aa4981b5-20261003'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: read
+    outputs:
+      artifact_sha256: ${{ steps.native-audit.outputs.artifact_sha256 }}
+    steps:
+      - name: Read the exact staging commit without persisting credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Reconstruct and audit exact native history
+        id: native-audit
+        run: |
+          python3 migration/transport.py audit \
+            --plan migration/transfer-plan.json \
+            --bundle migration/transfer.bundle \
+            --work "$RUNNER_TEMP/native-audit-repository" \
+            --evidence "$RUNNER_TEMP/native-audit-evidence" \
+            --output "$RUNNER_TEMP/audited-native-artifact"
+      - name: Retain the complete audited Git bundle
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: audited-native-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/audited-native-artifact/
+          compression-level: 0
+          retention-days: 1
+          if-no-files-found: error
+      - name: Retain read-only audit results and failure evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: native-transfer-audit-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/native-audit-evidence/
+          retention-days: 7
+          if-no-files-found: warn
+
+  publish:
+    needs: audit
+    if: needs.audit.result == 'success' && github.repository == 'atomtrapping/Notations-Systems-Terminal' && github.ref == 'refs/heads/transport/monorepo-aa4981b5-20261003'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write
+    steps:
+      - name: Read reviewed transport code without persisting credentials
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+      - name: Read the artifact produced by this run's audit
+        uses: actions/download-artifact@d3f86a106a0bac45b974a628896c90dbdf5c8093
+        with:
+          name: audited-native-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/audited-native-artifact
+      - name: Verify immutable objects and publish the exact continuation ref
+        env:
+          TRANSPORT_TOKEN: ${{ github.token }}
+          AUDITED_SHA256: ${{ needs.audit.outputs.artifact_sha256 }}
+        run: |
+          python3 migration/transport.py publish \
+            --plan migration/transfer-plan.json \
+            --bundle "$RUNNER_TEMP/audited-native-artifact/audited-native.bundle" \
+            --sha256 "$AUDITED_SHA256" \
+            --work "$RUNNER_TEMP/native-publish-repository" \
+            --evidence "$RUNNER_TEMP/native-publish-evidence"
+      - name: Retain publication results and failure evidence
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        with:
+          name: native-transfer-publish-evidence-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/native-publish-evidence/
+          retention-days: 7
+          if-no-files-found: warn
