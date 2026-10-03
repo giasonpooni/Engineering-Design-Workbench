@@ -2,7 +2,11 @@
 import importlib.util
 import json
 from pathlib import Path
+import py_compile
 import subprocess
+import sys
+import tempfile
+import venv
 
 import pytest
 
@@ -17,12 +21,18 @@ spec.loader.exec_module(monorepo)
 
 @pytest.fixture
 def checkout(tmp_path):
-    path = tmp_path / "monorepo"
+    temporary = tempfile.TemporaryDirectory(dir=tmp_path, prefix="checkout-")
+    path = Path(temporary.name) / "monorepo"
     # Only immutable source objects are shared; each test owns its refs and index.
-    subprocess.run(["git", "clone", "--quiet", "--shared", str(ROOT), str(path)], check=True)
-    # Gate sources may still be staged during development; copy just helper metadata.
-    (path / "instruments/manifest.json").write_bytes((ROOT / "instruments/manifest.json").read_bytes())
-    return path
+    try:
+        subprocess.run(["git", "clone", "--quiet", "--shared", str(ROOT), str(path)], check=True)
+        # Gate sources may still be staged during development; copy just helper metadata.
+        (path / "instruments/manifest.json").write_bytes((ROOT / "instruments/manifest.json").read_bytes())
+        yield path
+    finally:
+        # Each 21-module checkout is large. Retain test outputs while promptly
+        # removing this fixture's disposable clone, including after failures.
+        temporary.cleanup()
 
 
 def test_both_imports_and_original_runtime_commits_remain_verifiable():
@@ -104,50 +114,6 @@ def test_worktrees_are_removed_when_execution_fails():
     assert all(not path.exists() for path in paths)
 
 
-def test_terminal_source_identity_allows_gate_output_and_runtime_caches(checkout):
-    output = checkout / "results/monorepo/report.json"
-    output.parent.mkdir(parents=True)
-    output.write_text('{"status":"running"}\n')
-    cache = checkout / "src/ciw/__pycache__/local.pyc"
-    cache.parent.mkdir(parents=True)
-    cache.write_bytes(b"runtime cache")
-    expected = {
-        "revision": monorepo.git(checkout, "rev-parse", "HEAD").decode().strip(),
-        "source_tree": monorepo.git(checkout, "rev-parse", "HEAD^{tree}").decode().strip(),
-    }
-    assert monorepo.verify_terminal_source(checkout) == expected
-
-
-def test_terminal_source_byte_changes_cannot_hide_behind_index_flags(checkout):
-    relative = "src/ciw/__init__.py"
-    monorepo.git(checkout, "update-index", "--assume-unchanged", relative)
-    path = checkout / relative
-    path.write_bytes(path.read_bytes() + b"\n# changed executable source\n")
-    with pytest.raises(ValueError, match="working bytes differ"):
-        monorepo.verify_terminal_source(checkout)
-
-
-def test_terminal_source_rejects_staged_metadata_with_restored_working_bytes(checkout):
-    path = checkout / "pyproject.toml"
-    original = path.read_bytes()
-    path.write_bytes(original + b"\n# staged build metadata drift\n")
-    monorepo.git(checkout, "add", "pyproject.toml")
-    path.write_bytes(original)
-    with pytest.raises(ValueError, match="index differs"):
-        monorepo.verify_terminal_source(checkout)
-
-
-@pytest.mark.parametrize("relative", [
-    "src/ciw/ignored_shadow.py", "scripts/ignored_shadow.py", "tests/ignored_shadow.py",
-])
-def test_terminal_source_rejects_ignored_executable_shadow_files(checkout, relative):
-    exclude = checkout / ".git/info/exclude"
-    exclude.write_text(exclude.read_text() + "\n" + relative + "\n")
-    (checkout / relative).write_text("raise RuntimeError('untracked executable source')\n")
-    with pytest.raises(ValueError, match="untracked file"):
-        monorepo.verify_terminal_source(checkout)
-
-
 def test_all_registered_runtime_bindings_use_unchanged_NET_pins():
     with monorepo.provider_worktrees() as providers:
         assert len(providers) == 19
@@ -223,3 +189,229 @@ def test_retained_side_history_cannot_authorize_a_different_module():
     with pytest.raises(subprocess.CalledProcessError):
         with monorepo.provider_worktrees(roles=["jspt"], overrides={"jspt": "f863bdd69d49224e0cdc871943bbb052e5b0a975"}):
             pytest.fail("A reviewed side branch grants no authority to an unrelated provider")
+
+
+@pytest.mark.parametrize("field", ["id", "repository", "repository_id", "ownership", "status"])
+def test_manifest_requires_source_provenance_declarations(checkout, field):
+    path = checkout / "instruments/manifest.json"
+    manifest = json.loads(path.read_text())
+    manifest["modules"][0].pop(field)
+    path.write_text(json.dumps(manifest))
+    with pytest.raises(ValueError, match="provenance"):
+        monorepo.load_manifest(checkout)
+
+
+@pytest.mark.parametrize(("field", "value"), [
+    ("id", ""), ("id", "../calibration"),
+    ("repository", "https://github.com/giasonpooni/Notations-Calibration-Runtime"),
+    ("repository", "owner/../source"), ("repository", "owner/.."),
+    ("repository_id", True), ("repository_id", 0), ("repository_id", -1), ("repository_id", "1378878940"),
+    ("ownership", " "), ("ownership", "owner\nsource"), ("ownership", None),
+    ("status", "held"), ("status", "imported"),
+])
+def test_manifest_rejects_malformed_provenance_without_authenticating_labels(checkout, field, value):
+    path = checkout / "instruments/manifest.json"
+    manifest = json.loads(path.read_text())
+    manifest["modules"][0][field] = value
+    path.write_text(json.dumps(manifest))
+    with pytest.raises(ValueError, match="provenance"):
+        monorepo.load_manifest(checkout)
+
+
+def test_manifest_module_provenance_ids_are_unique(checkout):
+    path = checkout / "instruments/manifest.json"
+    manifest = json.loads(path.read_text())
+    manifest["modules"][1]["id"] = manifest["modules"][0]["id"]
+    path.write_text(json.dumps(manifest))
+    with pytest.raises(ValueError, match="unique formatted module provenance id"):
+        monorepo.load_manifest(checkout)
+
+
+@pytest.mark.parametrize("relative", [
+    "src/mcur/venv/__init__.py", "src/mcur/__pycache__/shadow.py",
+    "src/mcur/__pycache__/shadow.cpython-312.pyc", "src/mcur/__pycache__/nested/shadow.pyc",
+    "src/mcur/.pytest_cache/shadow.py", ".pytest_cache/shadow.py", ".pytest_cache/shadow", "venv/shadow.py",
+])
+def test_import_cache_names_cannot_exempt_untracked_source(checkout, relative):
+    path = checkout / "instruments/measurement/calibration" / relative
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("raise RuntimeError('untracked source')\n")
+    if not path.suffix:
+        path.chmod(0o755)
+    with pytest.raises(ValueError, match="untracked"):
+        monorepo.verify_imports(checkout)
+
+
+def test_import_audit_allows_actual_root_environment_and_generated_caches(checkout):
+    module = checkout / "instruments/measurement/calibration"
+    venv.EnvBuilder(with_pip=False).create(module / ".venv")
+    for relative in (".pytest_cache/v/cache/nodeids", ".mypy_cache/3.12/core.data.json",
+                     ".ruff_cache/0.12.0/1274629"):
+        path = module / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_text("[]\n")
+    source = module / "src/mcur/core.py"
+    py_compile.compile(str(source), doraise=True)
+    assert len(monorepo.verify_imports(checkout)) == 21
+
+
+def test_environment_marker_cannot_authorize_an_importable_environment_root(checkout):
+    environment = checkout / "instruments/measurement/calibration/venv"
+    environment.mkdir()
+    (environment / "pyvenv.cfg").write_text("home = /operator/python\n")
+    (environment / "__init__.py").write_text("raise RuntimeError('source hidden by environment marker')\n")
+    with pytest.raises(ValueError, match="untracked"):
+        monorepo.verify_imports(checkout)
+
+
+def test_terminal_source_identity_allows_gate_output_and_runtime_caches(checkout):
+    output = checkout / "results/monorepo/report.json"
+    output.parent.mkdir(parents=True)
+    output.write_text('{"status":"running"}\n')
+    py_compile.compile(str(checkout / "src/ciw/__init__.py"), doraise=True)
+    for relative in ("tests/.pytest_cache/v/cache/nodeids", "src/.mypy_cache/3.12/ciw.data.json",
+                     "scripts/.ruff_cache/0.12.0/1274629", "src/ciw.egg-info/PKG-INFO"):
+        cache = checkout / relative
+        cache.parent.mkdir(parents=True, exist_ok=True)
+        cache.write_text("generated cache or package metadata\n")
+    expected = {
+        "revision": monorepo.git(checkout, "rev-parse", "HEAD").decode().strip(),
+        "source_tree": monorepo.git(checkout, "rev-parse", "HEAD^{tree}").decode().strip(),
+    }
+    assert monorepo.verify_terminal_source(checkout) == expected
+
+
+def test_terminal_source_allows_real_pytest_assertion_rewrite_cache(checkout):
+    subprocess.run([sys.executable, "-m", "pytest", "-q",
+                    "tests/test_monorepo.py::test_first_wave_history_remains_an_ancestor"],
+                   cwd=checkout, check=True, capture_output=True, timeout=60)
+    rewritten = list((checkout / "tests/__pycache__").glob(
+        "test_monorepo." + sys.implementation.cache_tag + "-pytest-" + pytest.__version__ + ".pyc"))
+    assert len(rewritten) == 1
+    assert monorepo.verify_terminal_source(checkout)["revision"] == monorepo.git(
+        checkout, "rev-parse", "HEAD").decode().strip()
+
+
+@pytest.mark.parametrize("scope", ["import", "terminal"])
+def test_pytest_rewrite_cache_cannot_authorize_an_orphan_source(checkout, scope):
+    boundary = (checkout / "instruments/measurement/calibration" if scope == "import" else checkout)
+    cache = boundary / "tests/__pycache__" / (
+        "shadow." + sys.implementation.cache_tag + "-pytest-" + pytest.__version__ + ".pyc")
+    cache.parent.mkdir(parents=True, exist_ok=True)
+    cache.write_bytes(b"orphan rewritten bytecode")
+    audit = monorepo.verify_imports if scope == "import" else monorepo.verify_terminal_source
+    with pytest.raises(ValueError, match="untracked"):
+        audit(checkout)
+
+
+def test_terminal_source_byte_changes_cannot_hide_behind_index_flags(checkout):
+    relative = "src/ciw/__init__.py"
+    monorepo.git(checkout, "update-index", "--assume-unchanged", relative)
+    path = checkout / relative
+    path.write_bytes(path.read_bytes() + b"\n# changed executable source\n")
+    with pytest.raises(ValueError, match="working bytes differ"):
+        monorepo.verify_terminal_source(checkout)
+
+
+def test_terminal_source_rejects_staged_metadata_with_restored_working_bytes(checkout):
+    path = checkout / "pyproject.toml"
+    original = path.read_bytes()
+    path.write_bytes(original + b"\n# staged build metadata drift\n")
+    monorepo.git(checkout, "add", "pyproject.toml")
+    path.write_bytes(original)
+    with pytest.raises(ValueError, match="index differs"):
+        monorepo.verify_terminal_source(checkout)
+
+
+@pytest.mark.parametrize("relative", [
+    "src/ciw/ignored_shadow.py", "scripts/ignored_shadow.py", "tests/ignored_shadow.py",
+])
+def test_terminal_source_rejects_ignored_executable_shadow_files(checkout, relative):
+    exclude = checkout / ".git/info/exclude"
+    exclude.write_text(exclude.read_text() + "\n" + relative + "\n")
+    (checkout / relative).write_text("raise RuntimeError('untracked executable source')\n")
+    with pytest.raises(ValueError, match="untracked file"):
+        monorepo.verify_terminal_source(checkout)
+
+
+@pytest.mark.parametrize("directory", [
+    "venv", ".venv", ".venv-shadow", "__pycache__", ".pytest_cache",
+    ".mypy_cache", ".ruff_cache", "shadow.egg-info",
+])
+@pytest.mark.parametrize("scope", ["provider", "terminal"])
+def test_directory_names_cannot_exempt_untracked_executable_sources(checkout, directory, scope):
+    base = ("instruments/measurement/calibration/src/mcur" if scope == "provider"
+            else "src/ciw")
+    path = checkout / base / directory / "__init__.py"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("raise RuntimeError('unreviewed package')\n")
+    (checkout / ".git/info/exclude").write_text(base + "/" + directory + "/\n")
+    audit = monorepo.verify_imports if scope == "provider" else monorepo.verify_terminal_source
+    with pytest.raises(ValueError, match="untracked"):
+        audit(checkout)
+
+
+def test_generated_artifact_names_cannot_exempt_symlinked_source(checkout):
+    directory = checkout / "instruments/measurement/calibration/src/mcur/__pycache__"
+    directory.mkdir()
+    (directory / "shadow.pyc").symlink_to(checkout / "src/ciw/__init__.py")
+    with pytest.raises(ValueError, match="untracked"):
+        monorepo.verify_imports(checkout)
+
+
+def test_import_audit_allows_only_named_generated_artifacts(checkout):
+    base = checkout / "instruments/measurement/calibration"
+    py_compile.compile(str(base / "src/mcur/core.py"), doraise=True)
+    for relative in (".pytest_cache/v/cache/nodeids",
+                     "src/mcur.egg-info/PKG-INFO"):
+        path = base / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(b"generated artifact")
+    assert len(monorepo.verify_imports(checkout)) == 21
+
+
+@pytest.mark.parametrize("relative", [
+    "src/ciw/venv/__init__.py", "src/ciw/.venv-work/shadow.py",
+    "src/ciw/__pycache__/shadow.py", "src/ciw/__pycache__/shadow.cpython-312.pyc",
+    "src/ciw/__pycache__/nested/shadow.pyc", "src/ciw/.pytest_cache/shadow.py",
+    "tests/.pytest_cache/shadow.py", "tests/.pytest_cache/shadow",
+    "src/ciw.egg-info/shadow.py", "src/ciw.egg-info/nested/PKG-INFO", "src/venv/shadow.py",
+])
+def test_terminal_cache_and_metadata_names_cannot_exempt_source(checkout, relative):
+    path = checkout / relative
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("raise RuntimeError('untracked source')\n")
+    if not path.suffix:
+        path.chmod(0o755)
+    with pytest.raises(ValueError, match="untracked file"):
+        monorepo.verify_terminal_source(checkout)
+
+
+@pytest.mark.parametrize("relative", [
+    ".pytest_cache/shadow.unknown", ".pytest_cache/v/cache/unrecognized",
+    ".mypy_cache/3.12/shadow.unknown", ".ruff_cache/0.12.0/shadow.unknown",
+])
+@pytest.mark.parametrize("scope", ["import", "terminal"])
+def test_unknown_filenames_cannot_hide_source_inside_tool_caches(checkout, relative, scope):
+    boundary = (checkout / "instruments/measurement/calibration" if scope == "import"
+                else checkout / "src")
+    path = boundary / relative
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("unreviewed source with an unfamiliar suffix\n")
+    audit = monorepo.verify_imports if scope == "import" else monorepo.verify_terminal_source
+    with pytest.raises(ValueError, match="untracked"):
+        audit(checkout)
+
+
+@pytest.mark.skipif(sys.platform == "win32", reason="Windows does not expose POSIX executable mode bits")
+@pytest.mark.parametrize("scope", ["import", "terminal"])
+def test_named_cache_data_cannot_exempt_executable_files(checkout, scope):
+    boundary = (checkout / "instruments/measurement/calibration" if scope == "import"
+                else checkout / "src")
+    path = boundary / ".pytest_cache/v/cache/nodeids"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("unreviewed executable\n")
+    path.chmod(0o755)
+    audit = monorepo.verify_imports if scope == "import" else monorepo.verify_terminal_source
+    with pytest.raises(ValueError, match="untracked"):
+        audit(checkout)

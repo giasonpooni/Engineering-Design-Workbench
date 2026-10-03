@@ -95,16 +95,17 @@ worlds. NET requests supported operations and inspects explicit observations;
 it does not impose one universal scene tree or ECS model on those applications.
 A project does not have to use every tool.
 
-The [Geospatial Systems Compiler](https://github.com/atomtrapping/Notations-FrameMapper-RunTime),
-[Curved Surface Runtime](https://github.com/atomtrapping/Notations-Surface-RunTime), and
-[State Estimator for BIM](https://github.com/atomtrapping/Notations-Estimator-for-BIM)
-remain independently scoped projects, not capabilities absorbed into NET.
-
 The [engineering superrepo](docs/MONOREPO.md) co-locates 21 public modules
 across composition, execution, measurement, inference, mathematics, domain
 tools, representations and resources. Each keeps its package, original source
 history, tests, licence and release boundary. The root Terminal package retains
 its existing interfaces; declared provider revisions remain explicit.
+
+The [Geospatial Systems Compiler](https://github.com/atomtrapping/Notations-FrameMapper-RunTime),
+[Curved Surface Runtime](https://github.com/atomtrapping/Notations-Surface-RunTime), and
+[State Estimator for BIM](https://github.com/atomtrapping/Notations-Estimator-for-BIM)
+retain their scientific and representation responsibilities within the shared
+repository. NET composes their declared interfaces.
 
 Use `python scripts/superrepo.py list` to inspect the module registry,
 `python scripts/superrepo.py audit` to verify source preservation, and
@@ -124,6 +125,16 @@ These links identify separate development increments. Consult each PR's current
 branch and status rather than assuming its implementation has been merged into
 this checkout. Recorded qualification is scoped to its exact configuration;
 visual agreement, numerical agreement and physical validation are different claims.
+
+## Bounded atmospheric model
+
+`net atmosphere` retains a declared dry hydrostatic column with temperature,
+pressure, density, sound speed, viscosity and constant local ENU wind.
+Independent hydrostatic quadrature and typed preservation receipts qualify the
+numerical profile; exact-sample handoffs retain evidence identities and require
+fresh verification. [Atmospheric engine](docs/ATMOSPHERIC_ENGINE.md) documents
+the validity domain and expansion routes. Weather forecasting, measured physical
+validation and receiving-provider dynamics remain unestablished.
 
 ## Quickstart
 

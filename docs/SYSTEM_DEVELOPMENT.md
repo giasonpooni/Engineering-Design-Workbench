@@ -35,11 +35,11 @@ Preserve the imported ancestry and manifest when integrating composition;
 directory snapshots cannot substitute for that history.
 
 Historical qualification covers PR head
-`6453fbe9987783e732bb0a52ecd3acf0cbd02762`. The actual OCI artifact from
-[run 37105589209](https://github.com/atomtrapping/Notations-Systems-Terminal/actions/runs/37105589209)
+`63425465fba5360ba6d8ed152f394ab4d34a3120`. The actual OCI artifact from
+[run 37107554510](https://github.com/atomtrapping/Notations-Systems-Terminal/actions/runs/37107554510)
 records the clean hosted merge checkout
-`c979d1da5887bfc60b1a28ad2a5ed6e83a8ab456`, tree
-`9ba7ee78eccc59adb8952a99d10079f456b9522b`. Its eight scientific-runtime source
+`cf9412345304aa298dffd263feb75c2558fb586e`, tree
+`ebeff80243e49e79cfc76cd51c44b45189b0ad2f`. Its eight scientific-runtime source
 hashes match that PR head. The retained artifact establishes local/subprocess/OCI
 candidate parity and the observed digest/resource policy for those runtime bytes.
 It does not qualify the newly integrated source or attest the complete environment.
@@ -56,6 +56,29 @@ Publish through a new branch based on current main. Reconcile later changes
 additively, never force-push. Merge only the exact tested, mergeable head under
 the user's standing push-and-merge authorization. Continue an open relevant PR;
 after it merges, create a fresh branch from the updated main.
+
+## Current additive reconciliation
+
+Continue draft [PR #124](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/124)
+by integrating main `1a246932a0c7bee407e4ba34c0ed15b810951125` with its
+published composition parent `63425465fba5360ba6d8ed152f394ab4d34a3120`.
+Retain the atmospheric compiler/verifier, shared source-bound qualification,
+Legibility corrections, all 21 import trees and original parent histories.
+Both atmospheric and composition payload/dependency validators must run during
+workspace restoration. Cross-domain source selection must refuse before either
+numerical provider executes; restored occurrences must remain exactly retained.
+
+The five inherited source-count guards include the retained 101-case control
+plane suite: NET control 101, workflow algebra 737, stateful simulation 203,
+scientific contracts 308 and computational source selection 170. Require
+completed zero-failure/zero-error/zero-skip XML and retain each case identity
+when rechecking these counts. Do not weaken completeness checks.
+
+Private candidate-workbench qualification requires operator-provisioned
+`CIW_PROVIDER_READ_TOKEN`. Its absence is an explicit unresolved provisioning
+blocker, not a waived check. Run broad regressions in bounded chunks with owned
+temporary roots; retain completed logs/XML before removing generated temporaries.
+The earlier disk-exhausted broad attempt has no aggregate passing result.
 
 ## Next bounded priorities
 

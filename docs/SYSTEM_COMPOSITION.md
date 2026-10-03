@@ -160,11 +160,11 @@ subprocesses. General descendant process-tree termination and inherited-pipe
 cleanup are outside the qualified contract, especially on Windows.
 
 Real OCI qualification is retained for PR head
-`6453fbe9987783e732bb0a52ecd3acf0cbd02762`. The artifact from
-[run 37105589209](https://github.com/atomtrapping/Notations-Systems-Terminal/actions/runs/37105589209)
+`63425465fba5360ba6d8ed152f394ab4d34a3120`. The artifact from
+[run 37107554510](https://github.com/atomtrapping/Notations-Systems-Terminal/actions/runs/37107554510)
 records the tested hosted merge commit
-`c979d1da5887bfc60b1a28ad2a5ed6e83a8ab456`, tree
-`9ba7ee78eccc59adb8952a99d10079f456b9522b`; all eight retained scientific-runtime
+`cf9412345304aa298dffd263feb75c2558fb586e`, tree
+`ebeff80243e49e79cfc76cd51c44b45189b0ad2f`; all eight retained scientific-runtime
 source hashes match the PR head. Its `checks.json` reports exact
 local/subprocess/OCI candidate parity, separate numerical verification,
 restoration and an actual container-policy probe. The selected worker repository
@@ -174,7 +174,7 @@ Environment attestation and reproducible image bytes remain unestablished.
 
 These are historical, runtime-bound observations. Integrating composition with
 the newer main changes the source context and requires a fresh qualified head,
-installed wheel, Linux/Windows checks and actual OCI execution before publication.
+installed wheel, Linux/Windows checks and actual OCI execution before merging.
 This local execution environment has no container engine, so that renewed OCI
 qualification runs on provisioned hosted runners.
 

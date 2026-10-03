@@ -1,5 +1,6 @@
 """Analytic and adversarial checks for the pinned two-channel process path."""
 from copy import deepcopy
+from datetime import datetime, timedelta, timezone
 import json
 import os
 from pathlib import Path
@@ -10,7 +11,7 @@ import pytest
 
 from ciw.adapters.protocol import AdapterRefusal
 from ciw.calibrated_observable import (
-    OPERATIONS, ROLES, _numerical, _source, canonical, create_session, digest,
+    OPERATIONS, ROLES, _exact_timestamp, _numerical, _source, canonical, create_session, digest,
     inspect_session, read_session, replay_session, save_session,
 )
 from ciw.telemetry import _bundle_digest
@@ -101,10 +102,65 @@ def test_exact_timestamp_trailing_zeros_preserve_source_declarations(field, inst
     assert _source(canonical(experiment)) == experiment
 
 
-def test_fractional_timezone_offset_cannot_silently_become_utc():
-    raw = altered_source(lambda s: s.update(epoch_utc="2026-01-01T00:00:00+00:00:00.5"))
-    with pytest.raises(ValueError, match="offset.*precision loss"):
-        _source(raw)
+@pytest.mark.parametrize("suffix,declared_offset", [
+    ("+00:00:00.5", timedelta(microseconds=500000)),
+    ("-00:00:00.5", timedelta(microseconds=-500000)),
+])
+def test_fractional_timezone_offset_cannot_silently_become_utc(
+    suffix, declared_offset, monkeypatch,
+):
+    instant = "2026-01-01T00:00:00" + suffix
+    parsed_offset = datetime.fromisoformat(instant).utcoffset()
+    # CPython versions either lose this fraction or preserve its non-UTC
+    # offset. Both must refuse the UTC epoch, for the corresponding reason.
+    assert parsed_offset in (timedelta(0), declared_offset)
+    message = ("offset.*precision loss" if parsed_offset == timedelta(0)
+               else "epoch_utc must declare UTC")
+
+    def unexpected_runtime(*args, **kwargs):
+        pytest.fail("A fractional non-UTC epoch must refuse before provider binding")
+
+    monkeypatch.setattr("ciw.calibrated_observable._adapters", unexpected_runtime)
+    raw = altered_source(lambda s: s.update(epoch_utc=instant))
+    with pytest.raises(ValueError, match=message):
+        create_session(raw, {})
+
+
+@pytest.mark.parametrize("require_utc", [False, True])
+def test_fractional_timezone_offset_loss_refuses_even_without_utc_requirement(
+    require_utc, monkeypatch,
+):
+    class LossyParser:
+        @staticmethod
+        def fromisoformat(value):
+            assert value == "2026-01-01T00:00:00+00:00:00.5"
+            return datetime(2026, 1, 1, tzinfo=timezone.utc)
+
+    monkeypatch.setattr("ciw.calibrated_observable.datetime", LossyParser)
+    with pytest.raises(ValueError, match="epoch_utc timezone offset.*precision loss"):
+        _exact_timestamp("2026-01-01T00:00:00+00:00:00.5", "epoch_utc",
+                         require_utc=require_utc)
+
+
+@pytest.mark.parametrize("suffix,declared_offset", [
+    ("+00:00:00.5", timedelta(microseconds=500000)),
+    ("-00:00:00.5", timedelta(microseconds=-500000)),
+])
+def test_exact_fractional_timezone_offset_is_preserved_but_cannot_declare_utc(
+    suffix, declared_offset, monkeypatch,
+):
+    instant = "2026-01-01T00:00:00" + suffix
+
+    class ExactParser:
+        @staticmethod
+        def fromisoformat(value):
+            assert value == instant
+            return datetime(2026, 1, 1, tzinfo=timezone(declared_offset))
+
+    monkeypatch.setattr("ciw.calibrated_observable.datetime", ExactParser)
+    assert _exact_timestamp(instant, "valid_from").utcoffset() == declared_offset
+    with pytest.raises(ValueError, match="epoch_utc must declare UTC"):
+        _exact_timestamp(instant, "epoch_utc", require_utc=True)
 
 
 def test_complete_path_matches_analytic_process_solution(bundle):

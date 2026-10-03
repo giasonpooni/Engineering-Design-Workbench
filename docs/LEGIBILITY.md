@@ -108,6 +108,13 @@ status is an imported declaration; physical validation is not assessed and no
 fresh numerical verification is claimed. Other native receipt identity forms
 can remain evidence references rather than being coerced into UUID event IDs.
 
+The impact adapter currently rejects other workspace versions, including v4
+workspaces carrying retained correction journals. Their dependency eligibility
+requires an explicit adapter extension. Within a current Session, a compiled
+representation's declared result and execution dependencies participate in
+correction propagation. The sealed representation bytes remain historical;
+signature integrity does not establish that its dependencies are current.
+
 ## Supply a real source and signing key
 
 ```sh

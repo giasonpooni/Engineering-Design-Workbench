@@ -41,7 +41,7 @@ SCOPE = (
 def _environment() -> dict[str, str]:
     environment = dict(os.environ)
     for key in ("PYTHONPATH", "PYTHONHOME", "PYTEST_ADDOPTS", "PYTEST_PLUGINS",
-                "GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_OBJECT_DIRECTORY",
+                "GIT_DIR", "GIT_COMMON_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_OBJECT_DIRECTORY",
                 "GIT_ALTERNATE_OBJECT_DIRECTORIES"):
         environment.pop(key, None)
     environment["PYTHONNOUSERSITE"] = "1"

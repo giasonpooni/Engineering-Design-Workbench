@@ -695,6 +695,8 @@ class Session:
         validate_impact_dependencies(result_map)
         from .system_workflow import validate_saved_dependencies as validate_system_dependencies
         validate_system_dependencies(result_map, retained_workbench.retained_sources())
+        from .atmosphere_workflow import validate_result_dependencies as validate_atmosphere_dependencies
+        validate_atmosphere_dependencies(result_map)
         executions = workspace.get("executions", [])
         if not isinstance(executions, list) or len(executions) > 1024:
             raise ValueError("Invalid saved executions")

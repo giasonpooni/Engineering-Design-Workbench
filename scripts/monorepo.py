@@ -9,13 +9,17 @@ from __future__ import annotations
 import argparse
 import ast
 from contextlib import contextmanager
+import errno
 from hashlib import sha1
+from importlib.util import source_from_cache
 import json
 import os
 from pathlib import Path
 import re
 import subprocess
+import sys
 import tempfile
+import time
 import tomllib
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -86,13 +90,89 @@ _PYTHON_PINS = {
     "csg": ("geodesic_reference.py", "PINS", "curved-path-transfer"),
     "tsde": ("geometry_research.py", "PINS", "translation-flow"),
 }
-_CACHES = {".venv", "venv", "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache"}
+_ENVIRONMENTS = {".venv", "venv"}
+_ENVIRONMENT_CONTENTS = {"bin", "Scripts", "lib", "lib64", "Lib", "include", "Include", "share"}
+_PYTEST_CACHE_FILES = {"README.md", ".gitignore", "CACHEDIR.TAG", "v/cache/nodeids",
+                       "v/cache/lastfailed", "v/cache/stepwise"}
+_TOOL_CACHE_MARKERS = {".gitignore", "CACHEDIR.TAG"}
+_PACKAGE_METADATA = {"PKG-INFO", "SOURCES.txt", "dependency_links.txt", "entry_points.txt",
+                     "requires.txt", "top_level.txt", "not-zip-safe", "zip-safe"}
+_IMPORT_STATUSES = {
+    **{role: "first-wave-import; independent package; source repository retained"
+       for role in ("mcur", "tbrt")},
+    **{role: "second-wave-import; independent package; source repository retained"
+       for role in ("oit", "gsie", "cbsr", "fdir", "set")},
+    **{role: "superrepo import; independent build and release boundary; source repository retained"
+       for role in _PATHS if role not in {"mcur", "tbrt", "oit", "gsie", "cbsr", "fdir", "set"}},
+}
+
+
+def _generated_file(path, boundary, *, environments=False, package_metadata=False):
+    """Permit known generated files without exempting source by directory name.
+
+    Environments belong at a module's root and must have a pyvenv marker. Tool
+    caches belong at the audited boundary's root; Python bytecode belongs
+    directly inside __pycache__. Nested venv packages remain executable source.
+    """
+    path, boundary = Path(path), Path(boundary)
+    relative = path.relative_to(boundary)
+    parts = relative.parts
+    if len(parts) < 2:
+        return False
+    if any((boundary / Path(*parts[:index])).is_symlink() for index in range(1, len(parts))):
+        return False
+    if environments and parts[0] in _ENVIRONMENTS:
+        marker = boundary / parts[0] / "pyvenv.cfg"
+        if not marker.is_file() or marker.is_symlink():
+            return False
+        # A marker cannot turn the environment root into an importable package.
+        if parts[1] in _ENVIRONMENT_CONTENTS:
+            return len(parts) > 2 or path.is_dir()
+        return len(parts) == 2 and parts[1] in {"pyvenv.cfg", ".gitignore", "CACHEDIR.TAG"}
+    if path.is_symlink() or not path.is_file() or path.resolve() != path or path.stat().st_mode & 0o111:
+        return False
+    if parts[-2] == "__pycache__":
+        try:
+            source = Path(source_from_cache(str(path)))
+        except ValueError:
+            # Pytest appends its dotted version to the interpreter cache tag;
+            # importlib accepts only the conventional one-tag cache filename.
+            # Recognize that exact rewrite shape without accepting orphan code.
+            tag = sys.implementation.cache_tag
+            rewrite = (re.fullmatch(
+                r"(?P<stem>.+)\." + re.escape(tag) + r"-pytest-"
+                r"[0-9]+\.[0-9]+\.[0-9]+(?:(?:a|b|rc)[0-9]+)?"
+                r"(?:\.post[0-9]+)?(?:\.dev[0-9]+)?"
+                r"(?:\+[A-Za-z0-9]+(?:[._-][A-Za-z0-9]+)*)?\.pyc", path.name)
+                if tag else None)
+            if rewrite is None:
+                return False
+            source = path.parent.parent / (rewrite["stem"] + ".py")
+        return source.is_file() and not source.is_symlink()
+    # Recognize generated data by its declared shape, not by the absence of a
+    # familiar source suffix. Unknown filenames cannot hide inside tool caches.
+    cache_name = Path(*parts[1:]).as_posix()
+    if parts[0] == ".pytest_cache":
+        return cache_name in _PYTEST_CACHE_FILES
+    if parts[0] == ".mypy_cache":
+        return cache_name in _TOOL_CACHE_MARKERS or re.fullmatch(
+            r"[0-9]+\.[0-9]+/(?:[A-Za-z_][A-Za-z0-9_]*/)*[A-Za-z_][A-Za-z0-9_]*\.(?:data|meta)\.json",
+            cache_name) is not None
+    if parts[0] == ".ruff_cache":
+        return cache_name in _TOOL_CACHE_MARKERS or re.fullmatch(
+            r"[0-9]+\.[0-9]+\.[0-9]+/[0-9]+", cache_name) is not None
+    if package_metadata and parts[-2].endswith(".egg-info"):
+        # Build metadata belongs immediately under a declared source boundary.
+        # A nested package directory cannot exempt arbitrary source or metadata.
+        metadata_root = len(parts) == 2 or (len(parts) == 3 and parts[0] == "src")
+        return metadata_root and parts[-1] in _PACKAGE_METADATA
+    return False
 
 
 def git(root, *arguments):
     environment = dict(os.environ)
     # Repository selection is explicit; caller environment cannot replace it.
-    for name in ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_OBJECT_DIRECTORY",
+    for name in ("GIT_DIR", "GIT_COMMON_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_OBJECT_DIRECTORY",
                  "GIT_ALTERNATE_OBJECT_DIRECTORIES"):
         environment.pop(name, None)
     return subprocess.run(
@@ -100,6 +180,53 @@ def git(root, *arguments):
          "core.autocrlf=false", "-C", str(root), *arguments],
         env=environment, check=True, capture_output=True, timeout=30,
     ).stdout
+
+
+@contextmanager
+def worktree_mutation_lock(root):
+    """Serialize managed worktree add/remove operations across processes.
+
+    Git scans sibling worktree metadata during these mutations, so distinct
+    destination names do not isolate simultaneous adds and removals. Linked
+    worktrees share this lock in their actual Git common directory. Keep the
+    lock file after release: removing it would permit a second lock inode.
+    """
+    root = Path(root).resolve()
+    common = Path(os.fsdecode(git(root, "rev-parse", "--git-common-dir")).strip())
+    if not common.is_absolute():
+        common = root / common
+    lock_path = common.resolve() / "notations-worktree-mutation.lock"
+    with lock_path.open("a+b") as lock:
+        if os.name == "nt":
+            import msvcrt
+
+            # Windows byte-range locks require a byte to exist in the file.
+            lock.seek(0, os.SEEK_END)
+            if lock.tell() == 0:
+                lock.write(b"\0")
+                lock.flush()
+            lock.seek(0)
+            while True:
+                try:
+                    msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
+                    break
+                except OSError as error:
+                    if error.errno not in {errno.EACCES, errno.EAGAIN, errno.EDEADLK}:
+                        raise
+                    time.sleep(0.05)
+            try:
+                yield
+            finally:
+                lock.seek(0)
+                msvcrt.locking(lock.fileno(), msvcrt.LK_UNLCK, 1)
+        else:
+            import fcntl
+
+            fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
+            try:
+                yield
+            finally:
+                fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
 
 
 def _constant(path, name):
@@ -162,14 +289,35 @@ def load_manifest(root=ROOT):
     modules = manifest["modules"]
     if not isinstance(modules, list) or len(modules) != len(_PATHS):
         raise ValueError("Import manifest must name exactly the registered modules")
-    roles = set()
+    roles, identifiers = set(), set()
     for module in modules:
         if not isinstance(module, dict):
             raise ValueError("Each module must be an object")
         role = module.get("role")
-        if role not in _PATHS or role in roles or module.get("path") != _PATHS[role]:
+        if not isinstance(role, str) or role not in _PATHS or role in roles or module.get("path") != _PATHS[role]:
             raise ValueError("Duplicate or unsupported module role/path")
         roles.add(role)
+        # These are required source declarations, not authenticated ownership
+        # or legal provenance. Historical source labels remain unchanged.
+        identifier = module.get("id")
+        if (not isinstance(identifier, str) or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", identifier)
+                or identifier in identifiers):
+            raise ValueError("A unique formatted module provenance id is required")
+        identifiers.add(identifier)
+        repository = module.get("repository")
+        if (not isinstance(repository, str)
+                or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9-]*/[A-Za-z0-9_.-]+", repository)
+                or repository.rsplit("/", 1)[-1] in {".", ".."}):
+            raise ValueError("A formatted owner/repository provenance declaration is required")
+        repository_id = module.get("repository_id")
+        if type(repository_id) is not int or repository_id <= 0:
+            raise ValueError("A positive integer repository provenance id is required")
+        ownership = module.get("ownership")
+        if (not isinstance(ownership, str) or not ownership or ownership != ownership.strip()
+                or any(ord(character) < 32 or ord(character) == 127 for character in ownership)):
+            raise ValueError("A nonempty ownership provenance declaration is required")
+        if module.get("status") != _IMPORT_STATUSES[role]:
+            raise ValueError("Module provenance status must retain its declared import boundary")
         python_import, source_root, license_name, project_license, notice = _CONTRACTS[role]
         if module.get("visibility") != "public" or module.get("license") != license_name:
             raise ValueError("Imports require declared public source and their original per-module license")
@@ -235,9 +383,12 @@ def verify_imports(root=ROOT):
                 raise ValueError("Imported working file differs from the preserved source")
         git(root, "diff", "--cached", "--quiet", "--no-ext-diff", "--no-textconv", "HEAD", "--", prefix)
         for raw_name in git(root, "ls-files", "--others", "-z", "--", prefix).split(b"\0"):
-            if raw_name and not set(Path(os.fsdecode(raw_name)).relative_to(prefix).parts) & _CACHES:
+            if raw_name and not _generated_file(root / os.fsdecode(raw_name), root / prefix, environments=True, package_metadata=True):
                 raise ValueError("Unexpected untracked file inside an imported module")
         result[module["role"]] = tree
+    # All qualification lanes copy or execute Terminal tooling as well as the
+    # providers. A clean imported subtree cannot authorize dirty root sources.
+    verify_terminal_source(root)
     return result
 
 
@@ -287,9 +438,9 @@ def verify_terminal_source(root=ROOT):
     for raw_name in git(root, "ls-files", "--others", "-z", "--", "src", "scripts", "tests").split(b"\0"):
         if not raw_name:
             continue
-        parts = Path(os.fsdecode(raw_name)).parts
-        if any(part in _CACHES or part.startswith(".venv") or part.endswith(".egg-info")
-               for part in parts[1:-1]):
+        relative = Path(os.fsdecode(raw_name))
+        boundary = root / relative.parts[0]
+        if _generated_file(root / relative, boundary, package_metadata=relative.parts[0] == "src"):
             continue
         raise ValueError("Terminal executable source contains an untracked file: " + os.fsdecode(raw_name))
     if git(root, "rev-parse", "HEAD").decode().strip() != revision:
@@ -327,13 +478,15 @@ def provider_worktrees(root=ROOT, revisions="runtime", roles=None, overrides=Non
             for module in modules:
                 path = Path(temporary) / module["role"]
                 revision = overrides.get(module["role"], module[revisions + "_revision"])
-                git(root, "worktree", "add", "--detach", str(path), revision)
+                with worktree_mutation_lock(root):
+                    git(root, "worktree", "add", "--detach", str(path), revision)
                 created.append(path)
                 providers[module["role"]] = path
             yield providers
         finally:
             for path in reversed(created):
-                git(root, "worktree", "remove", "--force", str(path))
+                with worktree_mutation_lock(root):
+                    git(root, "worktree", "remove", "--force", str(path))
 
 
 def main():
