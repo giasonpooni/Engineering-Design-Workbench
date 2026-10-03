@@ -3,7 +3,7 @@
 NET now compiles one versioned scientific object into synchronized human,
 reasoning and vision records. A separate Ed25519 envelope binds their manifest
 to a signing key. The instrument belongs to Notation Systems Inc. and can serve
-Notations Laboratories, Notation Manufacturing and Notations Gaming.
+Notations Laboratories, Notations Manufacturing and Notations Gaming.
 
 This is an additive root `ciw` instrument in the engineering superrepo. Existing
 imported package trees, licences, historical execution pins and scientific
