@@ -6,6 +6,11 @@
 [Instruments](docs/INSTRUMENTS.md) · [Integration coverage](docs/INTEGRATION_COVERAGE.md) ·
 [Technical reference](TECHNICAL_REFERENCE.md) · [Documentation](docs)
 
+The [synthetic scientific web demo](docs/WEB_DEMO.md) provides metrology, thermal
+observation and range tracking through the existing pinned Python instruments.
+Its [qualification report](docs/WEB_DEMO_QUALIFICATION.md) distinguishes tested
+execution and replay from outstanding browser and deployment checks.
+
 **NET** brings modular computational instruments into one engineering monorepo.
 It connects observations, models, parameters, geometry, execution and verification
 in retained investigations. The same substrate supports materials and process

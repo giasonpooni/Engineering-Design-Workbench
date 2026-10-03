@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="theme-color" content="#08090d"><title>NET — Scientific workbench</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='5' fill='%2308090d'/%3E%3Cpath d='M7 24V8l18 16V8' fill='none' stroke='%23f38169' stroke-width='3'/%3E%3C/svg%3E">
+  <link rel="stylesheet" href="/demo.css"><script src="/demo.js" defer></script>
+</head>
+<body>
+  <a class="skip" href="#workspace">Skip to workbench</a>
+  <header class="masthead"><a href="/" class="brand" aria-label="Notation Systems workbench"><span class="monogram">N</span>Notation Systems<span class="brand-divider"></span><strong>NET</strong></a><button id="contrast-toggle" class="contrast-toggle" type="button" aria-label="High contrast" aria-pressed="false" title="Toggle high contrast"><span class="contrast-icon" aria-hidden="true">◐</span><span class="contrast-label">High contrast</span><span class="contrast-value" id="contrast-value" aria-hidden="true">Off</span></button><span class="tag">SYNTHETIC DEMO</span></header>
+  <main id="workspace">
+    <div class="workspace-heading"><div><p class="eyebrow">INSTRUMENT / SENSOR FUSION</p><h1>Scientific workbench</h1><p class="intro">Configure an estimation problem. Run the pinned instruments. Inspect and reproduce the result.</p></div><div class="connection" id="connection" role="status">Checking instruments…</div></div>
+    <nav class="examples" aria-label="Choose an example" id="examples"></nav>
+    <div id="startup-error" class="error" role="alert" hidden></div>
+    <div class="workspace-grid">
+      <aside class="configuration panel" aria-labelledby="configure-title">
+        <div class="section-heading"><span class="step">01</span><h2 id="configure-title">Configure</h2><button id="reset" class="text-button" type="button" disabled>Reset</button></div>
+        <p id="example-summary" class="support"></p>
+        <form id="configuration-form"><div id="parameters"></div><div class="run-actions"><button class="primary" id="run" type="submit" disabled>Run estimation</button><button id="cancel" class="secondary" type="button" hidden>Cancel</button></div></form>
+        <p class="run-help" id="run-help">Uses synthetic observations and an explicit local Gaussian model.</p>
+        <div class="execution-status" id="execution-status" role="status" aria-live="polite">Select an example to begin.</div>
+        <div id="run-error" class="error" role="alert" hidden></div>
+        <details class="disclosure" open><summary>Declared estimation problem</summary><div id="declaration" class="declaration"></div></details>
+        <details class="disclosure"><summary>Advanced configuration</summary><p class="support">The full declaration includes ordered sensors, covariance matrices, model evidence, units and acquisition times.</p><button id="config-export" class="secondary" disabled type="button">Download executed configuration</button><pre id="source-preview">Run an example to inspect its executed declaration.</pre></details>
+      </aside>
+      <section class="results" aria-labelledby="results-title">
+        <div class="result-toolbar"><div class="section-heading"><span class="step">02</span><h2 id="results-title">Observe</h2></div><span id="result-state" class="result-state">Awaiting execution</span></div>
+        <div id="empty-state" class="empty-state panel"><div class="empty-symbol" aria-hidden="true">∿</div><h3>Your experiment starts here</h3><p>Choose an example, adjust its prior or uncertainty, then run the estimation.</p><div class="empty-key"><span class="key observations">Observations</span><span class="key estimates">Estimates</span><span class="key uncertainty">Local uncertainty</span></div><p class="fine">Plots are generated from the real Python execution.</p></div>
+        <div id="result-content" hidden>
+          <div class="metrics" id="metrics"></div>
+          <p class="scope-note">Candidate estimates · marginal local Gaussian ±2σ bands · state admission not performed</p>
+          <div class="plots" id="plots"></div>
+          <div class="panel diagnostics"><h3>Residuals &amp; diagnostics</h3><p class="support">Innovations compare observations with the predicted measurement. NIS is a joint, dimensionless model diagnostic; the active channel count can change.</p><div class="table-scroll"><table><caption class="sr-only">Per-batch sensor fusion diagnostics</caption><thead><tr><th scope="col">Time (s)</th><th scope="col">Update</th><th scope="col">Channels</th><th scope="col">NIS</th></tr></thead><tbody id="diagnostics"></tbody></table></div><details class="disclosure"><summary>Per-channel residuals</summary><p class="support">Posterior residuals use the nonlinear sensor response after the update. Each channel keeps its own units.</p><div class="table-scroll"><table><caption class="sr-only">Per-channel innovations and posterior residuals</caption><thead><tr><th scope="col">Time (s)</th><th scope="col">Channel</th><th scope="col">Unit</th><th scope="col">Innovation</th><th scope="col">Residual</th></tr></thead><tbody id="residuals"></tbody></table></div><div class="plots" id="residual-plots"></div></details><details class="disclosure"><summary>Full numerical diagnostics</summary><pre id="diagnostic-details"></pre></details></div>
+          <section class="panel evidence" aria-labelledby="evidence-title"><div class="evidence-heading"><div class="section-heading"><span class="step">03</span><h2 id="evidence-title">Inspect &amp; replay</h2></div><button id="evidence-export" class="secondary" type="button">Download evidence bundle</button></div><p class="support">Replay creates a fresh execution and compares exact numerical output using the same pinned providers. It is a reproducibility check, with no independent physical validation.</p><div class="verification-summary" id="verification-summary"></div><div class="identity-grid" id="identities"></div><div class="replay-row"><button id="replay" class="replay-button" type="button">Replay retained execution</button><span id="replay-status" role="status" aria-live="polite">Original execution retained for comparison.</span></div><details class="disclosure"><summary>Provider provenance &amp; authority</summary><pre id="provenance"></pre></details></section>
+        </div>
+      </section>
+    </div>
+    <footer><span>Notation Systems / NET</span><span>Synthetic models. No live devices, physical commissioning or industrial control.</span></footer>
+  </main>
+</body>
+</html>

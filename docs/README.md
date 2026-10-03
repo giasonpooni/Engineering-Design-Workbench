@@ -13,6 +13,7 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 | Need | Page |
 | --- | --- |
 | Install and check the public Terminal/Legibility workflows together | [Run NET](RUN_NET.md) |
+| Install, run and qualify the synthetic sensor-fusion web demo | [Scientific web demo](WEB_DEMO.md) |
 | Product scope, operating model and scientific workspace | [Workbench overview](WORKBENCH_OVERVIEW.md) |
 | Current provider map and loose-tool collapse rule | [Systems catalog](SYSTEMS_CATALOG.md) |
 | Shared profiles, typed composition and evidence boundaries | [Consolidation roadmap](CONSOLIDATION.md) |

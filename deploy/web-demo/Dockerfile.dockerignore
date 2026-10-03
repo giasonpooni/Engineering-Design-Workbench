@@ -1,0 +1,26 @@
+# Overrides the root Dockerfile's intentionally narrow context.
+**
+!deploy/
+!deploy/web-demo/
+!deploy/web-demo/Dockerfile
+!deploy/web-demo/Dockerfile.dockerignore
+!pyproject.toml
+!README.md
+!LICENSE
+!src/
+!src/**
+!scripts/
+!scripts/prepare_web_demo.py
+!.git/
+!.git/HEAD
+!.git/packed-refs
+!.git/shallow
+!.git/objects/
+!.git/objects/**
+!.git/refs/
+!.git/refs/**
+# Never send repository authentication configuration or hooks to the builder.
+.git/objects/info/alternates
+**/__pycache__
+**/*.py[cod]
+**/*.egg-info

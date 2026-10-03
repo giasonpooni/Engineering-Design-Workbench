@@ -1,0 +1,8 @@
+{
+  "name": "net-scientific-demo-preview",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Supervised preview launcher for the installed Python NET demo",
+  "scripts": {"dev": "node scripts/demo_preview.mjs"},
+  "engines": {"node": ">=22"}
+}

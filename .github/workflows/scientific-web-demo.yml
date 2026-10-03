@@ -1,0 +1,49 @@
+name: Synthetic scientific web demo
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: scientific-web-demo-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  installed-python-and-execution-boundary:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12.14'
+      - name: Install the pinned wheel and original provider snapshots
+        run: python scripts/prepare_web_demo.py --environment .venv-demo --providers .demo-providers
+      - name: Install test-only tools
+        run: .venv-demo/bin/python -I -m pip install 'pytest==9.0.2' 'PyYAML==6.0.3'
+      - name: Audit preserved imports and exercise scientific regressions
+        run: |
+          mkdir -p results/web-demo
+          .venv-demo/bin/python -I scripts/monorepo.py > results/web-demo/import-audit.json
+          .venv-demo/bin/python -m pytest -q tests/test_sensor_fusion_contract.py tests/test_sensor_fusion_workflow.py tests/test_sensor_fusion_transport.py tests/test_sensor_fusion_ekf.py --junitxml=results/web-demo/fusion.xml
+      - name: Exercise actual workers, replay and execution failures
+        run: .venv-demo/bin/python -m pytest -q tests/test_demo_catalog.py tests/test_demo_server.py --junitxml=results/web-demo/demo.xml
+      - name: Validate frontend syntax
+        run: |
+          node --check src/ciw/web/demo.js
+          node --check scripts/demo_preview.mjs
+      - name: Retain qualification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: scientific-web-demo-python-3.12.14
+          path: results/web-demo/
+          if-no-files-found: error

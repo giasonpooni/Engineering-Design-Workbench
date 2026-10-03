@@ -1,4 +1,7 @@
 .venv/
+.demo-providers/
+.demo-runtime/
+.sites-runtime/
 .venv*/
 __pycache__/
 *.py[cod]

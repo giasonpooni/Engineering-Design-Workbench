@@ -1,0 +1,337 @@
+{
+  "schema": "ciw.sensor-fusion-ekf-source.v1",
+  "experiment_id": "synthetic:ekf-polymer-metrology",
+  "configuration": {
+    "method": "jspt.analytic-gsie.error-state-ekf.v1",
+    "state": {
+      "quantity_ids": [
+        "normalized_temperature"
+      ],
+      "units": [
+        "1"
+      ],
+      "frame": "synthetic-polymer-metrology",
+      "geometry": "euclidean.v1",
+      "clock_id": "synthetic-reference-clock"
+    },
+    "configurations": [
+      {
+        "name": "reference-and-proxy",
+        "sensors": [
+          {
+            "sensor_id": "reference",
+            "quantity_ids": [
+              "temperature"
+            ],
+            "units": [
+              "K"
+            ],
+            "frame": "synthetic-polymer-metrology",
+            "model": {
+              "family": "affine.v1",
+              "parameters": {
+                "matrix": [
+                  [
+                    100
+                  ]
+                ],
+                "offset": [
+                  300
+                ]
+              },
+              "evidence_b64": "eyJjbGFpbV9zY29wZSI6ImNhbGxlcl9kZWNsYXJlZF9tb2RlbF9ub3RfcGh5c2ljYWxseV92YWxpZGF0ZWQiLCJvcmlnaW4iOiJzeW50aGV0aWNfZml4dHVyZSIsInB1cnBvc2UiOiJkaXJlY3QgcmVmZXJlbmNlIGNoYW5uZWwgZm9yIGEgc3ludGhldGljIHNlbnNvci1yZXNwb25zZSBjb21wYXJpc29uIiwicmVzcG9uc2UiOiJ0ZW1wZXJhdHVyZV9LPTEwMF9LKngrMzAwX0siLCJzdGF0ZV9kZWZpbml0aW9uIjoieD0odGVtcGVyYXR1cmVfSy0zMDBfSykvMTAwX0sifQ=="
+            },
+            "model_ref": "synthetic:normalized-temperature-to-kelvin",
+            "calibration": {
+              "artifact_b64": "eyJjb2VmZmljaWVudF91bmNlcnRhaW50eSI6ImRlY2xhcmVkX3plcm9fZm9yX2ZpeHR1cmUiLCJnYWluIjoxLCJvZmZzZXQiOjAsIm9yaWdpbiI6InN5bnRoZXRpY19maXh0dXJlIiwicGh5c2ljYWxfdHJhY2VhYmlsaXR5Ijoibm90X2VzdGFibGlzaGVkIiwic2Vuc29yX2lkIjoicmVmZXJlbmNlIn0=",
+              "valid_interval": [
+                0,
+                100
+              ],
+              "claim_scope": "caller_declared_not_verified"
+            }
+          },
+          {
+            "sensor_id": "proxy",
+            "quantity_ids": [
+              "proxy_voltage"
+            ],
+            "units": [
+              "V"
+            ],
+            "frame": "synthetic-polymer-metrology",
+            "model": {
+              "family": "quadratic.v1",
+              "parameters": {
+                "hessian": [
+                  [
+                    0.2
+                  ]
+                ],
+                "gradient": [
+                  0.5
+                ]
+              },
+              "evidence_b64": "eyJjbGFpbV9zY29wZSI6ImNhbGxlcl9kZWNsYXJlZF9tb2RlbF9ub3RfcGh5c2ljYWxseV92YWxpZGF0ZWQiLCJjb2VmZmljaWVudF91bmNlcnRhaW50eSI6ImRlY2xhcmVkX3plcm9fZm9yX2ZpeHR1cmUiLCJvcmlnaW4iOiJzeW50aGV0aWNfZml4dHVyZSIsInJlc3BvbnNlIjoicHJveHlfdm9sdGFnZV9WPTAuMV9WKnheMiswLjVfVip4IiwidmFsaWRpdHkiOiJpbGx1c3RyYXRpdmUgcXVhZHJhdGljIGluc3RydW1lbnQgcmVzcG9uc2U7IG5vIG1lYXN1cmVkIHBvbHltZXIgY29uc3RpdHV0aXZlIGxhdyJ9"
+            },
+            "model_ref": "synthetic:quadratic-temperature-proxy",
+            "calibration": {
+              "artifact_b64": "eyJjb2VmZmljaWVudF91bmNlcnRhaW50eSI6ImRlY2xhcmVkX3plcm9fZm9yX2ZpeHR1cmUiLCJnYWluIjoxLCJvZmZzZXQiOjAsIm9yaWdpbiI6InN5bnRoZXRpY19maXh0dXJlIiwicGh5c2ljYWxfdHJhY2VhYmlsaXR5Ijoibm90X2VzdGFibGlzaGVkIiwic2Vuc29yX2lkIjoicHJveHkifQ==",
+              "valid_interval": [
+                0,
+                100
+              ],
+              "claim_scope": "caller_declared_not_verified"
+            }
+          }
+        ]
+      },
+      {
+        "name": "proxy-only",
+        "sensors": [
+          {
+            "sensor_id": "proxy",
+            "quantity_ids": [
+              "proxy_voltage"
+            ],
+            "units": [
+              "V"
+            ],
+            "frame": "synthetic-polymer-metrology",
+            "model": {
+              "family": "quadratic.v1",
+              "parameters": {
+                "hessian": [
+                  [
+                    0.2
+                  ]
+                ],
+                "gradient": [
+                  0.5
+                ]
+              },
+              "evidence_b64": "eyJjbGFpbV9zY29wZSI6ImNhbGxlcl9kZWNsYXJlZF9tb2RlbF9ub3RfcGh5c2ljYWxseV92YWxpZGF0ZWQiLCJjb2VmZmljaWVudF91bmNlcnRhaW50eSI6ImRlY2xhcmVkX3plcm9fZm9yX2ZpeHR1cmUiLCJvcmlnaW4iOiJzeW50aGV0aWNfZml4dHVyZSIsInJlc3BvbnNlIjoicHJveHlfdm9sdGFnZV9WPTAuMV9WKnheMiswLjVfVip4IiwidmFsaWRpdHkiOiJpbGx1c3RyYXRpdmUgcXVhZHJhdGljIGluc3RydW1lbnQgcmVzcG9uc2U7IG5vIG1lYXN1cmVkIHBvbHltZXIgY29uc3RpdHV0aXZlIGxhdyJ9"
+            },
+            "model_ref": "synthetic:quadratic-temperature-proxy",
+            "calibration": {
+              "artifact_b64": "eyJjb2VmZmljaWVudF91bmNlcnRhaW50eSI6ImRlY2xhcmVkX3plcm9fZm9yX2ZpeHR1cmUiLCJnYWluIjoxLCJvZmZzZXQiOjAsIm9yaWdpbiI6InN5bnRoZXRpY19maXh0dXJlIiwicGh5c2ljYWxfdHJhY2VhYmlsaXR5Ijoibm90X2VzdGFibGlzaGVkIiwic2Vuc29yX2lkIjoicHJveHkifQ==",
+              "valid_interval": [
+                0,
+                100
+              ],
+              "claim_scope": "caller_declared_not_verified"
+            }
+          }
+        ]
+      }
+    ],
+    "noise_policy": {
+      "prior_measurement_crosscovariance": "declared_zero",
+      "process_measurement_crosscovariance": "declared_zero",
+      "process_prior_crosscovariance": "declared_zero",
+      "across_batches": "declared_independent",
+      "evidence_refs": [
+        "sha256:88ef9786760489c7e9c03a49aeeeb15925d79a67453fb2e0320822009f8b3a48"
+      ]
+    }
+  },
+  "prior": {
+    "time": 0,
+    "mean": [
+      0.8
+    ],
+    "covariance": [
+      [
+        0.0025
+      ]
+    ]
+  },
+  "batches": [
+    {
+      "time": 1,
+      "configuration_ref": "reference-and-proxy",
+      "dynamics": {
+        "model": {
+          "family": "affine.v1",
+          "parameters": {
+            "matrix": [
+              [
+                0.995
+              ]
+            ],
+            "offset": [
+              0.025
+            ]
+          },
+          "evidence_b64": "eyJjbGFpbV9zY29wZSI6ImNhbGxlcl9kZWNsYXJlZF9tb2RlbF9ub3RfcGh5c2ljYWxseV92YWxpZGF0ZWQiLCJvcmlnaW4iOiJzeW50aGV0aWNfZml4dHVyZSIsInJlc3BvbnNlIjoieF9uZXh0PTAuOTk1KngrMC4wMjUiLCJzYW1wbGVfaW50ZXJ2YWxfcyI6MSwic2NvcGUiOiJkZWNsYXJlZCBkaXNjcmV0ZSBkcmlmdDsgbm90IGEgdGhlcm1hbCBvciByZXNpbi1wcm9jZXNzIG1vZGVsIn0="
+        },
+        "process_covariance": [
+          [
+            0.0001
+          ]
+        ],
+        "model_ref": "synthetic:normalized-temperature-drift-dt-1s"
+      },
+      "observations": [
+        {
+          "sensor_id": "reference",
+          "record_b64": "eyJhY3F1aXNpdGlvbl9pZCI6InN5bnRoZXRpYzpla2YtcG9seW1lci1tZXRyb2xvZ3k6cmVmZXJlbmNlOjEiLCJjYWxpYnJhdGlvbl9yZWYiOiJzaGEyNTY6YmZmODAyYTNiZjE3ZGMzNjVjZjZiZmE2NTI5N2E2MTQzMmI5MjE4ZDZlNTM5OGIyOGIwZTk5OGJkMTg1NzZlMyIsImNsb2NrX2lkIjoic3ludGhldGljLXJlZmVyZW5jZS1jbG9jayIsImZyYW1lIjoic3ludGhldGljLXBvbHltZXItbWV0cm9sb2d5IiwicXVhbnRpdHlfaWRzIjpbInRlbXBlcmF0dXJlIl0sInJhd19ldmlkZW5jZV9iNjQiOiJleUpoWTNGMWFYTnBkR2x2Ymw5cFpDSTZJbk41Ym5Sb1pYUnBZenBsYTJZdGNHOXNlVzFsY2kxdFpYUnliMnh2WjNrNmNtVm1aWEpsYm1ObE9qRWlMQ0pwYm1ScFkyRjBaV1JmZG1Gc2RXVnpJanBiTXpneUxqTmRMQ0p2Y21sbmFXNGlPaUp6ZVc1MGFHVjBhV05mWm1sNGRIVnlaU0lzSW5Cb2VYTnBZMkZzWDIxbFlYTjFjbVZ0Wlc1MElqb2libTkwWDNCbGNtWnZjbTFsWkNJc0luTnBiWFZzWVhSbFpGOXpkR0YwWlNJNld6QXVPREl4TURBd01EQXdNREF3TURBd01WMTkiLCJzY2hlbWEiOiJjaXcuZnVzaW9uLW9ic2VydmF0aW9uLnYxIiwic2Vuc29yX2lkIjoicmVmZXJlbmNlIiwidGltZSI6MSwidW5pdHMiOlsiSyJdLCJ2YWx1ZXMiOlszODIuM119"
+        },
+        {
+          "sensor_id": "proxy",
+          "record_b64": "eyJhY3F1aXNpdGlvbl9pZCI6InN5bnRoZXRpYzpla2YtcG9seW1lci1tZXRyb2xvZ3k6cHJveHk6MSIsImNhbGlicmF0aW9uX3JlZiI6InNoYTI1Njo0ZmFlMjBkNWY4YzZmMjllZDVjOGIzMDRlNjZhODllZmI1YzlkMmVkNjhhZjk4OGU3ZTQwNGU0NmFkNDc2MTE2IiwiY2xvY2tfaWQiOiJzeW50aGV0aWMtcmVmZXJlbmNlLWNsb2NrIiwiZnJhbWUiOiJzeW50aGV0aWMtcG9seW1lci1tZXRyb2xvZ3kiLCJxdWFudGl0eV9pZHMiOlsicHJveHlfdm9sdGFnZSJdLCJyYXdfZXZpZGVuY2VfYjY0IjoiZXlKaFkzRjFhWE5wZEdsdmJsOXBaQ0k2SW5ONWJuUm9aWFJwWXpwbGEyWXRjRzlzZVcxbGNpMXRaWFJ5YjJ4dlozazZjSEp2ZUhrNk1TSXNJbWx1WkdsallYUmxaRjkyWVd4MVpYTWlPbHN3TGpRNE1Ua3dOREV3TURBd01EQXdNREEyWFN3aWIzSnBaMmx1SWpvaWMzbHVkR2hsZEdsalgyWnBlSFIxY21VaUxDSndhSGx6YVdOaGJGOXRaV0Z6ZFhKbGJXVnVkQ0k2SW01dmRGOXdaWEptYjNKdFpXUWlMQ0p6YVcxMWJHRjBaV1JmYzNSaGRHVWlPbHN3TGpneU1UQXdNREF3TURBd01EQXdNREZkZlE9PSIsInNjaGVtYSI6ImNpdy5mdXNpb24tb2JzZXJ2YXRpb24udjEiLCJzZW5zb3JfaWQiOiJwcm94eSIsInRpbWUiOjEsInVuaXRzIjpbIlYiXSwidmFsdWVzIjpbMC40ODE5MDQxMDAwMDAwMDAwNl19"
+        }
+      ],
+      "measurement_noise": {
+        "channel_order": [
+          "reference/temperature",
+          "proxy/proxy_voltage"
+        ],
+        "matrix": [
+          [
+            0.25,
+            0.002
+          ],
+          [
+            0.002,
+            0.0004
+          ]
+        ],
+        "cross_sensor_policy": "full_joint_declared",
+        "evidence_refs": [
+          "sha256:88ef9786760489c7e9c03a49aeeeb15925d79a67453fb2e0320822009f8b3a48"
+        ]
+      }
+    },
+    {
+      "time": 2,
+      "configuration_ref": "reference-and-proxy",
+      "dynamics": {
+        "model": {
+          "family": "affine.v1",
+          "parameters": {
+            "matrix": [
+              [
+                0.995
+              ]
+            ],
+            "offset": [
+              0.025
+            ]
+          },
+          "evidence_b64": "eyJjbGFpbV9zY29wZSI6ImNhbGxlcl9kZWNsYXJlZF9tb2RlbF9ub3RfcGh5c2ljYWxseV92YWxpZGF0ZWQiLCJvcmlnaW4iOiJzeW50aGV0aWNfZml4dHVyZSIsInJlc3BvbnNlIjoieF9uZXh0PTAuOTk1KngrMC4wMjUiLCJzYW1wbGVfaW50ZXJ2YWxfcyI6MSwic2NvcGUiOiJkZWNsYXJlZCBkaXNjcmV0ZSBkcmlmdDsgbm90IGEgdGhlcm1hbCBvciByZXNpbi1wcm9jZXNzIG1vZGVsIn0="
+        },
+        "process_covariance": [
+          [
+            0.0001
+          ]
+        ],
+        "model_ref": "synthetic:normalized-temperature-drift-dt-1s"
+      },
+      "observations": [],
+      "measurement_noise": null
+    },
+    {
+      "time": 3,
+      "configuration_ref": "proxy-only",
+      "dynamics": {
+        "model": {
+          "family": "affine.v1",
+          "parameters": {
+            "matrix": [
+              [
+                0.995
+              ]
+            ],
+            "offset": [
+              0.025
+            ]
+          },
+          "evidence_b64": "eyJjbGFpbV9zY29wZSI6ImNhbGxlcl9kZWNsYXJlZF9tb2RlbF9ub3RfcGh5c2ljYWxseV92YWxpZGF0ZWQiLCJvcmlnaW4iOiJzeW50aGV0aWNfZml4dHVyZSIsInJlc3BvbnNlIjoieF9uZXh0PTAuOTk1KngrMC4wMjUiLCJzYW1wbGVfaW50ZXJ2YWxfcyI6MSwic2NvcGUiOiJkZWNsYXJlZCBkaXNjcmV0ZSBkcmlmdDsgbm90IGEgdGhlcm1hbCBvciByZXNpbi1wcm9jZXNzIG1vZGVsIn0="
+        },
+        "process_covariance": [
+          [
+            0.0001
+          ]
+        ],
+        "model_ref": "synthetic:normalized-temperature-drift-dt-1s"
+      },
+      "observations": [
+        {
+          "sensor_id": "proxy",
+          "record_b64": "eyJhY3F1aXNpdGlvbl9pZCI6InN5bnRoZXRpYzpla2YtcG9seW1lci1tZXRyb2xvZ3k6cHJveHk6MyIsImNhbGlicmF0aW9uX3JlZiI6InNoYTI1Njo0ZmFlMjBkNWY4YzZmMjllZDVjOGIzMDRlNjZhODllZmI1YzlkMmVkNjhhZjk4OGU3ZTQwNGU0NmFkNDc2MTE2IiwiY2xvY2tfaWQiOiJzeW50aGV0aWMtcmVmZXJlbmNlLWNsb2NrIiwiZnJhbWUiOiJzeW50aGV0aWMtcG9seW1lci1tZXRyb2xvZ3kiLCJxdWFudGl0eV9pZHMiOlsicHJveHlfdm9sdGFnZSJdLCJyYXdfZXZpZGVuY2VfYjY0IjoiZXlKaFkzRjFhWE5wZEdsdmJsOXBaQ0k2SW5ONWJuUm9aWFJwWXpwbGEyWXRjRzlzZVcxbGNpMXRaWFJ5YjJ4dlozazZjSEp2ZUhrNk15SXNJbWx1WkdsallYUmxaRjkyWVd4MVpYTWlPbHN3TGpRNU9UYzJOVE01TkRBd05EUTFNall6WFN3aWIzSnBaMmx1SWpvaWMzbHVkR2hsZEdsalgyWnBlSFIxY21VaUxDSndhSGx6YVdOaGJGOXRaV0Z6ZFhKbGJXVnVkQ0k2SW01dmRGOXdaWEptYjNKdFpXUWlMQ0p6YVcxMWJHRjBaV1JmYzNSaGRHVWlPbHN3TGpnMk1qWTROVFV5TlRBd01EQXdNREZkZlE9PSIsInNjaGVtYSI6ImNpdy5mdXNpb24tb2JzZXJ2YXRpb24udjEiLCJzZW5zb3JfaWQiOiJwcm94eSIsInRpbWUiOjMsInVuaXRzIjpbIlYiXSwidmFsdWVzIjpbMC40OTk3NjUzOTQwMDQ0NTI2M119"
+        }
+      ],
+      "measurement_noise": {
+        "channel_order": [
+          "proxy/proxy_voltage"
+        ],
+        "matrix": [
+          [
+            0.0004
+          ]
+        ],
+        "cross_sensor_policy": "full_joint_declared",
+        "evidence_refs": [
+          "sha256:88ef9786760489c7e9c03a49aeeeb15925d79a67453fb2e0320822009f8b3a48"
+        ]
+      }
+    },
+    {
+      "time": 4,
+      "configuration_ref": "reference-and-proxy",
+      "dynamics": {
+        "model": {
+          "family": "affine.v1",
+          "parameters": {
+            "matrix": [
+              [
+                0.995
+              ]
+            ],
+            "offset": [
+              0.025
+            ]
+          },
+          "evidence_b64": "eyJjbGFpbV9zY29wZSI6ImNhbGxlcl9kZWNsYXJlZF9tb2RlbF9ub3RfcGh5c2ljYWxseV92YWxpZGF0ZWQiLCJvcmlnaW4iOiJzeW50aGV0aWNfZml4dHVyZSIsInJlc3BvbnNlIjoieF9uZXh0PTAuOTk1KngrMC4wMjUiLCJzYW1wbGVfaW50ZXJ2YWxfcyI6MSwic2NvcGUiOiJkZWNsYXJlZCBkaXNjcmV0ZSBkcmlmdDsgbm90IGEgdGhlcm1hbCBvciByZXNpbi1wcm9jZXNzIG1vZGVsIn0="
+        },
+        "process_covariance": [
+          [
+            0.0001
+          ]
+        ],
+        "model_ref": "synthetic:normalized-temperature-drift-dt-1s"
+      },
+      "observations": [
+        {
+          "sensor_id": "reference",
+          "record_b64": "eyJhY3F1aXNpdGlvbl9pZCI6InN5bnRoZXRpYzpla2YtcG9seW1lci1tZXRyb2xvZ3k6cmVmZXJlbmNlOjQiLCJjYWxpYnJhdGlvbl9yZWYiOiJzaGEyNTY6YmZmODAyYTNiZjE3ZGMzNjVjZjZiZmE2NTI5N2E2MTQzMmI5MjE4ZDZlNTM5OGIyOGIwZTk5OGJkMTg1NzZlMyIsImNsb2NrX2lkIjoic3ludGhldGljLXJlZmVyZW5jZS1jbG9jayIsImZyYW1lIjoic3ludGhldGljLXBvbHltZXItbWV0cm9sb2d5IiwicXVhbnRpdHlfaWRzIjpbInRlbXBlcmF0dXJlIl0sInJhd19ldmlkZW5jZV9iNjQiOiJleUpoWTNGMWFYTnBkR2x2Ymw5cFpDSTZJbk41Ym5Sb1pYUnBZenBsYTJZdGNHOXNlVzFsY2kxdFpYUnliMnh2WjNrNmNtVm1aWEpsYm1ObE9qUWlMQ0pwYm1ScFkyRjBaV1JmZG1Gc2RXVnpJanBiTXpnNExqVXpOekl3T1Rjek56VmRMQ0p2Y21sbmFXNGlPaUp6ZVc1MGFHVjBhV05mWm1sNGRIVnlaU0lzSW5Cb2VYTnBZMkZzWDIxbFlYTjFjbVZ0Wlc1MElqb2libTkwWDNCbGNtWnZjbTFsWkNJc0luTnBiWFZzWVhSbFpGOXpkR0YwWlNJNld6QXVPRGd6TXpjeU1EazNNemMxTURBd01WMTkiLCJzY2hlbWEiOiJjaXcuZnVzaW9uLW9ic2VydmF0aW9uLnYxIiwic2Vuc29yX2lkIjoicmVmZXJlbmNlIiwidGltZSI6NCwidW5pdHMiOlsiSyJdLCJ2YWx1ZXMiOlszODguNTM3MjA5NzM3NV19"
+        },
+        {
+          "sensor_id": "proxy",
+          "record_b64": "eyJhY3F1aXNpdGlvbl9pZCI6InN5bnRoZXRpYzpla2YtcG9seW1lci1tZXRyb2xvZ3k6cHJveHk6NCIsImNhbGlicmF0aW9uX3JlZiI6InNoYTI1Njo0ZmFlMjBkNWY4YzZmMjllZDVjOGIzMDRlNjZhODllZmI1YzlkMmVkNjhhZjk4OGU3ZTQwNGU0NmFkNDc2MTE2IiwiY2xvY2tfaWQiOiJzeW50aGV0aWMtcmVmZXJlbmNlLWNsb2NrIiwiZnJhbWUiOiJzeW50aGV0aWMtcG9seW1lci1tZXRyb2xvZ3kiLCJxdWFudGl0eV9pZHMiOlsicHJveHlfdm9sdGFnZSJdLCJyYXdfZXZpZGVuY2VfYjY0IjoiZXlKaFkzRjFhWE5wZEdsdmJsOXBaQ0k2SW5ONWJuUm9aWFJwWXpwbGEyWXRjRzlzZVcxbGNpMXRaWFJ5YjJ4dlozazZjSEp2ZUhrNk5DSXNJbWx1WkdsallYUmxaRjkyWVd4MVpYTWlPbHN3TGpVeU16Y3lNRFkzTkRreU9UVTNNRGhkTENKdmNtbG5hVzRpT2lKemVXNTBhR1YwYVdOZlptbDRkSFZ5WlNJc0luQm9lWE5wWTJGc1gyMWxZWE4xY21WdFpXNTBJam9pYm05MFgzQmxjbVp2Y20xbFpDSXNJbk5wYlhWc1lYUmxaRjl6ZEdGMFpTSTZXekF1T0Rnek16Y3lNRGszTXpjMU1EQXdNVjE5Iiwic2NoZW1hIjoiY2l3LmZ1c2lvbi1vYnNlcnZhdGlvbi52MSIsInNlbnNvcl9pZCI6InByb3h5IiwidGltZSI6NCwidW5pdHMiOlsiViJdLCJ2YWx1ZXMiOlswLjUyMzcyMDY3NDkyOTU3MDhdfQ=="
+        }
+      ],
+      "measurement_noise": {
+        "channel_order": [
+          "reference/temperature",
+          "proxy/proxy_voltage"
+        ],
+        "matrix": [
+          [
+            0.25,
+            0.002
+          ],
+          [
+            0.002,
+            0.0004
+          ]
+        ],
+        "cross_sensor_policy": "full_joint_declared",
+        "evidence_refs": [
+          "sha256:88ef9786760489c7e9c03a49aeeeb15925d79a67453fb2e0320822009f8b3a48"
+        ]
+      }
+    }
+  ]
+}

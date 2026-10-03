@@ -1,0 +1,13 @@
+# Install Caddy on the same host as the loopback-bound demo container.
+# Set NET_DEMO_DOMAIN to the actual DNS name and NET_DEMO_PORT to its host port.
+# Example only: NET_DEMO_DOMAIN=demo.notations.io NET_DEMO_PORT=4173
+{$NET_DEMO_DOMAIN} {
+    encode zstd gzip
+    reverse_proxy 127.0.0.1:{$NET_DEMO_PORT:4173}
+    header {
+        Strict-Transport-Security "max-age=31536000"
+        X-Content-Type-Options nosniff
+        Referrer-Policy no-referrer
+        Permissions-Policy "camera=(), microphone=(), geolocation=()"
+    }
+}

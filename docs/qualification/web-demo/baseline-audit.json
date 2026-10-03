@@ -1,0 +1,39 @@
+{
+  "schema": "ciw.web-demo-baseline-audit.v1",
+  "original_revision": "4871b306ced4ae33866de75c809c61cea5cf485f",
+  "merged_revision": "bf2d4f999751cc50ce1d31d03dc8ec7b0668e71c",
+  "original_source_hashes_matched": 19,
+  "native_imported_modules_preserved": 21,
+  "original_fusion": {
+    "tests": 214,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "original_workbench": {
+    "tests": 106,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 38
+  },
+  "merged_clean_worktree_fusion": {
+    "tests": 214,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "ci_policy": {
+    "workflows": 18,
+    "adversarial_tests_passed": 13
+  },
+  "unprovisioned_skip_dependencies": [
+    "CIW_CALIBRATED_STACK_ROOT",
+    "CIW_IDENTIFIED_DESIGN_STACK_ROOT",
+    "CIW_ESM_BUNDLE_FILE / CIW_ESM_RUNTIME_FILE / CIW_ESM_ROOT",
+    "CIW_SHARED_TELEMETRY_STACK_ROOT"
+  ],
+  "demo_current_revision_tests": "Reported separately; baseline test results do not qualify browser journeys.",
+  "container_engine": "not_available",
+  "container_configuration": "Compose YAML parsed; engine build/run not performed",
+  "browser_visual_qa": "incomplete; cloud browser rejected preview URL"
+}
