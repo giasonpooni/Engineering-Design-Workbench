@@ -44,6 +44,7 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 - [Covariance provenance and replay](COVARIANCE.md)
 - [Reconfigurable sensor fusion and configuration-space boundaries](SENSOR_FUSION.md)
 - [Sensor-fusion coordinate transport and retained continuation](SENSOR_FUSION_TRANSPORT.md)
+- [Declared nonlinear sensor fusion and practical EKF configurations](SENSOR_FUSION_EKF.md)
 - [Retained telemetry](TELEMETRY.md) and [shared telemetry](SHARED_TELEMETRY.md)
 - [Calibrated observable process](CALIBRATED_OBSERVABLE.md)
 - [Identified and budgeted observation](IDENTIFIED_DESIGN.md)

@@ -15,7 +15,7 @@ from threading import RLock
 
 from .adapters.protocol import AdapterRefusal
 from .adapters.subprocess import _json
-DECLARED_KINDS = frozenset({"schematic-assessment", "numerical-heat", "proved-heat", "schematic-companions", "bim-quantity", "acquired-dataset", "residual-monitor", "measurement-chain", "geometric-circle", "identified-stability", "flat-torus-reference", "curved-path-transfer", "covariance-geometry", "mesh-path", "translation-flow", "variational-free-energy", "energy-accuracy", "instrument-exchange", "thermal-observer", "machine-manifest", "julia-oscillator", "native-interop", "project-graph", "sensor-fusion", "sensor-fusion-transport"})
+DECLARED_KINDS = frozenset({"schematic-assessment", "numerical-heat", "proved-heat", "schematic-companions", "bim-quantity", "acquired-dataset", "residual-monitor", "measurement-chain", "geometric-circle", "identified-stability", "flat-torus-reference", "curved-path-transfer", "covariance-geometry", "mesh-path", "translation-flow", "variational-free-energy", "energy-accuracy", "instrument-exchange", "thermal-observer", "machine-manifest", "julia-oscillator", "native-interop", "project-graph", "sensor-fusion", "sensor-fusion-transport", "sensor-fusion-ekf"})
 REPRODUCED_KINDS = DECLARED_KINDS - {"proved-heat"}
 UPSTREAM_KINDS = {"identified-design": "calibrated-observable", "schematic-companions": "schematic-assessment",
                   "acquired-calibrated-window": "acquired-dataset", "identified-stability": "identified-design",
@@ -55,6 +55,7 @@ OPERATIONS = {
     "project-graph": "ciw.project-graph.v1",
     "sensor-fusion": "ciw.sensor-fusion.v1",
     "sensor-fusion-transport": "ciw.sensor-fusion-transport.v1",
+    "sensor-fusion-ekf": "ciw.sensor-fusion-ekf.v1",
 }
 WORKFLOW_OPERATION_IDS = frozenset(OPERATIONS.values())
 from .candidate_evidence import OPERATIONS as CANDIDATE_OPERATIONS
@@ -66,6 +67,9 @@ _OVERHEAD = 4096
 
 
 def _workflow(kind):
+    if kind == "sensor-fusion-ekf":
+        from .sensor_fusion_ekf_workflow import SensorFusionEKFWorkflow
+        return SensorFusionEKFWorkflow()
     if kind == "sensor-fusion-transport":
         from .sensor_fusion_transport_workflow import SensorFusionTransportWorkflow
         return SensorFusionTransportWorkflow()
@@ -1063,6 +1067,9 @@ class Workbench:
             if record["kind"] == "sensor-fusion-transport":
                 from .sensor_fusion_transport_view import project as project_transport
                 return project_transport(record, source, declaration, self._revision)
+            if record["kind"] == "sensor-fusion-ekf":
+                from .sensor_fusion_ekf_view import project as project_ekf
+                return project_ekf(record, source, declaration, self._revision)
             if record["kind"] == "instrument-exchange":
                 from .exchange_view import project as project_exchange
                 return project_exchange(record, source, declaration, self._revision)

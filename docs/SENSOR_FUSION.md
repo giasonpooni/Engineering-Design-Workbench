@@ -94,10 +94,12 @@ selected in successive forward batches; correlated simultaneous angular
 measurements do not fit this scalar observation contract.
 
 General EKF, UKF, particle, square-root and error-state methods are not
-implemented by this adapter. A future capability registry must declare their
-required transition and observation functions, derivative or sigma-point
-semantics, state geometry, numerical limits and replay profile before they can
-be selected. Configuration data must not authorize arbitrary executable code.
+implemented by this original adapter. The additive
+[`ciw.sensor-fusion-ekf.v1` operation](SENSOR_FUSION_EKF.md) now declares a bounded
+Euclidean EKF using fixed analytical JSPT models and GSIE error-state kernels.
+Other filter families and geometries require their own transition, observation,
+numerical and replay contracts. Configuration data cannot authorize arbitrary
+executable code.
 
 ## Retained input contract
 

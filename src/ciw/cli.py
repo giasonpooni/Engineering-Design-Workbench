@@ -292,6 +292,10 @@ def parser() -> argparse.ArgumentParser:
                         help="Bind pinned JSPT for explicit sensor-fusion coordinate transport")
     server.add_argument("--sensor-fusion-transport-gsie-repo", type=Path,
                         help="Bind pinned GSIE for transported sensor-fusion continuation")
+    server.add_argument("--sensor-fusion-ekf-jspt-repo", type=Path,
+                        help="Bind pinned JSPT nonlinear models for extended Kalman fusion")
+    server.add_argument("--sensor-fusion-ekf-gsie-repo", type=Path,
+                        help="Bind pinned GSIE numerical kernels for extended Kalman fusion")
     server.add_argument("--schematic-repo", type=Path, help="Bind pinned SRA declared schematic assessment")
     server.add_argument("--schematic-companions-root", type=Path, help="Bind pinned sra/jspt/plsr directories for selected schematic companion calls")
     server.add_argument("--construction-repo", type=Path, help="Bind pinned CSE quantity conditioning and ledger replay")
@@ -398,6 +402,17 @@ def parser() -> argparse.ArgumentParser:
         action.add_argument("--input", type=Path, required=True)
     transport_create.add_argument("--upstream", type=Path, required=True, help="Exact retained sensor-fusion v1 bundle")
     for action in (transport_create, transport_replay):
+        action.add_argument("--jspt-repo", type=Path, required=True)
+        action.add_argument("--gsie-repo", type=Path, required=True)
+        action.add_argument("--output", type=Path, required=True, help="New bundle file; existing files are preserved")
+    ekf = commands.add_parser("sensor-fusion-ekf", help="Create, inspect or replay declared nonlinear fusion candidates")
+    ekf_actions = ekf.add_subparsers(dest="ekf_command", required=True)
+    ekf_create = ekf_actions.add_parser("create", help="Execute pinned nonlinear models and GSIE extended Kalman kernels")
+    ekf_inspect = ekf_actions.add_parser("inspect", help="Inspect retained nonlinear fusion without provider execution")
+    ekf_replay = ekf_actions.add_parser("replay", help="Repeat nonlinear fusion with fresh occurrence identities")
+    for action in (ekf_create, ekf_inspect, ekf_replay):
+        action.add_argument("--input", type=Path, required=True)
+    for action in (ekf_create, ekf_replay):
         action.add_argument("--jspt-repo", type=Path, required=True)
         action.add_argument("--gsie-repo", type=Path, required=True)
         action.add_argument("--output", type=Path, required=True, help="New bundle file; existing files are preserved")
@@ -581,6 +596,33 @@ def main(argv: list[str] | None = None) -> int:
                 if args.output:
                     _write_new_proof_report(args.output, report)
                 print_json(report)
+        elif args.command == "sensor-fusion-ekf":
+            from .adapters.subprocess import _json
+            from .exchange import _read
+            from .sensor_fusion_ekf_workflow import SensorFusionEKFWorkflow
+            workflow = SensorFusionEKFWorkflow()
+            raw = _read(args.input, workflow.MAX_BYTES)
+            if args.ekf_command == "inspect":
+                bundle = _json(raw)
+                workflow._validate(bundle)
+                print_json({"status": "inspectable", "bundle": bundle,
+                            "numerical_replay": "not_performed_by_inspection",
+                            "state_admission": "not_performed"})
+            else:
+                if args.output.exists():
+                    raise ValueError("Use a new nonlinear fusion bundle path to preserve previous occurrences")
+                bindings = {"gsie": args.gsie_repo, "jspt": args.jspt_repo}
+                if args.ekf_command == "create":
+                    bundle = workflow.create_session(raw, bindings)
+                    replay = None
+                else:
+                    replay = workflow.replay_session(_json(raw), bindings)
+                    bundle = replay["session"]
+                _write_new_proof_report(args.output, bundle)
+                print_json({"status": "completed", "bundle_file": str(args.output),
+                            "bundle_id": bundle["bundle_digest"], "operation_id": workflow.operation,
+                            "state_admission": "not_performed",
+                            **({"replay_receipt": replay["replay_receipt"]} if replay else {})})
         elif args.command == "sensor-fusion-transport":
             from .adapters.subprocess import _json
             from .exchange import _read
@@ -762,6 +804,13 @@ def main(argv: list[str] | None = None) -> int:
                 session.workbench.bind_workflow("calibrated-window", {role: args.calibrated_window_stack_root / role for role in WINDOW_ROLES})
             if args.sensor_fusion_gsie_repo is not None:
                 session.workbench.bind_workflow("sensor-fusion", {"gsie": args.sensor_fusion_gsie_repo})
+            ekf_paths = (args.sensor_fusion_ekf_jspt_repo, args.sensor_fusion_ekf_gsie_repo)
+            if any(path is not None for path in ekf_paths):
+                if any(path is None for path in ekf_paths):
+                    raise ValueError("Bind both JSPT and GSIE paths for extended Kalman fusion")
+                session.workbench.bind_workflow("sensor-fusion-ekf", {
+                    "jspt": args.sensor_fusion_ekf_jspt_repo,
+                    "gsie": args.sensor_fusion_ekf_gsie_repo})
             transport_paths = (args.sensor_fusion_transport_jspt_repo, args.sensor_fusion_transport_gsie_repo)
             if any(path is not None for path in transport_paths):
                 if any(path is None for path in transport_paths):
