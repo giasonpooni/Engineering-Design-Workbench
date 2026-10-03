@@ -18,7 +18,7 @@ import sys
 from .provider_checkouts import ProviderCheckoutError, _git, validate_checkout
 
 
-PROFILES = ("core", "declared-workloads", "native-interop", "interval-requirement",
+PROFILES = ("core", "legibility", "declared-workloads", "native-interop", "interval-requirement",
             "reaction-catalyst", "reaction-cantera")
 _FAMILIES = {"interval-requirement": "intervals", "reaction-catalyst": "catalyst",
              "reaction-cantera": "cantera"}
@@ -120,6 +120,51 @@ def _core(report):
             version = _installed(match[1]).version
             return {"distribution": match[1], "version": version}, version == match[2]
         _check(report, "core_dependency:" + (match[1] if match else requirement), requirement, dependency)
+
+
+def _legibility(report):
+    _core(report)
+    package = next(row for row in report["checks"] if row["check"] == "ciw_distribution")
+    if package["status"] != "passed":
+        return
+    requirements = package["observed"]["requirements"]
+    authority = {"authority": "installed CIW distribution metadata", "extra": "legibility",
+                 "constraint": "exact version", "required_distribution": "cryptography"}
+
+    def selected_requirements():
+        selected, names = [], set()
+        for requirement in requirements:
+            parts = requirement.split(";", 1)
+            if len(parts) != 2 or not re.search(r"\blegibility\b", parts[1]):
+                continue
+            marker = re.fullmatch(r"\s*extra\s*==\s*(['\"])legibility\1\s*", parts[1])
+            pin = re.fullmatch(r"([A-Za-z0-9][A-Za-z0-9_.-]*)\s*==\s*"
+                               r"((?:\d+!)?\d+(?:\.\d+)*(?:(?:a|b|rc)\d+)?"
+                               r"(?:\.post\d+)?(?:\.dev\d+)?"
+                               r"(?:\+[A-Za-z0-9]+(?:[._-][A-Za-z0-9]+)*)?)", parts[0].strip())
+            if marker is None or pin is None:
+                raise _Issue("setup_failure", "Cannot interpret a Legibility optional distribution constraint")
+            name = re.sub(r"[_.-]+", "-", pin[1]).lower()
+            if name in names:
+                raise _Issue("setup_failure", "Duplicate Legibility distribution requirement: " + name)
+            names.add(name)
+            selected.append({"distribution": name, "version": pin[2], "requirement": requirement})
+        if "cryptography" not in names:
+            raise _Issue("setup_failure", "Installed CIW metadata does not declare exact Legibility cryptography requirements")
+        return selected, True
+
+    row = _check(report, "legibility_requirements", authority, selected_requirements)
+    report["not_checked"].extend(["cryptographic backend import and loadability",
+                                  "key generation, signing, signature verification or issuer trust"])
+    if row["status"] != "passed":
+        return
+    report["requirements"] = {**authority, "distributions": deepcopy(row["observed"])}
+    for requirement in row["observed"]:
+        def dependency(requirement=requirement):
+            version = _installed(requirement["distribution"]).version
+            return {"distribution": requirement["distribution"], "version": version}, version == requirement["version"]
+        _check(report, "legibility_dependency:" + requirement["distribution"],
+               requirement["requirement"], dependency)
 
 
 def _declared(report, stack_root, engine):
@@ -244,6 +289,10 @@ def diagnose(profile="core", *, stack_root=None, engine=None, binding=None):
             if any(value is not None for value in (stack_root, engine, binding)):
                 raise _Issue("setup_failure", "Core doctor does not accept provider bindings")
             _core(report)
+        elif profile == "legibility":
+            if any(value is not None for value in (stack_root, engine, binding)):
+                raise _Issue("setup_failure", "Legibility doctor does not accept provider bindings")
+            _legibility(report)
         elif profile == "declared-workloads":
             if binding is not None:
                 raise _Issue("setup_failure", "Declared workloads use stack-root and engine bindings")

@@ -139,8 +139,11 @@ validation and receiving-provider dynamics remain unestablished.
 
 ## Quickstart
 
-Use the [existing quickstart](TECHNICAL_REFERENCE.md#quickstart) for the exact
-installation, demonstration, analysis and replay commands. Scientific provider
+Start with [Run NET with the installed public tools](docs/RUN_NET.md) for
+installation, dependency preflight and one checked path through analysis,
+impact, Legibility and atmospheric handoffs. The
+[existing quickstart](TECHNICAL_REFERENCE.md#quickstart) covers the shared
+session, demonstration, analysis and replay commands. Scientific provider
 and engine dependencies remain optional and explicitly bound. Reading retained
 results must not silently launch a runtime or rerun an experiment.
 

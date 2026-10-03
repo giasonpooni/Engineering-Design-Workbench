@@ -13,6 +13,7 @@ evidence hashes remain unchanged.
 
 ```sh
 python -m pip install -e ".[dev,legibility]"
+ciw doctor --profile legibility
 ciw legibility demo --output-dir results/legibility-demo
 ciw legibility verify results/legibility-demo \
   --trust results/legibility-demo/demo-trust.json \
@@ -27,6 +28,12 @@ or a qualified impact simulation. A real Session summary operation precedes a
 real Session compilation operation. Its coupon SVG is a diagram, not a specimen
 photograph. The image annotation has its own normalized image frame; no transform
 to the physical fixture frame is established.
+
+The [installed operator guide](RUN_NET.md) joins this path to retained analysis,
+independently verified impact and atmospheric handoffs. Doctor is a read-only
+dependency preflight; its success does not perform numerical or signature
+verification. Use the explicit workflow and verification commands for those
+separate checks.
 
 The demo generates an ephemeral key, discards its private bytes and exports a
 **demonstration trust anchor**. That same-run anchor tests explicit key matching;

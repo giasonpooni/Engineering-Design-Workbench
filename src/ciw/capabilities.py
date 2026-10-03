@@ -107,9 +107,9 @@ _CAPABILITIES = (
         kind="read_only_diagnostic",
         summary="Local identity preflight for one explicit profile. preflight_passed is not qualification.",
         command=["doctor"],
-        profiles=["core", "declared-workloads", "native-interop", "interval-requirement",
+        profiles=["core", "legibility", "declared-workloads", "native-interop", "interval-requirement",
                   "reaction-catalyst", "reaction-cantera"],
-        notes="ciw doctor inspects local metadata and explicit bindings. It does not install, fetch, execute science, or qualify. Profiles other than core need bindings this index does not supply.",
+        notes="ciw doctor inspects local metadata and explicit bindings. It does not install, fetch, execute science, or qualify. Core and legibility use installed metadata; other profiles need bindings this index does not supply.",
     ),
     _record(
         capability_id="linear-response.library",
