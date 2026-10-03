@@ -15,10 +15,11 @@ from threading import RLock
 
 from .adapters.protocol import AdapterRefusal
 from .adapters.subprocess import _json
-DECLARED_KINDS = frozenset({"schematic-assessment", "numerical-heat", "proved-heat", "schematic-companions", "bim-quantity", "acquired-dataset", "residual-monitor", "measurement-chain", "geometric-circle", "identified-stability", "flat-torus-reference", "curved-path-transfer", "covariance-geometry", "mesh-path", "translation-flow", "variational-free-energy", "energy-accuracy", "instrument-exchange", "thermal-observer", "machine-manifest", "julia-oscillator", "native-interop", "project-graph", "sensor-fusion"})
+DECLARED_KINDS = frozenset({"schematic-assessment", "numerical-heat", "proved-heat", "schematic-companions", "bim-quantity", "acquired-dataset", "residual-monitor", "measurement-chain", "geometric-circle", "identified-stability", "flat-torus-reference", "curved-path-transfer", "covariance-geometry", "mesh-path", "translation-flow", "variational-free-energy", "energy-accuracy", "instrument-exchange", "thermal-observer", "machine-manifest", "julia-oscillator", "native-interop", "project-graph", "sensor-fusion", "sensor-fusion-transport"})
 REPRODUCED_KINDS = DECLARED_KINDS - {"proved-heat"}
 UPSTREAM_KINDS = {"identified-design": "calibrated-observable", "schematic-companions": "schematic-assessment",
-                  "acquired-calibrated-window": "acquired-dataset", "identified-stability": "identified-design"}
+                  "acquired-calibrated-window": "acquired-dataset", "identified-stability": "identified-design",
+                  "sensor-fusion-transport": "sensor-fusion"}
 INSTRUMENT_ROLES = frozenset({"ppda", "tbrt", "mcur", "stfe", "gsie", "cbsr", "fdir", "oit", "sra", "scr", "cse", "rci", "fsrt", "jspt", "gte", "plsr", "ftr", "csg", "cggt", "isgt", "tsde", "energy", "exchange", "thermal", "machine", "julia", "project"})
 
 SCHEMA = "ciw.retained-workbench.v1"
@@ -53,6 +54,7 @@ OPERATIONS = {
     "native-interop": "ciw.native-interop.v1",
     "project-graph": "ciw.project-graph.v1",
     "sensor-fusion": "ciw.sensor-fusion.v1",
+    "sensor-fusion-transport": "ciw.sensor-fusion-transport.v1",
 }
 WORKFLOW_OPERATION_IDS = frozenset(OPERATIONS.values())
 from .candidate_evidence import OPERATIONS as CANDIDATE_OPERATIONS
@@ -64,6 +66,9 @@ _OVERHEAD = 4096
 
 
 def _workflow(kind):
+    if kind == "sensor-fusion-transport":
+        from .sensor_fusion_transport_workflow import SensorFusionTransportWorkflow
+        return SensorFusionTransportWorkflow()
     if kind == "sensor-fusion":
         from .sensor_fusion_workflow import SensorFusionWorkflow
         return SensorFusionWorkflow()
@@ -297,6 +302,10 @@ def _claims(record):
         from .free_energy_workflow import identity_claims
         for identity, (role, body) in identity_claims(record["native"]).items():
             claim(identity, role, body)
+    if record["kind"] == "sensor-fusion-transport":
+        from .sensor_fusion_transport_workflow import identity_claims
+        for identity, (role, body) in identity_claims(record["native"]).items():
+            claim(identity, role, body)
     if record["kind"] == "energy-accuracy":
         native = record["native"]
         data = native["steps"][0]["result"]["data"]
@@ -316,6 +325,9 @@ def _catalog_steps(native):
         steps.extend(catalog_steps(native))
     if native["schema"] == "ciw.variational-free-energy-session.v1":
         from .free_energy_workflow import catalog_steps
+        steps.extend(catalog_steps(native))
+    if native["schema"] == "ciw.sensor-fusion-transport-session.v1":
+        from .sensor_fusion_transport_workflow import catalog_steps
         steps.extend(catalog_steps(native))
     return steps
 
@@ -414,12 +426,18 @@ def _validate_links(record, bundles):
         occurrences = {native["steps"][0]["execution_id"]}
         if record["kind"] in REPRODUCED_KINDS:
             occurrences.add(native["verification"]["reproduction"]["execution_id"])
+        if record["kind"] == "sensor-fusion-transport":
+            from .sensor_fusion_transport_workflow import native_occurrences
+            occurrences = native_occurrences(native)
         for other in bundles.values():
             if other["bundle_id"] == record["bundle_id"]:
                 continue
             used = {s["execution_id"] for s in other["native"]["steps"]}
             if other["kind"] in REPRODUCED_KINDS:
                 used.add(other["native"]["verification"]["reproduction"]["execution_id"])
+            if other["kind"] == "sensor-fusion-transport":
+                from .sensor_fusion_transport_workflow import native_occurrences
+                used = native_occurrences(other["native"])
             if not occurrences.isdisjoint(used):
                 raise ValueError("Declared workload bundles must have distinct execution and reproduction occurrences")
     upstream_id = record["upstream_bundle_id"]
@@ -433,6 +451,8 @@ def _validate_links(record, bundles):
         elif record["kind"] == "acquired-calibrated-window":
             _workflow(record["kind"]).validate_upstream(native, upstream["native"])
         elif record["kind"] == "identified-stability":
+            _workflow(record["kind"]).validate_upstream(native, upstream["native"])
+        elif record["kind"] == "sensor-fusion-transport":
             _workflow(record["kind"]).validate_upstream(native, upstream["native"])
         elif _canonical(native["upstream"]) != _canonical(upstream["native"]):
             raise ValueError("Design upstream must exactly match a retained calibrated bundle")
@@ -458,6 +478,10 @@ def _validate_links(record, bundles):
                 raise ValueError("Declared replay runtime identity mismatch")
             old_occurrences = {old_steps[0]["execution_id"], original["native"]["verification"]["reproduction"]["execution_id"]}
             new_occurrences = {new_steps[0]["execution_id"], native["verification"]["reproduction"]["execution_id"]}
+            if record["kind"] == "sensor-fusion-transport":
+                from .sensor_fusion_transport_workflow import native_occurrences
+                old_occurrences = native_occurrences(original["native"])
+                new_occurrences = native_occurrences(native)
             if not old_occurrences.isdisjoint(new_occurrences):
                 raise ValueError("Replay cannot reuse a prior reproduction occurrence")
         if (_canonical(original["native"]["configuration"]) != _canonical(native["configuration"]) or
@@ -1036,6 +1060,9 @@ class Workbench:
             if record["kind"] == "identified-stability":
                 from .identified_stability_view import project as project_stability
                 return project_stability(record, source, declaration, self._revision)
+            if record["kind"] == "sensor-fusion-transport":
+                from .sensor_fusion_transport_view import project as project_transport
+                return project_transport(record, source, declaration, self._revision)
             if record["kind"] == "instrument-exchange":
                 from .exchange_view import project as project_exchange
                 return project_exchange(record, source, declaration, self._revision)

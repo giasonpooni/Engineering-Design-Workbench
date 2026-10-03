@@ -66,10 +66,12 @@ linear coordinate map `x' = T x`, the corresponding mean and covariance are
 equivalence; uncertainty in a physical frame transform also needs its own
 joint model.
 
-State transport, coordinate changes, dimension changes and filter-family
-changes are future extensions. This operation refuses those changes. Sensor
-reconfiguration within a fixed state contract is the implemented first step
-toward exploring the larger configuration space.
+This operation continues to refuse state-coordinate changes. The separate
+[`ciw.sensor-fusion-transport.v1` operation](SENSOR_FUSION_TRANSPORT.md) now
+transports an explicitly selected final Euclidean posterior, its full
+covariance and future linear models through a declared deterministic invertible
+map, then runs an unchanged sensor-fusion v1 continuation. Dimension changes,
+uncertain maps and filter-family changes remain future extensions.
 
 ## Implemented geometries and methods
 

@@ -43,6 +43,7 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 - [Device and Instrument Gateway proposal](DEVICE_GATEWAY.md) and [acceptance plan](DEVICE_GATEWAY_ACCEPTANCE.md)
 - [Covariance provenance and replay](COVARIANCE.md)
 - [Reconfigurable sensor fusion and configuration-space boundaries](SENSOR_FUSION.md)
+- [Sensor-fusion coordinate transport and retained continuation](SENSOR_FUSION_TRANSPORT.md)
 - [Retained telemetry](TELEMETRY.md) and [shared telemetry](SHARED_TELEMETRY.md)
 - [Calibrated observable process](CALIBRATED_OBSERVABLE.md)
 - [Identified and budgeted observation](IDENTIFIED_DESIGN.md)
