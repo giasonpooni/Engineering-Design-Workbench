@@ -81,6 +81,7 @@ or inspecting a record does not establish provider availability.
 
 ## Development and availability
 
+- [Qualified research release: candidate, PR scope and evidence gate](QUALIFIED_RELEASE.md)
 - [Engineering superrepo: module map, exact source histories and qualification commands](MONOREPO.md)
 - [Combined integration candidate and acceptance gates](INTEGRATION_CANDIDATE.md)
 - [Development guide](DEVELOPMENT.md)

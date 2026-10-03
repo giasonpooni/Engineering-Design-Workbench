@@ -1,0 +1,76 @@
+name: NET release evidence
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'scripts/check_release_evidence.py'
+      - 'tests/test_release_evidence.py'
+      - 'release/**'
+      - '.github/workflows/release-evidence.yml'
+  pull_request:
+    paths:
+      - 'scripts/check_release_evidence.py'
+      - 'tests/test_release_evidence.py'
+      - 'release/**'
+      - '.github/workflows/release-evidence.yml'
+  workflow_dispatch:
+    inputs:
+      candidate_sha:
+        description: Full immutable commit SHA to assess (empty runs only gate tests)
+        required: false
+        type: string
+
+permissions:
+  contents: read
+  actions: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: false
+
+jobs:
+  gate-tests:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ['3.11', '3.12']
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Exercise adversarial release evidence cases
+        run: python -m unittest discover -s tests -p test_release_evidence.py -v
+      - name: Validate the checked-in policy
+        run: python -c "import runpy; m = runpy.run_path('scripts/check_release_evidence.py'); m['validate_policy'](m['read_json']('release/qualification-policy.json'))"
+
+  collect-candidate:
+    if: github.event_name == 'workflow_dispatch' && inputs.candidate_sha != ''
+    needs: gate-tests
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Collect exact-candidate metadata without dispatching providers
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+        run: python scripts/check_release_evidence.py --sha "$CANDIDATE_SHA" --output results/release-evidence
+      - name: Retain passing or blocked evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: net-release-evidence
+          path: results/release-evidence/
+          if-no-files-found: error

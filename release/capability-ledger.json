@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "source_commit": "ffad7dba2b258339b27170e071c0de431f6f2aef",
+  "candidate_sha": null,
+  "qualification_status": "not_assessed_on_release_candidate",
+  "note": "Evidence requirements for the proposed alpha. Source documentation establishes intended paths, not successful execution on this candidate.",
+  "capabilities": [
+    {
+      "id": "public_core",
+      "source_references": [
+        "docs/OPERATOR_READINESS.md",
+        "docs/RUN_NET.md"
+      ],
+      "implemented": "documented_at_source_commit",
+      "installable": "requires_candidate_wheel_evidence",
+      "available": "operator_environment_not_checked",
+      "qualified": "not_assessed",
+      "required_evidence": [
+        "Source regression on Linux and Windows",
+        "Installed wheel identity and outside-checkout smoke",
+        "Bounded first-use numerical checks and retained records"
+      ]
+    },
+    {
+      "id": "oscillator_reference",
+      "source_references": [
+        "docs/OSCILLATOR_OPERATOR.md",
+        "docs/LEARNING.md"
+      ],
+      "implemented": "documented_at_source_commit",
+      "installable": "requires_candidate_wheel_evidence",
+      "available": "operator_environment_not_checked",
+      "qualified": "not_assessed",
+      "required_evidence": [
+        "Synthetic run and inspect",
+        "RMS comparison and corrected selection",
+        "Fresh replay distinguished from provider-free reopen"
+      ]
+    },
+    {
+      "id": "thermal_reference",
+      "source_references": [
+        "docs/OPERATOR_READINESS.md"
+      ],
+      "implemented": "documented_at_source_commit",
+      "installable": "requires_candidate_wheel_evidence",
+      "available": "operator_environment_not_checked",
+      "qualified": "not_assessed",
+      "required_evidence": [
+        "net start thermal/original and thermal/replay receipts",
+        "Candidate-bound retained result comparison",
+        "Independent operator correction/replay journey"
+      ]
+    },
+    {
+      "id": "impact_legibility",
+      "source_references": [
+        "docs/RUN_NET.md",
+        "docs/LEGIBILITY.md"
+      ],
+      "implemented": "documented_at_source_commit",
+      "installable": "requires_legibility_extra_and_installed_operator_report",
+      "available": "operator_environment_not_checked",
+      "qualified": "not_assessed",
+      "required_evidence": [
+        "Installed modal-plate run and numerical verify",
+        "Impact import identity and wrong-version refusal",
+        "Retained bytes unchanged during inspection",
+        "Trust demonstration kept separate from authenticated issuer"
+      ]
+    },
+    {
+      "id": "public_composition",
+      "source_references": [
+        "docs/OPERATOR_READINESS.md",
+        "docs/MONOREPO.md"
+      ],
+      "implemented": "documented_at_source_commit",
+      "installable": "independent_packages_not_all_in_root_wheel",
+      "available": "exact_provider_checkouts_not_checked",
+      "qualified": "not_assessed",
+      "required_evidence": [
+        "Exact native history and provider pins",
+        "Independent wheels and public composition jobs",
+        "Offline replay and refusal artifacts"
+      ]
+    }
+  ]
+}
