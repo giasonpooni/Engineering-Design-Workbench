@@ -156,7 +156,11 @@ versions, scope, failures and individually unqualified checks.
 
 The original measurement gate also supports Python 3.11. Explicit
 `--set-root`, `--flowstate-root` and `--sensitivity-root` options on the relevant
-gates retain standalone checkout support. Operations accepts `--cargo` to bind
+gates retain standalone checkout support. The measurement gate defaults to a
+temporary worktree at SET's retained legacy exchange revision; it no longer
+downloads that source from GitHub. Both local and explicit external SET roots
+retain exact revision, working-byte and index checks, and reports identify the
+selected binding route. Operations accepts `--cargo` to bind
 an explicit trusted Cargo executable; Surface accepts `--uv` for its original
 locked contract lane. The aggregate runner supports repeated `--group` options
 and explicit `--cargo` and `--node-bin` toolchain bindings. For example:
