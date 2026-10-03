@@ -185,6 +185,16 @@ jobs:
             --prover "$stack/proof-target/release/sp1-host" \
             --guest "$stack/artifacts/sp1-heat.elf" \
             --output-dir results/proved-heat/gate
+      - name: Show retained reports for evidence review
+        if: always()
+        run: >-
+          python scripts/show_qualification_reports.py
+          results/proved-heat/resources.json
+          results/proved-heat/source-audit.json
+          results/proved-heat/build.json
+          results/proved-heat/source-checks.json
+          results/proved-heat/gate/gate.json
+          results/proved-heat/gate/reverification.json
       - uses: actions/upload-artifact@v4
         if: always()
         with:

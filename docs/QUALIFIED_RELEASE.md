@@ -98,6 +98,11 @@ structure and consistency; it does not prove they came from GitHub. Artifact
 metadata does not authenticate artifact bytes, prove successful science, or
 establish source-to-binary identity. Preserve and inspect the actual artifacts
 for the separate capability-evidence review.
+Selected qualification jobs also print fixed, bounded JSON reports in their
+Actions logs with each file's raw-byte SHA-256 and size. This supports review of
+numerical results and replay identities while retaining the original artifacts.
+An unavailable diagnostic is explicit and supplies no passing evidence; it does
+not alter the original gate's result or establish artifact authentication.
 
 ## Proposed PR dispositions
 
