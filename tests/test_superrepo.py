@@ -207,7 +207,10 @@ output.mkdir(parents=True)
     aggregate = _report(output)
     for group in ("operations", "surface"):
         child = json.loads(Path(aggregate["groups"][group]["report"]).read_text())
-        assert child["compiler_paths"] == {name: str(tool_bin / (name + suffix)) for name in ("cargo", "rustc", "rustdoc")}
+        assert all(value is not None for value in child["compiler_paths"].values())
+        assert {name: Path(value) for name, value in child["compiler_paths"].items()} == {
+            name: tool_bin / (name + suffix) for name in ("cargo", "rustc", "rustdoc")
+        }
     assert observed[1][observed[1].index("--uv") + 1] == str(uv.resolve())
     assert os.environ.get("PATH", "") == inherited_path
 

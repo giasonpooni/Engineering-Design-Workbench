@@ -125,11 +125,11 @@ def test_committed_draft_refuses_other_sources_and_protected_contracts(draft, tm
         path.write_bytes(path.read_bytes() + b"\nUnexpected scope change.\n")
     elif change == "build_layout":
         path = draft / PREFIX / "pyproject.toml"
-        path.write_text(path.read_text().replace('requires = ["hatchling"]', 'requires = ["hatchling", "wheel"]'))
+        path.write_text(path.read_text().replace('requires = ["hatchling"]', 'requires = ["hatchling", "wheel"]'), encoding="utf-8", newline="\n")
         # This source uses setuptools; ensure the fixture changes its actual
         # build-system independently of upstream formatting.
         if operator._git(draft, "diff", "--", str(path.relative_to(draft))) == b"":
-            path.write_text(path.read_text().replace("setuptools>=68", "setuptools>=69"))
+            path.write_text(path.read_text().replace("setuptools>=68", "setuptools>=69"), encoding="utf-8", newline="\n")
         assert operator._git(draft, "diff", "--", str(path.relative_to(draft)))
     else:
         path = draft / "instruments/manifest.json"
@@ -144,7 +144,7 @@ def test_committed_draft_refuses_other_sources_and_protected_contracts(draft, tm
 
 def test_prepare_allows_matching_declared_project_version_without_changing_runtime(draft, tmp_path):
     project = draft / PREFIX / "pyproject.toml"
-    project.write_text(project.read_text().replace('version = "0.1.0"', 'version = "0.1.1"'))
+    project.write_text(project.read_text().replace('version = "0.1.0"', 'version = "0.1.1"'), encoding="utf-8", newline="\n")
     path = draft / "instruments/manifest.json"
     manifest = json.loads(path.read_text())
     manifest["modules"][0]["version"] = "0.1.1"
