@@ -25,7 +25,7 @@ def test_net_review_rechecks_bytes_and_does_not_reuse_publication_report(publish
     report = json.loads(capsys.readouterr().out)
     assert report["artifact_status"] == report["export_status"] == "verified"
     assert report["signature_valid"] and report["issuer_trusted"]
-    assert "Signature valid" in output.read_text()
+    assert "Signature valid" in output.read_text(encoding="utf-8")
     assert report["physical_validation_status"] == "not_assessed"
 
 
@@ -34,7 +34,7 @@ def test_review_exposes_export_failure_and_refuses_overwrite(published, tmp_path
     output = tmp_path / "failure.html"
     assert main(["legibility", "review", str(published), "--output", str(output)]) == 2
     assert json.loads(capsys.readouterr().out)["export_status"] == "failed"
-    assert "export_mismatch" in output.read_text()
+    assert "export_mismatch" in output.read_text(encoding="utf-8")
     original = output.read_bytes()
     assert main(["legibility", "review", str(published), "--output", str(output)]) == 2
     assert output.read_bytes() == original
