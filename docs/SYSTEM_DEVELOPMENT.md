@@ -79,6 +79,13 @@ scientific contracts 308 and computational source selection 170. Require
 completed zero-failure/zero-error/zero-skip XML and retain each case identity
 when rechecking these counts. Do not weaken completeness checks.
 
+Two dependent public workflows also include that retained control-plane suite.
+Observed Linux and Windows runs complete Godot capture at 286 source/185
+installed cases and mathematical inspection at 410 source cases, with no
+failures, errors or skips. Their exact-count guards must track those retained
+case inventories; changing the guard does not substitute for rerunning either
+workflow on the new exact head.
+
 Private candidate-workbench qualification requires operator-provisioned
 `CIW_PROVIDER_READ_TOKEN`. Its absence is an explicit unresolved provisioning
 blocker, not a waived check. Run broad regressions in bounded chunks with owned
