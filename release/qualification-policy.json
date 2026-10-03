@@ -7,7 +7,8 @@
     {
       "path": ".github/workflows/monorepo.yml",
       "jobs": [
-        "source-history-and-migration-guards",
+        "source-history-and-migration-guards (ubuntu-latest)",
+        "source-history-and-migration-guards (windows-latest)",
         "independent-wheels-and-composition (3.11)",
         "independent-wheels-and-composition (3.12)",
         "inference-and-public-process-replay (3.12)",
@@ -23,7 +24,8 @@
         "independent-locked-web-packages"
       ],
       "artifacts": [
-        "monorepo-source-audit",
+        "monorepo-source-audit-ubuntu-latest",
+        "monorepo-source-audit-windows-latest",
         "monorepo-qualification-python-3.11",
         "monorepo-qualification-python-3.12",
         "monorepo-inference-python-3.12",
@@ -87,8 +89,8 @@
     {
       "path": ".github/workflows/calibrated-observable.yml",
       "jobs": [
-        "process-experiment (3.11)",
-        "process-experiment (3.12)"
+        "process-experiment (3.12)",
+        "process-experiment (3.13)"
       ],
       "artifacts": [],
       "allowed_skipped_jobs": [],
@@ -126,6 +128,24 @@
       ],
       "allowed_skipped_jobs": [],
       "excluded_jobs": {}
+    }
+  ],
+  "audited_workflow_inputs": [
+    {
+      "pull_request": 135,
+      "commit": "231a058f3bef00fd9b11db348979b889d5c81e90"
+    },
+    {
+      "pull_request": 137,
+      "commit": "a9d7c9b1c0ac97175b260d327bc42a6ef4a5c67b"
+    },
+    {
+      "pull_request": 144,
+      "commit": "034b5f320242fb184fa60c224a9baf7d080f4a51"
+    },
+    {
+      "pull_request": 150,
+      "commit": "896b70d7d74f8fe759fcc4d7ac4db839362219a1"
     }
   ]
 }

@@ -228,6 +228,18 @@ def _validate_saved_result(result: Any, run: dict, revision: int, recording_file
                 "verification_id", "verification_status", "recording_file"}
     if not isinstance(result, dict) or not required <= result.keys():
         raise ValueError("Saved result is missing identity, source binding, or data")
+    # Legacy analysis has a closed, schema-less shape. An unknown version (or
+    # a modern envelope with its discriminator removed) must not fall back to
+    # that reader and bypass role, runtime, seal and occurrence validation.
+    if "schema" in result:
+        if result["schema"] != "ciw.operation-result.v1":
+            raise ValueError("Unsupported saved operation result schema")
+        if set(result) != required | {"schema", "role", "runtime", "parameters", "record_digest"}:
+            raise ValueError("Unexpected or missing saved operation result fields")
+    elif set(result) != required or result["operation_id"] not in {
+        "statistics.v1", "spectrum.periodogram.v1"
+    }:
+        raise ValueError("Unsupported legacy analysis result format")
     _identity(result["result_id"], "result-")
     _identity(result["execution_id"], "execution-")
     if result["run_id"] != run["run_id"] or result["evidence_id"] != run["evidence_id"]:

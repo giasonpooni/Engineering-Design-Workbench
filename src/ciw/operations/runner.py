@@ -11,7 +11,9 @@ import uuid
 from datetime import datetime, timezone
 
 from ..adapters.protocol import AdapterRefusal
+from ..core.identities import validate_evidence_identity
 from ..core.records import finite_tree
+from ..instruments import validate_run
 from .registry import OperationRegistry, valid_operation_id
 from .schemas import validate_payload, validate_role, validate_request_dependencies
 
@@ -38,6 +40,8 @@ def check_seal(record: dict) -> None:
 
 def execute(registry: OperationRegistry, run: dict, selection: dict, recording_file: str,
             operation_id: str, parameters: dict, *, retained_results: dict | None = None) -> tuple[dict, dict | None]:
+    run = copy.deepcopy(run)
+    selection = copy.deepcopy(selection)
     parameters = copy.deepcopy(parameters)
     finite_tree(parameters, "operation parameters")
     execution = {
@@ -49,6 +53,10 @@ def execute(registry: OperationRegistry, run: dict, selection: dict, recording_f
         "runtime": None, "status": "refused", "result_id": None,
     }
     try:
+        # Direct runner callers share the Session source-integrity boundary.
+        # Check before reading a provider runtime or invoking numerical code.
+        validate_run(run)
+        validate_evidence_identity(run)
         operation = registry.get(operation_id)
         validate_role(operation_id, operation.role)
         validate_request_dependencies(operation_id, parameters, {} if retained_results is None else retained_results)

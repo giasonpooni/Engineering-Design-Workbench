@@ -9,7 +9,10 @@ The reviewed starting point is
 `ffad7dba2b258339b27170e071c0de431f6f2aef`, containing 21 imported modules.
 A [read-only baseline observation](../release/baseline-observation.json) records
 all eight selected runs as queued/pending; it is not an executed collector report.
-The integrated release candidate is **not selected**. The machine-readable
+The prerequisite changes are integrated on `codex/qualified-release-baseline`
+with their original commit ancestry. Freeze the reviewed full head SHA and use
+that SHA for qualification; the collector's report records the exact candidate.
+The machine-readable
 [release scope](../release/release-scope.json) records the starting commit,
 proposed PR dispositions, and blockers. The
 [capability ledger](../release/capability-ledger.json) separates documented
@@ -17,16 +20,17 @@ implementation, installation evidence, local availability, and qualification.
 
 ## First milestone and acceptance
 
-1. Reconcile #135 and #137, then the relevant shared-contract fixes in #144.
-   Existing qualification work owns the #135/#137 repairs. Review exact current
-   heads before integration. #137 retains an original SET commit as additional
-   ancestry: use a merge commit, because squash/rebase can discard history
-   required for exact provider provisioning.
-2. Select one full commit SHA after integration. Review the
-   [CI policy](../release/qualification-policy.json) against its actual workflow
-   definitions. The initial job names are verified against the starting commit;
-   #135/#137 alter matrices, so their integration requires an explicit policy
-   update. Missing renamed jobs must block until reconciled.
+1. Verify the integrated #135, #137 and #144 input commits recorded in the
+   scope file. The merge retains each original head, including SET side history.
+   Irrigation and leakage contracts already on main remain present. Use a merge
+   commit when integrating this candidate into main; squash/rebase can discard
+   history required for exact provider provisioning.
+2. Freeze one full commit SHA after review. The
+   [CI policy](../release/qualification-policy.json) now matches both monorepo
+   guard platforms and the calibrated-observable Python 3.12/3.13 matrix.
+   Its audited workflow commit identifies the reviewed definitions. Candidate
+   branch pushes run the eight selected gates on the actual candidate before
+   main integration. Other feature branches retain their existing PR routing.
 3. Complete the selected public source, independent-wheel, installed-package,
    replay, Linux/Windows, and deployment lanes on that commit. Run the evidence
    collector and inspect retained artifacts. An old branch's green run cannot
@@ -58,9 +62,12 @@ python -m unittest discover -s tests -p test_release_evidence.py -v
 ```
 
 The output directory must be new; the collector refuses to overwrite previous
-observations. The optional **NET release evidence** workflow tests the gate on
-Linux and Windows with Python 3.11/3.12. Its manual `candidate_sha` input collects
-evidence with a read-only token and uploads the report even when blocked.
+observations. The **NET release evidence** workflow tests the gate on Linux and Windows
+with Python 3.11/3.12. An exact candidate-branch push collects its own SHA;
+the manual `candidate_sha` input remains available. Collection uses a read-only
+token and uploads a report even when blocked. The first report may precede
+completion of the other gates. Rerun only the collection job after those gates
+finish; each attempt retains a separately named artifact and the original SHA.
 
 The collector emits `evidence.json` and `report.json`, with the candidate SHA,
 canonical policy digest, run links, and specific blockers. Exit codes are 0 for
@@ -110,7 +117,7 @@ ancestor of the reviewed main commit.
 | [#142](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/142) | defer | Useful new scope, not a baseline prerequisite. |
 | [#141](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/141) | defer | Additional profiles require their own integrated qualification. |
 | [#139](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/139) | exclude transport | Transport PR explicitly says not to merge; native publication and retirement remain separate. Baseline contains 21 imports. |
-| [#137](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/137) | prerequisite | Public provisioning and Windows fixes. Preserve required native ancestry with a merge commit; active repairs are separate. |
+| [#137](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/137) | prerequisite | Public provisioning and Windows fixes. Preserve required native ancestry with a merge commit; their original histories are included in the candidate. |
 | [#135](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/135) | prerequisite | History-preserving module maintenance, preflight and Windows guards require current integrated evidence. |
 | [#128](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/128) | defer | Qualify the existing installed impact and Legibility path before this expansion. |
 | [#124](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/124) | defer | Broad composition/OCI changes and old-head evidence need separate reconciliation. |

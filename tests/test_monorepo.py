@@ -243,6 +243,50 @@ def test_legacy_exchange_binding_keeps_distinct_SET_runtime_identity():
     assert {m["role"]: m for m in monorepo.load_manifest()["modules"]} == modules
 
 
+def test_calibrated_window_bindings_preserve_exact_sources_and_cleanup_on_failure():
+    declarations = json.loads(
+        (ROOT / "src/ciw/calibrated-window-runtimes.json").read_text()
+    )
+    pins = {role: pin["revision"] for role, pin in declarations.items()}
+    assert set(pins) == {"tbrt", "mcur", "stfe", "gsie", "set"}
+    assert pins["set"] == "2f838f4e196f453efc3a59045b0b3ec4b5680296"
+    before = monorepo.load_manifest()
+    paths = []
+    with pytest.raises(RuntimeError, match="window execution fixture"):
+        with monorepo.provider_worktrees(roles=sorted(pins), overrides=pins) as providers:
+            assert set(providers) == set(pins)
+            paths.extend(providers.values())
+            for role, path in providers.items():
+                assert path.name == role
+                assert monorepo.git(path, "rev-parse", "HEAD").decode().strip() == pins[role]
+                pin = declarations[role]
+                adapter = PinnedSubprocessAdapter(
+                    path, pin["revision"], pin["module"], source_root=pin["source_root"],
+                )
+                assert adapter.runtime_identity()["revision"] == pins[role]
+            assert monorepo.git(
+                providers["set"], "rev-parse", "HEAD^{tree}"
+            ).decode().strip() == "54440032b98e24685cc500fd26abaa7ad7700a45"
+            raise RuntimeError("window execution fixture")
+    assert len(paths) == 5
+    assert all(not path.exists() for path in paths)
+    assert monorepo.load_manifest() == before
+    module = next(m for m in before["modules"] if m["role"] == "set")
+    assert module["runtime_revision"] == "5e7bda36f521a5c1b0082b512f35e29803bffafc"
+
+
+def test_calibrated_window_SET_requires_its_reviewed_side_history():
+    revision = "2f838f4e196f453efc3a59045b0b3ec4b5680296"
+    module = next(m for m in monorepo.load_manifest()["modules"] if m["role"] == "set")
+    assert module["additional_history_roots"] == [revision]
+    monorepo.git(ROOT, "merge-base", "--is-ancestor", revision, "HEAD")
+    monorepo._retained(ROOT, revision, module)
+    # Possession of the object does not authorize it through the import branch.
+    without_side_history = {**module, "additional_history_roots": []}
+    with pytest.raises(subprocess.CalledProcessError):
+        monorepo._retained(ROOT, revision, without_side_history)
+
+
 def test_source_override_cannot_bind_an_unrelated_terminal_commit():
     with pytest.raises(subprocess.CalledProcessError):
         with monorepo.provider_worktrees(roles=["set"], overrides={"set": "55d67d42beea95d7ce98af935b48bd84df5e9b4b"}):
@@ -292,9 +336,13 @@ def test_manifest_cannot_add_unrelated_history_to_authorize_source_execution(che
         monorepo.load_manifest(checkout)
 
 
-def test_retained_side_history_cannot_authorize_a_different_module():
+@pytest.mark.parametrize("revision", [
+    "f863bdd69d49224e0cdc871943bbb052e5b0a975",
+    "2f838f4e196f453efc3a59045b0b3ec4b5680296",
+])
+def test_retained_side_history_cannot_authorize_a_different_module(revision):
     with pytest.raises(subprocess.CalledProcessError):
-        with monorepo.provider_worktrees(roles=["jspt"], overrides={"jspt": "f863bdd69d49224e0cdc871943bbb052e5b0a975"}):
+        with monorepo.provider_worktrees(roles=["jspt"], overrides={"jspt": revision}):
             pytest.fail("A reviewed side branch grants no authority to an unrelated provider")
 
 

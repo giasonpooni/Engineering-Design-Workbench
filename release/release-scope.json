@@ -4,8 +4,8 @@
   "observed_date": "2026-10-03",
   "observed_main_sha": "ffad7dba2b258339b27170e071c0de431f6f2aef",
   "candidate_sha": null,
-  "status": "candidate_not_selected",
-  "decision_status": "proposed_in_this_change",
+  "status": "integrated_candidate_awaiting_execution",
+  "decision_status": "prerequisites_integrated_for_review",
   "pr_state_changes_performed": false,
   "scope": "21-import public research baseline; no 23-instrument or physical-validity claim",
   "prerequisite_prs": [
@@ -16,13 +16,13 @@
   "blockers": [
     {
       "id": "integrated_candidate",
-      "state": "open",
-      "closure": "Reconcile prerequisite changes, preserve native ancestry, and select one immutable commit."
+      "state": "integrated_pending_checks",
+      "closure": "Verify the preserved input ancestry and resolved current-main contracts, then freeze the reviewed candidate SHA."
     },
     {
       "id": "public_ci",
       "state": "open",
-      "closure": "Update policy job names to the integrated workflow definitions and retain exact-candidate successful jobs and required artifacts."
+      "closure": "Run reviewed candidate-branch push workflows and retain exact-candidate successful jobs, current artifacts and gate-test evidence."
     },
     {
       "id": "capability_evidence",
@@ -76,7 +76,8 @@
       "head_sha": "034b5f320242fb184fa60c224a9baf7d080f4a51",
       "disposition": "prerequisite",
       "rationale": "Reconcile and verify relevant evidence-contract fixes before qualification; audit claims alone are insufficient.",
-      "url": "https://github.com/atomtrapping/Notations-Systems-Terminal/pull/144"
+      "url": "https://github.com/atomtrapping/Notations-Systems-Terminal/pull/144",
+      "integration_status": "included_in_candidate_pending_qualification"
     },
     {
       "number": 143,
@@ -105,7 +106,7 @@
     {
       "number": 139,
       "title": "Restore the complete 23-instrument NET workspace — native history transport",
-      "head_sha": "36ee8cbe31e6d0fb90f823dfc81088aafe83fb7d",
+      "head_sha": "7fd822bea1f62257f8e95ffbdb7139c923375310",
       "disposition": "exclude_transport",
       "rationale": "Transport PR explicitly says not to merge; native publication and retirement remain separate. Baseline contains 21 imports.",
       "url": "https://github.com/atomtrapping/Notations-Systems-Terminal/pull/139"
@@ -116,7 +117,8 @@
       "head_sha": "a9d7c9b1c0ac97175b260d327bc42a6ef4a5c67b",
       "disposition": "prerequisite",
       "rationale": "Public provisioning and Windows fixes. Preserve required native ancestry with a merge commit; active repairs are separate.",
-      "url": "https://github.com/atomtrapping/Notations-Systems-Terminal/pull/137"
+      "url": "https://github.com/atomtrapping/Notations-Systems-Terminal/pull/137",
+      "integration_status": "included_in_candidate_pending_qualification"
     },
     {
       "number": 135,
@@ -124,7 +126,8 @@
       "head_sha": "231a058f3bef00fd9b11db348979b889d5c81e90",
       "disposition": "prerequisite",
       "rationale": "History-preserving module maintenance, preflight and Windows guards require current integrated evidence.",
-      "url": "https://github.com/atomtrapping/Notations-Systems-Terminal/pull/135"
+      "url": "https://github.com/atomtrapping/Notations-Systems-Terminal/pull/135",
+      "integration_status": "included_in_candidate_pending_qualification"
     },
     {
       "number": 128,
@@ -213,6 +216,26 @@
       "disposition": "superseded_candidate",
       "rationale": "Current README has been rewritten; preserve useful remaining editorial details selectively.",
       "url": "https://github.com/atomtrapping/Notations-Systems-Terminal/pull/53"
+    }
+  ],
+  "candidate_branch": "codex/qualified-release-baseline",
+  "candidate_identity": "Freeze the reviewed full branch-head SHA and supply it to the evidence collector; reports bind that exact commit.",
+  "integration_inputs": [
+    {
+      "pull_request": 135,
+      "commit": "231a058f3bef00fd9b11db348979b889d5c81e90"
+    },
+    {
+      "pull_request": 137,
+      "commit": "a9d7c9b1c0ac97175b260d327bc42a6ef4a5c67b"
+    },
+    {
+      "pull_request": 144,
+      "commit": "034b5f320242fb184fa60c224a9baf7d080f4a51"
+    },
+    {
+      "pull_request": 150,
+      "commit": "896b70d7d74f8fe759fcc4d7ac4db839362219a1"
     }
   ]
 }

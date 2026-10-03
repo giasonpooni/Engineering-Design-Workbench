@@ -71,6 +71,7 @@ _CONTRACTS = {
 }
 _BUILD_KINDS = {"scr": "python-source", "gsv": "npm", "framemapper": "npm"}
 _ADDITIONAL_HISTORY_ROOTS = {
+    "set": ["2f838f4e196f453efc3a59045b0b3ec4b5680296"],
     "fsrt": ["e13e46facc125682776f165ce1b0460b4ff9410a"],
     "framemapper": ["bdfcb041836e86ab1ce93688b127f8960e8d08cf"],
     "rci": ["f863bdd69d49224e0cdc871943bbb052e5b0a975"],

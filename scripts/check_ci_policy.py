@@ -29,6 +29,32 @@ QUALIFICATION = (
     "workbench-candidates.yml"
 )
 ALWAYS = ("test.yml", "workflow-contracts.yml")
+CANDIDATE_BRANCH = "codex/qualified-release-baseline"
+CANDIDATE_WORKFLOWS = (
+    "monorepo.yml",
+    "test.yml",
+    "workflow-contracts.yml",
+    "declared-workloads.yml",
+    "calibrated-observable.yml",
+    "identified-design.yml",
+    "calibrated-window.yml",
+    "proved-heat.yml",
+)
+CANDIDATE_AUXILIARY = ("release-evidence.yml",)
+
+
+def candidate_branches(name: str) -> list[str]:
+    return ["main", CANDIDATE_BRANCH] if name in (*CANDIDATE_WORKFLOWS, *CANDIDATE_AUXILIARY) else ["main"]
+
+
+def check_candidate_push(name: str, value: dict) -> list[str]:
+    """Check exact-candidate routing without changing each workflow's other contracts."""
+    events = value.get("on", {})
+    push = events.get("push", {}) if isinstance(events, dict) else {}
+    if not isinstance(push, dict) or push.get("branches") != candidate_branches(name):
+        return [f"{name}: require main and the exact reviewed candidate branch"]
+    return []
+
 DOCS_ONLY = (
     "README.md",
     "docs/**/*.md",
@@ -44,13 +70,13 @@ def check_workflow(name: str, value: dict, *, qualification: bool) -> list[str]:
     events = value.get("on", {})
     if not isinstance(events, dict) or set(events) != {"push", "pull_request", "workflow_dispatch"}:
         return [f"{name}: require push, pull_request and workflow_dispatch"]
-    push = {"branches": ["main"], "tags": ["**"]}
+    push = {"branches": candidate_branches(name), "tags": ["**"]}
     pull = {}
     if qualification:
         push["paths-ignore"] = list(DOCS_ONLY)
         pull["paths-ignore"] = list(DOCS_ONLY)
     if events["push"] != push:
-        errors.append(f"{name}: main/all-tag push scope or documentation filter changed")
+        errors.append(f"{name}: reviewed branch/all-tag push scope or documentation filter changed")
     if (events["pull_request"] or {}) != pull:
         errors.append(f"{name}: PRs must include stacked targets with the declared documentation filter")
     if events["workflow_dispatch"] not in (None, "", {}):
@@ -71,10 +97,21 @@ def main(root: Path) -> int:
             errors.extend(check_workflow(name, value, qualification=name in QUALIFICATION))
         except (OSError, ValueError, yaml.YAMLError) as exc:
             errors.append(f"{name}: {exc}")
+    for name in (*CANDIDATE_WORKFLOWS, *CANDIDATE_AUXILIARY):
+        if name in (*ALWAYS, *QUALIFICATION):
+            continue
+        path = root / ".github" / "workflows" / name
+        try:
+            value = yaml.load(path.read_text(encoding="utf-8"), Loader=yaml.BaseLoader)
+            if not isinstance(value, dict):
+                raise ValueError("workflow must be a mapping")
+            errors.extend(check_candidate_push(name, value))
+        except (OSError, ValueError, yaml.YAMLError) as exc:
+            errors.append(f"{name}: {exc}")
     if errors:
         print("\n".join(errors), file=sys.stderr)
         return 1
-    print(f"PASS: event policy for {len(ALWAYS) + len(QUALIFICATION)} workflows; qualification is separate")
+    print(f"PASS: shared event policy for {len(ALWAYS) + len(QUALIFICATION)} workflows and exact candidate routing; qualification is separate")
     return 0
 
 

@@ -101,6 +101,56 @@ class PolicyTests(unittest.TestCase):
         self.assertIn(".github/workflows/cantera-worker.yml", push_paths)
         self.assertEqual(policy.check_workflow(path.name, value, qualification=False), [])
 
+
+    def test_candidate_workflows_match_the_release_evidence_policy(self):
+        import json
+        root = Path(__file__).resolve().parents[2]
+        release = json.loads((root / "release/qualification-policy.json").read_text(encoding="utf-8"))
+        self.assertEqual(set(policy.CANDIDATE_WORKFLOWS),
+                         {Path(item["path"]).name for item in release["required_workflows"]})
+        self.assertEqual(policy.CANDIDATE_AUXILIARY, ("release-evidence.yml",))
+
+    def test_selected_shared_workflows_require_the_exact_candidate_branch(self):
+        for name in policy.CANDIDATE_WORKFLOWS:
+            if name not in (*policy.ALWAYS, *policy.QUALIFICATION):
+                continue
+            qualification = name in policy.QUALIFICATION
+            value = workflow(qualification)
+            with self.subTest(name=name):
+                self.assertTrue(policy.check_workflow(name, value, qualification=qualification))
+                value["on"]["push"]["branches"].append(policy.CANDIDATE_BRANCH)
+                self.assertEqual(policy.check_workflow(name, value, qualification=qualification), [])
+
+    def test_unselected_workflows_reject_candidate_pushes(self):
+        value = workflow()
+        value["on"]["push"]["branches"].append(policy.CANDIDATE_BRANCH)
+        self.assertTrue(self.check(value))
+
+    def test_candidate_route_rejects_missing_main_and_extra_or_wildcard_branches(self):
+        branches = [
+            ["main"], [policy.CANDIDATE_BRANCH],
+            ["main", policy.CANDIDATE_BRANCH, "feature/unreviewed"],
+            ["main", "*"], ["main", "**"], ["main", "codex/**"],
+            ["main", policy.CANDIDATE_BRANCH + "*"],
+        ]
+        for name in (*policy.CANDIDATE_WORKFLOWS, *policy.CANDIDATE_AUXILIARY):
+            for selected in branches:
+                value = workflow(name in policy.QUALIFICATION)
+                value["on"]["push"]["branches"] = selected
+                with self.subTest(name=name, branches=selected):
+                    self.assertTrue(policy.check_candidate_push(name, value))
+                    if name in (*policy.ALWAYS, *policy.QUALIFICATION):
+                        self.assertTrue(policy.check_workflow(
+                            name, value, qualification=name in policy.QUALIFICATION))
+
+    def test_checked_in_candidate_workflows_use_exact_push_scope(self):
+        root = Path(__file__).resolve().parents[2]
+        for name in (*policy.CANDIDATE_WORKFLOWS, *policy.CANDIDATE_AUXILIARY):
+            value = yaml.load((root / ".github/workflows" / name).read_text(encoding="utf-8"),
+                              Loader=yaml.BaseLoader)
+            with self.subTest(name=name):
+                self.assertEqual(policy.check_candidate_push(name, value), [])
+
     def test_pyyaml_pin_lives_only_in_the_dev_extra(self):
         import tomllib
         root = Path(__file__).resolve().parents[2]

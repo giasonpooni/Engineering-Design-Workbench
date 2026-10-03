@@ -65,6 +65,7 @@ branch or tag.
 
 | Module | Selected source | Additional retained history and reason |
 | --- | --- | --- |
+| Estimator Bench | `928ae6a76d4f853aa8306fef8207f81244b7066f` | Public calibrated-window replay history `2f838f4e196f453efc3a59045b0b3ec4b5680296` is retained as an original Git parent. Its exact replay provider remains distinct from the normal SET runtime `5e7bda36f521a5c1b0082b512f35e29803bffafc`. |
 | Surface | `1f7bbe380651e8df82db1760d880330aee3dc229` | Default `e8f0938ab243a1905792ba2c43439cb4f40cd4be` is retained; its documentation migration fails original documentation assertions. The selected snapshot preserves the unchanged passing source tests. |
 | FlowState | `3144e3e694419b0c8579938e8d28523174e36abd` | Default `e13e46facc125682776f165ce1b0460b4ff9410a` is retained; its README rename fails the original package identity assertion. The immediate parent retains identical numerical source, tests, locks and fixtures. |
 | FrameMapper | `b788489373cbbeebf69667ddf06c048855e22836` | Default `bdfcb041836e86ab1ce93688b127f8960e8d08cf` is retained; its documentation-only change fails the original route policy. The selected snapshot preserves that policy and package implementation. |
@@ -86,6 +87,16 @@ commit, file bytes and interpreter still determine executable identity. An
 imported directory or the superrepo's `HEAD` does not substitute for that pin.
 Explicit external provider checkout support remains available.
 
+The public calibrated-window CI lane uses these retained histories through
+`python scripts/check_public_provider_gate.py calibrated-window --output-dir results/calibrated-window`.
+It runs the unchanged installed-package gate at all five original provider pins,
+with source checks before and after execution. The SET side history is required;
+missing ancestry refuses instead of downloading or substituting another revision.
+This route requires no private-provider credential. Its configured CI matrix is
+not a claim of completed qualification; successful run evidence must identify the
+actual tested source. Preserve the additional Git parent when merging this change.
+
+
 FlowState's public source and history are now retained locally. Both its
 calibrated-observable generator pin and CBSR's separate public comparison pin
 can be provisioned from that history. They remain distinct revisions. The npm
@@ -97,6 +108,7 @@ establish attached-browser interoperability.
 Use Python 3.12 or later for the complete public qualification. The web lane
 requires Node 24 or later, the Surface locked lane requires `uv`, and the bounded
 Compute Runtime lane requires Cargo; the configured Linux CI uses Rust 1.90.0.
+Cargo, its compiler and Rustdoc must all be available in a consistent toolchain.
 Package dependencies are installed into
 temporary environments. Dependency downloads require public registry access;
 the view tests and builds subsequently use their original locks offline.
@@ -106,8 +118,31 @@ From the repository root:
 ```sh
 python scripts/superrepo.py list
 python scripts/superrepo.py audit
+python scripts/superrepo.py doctor
 python scripts/superrepo.py check --output-dir results/superrepo
 ```
+
+`doctor` observes source/history and the selected tools without installing
+dependencies or running scientific qualification. Its fresh preflight identity
+is separate from source revisions and verification receipts. `available` means
+the observed prerequisites are present; registry access, package builds and
+composed workflows still require `check`. Use `--group` to inspect selected lanes,
+and `--json` for the complete observations and configured CI matrices.
+
+Both commands accept `--cargo`, `--node-bin` and `--uv` for trusted tools outside
+the default `PATH`. Cargo's directory is forwarded to the child environment so
+its sibling compiler and Rustdoc can run; explicit `RUSTC` and `RUSTDOC` settings
+remain authoritative. Node's directory supplies both Node and npm. `--uv` selects
+Surface's locked-environment builder.
+Doctor disables Rustup's automatic toolchain installation during version probes.
+The web lane is qualified on Linux. Doctor recognizes npm launchers with an
+explicit Node shebang; opaque Windows launchers are reported as refused until
+their binding is supported and separately qualified.
+
+For module development, use the [controlled source-update workflow](MODULE_UPDATES.md).
+It records a clean committed module draft as a native source commit, audits the
+candidate and creates a new review branch. Package/composition qualification and
+any runtime-pin changes remain explicit subsequent work.
 
 For temporary worktrees, builds and runtime files outside synchronized storage,
 choose an existing private directory with `--temp-root`:
