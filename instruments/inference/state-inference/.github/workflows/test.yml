@@ -1,0 +1,39 @@
+name: Estimator and instrument exchange
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - uses: actions/checkout@v4
+        with:
+          repository: giasonpooni/State-Estimation-Evaluation-Testbed
+          ref: 542e672be512bf43b61253f2b2a43cd967cb3062
+          path: .external/set
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: giasonpooni/Computational-Instrumentation-Workbench
+          ref: 1ec11eb46bcf19ec57b40603dcd5921d284307ff
+          path: .external/ciw
+          persist-credentials: false
+      - run: python -m pip install '.[dev]' 'websockets==16.0'
+      - run: python -m pytest -q
+        env:
+          GSIE_SET_REPO: ${{ github.workspace }}/.external/set
+          GSIE_CIW_REPO: ${{ github.workspace }}/.external/ciw
+      - run: python examples/replay.py
+      - run: python examples/exchange_roundtrip.py --validator-repo .external/set > result.json
+      - run: python -m ciw exchange inspect examples/exchange/observation.json result.json --validator-repo .external/set
+        env:
+          PYTHONPATH: ${{ github.workspace }}/.external/ciw/src
