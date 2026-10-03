@@ -19,7 +19,10 @@ def validate_role(operation_id: str, role: str) -> None:
                 "fsrt.tank-reconstruct.v2": "state_estimator",
                 "jspt.covariance-propagate.v1": "backend",
                 "gte.project-circle.v1": "backend", "legibility.compile.v1": "backend",
-                "legibility.fixture-summary.v1": "backend"}.get(operation_id)
+                "legibility.fixture-summary.v1": "backend",
+                "system.compile.v1": "backend", "system.simulate.v1": "backend",
+                "system.verify.v1": "verification", "system.compare.v1": "backend",
+                "system.study.v1": "backend"}.get(operation_id)
     if expected is not None and role != expected:
         raise ValueError("Operation role contradicts the declared payload contract")
 
@@ -30,7 +33,8 @@ def register_payload_validator(operation_id: str, validator: Callable) -> None:
     if operation_id in _VALIDATORS or operation_id in {
         "statistics.v1", "spectrum.periodogram.v1", "fsrt.tank-reconstruct.v1",
         "fsrt.tank-reconstruct.v2", "jspt.covariance-propagate.v1", "gte.project-circle.v1", "legibility.compile.v1",
-        "legibility.fixture-summary.v1"
+        "legibility.fixture-summary.v1", "system.compile.v1", "system.simulate.v1",
+        "system.verify.v1", "system.compare.v1", "system.study.v1"
     }:
         raise ValueError("Payload schema already registered")
     _VALIDATORS[operation_id] = validator
@@ -54,6 +58,8 @@ def validate_payload(operation_id: str, data: dict, run: dict, parameters: dict,
         from ..legibility_workflow import validate_payload as validator
     elif operation_id == "legibility.fixture-summary.v1":
         from ..legibility_workflow import validate_fixture_payload as validator
+    elif operation_id in {"system.compile.v1", "system.simulate.v1", "system.verify.v1", "system.compare.v1", "system.study.v1"}:
+        from ..system_workflow import validate_payload as validator
     else:
         validator = _VALIDATORS.get(operation_id)
         if validator is None:

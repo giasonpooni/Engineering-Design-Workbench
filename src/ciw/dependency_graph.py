@@ -31,16 +31,28 @@ def artifact_graph(run: dict, results: dict, executions: dict, workbench) -> dic
             source_kind=source["kind"], evidence_id=source["evidence_id"], label=source["label"])
     for execution in executions.values():
         deps = [execution["evidence_id"]]
+        if execution["operation_id"] == "system.compile.v1":
+            source_id = execution.get("parameters", {}).get("source_id")
+            if type(source_id) is str and source_id in sources:
+                deps.append(source_id)
         upstream = execution.get("parameters", {}).get("source_result_id")
         if upstream is not None:
             deps.append(upstream)
+        if execution["operation_id"] == "system.compare.v1":
+            deps.extend(execution.get("parameters", {}).get("source_result_ids", []))
         add(execution["execution_id"], "execution", deps,
             operation_id=execution["operation_id"], outcome=execution["status"])
     for result in results.values():
         deps = [result["evidence_id"]]
+        if result["operation_id"] == "system.compile.v1":
+            source_id = result.get("parameters", {}).get("source_id")
+            if type(source_id) is str and source_id in sources:
+                deps.append(source_id)
         upstream = result.get("parameters", {}).get("source_result_id")
         if upstream is not None:
             deps.append(upstream)
+        if result["operation_id"] == "system.compare.v1":
+            deps.extend(result.get("parameters", {}).get("source_result_ids", []))
         if result["execution_id"] in executions:
             deps.append(result["execution_id"])
         else:

@@ -540,10 +540,13 @@ class Session:
                 recording_file = self.recording_file
                 operation_id = payload["operation_id"]
                 operations = self.operations
+                retained_results = copy.deepcopy(self.results) if operation_id.startswith("system.") else None
+                retained_sources = self.workbench.retained_sources() if operation_id.startswith("system.") else None
                 self._pending_operations += 1
             try:
                 execution, result = execute_operation(
-                    operations, captured_run, selected, recording_file, operation_id, parameters)
+                    operations, captured_run, selected, recording_file, operation_id, parameters,
+                    retained_results=retained_results, retained_sources=retained_sources)
                 with self._lock:
                     # Legacy analysis can publish while this provider runs;
                     # recheck before writing either half of the operation pair.
@@ -685,6 +688,8 @@ class Session:
             execution_ids.add(result["execution_id"])
         from .adapters.covariance_records import validate_result_dependencies
         validate_result_dependencies(result_map)
+        from .system_workflow import validate_saved_dependencies as validate_system_dependencies
+        validate_system_dependencies(result_map, retained_workbench.retained_sources())
         executions = workspace.get("executions", [])
         if not isinstance(executions, list) or len(executions) > 1024:
             raise ValueError("Invalid saved executions")
