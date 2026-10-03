@@ -82,9 +82,75 @@ def qualify(executable: Path, destination: Path) -> dict:
     assert command("export", "expansion", "--output", "blocked.csv", expected=1)["status"] == "REFUSE"
     assert not (destination / "blocked.csv").exists()
     assert expansion_before == _snapshot(destination / "expansion")
+
+    command("moist", "example", "--output", "moist-request.json")
+    moist_request = json.loads((destination / "moist-request.json").read_text(encoding="utf-8"))
+    moist = command("moist", "run", "moist-request.json", "--output-dir", "moist-column")
+    assert moist["status"] == "LOCAL" and moist["operation_id"] == "atmosphere.moist-compile.v1"
+    moist_before = _snapshot(destination / "moist-column")
+    moist_checked = command("moist", "verify", "moist-column")
+    assert moist_checked["status"] == "LOCAL" and moist_checked["fresh_numerical_verification"] is True
+    command("moist", "export", "moist-column", "--output", "moist-column.csv")
+    with (destination / "moist-column.csv").open(encoding="utf-8", newline="") as stream:
+        moist_rows = list(csv.DictReader(stream))
+    assert len(moist_rows) == len(moist_request["sampling"]["height_m"])
+    assert len(moist_rows[0]) == 16 and float(moist_rows[0]["temperature_k"]) == 298.15
+    assert 0.0 < float(moist_rows[0]["relative_humidity"]) < 0.95
+    assert "dynamic_viscosity_pa_s" not in moist_rows[0]
+    moist_handoffs = {}
+    for provider in ("impact", "fluid", "render"):
+        command("moist", "handoff", "moist-column", "--sample-index", "2",
+                "--provider", provider, "--output", f"moist-{provider}.json")
+        payload = json.loads((destination / f"moist-{provider}.json").read_text(encoding="utf-8"))
+        assert payload["schema"] == "ciw.atmosphere-moist-handoff.v1"
+        assert payload["source_result_id"] == moist["result_id"]
+        assert payload["recomputed_report_digest"] == moist_checked["recomputed_report_digest"]
+        assert not any("viscosity" in name for name in payload["environment"])
+        moist_handoffs[provider] = payload["record_digest"]
+    assert moist_before == _snapshot(destination / "moist-column")
+
+    for name, modification in (("moist-isothermal", ("lapse_rate_k_per_m", 0.0)),
+                               ("moist-dry-limit", ("water_mixing_ratio_kg_per_kg_dry_air", 0.0))):
+        variant = json.loads(json.dumps(moist_request))
+        variant["profile"][modification[0]] = modification[1]
+        (destination / f"{name}.json").write_text(json.dumps(variant), encoding="utf-8")
+        assert command("moist", "run", f"{name}.json", "--output-dir", name)["status"] == "LOCAL"
+        variant_before = _snapshot(destination / name)
+        assert command("moist", "verify", name)["status"] == "LOCAL"
+        command("moist", "export", name, "--output", f"{name}.csv")
+        if name == "moist-dry-limit":
+            with (destination / f"{name}.csv").open(encoding="utf-8", newline="") as stream:
+                dry_rows = list(csv.DictReader(stream))
+            assert all(row["liquid_equilibrium_dew_point_k"] == "" for row in dry_rows)
+            assert all(float(row["relative_humidity"]) == 0.0 for row in dry_rows)
+        assert variant_before == _snapshot(destination / name)
+
+    for name, expected_action in (("moist-transport", "EXPAND"), ("moist-saturation", "REFUSE")):
+        variant = json.loads(json.dumps(moist_request))
+        if expected_action == "EXPAND":
+            variant["desired_observables"].append("viscosity")
+        else:
+            variant["reference"]["temperature_k"] = 293.15
+            variant["reference"]["pressure_pa"] = 110000.0
+            variant["profile"]["water_mixing_ratio_kg_per_kg_dry_air"] = 0.02
+            variant["sampling"]["height_m"] = [0.0, 1000.0, 2000.0]
+            variant["desired_observables"].append("clouds")
+        (destination / f"{name}.json").write_text(json.dumps(variant), encoding="utf-8")
+        assert command("moist", "run", f"{name}.json", "--output-dir", name, expected=2)["status"] == expected_action
+        variant_before = _snapshot(destination / name)
+        assert command("moist", "verify", name, expected=2)["status"] == expected_action
+        assert command("moist", "export", name, "--output", f"{name}-blocked.csv", expected=1)["status"] == "REFUSE"
+        assert command("moist", "handoff", name, "--sample-index", "0", "--provider", "impact",
+                       "--output", f"{name}-blocked.json", expected=1)["status"] == "REFUSE"
+        assert not (destination / f"{name}-blocked.csv").exists()
+        assert not (destination / f"{name}-blocked.json").exists()
+        assert variant_before == _snapshot(destination / name)
     qualification = {"status": "PASS", "profiles": ["linear_lapse", "isothermal"],
                      "checks": len(inspected["checks"]), "csv_samples": len(rows) - 1,
                      "handoffs": handoffs, "unsupported_observable_action": "EXPAND",
+                     "moist_profiles": ["linear_lapse", "isothermal", "dry_limit"],
+                     "moist_checks": len(moist["checks"]), "moist_handoffs": moist_handoffs,
+                     "moist_transport_action": "EXPAND", "moist_saturation_action": "REFUSE",
                      "retained_bundles_unchanged": True, "physical_validation": "not_established"}
     (destination / "qualification.json").write_text(json.dumps(qualification, indent=2), encoding="utf-8")
     return qualification

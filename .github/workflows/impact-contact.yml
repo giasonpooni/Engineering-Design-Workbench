@@ -51,7 +51,7 @@ jobs:
           import numpy
           suites = list(E.parse('impact-tests.xml').getroot().iter('testsuite'))
           count = sum(int(s.attrib['tests']) for s in suites)
-          assert count >= 504
+          assert count >= 726
           assert all(int(s.attrib[k]) == 0 for s in suites for k in ('failures', 'errors', 'skipped'))
           report = {'source_commit': subprocess.check_output(['git','rev-parse','HEAD'], text=True).strip(),
                     'python': sys.version, 'platform': platform.platform(), 'numpy': numpy.__version__,

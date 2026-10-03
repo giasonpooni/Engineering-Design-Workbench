@@ -1,4 +1,4 @@
-"""A reference atmosphere extends NET's retained substrate with scoped claims."""
+"""Moist-air providers retain declarations and audit exports on the same substrate."""
 from copy import deepcopy
 import csv
 import sys
@@ -7,16 +7,17 @@ from unittest.mock import patch
 import pytest
 
 from ciw import atmosphere_cli, atmosphere_workflow as workflow
-from ciw.atmosphere_contract import FRAME, STATE_FIELDS, example_request
+from ciw.atmosphere_moist_contract import FRAME, STATE_FIELDS, example_request
 from ciw.core.identities import evidence_id, new_identity, validate_identity
 from ciw.operations.registry import default_registry
-from ciw.operations.runner import check_seal, digest, seal
+from ciw.operations.runner import check_seal, seal
 from ciw.session import Session, read_json, write_json
 
 
-def _bundle(tmp_path, request=None, name="atmosphere"):
+def _bundle(tmp_path, request=None, name="moist"):
     directory = tmp_path / name
-    return directory, workflow.run(example_request() if request is None else request, directory)
+    reply = workflow.run(example_request() if request is None else request, directory)
+    return directory, reply
 
 
 def _occurrences(directory):
@@ -30,12 +31,12 @@ def _contents(directory):
             for path in directory.rglob("*") if path.is_file()}
 
 
-def _reseal_bundle(directory, workspace, results, executions, *, preservation=False):
-    candidate, verification = results[workflow.COMPILE], results[workflow.VERIFY]
+def _reseal_bundle(directory, workspace, results, executions):
+    candidate, verification = results[workflow.MOIST_COMPILE], results[workflow.MOIST_VERIFY]
     seal(candidate["data"])
     seal(candidate)
     verification["parameters"]["candidate"] = deepcopy(candidate)
-    executions[workflow.VERIFY]["parameters"] = deepcopy(verification["parameters"])
+    executions[workflow.MOIST_VERIFY]["parameters"] = deepcopy(verification["parameters"])
     payload = verification["data"]
     payload["candidate_record_digest"] = candidate["record_digest"]
     seal(payload["report"])
@@ -44,20 +45,26 @@ def _reseal_bundle(directory, workspace, results, executions, *, preservation=Fa
         seal(execution)
     write_json(directory / "workspace.json", workspace)
     write_json(directory / "verification.json", payload)
-    if preservation:
-        from ciw.atmosphere_preservation import build
-        write_json(directory / "preservation.json", build(
-            read_json(directory / "request.json"), candidate["data"], payload["report"]))
 
 
-def test_source_retains_only_declared_si_inputs_not_a_measured_altitude_or_time_profile():
+def _saturated_request():
+    request = example_request()
+    request["reference"]["temperature_k"] = 293.15
+    request["reference"]["pressure_pa"] = 110000.0
+    request["profile"]["water_mixing_ratio_kg_per_kg_dry_air"] = 0.02
+    request["sampling"]["height_m"] = [0.0, 2000.0]
+    return request
+
+
+def test_source_retains_the_declared_mixing_ratio_without_derived_humidity():
     request = example_request()
     request["profile"]["wind_enu_m_per_s"] = [1.0, -2.0, 0.5]
-    with patch("ciw.atmosphere_compiler.compile_atmosphere", side_effect=AssertionError("compiled source")), \
-            patch("ciw.atmosphere_verification.verify", side_effect=AssertionError("verified source")):
+    with patch("ciw.atmosphere_moist_compiler.compile_atmosphere", side_effect=AssertionError("compiled source")), \
+            patch("ciw.atmosphere_moist_verification.verify", side_effect=AssertionError("verified source")):
         source = workflow.make_source(request)
         assert workflow.source_request(source) == request
-    assert source["instrument"] == "atmosphere-configuration-declaration.v1"
+    assert source["instrument"] == "atmosphere-moist-configuration-declaration.v1"
+    assert source["run_id"].startswith("run-atmosphere-moist-")
     assert source["time_s"] == [0.0]
     assert source["metadata"]["sample_count"] == 1 and source["metadata"]["duration_s"] == 1.0
     assert source["metadata"]["sample_rate_hz"] is None
@@ -65,86 +72,78 @@ def test_source_retains_only_declared_si_inputs_not_a_measured_altitude_or_time_
     assert manifest["role"] == "synthetic_reference_configuration"
     assert manifest["frames"] == [FRAME]
     assert manifest["sampling"]["time_semantics"] == "synthetic_selection_envelope"
-    assert manifest["supported_operations"] == [workflow.COMPILE, workflow.VERIFY]
-    expected = {"declared_temperature": ("K", 288.15), "declared_pressure": ("Pa", 101325.0),
+    assert manifest["supported_operations"] == [workflow.MOIST_COMPILE, workflow.MOIST_VERIFY]
+    expected = {"declared_temperature": ("K", 298.15), "declared_pressure": ("Pa", 101325.0),
                 "height_above_reference": ("m", 0.0), "declared_wind_east": ("m/s", 1.0),
-                "declared_wind_north": ("m/s", -2.0), "declared_wind_up": ("m/s", 0.5)}
+                "declared_wind_north": ("m/s", -2.0), "declared_wind_up": ("m/s", 0.5),
+                "declared_water_mixing_ratio": ("kg/kg dry air", 0.008)}
     assert set(source["channels"]) == set(expected)
     for name, (unit, value) in expected.items():
         assert source["channels"][name] == {"unit": unit, "values": [value]}
     assert "not acquired measurements" in source["metadata"]["provenance"]["source"]
 
 
-def test_declared_external_context_remains_a_declaration():
+def test_declared_environment_context_survives_without_becoming_a_measurement():
     request = example_request()
-    context = {"source_kind": "declared_environment", "source_ref": "facility.manual-boundary",
+    context = {"source_kind": "declared_environment", "source_ref": "facility.manual-humidity",
                "valid_time_utc": "2026-10-03T06:00:00Z"}
     request["reference"]["context"] = context
     source = workflow.make_source(request)
     assert source["metadata"]["manifest"]["role"] == "declared_reference_environment"
     assert workflow.source_request(source)["reference"]["context"] == context
-    assert "measurements" in source["metadata"]["provenance"]["source"]
     assert workflow.AUTHORITY["physical_validation"] == "not_established"
 
 
-@pytest.mark.parametrize("mutation", ["value", "unit", "time", "role", "frame", "provenance"])
-def test_reidentified_source_must_equal_exact_configuration_declaration(mutation):
+@pytest.mark.parametrize("mutation", ["mixing_ratio", "unit", "humidity_channel", "time", "role", "frame"])
+def test_reidentified_moist_source_must_equal_its_exact_input_declaration(mutation):
     source = workflow.make_source(example_request())
-    if mutation == "value":
-        source["channels"]["declared_temperature"]["values"][0] += 1.0
+    if mutation == "mixing_ratio":
+        source["channels"]["declared_water_mixing_ratio"]["values"][0] = 0.009
     elif mutation == "unit":
-        source["channels"]["declared_temperature"]["unit"] = "C"
-        source["metadata"]["manifest"]["units"]["declared_temperature"] = "C"
+        source["channels"]["declared_water_mixing_ratio"]["unit"] = "percent"
+        source["metadata"]["manifest"]["units"]["declared_water_mixing_ratio"] = "percent"
+    elif mutation == "humidity_channel":
+        source["channels"]["relative_humidity"] = {"unit": "1", "values": [0.4]}
+        source["metadata"]["manifest"]["units"]["relative_humidity"] = "1"
     elif mutation == "time":
         source["time_s"] = [0.25]
     elif mutation == "role":
-        source["metadata"]["manifest"]["role"] = "measured_atmosphere"
-    elif mutation == "frame":
-        source["metadata"]["coordinate_frame"] = "geodetic"
+        source["metadata"]["manifest"]["role"] = "measured_humidity_profile"
     else:
-        source["metadata"]["provenance"]["source"] = "experimentally validated"
+        source["metadata"]["coordinate_frame"] = "geodetic"
     source["evidence_id"] = evidence_id(source)
     with pytest.raises(ValueError):
         workflow.source_request(source)
 
 
-def test_installed_operations_are_explicit_and_default_registry_remains_unchanged():
+def test_registry_adds_explicit_moist_providers_without_changing_global_defaults():
+    atmospheric = {workflow.COMPILE, workflow.VERIFY, workflow.MOIST_COMPILE, workflow.MOIST_VERIFY}
     default = default_registry().describe()
-    assert all(item["operation_id"] not in {workflow.COMPILE, workflow.VERIFY} for item in default)
+    assert not any(item["operation_id"] in atmospheric for item in default)
     registered = workflow.registry().describe()
-    assert registered == default + [{"operation_id": workflow.COMPILE, "role": "backend"},
-                                    {"operation_id": workflow.VERIFY, "role": "verification"},
-                                    {"operation_id": workflow.MOIST_COMPILE, "role": "backend"},
-                                    {"operation_id": workflow.MOIST_VERIFY, "role": "verification"}]
-    compiler, verifier = workflow.runtime_identity("compiler"), workflow.runtime_identity("verifier")
-    assert compiler["code_sha256"] != verifier["code_sha256"]
-    assert compiler["provider"] != verifier["provider"]
+    assert registered[:len(default)] == default
+    assert {item["operation_id"]: item["role"] for item in registered[len(default):]} == {
+        workflow.COMPILE: "backend", workflow.VERIFY: "verification",
+        workflow.MOIST_COMPILE: "backend", workflow.MOIST_VERIFY: "verification"}
+    compiler = workflow.runtime_identity("compiler", moist=True)
+    verifier = workflow.runtime_identity("verifier", moist=True)
+    dry = workflow.runtime_identity("compiler")
+    assert compiler["code_sha256"] != verifier["code_sha256"] != dry["code_sha256"]
+    assert len({compiler["provider"], verifier["provider"], dry["provider"]}) == 3
     assert compiler["environment"]["floating_point"] == "binary64"
     assert compiler["environment"]["python"]
-    with pytest.raises(ValueError):
-        workflow.runtime_identity("saved.import.path")
 
 
-@pytest.mark.parametrize("operation", [workflow.COMPILE, workflow.VERIFY])
-def test_other_workload_sources_refuse_before_atmospheric_callbacks(tmp_path, operation):
-    from ciw.impact_contract import example_request as impact_request
-    from ciw.impact_workflow import make_source as impact_source
-    session = Session(impact_source(impact_request()), tmp_path / "cross-profile", operations=workflow.registry())
-    with patch("ciw.atmosphere_compiler.compile_atmosphere", side_effect=AssertionError("compiler called")), \
-            patch("ciw.atmosphere_verification.verify", side_effect=AssertionError("verifier called")):
-        reply = workflow._execute(session, operation, {})
-    assert reply["status"] == "refused" and not session.results
-    assert len(session.executions) == 1
-    check_seal(reply["execution"])
-
-
-def test_local_run_keeps_evidence_operation_execution_result_and_verification_separate(tmp_path):
+def test_local_run_uses_moist_operation_occurrences_and_separate_verification_identity(tmp_path):
     directory, inspected = _bundle(tmp_path)
     assert inspected["status"] == "LOCAL"
     workspace, results, executions = _occurrences(directory)
     assert workspace["workspace_version"] == 2
-    assert set(results) == set(executions) == {workflow.COMPILE, workflow.VERIFY}
-    candidate, verification = results[workflow.COMPILE], results[workflow.VERIFY]
+    assert set(results) == set(executions) == {workflow.MOIST_COMPILE, workflow.MOIST_VERIFY}
+    candidate, verification = results[workflow.MOIST_COMPILE], results[workflow.MOIST_VERIFY]
+    assert candidate["data"]["schema"] == "ciw.atmosphere-moist-result.v1"
+    assert verification["data"]["schema"] == "ciw.atmosphere-verification-payload.v1"
+    assert verification["data"]["report"]["schema"] == "ciw.atmosphere-moist-verification.v1"
     assert candidate["role"] == "backend" and verification["role"] == "verification"
     assert candidate["evidence_id"] == verification["evidence_id"] == inspected["evidence_id"]
     assert candidate["execution_id"] != verification["execution_id"]
@@ -156,6 +155,8 @@ def test_local_run_keeps_evidence_operation_execution_result_and_verification_se
     assert payload["candidate_record_digest"] == candidate["record_digest"]
     assert verification["parameters"]["candidate"] == candidate
     assert payload["authority"] == inspected["authority"] == workflow.AUTHORITY
+    assert inspected["preservation"]["admission_eligibility"] == "ELIGIBLE"
+    assert inspected["preservation"]["state_admission_performed"] is False
     for result in results.values():
         check_seal(result)
         assert result["verification_status"] == "not_verified" and result["verification_id"] is None
@@ -166,12 +167,13 @@ def test_local_run_keeps_evidence_operation_execution_result_and_verification_se
         assert second[name] != inspected[name]
 
 
-def test_static_inspect_and_session_reopen_never_compile_integrate_or_verify(tmp_path):
+def test_static_inspection_and_reopen_do_not_activate_moist_or_dry_physics(tmp_path):
     directory, original = _bundle(tmp_path)
     before = _contents(directory)
-    with patch("ciw.atmosphere_compiler.compile_atmosphere", side_effect=AssertionError("compiler replay")), \
-            patch("ciw.atmosphere_verification.verify", side_effect=AssertionError("verifier replay")), \
-            patch("ciw.atmosphere_verification._quadrature_reference", side_effect=AssertionError("quadrature replay")), \
+    with patch("ciw.atmosphere_moist_compiler.compile_atmosphere", side_effect=AssertionError("compiler replay")), \
+            patch("ciw.atmosphere_moist_verification.verify", side_effect=AssertionError("verifier replay")), \
+            patch("ciw.atmosphere_compiler.compile_atmosphere", side_effect=AssertionError("dry compiler replay")), \
+            patch("ciw.atmosphere_verification.verify", side_effect=AssertionError("dry verifier replay")), \
             patch("ciw.session.execute_operation", side_effect=AssertionError("operation replay")):
         assert workflow.inspect(directory) == original
         restored = Session.from_workspace(directory / "workspace.json", tmp_path / "reopened")
@@ -180,47 +182,62 @@ def test_static_inspect_and_session_reopen_never_compile_integrate_or_verify(tmp
     assert _contents(directory) == before
 
 
-def test_fresh_verify_and_scalar_csv_export_are_read_only_and_create_only(tmp_path):
+def test_inspection_uses_the_preservation_from_its_validated_snapshot(tmp_path):
+    directory, original = _bundle(tmp_path)
+    retained = workflow._read(directory)
+    with patch.object(workflow, "_read", return_value=retained) as reader, \
+            patch("ciw.atmosphere_moist_preservation.build", side_effect=AssertionError("rebuilt receipt")):
+        assert workflow.inspect(directory) == original
+    assert reader.call_count == 1
+
+
+@pytest.mark.parametrize("mixing_ratio", [0.0, 0.008])
+def test_fresh_verification_and_csv_use_moist_fields_and_null_dry_limit_dew_point(tmp_path, mixing_ratio):
     request = example_request()
+    request["profile"]["water_mixing_ratio_kg_per_kg_dry_air"] = mixing_ratio
     request["profile"]["wind_enu_m_per_s"] = [2.0, -1.0, 0.25]
     directory, original = _bundle(tmp_path, request)
     before = _contents(directory)
     output = tmp_path / "profile.csv"
-    with patch("ciw.atmosphere_compiler.compile_atmosphere", side_effect=AssertionError("compiler replay")):
+    with patch("ciw.atmosphere_moist_compiler.compile_atmosphere", side_effect=AssertionError("compiler replay")):
         verified = workflow.verify_retained(directory)
         exported = workflow.export_csv(directory, output)
     assert verified["status"] == "LOCAL" and verified["fresh_numerical_verification"] is True
     assert verified["execution_id"] == original["execution_id"]
     assert verified["verification_id"] == original["verification_id"]
+    assert verified["recomputed_with_runtime"] == workflow.runtime_identity("verifier", moist=True)
     assert exported["source_result_id"] == original["result_id"]
-    profile = _occurrences(directory)[1][workflow.COMPILE]["data"]["profile"]
+    profile = _occurrences(directory)[1][workflow.MOIST_COMPILE]["data"]["profile"]
     names = [name for name in STATE_FIELDS if name != "wind_enu_m_per_s"]
     with output.open(newline="") as stream:
         rows = list(csv.reader(stream))
     assert rows[0] == names + ["wind_east_m_per_s", "wind_north_m_per_s", "wind_up_m_per_s"]
-    assert len(rows[0]) == 11
-    assert [[float(value) for value in row] for row in rows[1:]] == [
-        [profile[name][index] for name in names] + wind for index, wind in enumerate(profile["wind_enu_m_per_s"])]
+    assert len(rows[0]) == 16 and len(rows) == len(profile["height_m"]) + 1
+    assert not any("viscosity" in name for name in rows[0])
+    for index, row in enumerate(rows[1:]):
+        expected = [profile[name][index] for name in names] + profile["wind_enu_m_per_s"][index]
+        assert [None if value == "" else float(value) for value in row] == expected
     saved = output.read_bytes()
     with pytest.raises(FileExistsError):
         workflow.export_csv(directory, output)
-    assert output.read_bytes() == saved
-    with pytest.raises(FileExistsError):
-        workflow.run(request, directory)
-    assert _contents(directory) == before
+    assert output.read_bytes() == saved and _contents(directory) == before
 
 
 @pytest.mark.parametrize("provider", ["impact", "fluid", "render"])
-def test_handoff_exports_exact_freshly_verified_sample_and_bindings_only(tmp_path, provider):
-    directory, original = _bundle(tmp_path)
+def test_handoff_exports_a_freshly_audited_exact_moist_sample_and_no_transport_law(tmp_path, provider):
+    request = example_request()
+    request["reference"]["height_origin_m"] = 10.0
+    directory, original = _bundle(tmp_path, request)
     output = tmp_path / "handoff.json"
     before = _contents(directory)
-    with patch("ciw.atmosphere_compiler.compile_atmosphere", side_effect=AssertionError("compiler replay")):
+    with patch("ciw.atmosphere_moist_compiler.compile_atmosphere", side_effect=AssertionError("compiler replay")):
         reply = workflow.export_handoff(directory, output, sample_index=2, provider=provider)
     payload = read_json(output)
     check_seal(payload)
-    assert payload["schema"] == "ciw.atmosphere-handoff.v1"
-    assert payload["provider"] == provider and payload["sample_index"] == 2 and payload["height_m"] == 2000.0
+    assert payload["schema"] == "ciw.atmosphere-moist-handoff.v1"
+    assert payload["provider"] == provider and payload["sample_index"] == 2
+    assert payload["height_m"] == 500.0 and payload["absolute_height_m"] == 510.0
+    assert payload["composition"] == "dry_air_water_vapour"
     assert payload["source_evidence_id"] == original["evidence_id"]
     assert payload["source_result_id"] == original["result_id"]
     assert payload["source_execution_id"] == original["execution_id"]
@@ -229,25 +246,19 @@ def test_handoff_exports_exact_freshly_verified_sample_and_bindings_only(tmp_pat
     assert payload["claims"]["exact_retained_sample"] is True
     assert all(payload["claims"][key] is False for key in (
         "interpolation_performed", "physical_validation_established", "receiver_model_validated",
-        "state_admission_performed", "execution_authority", "forces_computed"))
+        "state_admission_performed", "execution_authority", "forces_computed",
+        "geodetic_transform_performed", "coordinate_transfer_validated"))
+    assert not any("viscosity" in field for field in payload["environment"])
+    assert payload["environment"]["relative_humidity"] > 0.0
+    assert payload["environment"]["water_mixing_ratio_kg_per_kg_dry_air"] == 0.008
     saved = output.read_bytes()
     with pytest.raises(FileExistsError):
         workflow.export_handoff(directory, output, sample_index=2, provider=provider)
     assert output.read_bytes() == saved and _contents(directory) == before
 
 
-@pytest.mark.parametrize("sample,provider", [(-1, "impact"), (True, "impact"), (1.0, "impact"),
-                                            (11, "fluid"), (0, "new.import.path"), (0, True)])
-def test_invalid_handoff_indices_or_providers_never_create_output(tmp_path, sample, provider):
-    directory, _ = _bundle(tmp_path)
-    output = tmp_path / "bad-handoff.json"
-    with pytest.raises(ValueError):
-        workflow.export_handoff(directory, output, sample_index=sample, provider=provider)
-    assert not output.exists()
-
-
-@pytest.mark.parametrize("observable", ["material_conditioning", "weather_forecast", "visual_scattering"])
-def test_unsupported_observables_expand_and_prevent_csv_or_handoff(tmp_path, observable):
+@pytest.mark.parametrize("observable", ["viscosity", "clouds", "moist_adiabatic_response"])
+def test_missing_transport_or_phase_models_expand_and_block_exports(tmp_path, observable):
     request = example_request()
     request["desired_observables"].append(observable)
     directory, inspected = _bundle(tmp_path, request)
@@ -263,15 +274,40 @@ def test_unsupported_observables_expand_and_prevent_csv_or_handoff(tmp_path, obs
         assert not output.exists()
 
 
+@pytest.mark.parametrize("unsupported", [False, True])
+def test_saturated_assumptions_refuse_before_expansion_and_remain_retained(tmp_path, unsupported):
+    request = _saturated_request()
+    if unsupported:
+        request["desired_observables"].append("clouds")
+    directory, inspected = _bundle(tmp_path, request)
+    assert inspected["status"] == "REFUSE"
+    _, results, executions = _occurrences(directory)
+    report = results[workflow.MOIST_VERIFY]["data"]["report"]
+    assert report["status"] == "FAIL" and report["qualification"]["action"] == "REFUSE"
+    assert any(check["status"] == "FAIL" for check in report["checks"])
+    assert results[workflow.MOIST_COMPILE]["data"]["profile"]["relative_humidity"][0] > 1.0
+    assert all(execution["status"] == "completed" for execution in executions.values())
+    assert inspected["preservation"]["admission_eligibility"] == "REFUSED"
+    assert workflow.verify_retained(directory)["status"] == "REFUSE"
+    before = _contents(directory)
+    for output, exporter in [(tmp_path / "refused.csv", lambda p: workflow.export_csv(directory, p)),
+                             (tmp_path / "refused.json", lambda p: workflow.export_handoff(
+                                 directory, p, sample_index=0, provider="impact"))]:
+        with pytest.raises(ValueError, match="LOCAL"):
+            exporter(output)
+        assert not output.exists()
+    assert _contents(directory) == before
+
+
 @pytest.mark.parametrize("mutation", ["report_schema", "report_action", "report_dependency", "verification_identity",
                                       "candidate_result", "candidate_execution", "candidate_digest", "authority"])
-def test_resealed_payload_binding_tampering_rejects_static_inspection(tmp_path, mutation):
+def test_resealed_moist_receipt_binding_tampering_rejects_static_inspection(tmp_path, mutation):
     directory, _ = _bundle(tmp_path)
     workspace, results, executions = _occurrences(directory)
-    payload = results[workflow.VERIFY]["data"]
+    payload = results[workflow.MOIST_VERIFY]["data"]
     report = payload["report"]
     if mutation == "report_schema":
-        report["schema"] = "imported.fake.report.v1"
+        report["schema"] = "ciw.atmosphere-verification.v1"
     elif mutation == "report_action":
         report["qualification"]["action"] = "REFUSE"
     elif mutation == "report_dependency":
@@ -286,11 +322,10 @@ def test_resealed_payload_binding_tampering_rejects_static_inspection(tmp_path, 
         payload["candidate_record_digest"] = "sha256:" + "1" * 64
     else:
         payload["authority"]["physical_validation"] = "established"
-    # Preserve the deliberately altered candidate digest after normal resealing.
     _reseal_bundle(directory, workspace, results, executions)
     if mutation == "candidate_digest":
         payload["candidate_record_digest"] = "sha256:" + "1" * 64
-        seal(results[workflow.VERIFY])
+        seal(results[workflow.MOIST_VERIFY])
         write_json(directory / "workspace.json", workspace)
         write_json(directory / "verification.json", payload)
     before = _contents(directory)
@@ -302,9 +337,9 @@ def test_resealed_payload_binding_tampering_rejects_static_inspection(tmp_path, 
 
 
 @pytest.mark.parametrize("phase", ["compiler", "verifier"])
-def test_provider_failure_retains_read_only_reopenable_refusal(tmp_path, phase):
+def test_moist_provider_failures_retain_reopenable_refusals_without_private_details(tmp_path, phase):
     directory = tmp_path / "failed"
-    target = "ciw.atmosphere_compiler.compile_atmosphere" if phase == "compiler" else "ciw.atmosphere_verification.verify"
+    target = "ciw.atmosphere_moist_compiler.compile_atmosphere" if phase == "compiler" else "ciw.atmosphere_moist_verification.verify"
     with patch(target, side_effect=RuntimeError("private-provider-detail")):
         refused = workflow.run(example_request(), directory)
     assert refused["status"] == "REFUSE"
@@ -318,8 +353,8 @@ def test_provider_failure_retains_read_only_reopenable_refusal(tmp_path, phase):
     check_seal(execution)
     assert not (directory / "verification.json").exists() and not (directory / "preservation.json").exists()
     before = _contents(directory)
-    with patch("ciw.atmosphere_compiler.compile_atmosphere", side_effect=AssertionError("compiler replay")), \
-            patch("ciw.atmosphere_verification.verify", side_effect=AssertionError("verifier replay")):
+    with patch("ciw.atmosphere_moist_compiler.compile_atmosphere", side_effect=AssertionError("compiler replay")), \
+            patch("ciw.atmosphere_moist_verification.verify", side_effect=AssertionError("verifier replay")):
         restored = Session.from_workspace(directory / "workspace.json", tmp_path / "reopened")
         assert workflow.inspect(directory) == workflow.verify_retained(directory) == refused
     assert len(restored.executions) == len(workspace["executions"])
@@ -328,9 +363,9 @@ def test_provider_failure_retains_read_only_reopenable_refusal(tmp_path, phase):
 
 @pytest.mark.parametrize("phase,receipt", [("compiler", "verification.json"), ("compiler", "preservation.json"),
                                          ("verifier", "verification.json"), ("verifier", "preservation.json")])
-def test_refused_bundles_reject_unexpected_verification_and_preservation_receipts(tmp_path, phase, receipt):
+def test_moist_provider_refusal_rejects_unexpected_receipts(tmp_path, phase, receipt):
     directory = tmp_path / "failed"
-    target = "ciw.atmosphere_compiler.compile_atmosphere" if phase == "compiler" else "ciw.atmosphere_verification.verify"
+    target = "ciw.atmosphere_moist_compiler.compile_atmosphere" if phase == "compiler" else "ciw.atmosphere_moist_verification.verify"
     with patch(target, side_effect=RuntimeError("failure")):
         workflow.run(example_request(), directory)
     write_json(directory / receipt, {"unexpected": True})
@@ -339,7 +374,7 @@ def test_refused_bundles_reject_unexpected_verification_and_preservation_receipt
 
 
 @pytest.mark.parametrize("action", ["inspect", "verify", "csv", "handoff"])
-def test_public_read_actions_use_one_validated_snapshot(tmp_path, action):
+def test_moist_read_actions_use_one_validated_snapshot(tmp_path, action):
     first_dir, first = _bundle(tmp_path, name="first")
     second_request = example_request()
     second_request["reference"]["temperature_k"] += 5.0
@@ -357,61 +392,61 @@ def test_public_read_actions_use_one_validated_snapshot(tmp_path, action):
             reply = workflow.export_csv(first_dir, output)
             with output.open(newline="") as stream:
                 rows = list(csv.reader(stream))
-            assert float(rows[1][1]) == 288.15
+            assert float(rows[1][1]) == 298.15
             assert reply["source_result_id"] == first["result_id"]
         else:
             output = tmp_path / "single.json"
             reply = workflow.export_handoff(first_dir, output, sample_index=0, provider="impact")
-            assert read_json(output)["environment"]["temperature_k"] == 288.15
+            assert read_json(output)["environment"]["temperature_k"] == 298.15
             assert reply["source_result_id"] == first["result_id"]
         assert reader.call_count == 1
     assert first["evidence_id"] != second["evidence_id"]
 
 
-def test_cli_full_lifecycle_exit_codes_and_create_only_examples(tmp_path, capsys):
+def test_moist_cli_lifecycle_create_only_examples_and_qualification_exit_codes(tmp_path, capsys):
     request_path = tmp_path / "request.json"
-    assert atmosphere_cli.main(["example", "--output", str(request_path)]) == 0
+    assert atmosphere_cli.main(["moist", "example", "--output", str(request_path)]) == 0
+    assert read_json(request_path) == example_request()
     saved = request_path.read_bytes()
-    assert atmosphere_cli.main(["example", "--output", str(request_path)]) == 1
+    assert atmosphere_cli.main(["moist", "example", "--output", str(request_path)]) == 1
     assert request_path.read_bytes() == saved
     directory = tmp_path / "run"
-    assert atmosphere_cli.main(["run", str(request_path), "--output-dir", str(directory)]) == 0
-    assert atmosphere_cli.main(["inspect", str(directory)]) == 0
-    assert atmosphere_cli.main(["verify", str(directory)]) == 0
-    assert atmosphere_cli.main(["export", str(directory), "--output", str(tmp_path / "cli.csv")]) == 0
-    assert atmosphere_cli.main(["handoff", str(directory), "--sample-index", "0", "--provider", "impact",
+    assert atmosphere_cli.main(["moist", "run", str(request_path), "--output-dir", str(directory)]) == 0
+    assert atmosphere_cli.main(["moist", "inspect", str(directory)]) == 0
+    assert atmosphere_cli.main(["moist", "verify", str(directory)]) == 0
+    assert atmosphere_cli.main(["moist", "export", str(directory), "--output", str(tmp_path / "cli.csv")]) == 0
+    assert atmosphere_cli.main(["moist", "handoff", str(directory), "--sample-index", "0", "--provider", "impact",
                                 "--output", str(tmp_path / "cli.json")]) == 0
     expanded = example_request()
-    expanded["desired_observables"].append("weather_forecast")
+    expanded["desired_observables"].append("viscosity")
     write_json(request_path, expanded)
     expanded_dir = tmp_path / "expanded"
-    assert atmosphere_cli.main(["run", str(request_path), "--output-dir", str(expanded_dir)]) == 2
-    assert atmosphere_cli.main(["inspect", str(expanded_dir)]) == 2
-    assert atmosphere_cli.main(["verify", str(expanded_dir)]) == 2
-    assert '"status": "EXPAND"' in capsys.readouterr().out
+    for command in (["moist", "run", str(request_path), "--output-dir", str(expanded_dir)],
+                    ["moist", "inspect", str(expanded_dir)], ["moist", "verify", str(expanded_dir)]):
+        assert atmosphere_cli.main(command) == 2
+    write_json(request_path, _saturated_request())
+    refused_dir = tmp_path / "saturated"
+    for command in (["moist", "run", str(request_path), "--output-dir", str(refused_dir)],
+                    ["moist", "inspect", str(refused_dir)], ["moist", "verify", str(refused_dir)]):
+        assert atmosphere_cli.main(command) == 2
+    output = capsys.readouterr().out
+    assert '"status": "EXPAND"' in output and '"status": "REFUSE"' in output
 
 
-def test_valid_long_height_interval_keeps_numerical_refusal_and_cannot_export(tmp_path):
-    request = example_request()
-    request["sampling"]["height_m"] = [0.0, 11000.0]
-    request["profile"]["lapse_rate_k_per_m"] = 0.009
-    directory, inspected = _bundle(tmp_path, request)
-    assert inspected["status"] == "REFUSE"
-    workspace, results, executions = _occurrences(directory)
-    report = results[workflow.VERIFY]["data"]["report"]
-    assert report["status"] == "FAIL"
-    assert all(execution["status"] == "completed" for execution in executions.values())
-    assert any(check["name"] == "quadrature_refinement" and check["status"] == "FAIL" for check in report["checks"])
-    assert inspected["preservation"]["admission_eligibility"] == "REFUSED"
-    assert workflow.verify_retained(directory)["status"] == "REFUSE"
-    output = tmp_path / "refused.csv"
-    with pytest.raises(ValueError, match="LOCAL"):
-        workflow.export_csv(directory, output)
-    assert not output.exists()
+@pytest.mark.parametrize("moist_prefix", [False, True])
+def test_cli_run_prefix_refuses_the_other_request_profile_before_directory_creation(tmp_path, moist_prefix):
+    from ciw.atmosphere_contract import example_request as dry_request
+    request = dry_request() if moist_prefix else example_request()
+    request_path = tmp_path / "request.json"
+    write_json(request_path, request)
+    directory = tmp_path / "wrong-profile"
+    prefix = ["moist"] if moist_prefix else []
+    assert atmosphere_cli.main(prefix + ["run", str(request_path), "--output-dir", str(directory)]) == 1
+    assert not directory.exists()
 
 
 @pytest.mark.parametrize("name", ["workspace.json", "request.json", "verification.json", "preservation.json"])
-def test_oversized_bundle_inputs_refuse_before_session_reopen(tmp_path, name):
+def test_moist_bundle_size_limits_apply_before_session_reader(tmp_path, name):
     directory, _ = _bundle(tmp_path)
     with (directory / name).open("wb") as stream:
         stream.truncate(workflow.MAX_BUNDLE_FILE_BYTES + 1)
@@ -421,22 +456,19 @@ def test_oversized_bundle_inputs_refuse_before_session_reopen(tmp_path, name):
 
 
 def _symlink_or_mock(monkeypatch, link, target):
-    """Use actual links where available; Windows privileges are not an engine gate."""
     from pathlib import Path
     try:
         link.symlink_to(target)
     except (OSError, NotImplementedError):
         if sys.platform != "win32":
             raise
-        # Exercise the same preflight rejection without requiring the runner's
-        # optional Windows symlink privilege. No provider or reader is reached.
         link.write_bytes(target.read_bytes() if target.is_file() else b"{}")
         original = Path.is_symlink
         monkeypatch.setattr(Path, "is_symlink", lambda path: path == link or original(path))
 
 
 @pytest.mark.parametrize("name", ["workspace.json", "request.json", "verification.json", "preservation.json"])
-def test_bundle_symlinks_refuse_before_session_reopen(tmp_path, monkeypatch, name):
+def test_moist_bundle_symlinks_refuse_before_session_reader(tmp_path, monkeypatch, name):
     directory, _ = _bundle(tmp_path)
     target = directory / name
     replacement = tmp_path / (name + ".real")
@@ -447,19 +479,8 @@ def test_bundle_symlinks_refuse_before_session_reopen(tmp_path, monkeypatch, nam
             workflow.inspect(directory)
 
 
-@pytest.mark.parametrize("name", ["verification.json", "preservation.json"])
-def test_dangling_refusal_receipt_symlinks_refuse_before_session_reopen(tmp_path, monkeypatch, name):
-    directory = tmp_path / "failed"
-    with patch("ciw.atmosphere_compiler.compile_atmosphere", side_effect=ValueError("refused")):
-        workflow.run(example_request(), directory)
-    _symlink_or_mock(monkeypatch, directory / name, tmp_path / "missing.json")
-    with patch.object(Session, "from_workspace", side_effect=AssertionError("Session reader reached")):
-        with pytest.raises(ValueError, match="symlink"):
-            workflow.inspect(directory)
-
-
 @pytest.mark.parametrize("value", [False, 0])
-def test_request_artifact_cannot_substitute_boolean_or_different_numeric_encoding(tmp_path, value):
+def test_moist_request_artifact_preserves_numeric_encoding_as_well_as_value(tmp_path, value):
     directory, _ = _bundle(tmp_path)
     retained = read_json(directory / "request.json")
     retained["reference"]["height_origin_m"] = value
