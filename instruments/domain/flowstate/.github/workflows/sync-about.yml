@@ -1,0 +1,17 @@
+name: Sync About
+
+# Manual only. GITHUB_TOKEN cannot PATCH repository description/topics
+# (403 Resource not accessible by integration). The intended About text
+# lives in .github/repo-about.json for a human or a PAT with repo scope.
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  print:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - run: python3 -m json.tool .github/repo-about.json

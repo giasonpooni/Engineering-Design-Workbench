@@ -1,0 +1,19 @@
+{
+  "state_id": "fixture:unreconciled-mass-pair",
+  "estimate": [62.0, 41.0],
+  "covariance": [[4.0, 0.0], [0.0, 4.0]],
+  "state_labels": ["mass_1", "mass_2"],
+  "state_units": ["kg", "kg"],
+  "frame_ref": "fixture:two-compartment-system",
+  "constraints": {
+    "constraint_id": "fixture:declared-closed-mass-100kg-v1",
+    "coefficients": [[1.0, 1.0]],
+    "rhs": [100.0],
+    "row_units": ["kg"],
+    "coefficient_policy": "declared_exact"
+  },
+  "crosscov_policy": "declared_zero",
+  "max_normalized_residual": 10.828,
+  "evidence_refs": ["fixture:synthetic-observation-pair"],
+  "execution_id": "example:affine-exact-001"
+}

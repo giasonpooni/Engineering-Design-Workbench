@@ -1,0 +1,177 @@
+name: releases
+
+# WHAT THIS COVERS, AND WHAT IT DELIBERATELY DOES NOT.
+#
+# This repository's full suite needs a zkVM prover and takes the better
+# part of an hour, so it is not what runs here. What runs here is the
+# part a stranger is exposed to: the two derived distributions, their
+# refusals, and the mutation batteries that show those refusals can
+# fire. A green run means the releases still derive, still install, and
+# still refuse what they claim to -- not that the whole engine is well.
+# Said plainly so a green badge is not read as more than it is.
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+
+jobs:
+  derive:
+    # Every supported interpreter, because both distributions declare
+    # `requires-python = ">=3.10"` and that is a claim, not a hope. The
+    # derivers run their emitted suites in the derived tree, so this
+    # exercises the shipped code on each version too.
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.10", "3.11", "3.12", "3.13"]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m pip install --upgrade pip pytest
+      - name: provenance-pool derives and verifies
+        run: python3 release/provenance_pool/build.py --check
+      - name: canonical-state derives and verifies
+        run: python3 release/canonical_state/build.py --check
+
+  installs:
+    # THE CHECK THE DERIVED SUITES CANNOT MAKE. They run inside the
+    # emitted tree, so `.` is on the path and they import the source --
+    # the one thing a user never has. Both defects this release had were
+    # invisible to them and obvious here: a packaging list that omitted
+    # every subpackage, and a wheel that carried no `renderer/` while
+    # the NOTICE said the three.js notice shipped with it.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install --upgrade pip pytest build
+      - name: Emit both distributions
+        run: |
+          python3 release/provenance_pool/build.py --out /tmp/provenance-pool
+          python3 release/canonical_state/build.py --out /tmp/canonical-state
+      - name: Build wheels and install them away from any source
+        run: |
+          for tree in /tmp/provenance-pool /tmp/canonical-state; do
+            (cd "$tree" && python -m build --wheel --outdir dist/)
+          done
+          python -m pip install --no-deps --target /tmp/pp /tmp/provenance-pool/dist/*.whl
+          python -m pip install --no-deps --target /tmp/cs /tmp/canonical-state/dist/*.whl
+      - name: canonical-state imports installed, renderer included
+        shell: python
+        run: |
+          import importlib, importlib.util, pathlib, re, sys
+          sys.path.insert(0, "/tmp/cs")
+          for module in ("core.canonical.state", "core.projection.project",
+                         "morpho.compiler", "backends.threejs.compiler",
+                         "runtime.feedback_loop", "adapters.json_adapter"):
+              importlib.import_module(module)
+          base = pathlib.Path(importlib.util.find_spec("renderer").origin).parent
+          page = (base / "index.html").read_text()
+          named = re.search(r'"three":\s*"([^"]+)"', page).group(1)
+          assert (base / named).resolve().exists(), (
+              f"the installed page names {named}; the wheel did not carry it")
+          assert (base / "vendor" / "THIRD_PARTY_NOTICES.md").exists()
+          print("installed, renderer and its notices included")
+      - name: provenance-pool imports installed
+        shell: python
+        run: |
+          import importlib, sys
+          sys.path.insert(0, "/tmp/pp")
+          for module in ("evidence.pool", "evidence.admission", "evidence.classes",
+                         "scout.pipeline", "retrieval.query", "materials.model_state",
+                         "experiment.session", "operations.trace"):
+              importlib.import_module(module)
+          print("every named module imports from the installed copy")
+
+  sdist:
+    # THE ARTEFACT PyPI SERVES TO `pip install --no-binary` AND TO EVERY
+    # DISTRIBUTION PACKAGER, and the one nothing else here builds.
+    #
+    # Two defects lived in it. setuptools' default sdist rules carry
+    # `tests/test_*.py` and not the conftest beside them, so the released
+    # sdist's own suite failed at collection -- on the command the README
+    # gives contributors. And `requires = ["setuptools>=68"]` was false:
+    # PEP 639 metadata needs 77, measured (76.1.0 rejects, 77.0.1
+    # builds). That one hid because `pip wheel` builds in an ISOLATED
+    # environment where ">=68" resolves to the newest setuptools there
+    # is, so the declaration was never what got tested.
+    #
+    # Hence --no-build-isolation against the DECLARED minimum: the
+    # version in pyproject.toml is the one that has to work.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install --upgrade pip pytest "setuptools==77.0.1" "packaging>=24.2" wheel twine
+      - name: Emit both distributions
+        run: |
+          python3 release/provenance_pool/build.py --out /tmp/provenance-pool
+          python3 release/canonical_state/build.py --out /tmp/canonical-state
+      - name: Build sdists at the declared minimum, without isolation
+        shell: python
+        run: |
+          import os, pathlib, subprocess, sys
+          for tree in ("/tmp/provenance-pool", "/tmp/canonical-state"):
+              out = pathlib.Path(tree) / "sdist"
+              out.mkdir(exist_ok=True)
+              subprocess.run(
+                  [sys.executable, "-c",
+                   "import setuptools.build_meta as b, sys; "
+                   "print(b.build_sdist(sys.argv[1]))", str(out)],
+                  cwd=tree, check=True)
+      - name: Each sdist's own suite must pass inside the unpacked sdist
+        shell: bash
+        run: |
+          set -euo pipefail
+          for tree in /tmp/provenance-pool /tmp/canonical-state; do
+            work=$(mktemp -d)
+            tar xzf "$tree"/sdist/*.tar.gz -C "$work"
+            cd "$work"/*/
+            echo "--- $(basename $tree) ---"
+            python -m pytest tests/ -q
+            cd - >/dev/null
+          done
+
+      - name: A wheel built FROM THE SDIST, which is the packager's path
+        shell: bash
+        run: |
+          set -euo pipefail
+          for tree in /tmp/provenance-pool /tmp/canonical-state; do
+            work=$(mktemp -d)
+            tar xzf "$tree"/sdist/*.tar.gz -C "$work"
+            cd "$work"/*/
+            python -c "import setuptools.build_meta as b; print(b.build_wheel('$tree/sdist'))"
+            cd - >/dev/null
+          done
+      - name: Metadata must be what PyPI accepts, not merely well-formed
+        run: |
+          python -m twine check /tmp/provenance-pool/sdist/* /tmp/canonical-state/sdist/*
+
+  locks:
+    # The locks on the derivers, and the mutants that show each refusal
+    # can actually fire. A refusal only ever observed refusing has not
+    # been shown to distinguish anything.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install --upgrade pip pytest pyyaml
+      - name: Release locks and the documented counts
+        run: |
+          python -m pytest tests/test_release_provenance_pool.py \
+                           tests/test_release_canonical_state.py \
+                           tests/test_docs_match_measurement.py -q
+      - name: Mutants must be killed by their named test
+        run: |
+          python3 scripts/mutate_release_checks.py
+          python3 scripts/mutate_canonical_state_release_checks.py

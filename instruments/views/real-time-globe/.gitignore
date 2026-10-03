@@ -1,0 +1,10 @@
+node_modules/
+dist/
+*.log
+
+# Local development notes
+.private/
+AGENTS.md
+CLAUDE.md
+HANDOFF.md
+*_HANDOFF.md

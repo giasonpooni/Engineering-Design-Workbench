@@ -1,0 +1,76 @@
+#usda 1.0
+(
+    defaultPrim = "World"
+    metersPerUnit = 1
+    customLayerData = {
+        string ns.schematicSchema = "NsObservabilitySchematic@0.1"
+        string ns.note = "hand-authored; not an SRA projection"
+    }
+)
+
+def Xform "World"
+{
+    def Xform "geom"
+    {
+        double3 xformOp:translate = (0, 0, 0)
+    }
+
+    def Scope "x" (
+        apiSchemas = ["NsPortAPI"]
+    )
+    {
+        token ns:kind = "variable"
+        token ns:role = "state"
+        string ns:units = "m/s"
+    }
+
+    def Scope "f"
+    (
+        apiSchemas = ["NsPlantAPI"]
+    )
+    {
+        token ns:kind = "function"
+        token ns:class = "nonlinear"
+        string ns:model_ref = "jspt.reference.quadratic_drag"
+        double[] ns:x_star = [1]
+        double ns:c = 0.5
+        token ns:chart = "identity"
+    }
+
+    def Scope "ySensor" (
+        apiSchemas = ["NsSensorAPI"]
+    )
+    {
+        token ns:kind = "measurement"
+        token ns:quality = "undeclared"
+    }
+
+    def Scope "observer" (
+        apiSchemas = ["NsObserverAPI"]
+    )
+    {
+        token ns:kind = "observer"
+    }
+
+    def Scope "_edges"
+    {
+        def Scope "input_0"
+        {
+            token ns:edge = "input"
+            rel ns:src = </World/x>
+            rel ns:dst = </World/f>
+        }
+        def Scope "measures_0"
+        {
+            token ns:edge = "measures"
+            rel ns:src = </World/ySensor>
+            rel ns:dst = </World/x>
+        }
+        def Scope "observes_0"
+        {
+            token ns:edge = "observes"
+            rel ns:src = </World/observer>
+            rel ns:dst = </World/f>
+        }
+    }
+}

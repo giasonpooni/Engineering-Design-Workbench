@@ -1,0 +1,20 @@
+# The zkVM adapter workspace -- deliberately SEPARATE from crates/.
+#
+# The substrate workspace (crates/) has zero external dependencies, and a
+# Python guard enforces that; identities must not depend on any crate
+# version. THIS workspace is the other side of the adapter boundary: it
+# may depend on the SP1 fork (checked out as ../../notationsystems/
+# SP1-zero-knowledge-virtual-machine, an engineering substrate) and on
+# whatever SP1 needs. Nothing in crates/ depends on anything here --
+# the dependency arrow points one way, adapter -> substrate, always.
+[workspace]
+resolver = "2"
+members = ["sp1-adapter"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[profile.release]
+opt-level = 3

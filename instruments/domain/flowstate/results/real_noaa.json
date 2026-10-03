@@ -1,0 +1,904 @@
+{
+  "schema_version": "fsre-real-noaa-v1",
+  "provenance": {
+    "generation": {
+      "python": "3.13.12",
+      "numpy": "2.5.3",
+      "platform": "Linux-6.18.44-fc-v33-x86_64-with-glibc2.39",
+      "machine": "x86_64",
+      "source_sha256": "33e4e335962bfce362c1a9fbc779463fe3c91490425cc4f05e926a12a8da79a6",
+      "git_head": "ec69c5a08c5ac8d3383964659cbbe6009f138a20",
+      "source_dirty": false,
+      "note": "git_head is HEAD at generation time (the parent of the commit containing these results); source_dirty covers src/, run_experiments.py, pyproject.toml and tests/ only"
+    },
+    "daf_commit": "ff92a737f702c5c8ccfe0fb6494b2c2b2af91cb2",
+    "daf_commit_published": false,
+    "daf_published_base": "6b378590da3076d88a0f4bd8bad79e1ce0b48ae2",
+    "daf_repository": "https://github.com/atomtrapping/Data-Acquisition-Channel",
+    "vendored_substrate": {
+      "commit": "5e146d5924675cd7b6e1d1ed44fb39f5da012610",
+      "path": "vendor/scout-retrieval-agent",
+      "url": "https://github.com/notationsystems/scout-retrieval-agent.git"
+    },
+    "bridge": {
+      "fit": {
+        "bridge": "set_lcm.bridge.daf",
+        "bridge_version": "daf-measurement-bridge-v2",
+        "daf_commit": "ff92a737f702c5c8ccfe0fb6494b2c2b2af91cb2",
+        "extraction_method": "json:noaa_water_level_measurement_v1",
+        "series": [
+          "noaa:8454000:MLLW:m"
+        ],
+        "selectors": [
+          {
+            "source_id": "noaa:8454000:MLLW:m",
+            "extraction_method": "json:noaa_water_level_measurement_v1",
+            "property": "water_level",
+            "match": {
+              "datum": "MLLW",
+              "station_id": "8454000",
+              "unit": "m"
+            },
+            "unit_field": "unit"
+          }
+        ],
+        "n_records_in": 240,
+        "n_used": 240,
+        "n_ignored": 0,
+        "ignored": [],
+        "n_in_conflict": 0,
+        "n_deduplicated": 0,
+        "conflicts": [],
+        "conflict_policy": "refuse",
+        "off_grid": {
+          "tolerance_s": 1.0,
+          "n_refused": 0,
+          "max_abs_offset_s": 0.0,
+          "rule": "a reading further off the grid than tolerance_s is refused (bridge() raises, listing every such evidence id)"
+        },
+        "time_zone": "UTC",
+        "time_zone_declared": "UTC",
+        "time": {
+          "time_semantics": "instant",
+          "time_zone": "UTC",
+          "time_zone_declared": "UTC",
+          "rule": "measurement_time is 'YYYY-MM-DD HH:MM[:SS]', read in the declared zone"
+        },
+        "epoch_iso": "2024-01-15T00:00:00Z",
+        "cadence_s": 360.0,
+        "n_grid": 240,
+        "n_missing": {
+          "noaa:8454000:MLLW:m": 0
+        },
+        "arrival_policy": {
+          "policy": "replay",
+          "latency_s": 0.0,
+          "rule": "arrival_t = t + latency_s"
+        },
+        "R_source": {
+          "noaa:8454000:MLLW:m": {
+            "kind": "source-stated",
+            "rule": "R_ii = uncertainty**2 where uncertainty_kind == 'stated'",
+            "n_points": 240,
+            "sigma_min": 0.0,
+            "sigma_max": 0.027,
+            "n_zero": 2
+          }
+        },
+        "n_evidence_ids": 240,
+        "evidence_ids_sha256": "244cc303323772b9b34604d585cf5d4e5174f665b2652132701ac7bbbf19ce3e",
+        "evidence_ids_sha256_rule": "sha256 of the sorted, distinct evidence ids used, joined by '\\n' (utf-8)"
+      },
+      "held_out": {
+        "bridge": "set_lcm.bridge.daf",
+        "bridge_version": "daf-measurement-bridge-v2",
+        "daf_commit": "ff92a737f702c5c8ccfe0fb6494b2c2b2af91cb2",
+        "extraction_method": "json:noaa_water_level_measurement_v1",
+        "series": [
+          "noaa:8454000:MLLW:m"
+        ],
+        "selectors": [
+          {
+            "source_id": "noaa:8454000:MLLW:m",
+            "extraction_method": "json:noaa_water_level_measurement_v1",
+            "property": "water_level",
+            "match": {
+              "datum": "MLLW",
+              "station_id": "8454000",
+              "unit": "m"
+            },
+            "unit_field": "unit"
+          }
+        ],
+        "n_records_in": 240,
+        "n_used": 240,
+        "n_ignored": 0,
+        "ignored": [],
+        "n_in_conflict": 0,
+        "n_deduplicated": 0,
+        "conflicts": [],
+        "conflict_policy": "refuse",
+        "off_grid": {
+          "tolerance_s": 1.0,
+          "n_refused": 0,
+          "max_abs_offset_s": 0.0,
+          "rule": "a reading further off the grid than tolerance_s is refused (bridge() raises, listing every such evidence id)"
+        },
+        "time_zone": "UTC",
+        "time_zone_declared": "UTC",
+        "time": {
+          "time_semantics": "instant",
+          "time_zone": "UTC",
+          "time_zone_declared": "UTC",
+          "rule": "measurement_time is 'YYYY-MM-DD HH:MM[:SS]', read in the declared zone"
+        },
+        "epoch_iso": "2026-08-23T00:00:00Z",
+        "cadence_s": 360.0,
+        "n_grid": 240,
+        "n_missing": {
+          "noaa:8454000:MLLW:m": 0
+        },
+        "arrival_policy": {
+          "policy": "replay",
+          "latency_s": 0.0,
+          "rule": "arrival_t = t + latency_s"
+        },
+        "R_source": {
+          "noaa:8454000:MLLW:m": {
+            "kind": "source-stated",
+            "rule": "R_ii = uncertainty**2 where uncertainty_kind == 'stated'",
+            "n_points": 240,
+            "sigma_min": 0.001,
+            "sigma_max": 0.015,
+            "n_zero": 0
+          }
+        },
+        "n_evidence_ids": 240,
+        "evidence_ids_sha256": "0a0c750e92d790d2d621c41f8850dee738c8d5f108dc5806c5f4679fb88c0b2b",
+        "evidence_ids_sha256_rule": "sha256 of the sorted, distinct evidence ids used, joined by '\\n' (utf-8)"
+      },
+      "stnd": {
+        "bridge": "set_lcm.bridge.daf",
+        "bridge_version": "daf-measurement-bridge-v2",
+        "daf_commit": "ff92a737f702c5c8ccfe0fb6494b2c2b2af91cb2",
+        "extraction_method": "json:noaa_water_level_measurement_v1",
+        "series": [
+          "noaa:8454000:STND:m"
+        ],
+        "selectors": [
+          {
+            "source_id": "noaa:8454000:STND:m",
+            "extraction_method": "json:noaa_water_level_measurement_v1",
+            "property": "water_level",
+            "match": {
+              "datum": "STND",
+              "station_id": "8454000",
+              "unit": "m"
+            },
+            "unit_field": "unit"
+          }
+        ],
+        "n_records_in": 240,
+        "n_used": 240,
+        "n_ignored": 0,
+        "ignored": [],
+        "n_in_conflict": 0,
+        "n_deduplicated": 0,
+        "conflicts": [],
+        "conflict_policy": "refuse",
+        "off_grid": {
+          "tolerance_s": 1.0,
+          "n_refused": 0,
+          "max_abs_offset_s": 0.0,
+          "rule": "a reading further off the grid than tolerance_s is refused (bridge() raises, listing every such evidence id)"
+        },
+        "time_zone": "UTC",
+        "time_zone_declared": "UTC",
+        "time": {
+          "time_semantics": "instant",
+          "time_zone": "UTC",
+          "time_zone_declared": "UTC",
+          "rule": "measurement_time is 'YYYY-MM-DD HH:MM[:SS]', read in the declared zone"
+        },
+        "epoch_iso": "2024-01-15T00:00:00Z",
+        "cadence_s": 360.0,
+        "n_grid": 240,
+        "n_missing": {
+          "noaa:8454000:STND:m": 0
+        },
+        "arrival_policy": {
+          "policy": "replay",
+          "latency_s": 0.0,
+          "rule": "arrival_t = t + latency_s"
+        },
+        "R_source": {
+          "noaa:8454000:STND:m": {
+            "kind": "source-stated",
+            "rule": "R_ii = uncertainty**2 where uncertainty_kind == 'stated'",
+            "n_points": 240,
+            "sigma_min": 0.0,
+            "sigma_max": 0.027,
+            "n_zero": 2
+          }
+        },
+        "n_evidence_ids": 240,
+        "evidence_ids_sha256": "772c3d2f7e603501a0adbd707b7b8728abbcd7171564d5c1f927cd10925de473",
+        "evidence_ids_sha256_rule": "sha256 of the sorted, distinct evidence ids used, joined by '\\n' (utf-8)"
+      }
+    }
+  },
+  "declared": {
+    "bridge": {
+      "time_zone": "UTC",
+      "cadence_s": 360,
+      "arrival_policy": "replay",
+      "latency_s": 0.0,
+      "conflict_policy": "refuse"
+    },
+    "prior": {
+      "level0_m": 0.0,
+      "level0_std_m": 10.0,
+      "rate0_m_per_s": 0.0,
+      "rate0_std_m_per_s": 0.001,
+      "coef0_std_m": 2.0
+    },
+    "models": {
+      "level_trend": "water-level-trend-cwna-v1",
+      "tide_kf": "water-level-harmonic-rw-m2k1o1m4-v1"
+    },
+    "constituents_deg_per_hour": {
+      "M2": 28.9841042,
+      "K1": 15.0410686,
+      "O1": 13.9430356,
+      "M4": 57.9682084
+    },
+    "rayleigh_period_hours": {
+      "S2-M2": 354.3670522114574,
+      "N2-M2": 661.3092048546681,
+      "K1-O1": 327.8589987732612,
+      "M2-K1": 25.819341664737625,
+      "M2-O1": 23.9344696559658
+    },
+    "q_grids": {
+      "level_trend": [
+        1e-09,
+        3.1622776601683795e-09,
+        1e-08,
+        3.162277660168379e-08,
+        1e-07,
+        3.162277660168379e-07,
+        1e-06,
+        3.162277660168379e-06,
+        9.999999999999999e-06,
+        3.1622776601683795e-05,
+        0.0001,
+        0.00031622776601683794,
+        0.001
+      ],
+      "tide_kf": [
+        1e-07,
+        3.162277660168379e-07,
+        1e-06,
+        3.162277660168379e-06,
+        9.999999999999999e-06,
+        3.1622776601683795e-05,
+        0.0001,
+        0.00031622776601683794,
+        0.001,
+        0.0031622776601683794,
+        0.01,
+        0.03162277660168379,
+        0.1
+      ]
+    },
+    "q_units": {
+      "level_trend": "m s^-3/2",
+      "tide_kf": "m s^-1/2"
+    },
+    "r_scales": [
+      1.0,
+      10.0,
+      100.0
+    ],
+    "cusum": {
+      "k": 0.5,
+      "h": 8.0
+    },
+    "burn_in_steps": 20,
+    "fit_day": "fit",
+    "evaluation_days": [
+      "held_out",
+      "fit"
+    ],
+    "loglik": "sum over observed steps of -1/2 (log(2 pi S_j) + nu_j^2 / S_j), declared prior included"
+  },
+  "days": {
+    "fit": {
+      "label": "2024-01-15 MLLW",
+      "role": "fit window; in-sample when evaluated",
+      "file": "data/daf/noaa_live_8454000_20240115_mllw.observations.json",
+      "series": [
+        "8454000",
+        "MLLW",
+        "m"
+      ],
+      "first_grid_point": "2024-01-15T00:00:00Z",
+      "last_grid_point": "2024-01-15T23:54:00Z",
+      "n_grid": 240,
+      "evidence_ids_sha256": "244cc303323772b9b34604d585cf5d4e5174f665b2652132701ac7bbbf19ce3e",
+      "series_check": {
+        "n_second_differences": 238,
+        "rms_second_difference": 0.007158763801080737,
+        "white_error_sigma_bound": 0.002922553083625797,
+        "rms_stated_sigma": 0.010490869045666967,
+        "median_stated_sigma": 0.009,
+        "mean_stated_var_over_bound_var": 12.88540624743788,
+        "null_expected_mean_square": 0.00066440756302521,
+        "null_rel_sd_mean_square": 0.17472284180953276
+      },
+      "series_extremes": {
+        "max_abs_reading": 1.711,
+        "max_abs_step_change": 0.08299999999999999,
+        "half_range": 0.9575
+      },
+      "record_hours": 23.9,
+      "file_sha256": "f4eafca84c9a34d240a75b58d97540b0ffb009a157b76510dc188450acdd64bc",
+      "daf_version_id": "3bc9041f042eb48fdddaa04654a503138a9d63e14a2af22836231877a1993723",
+      "request_url": "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=water_level&station=8454000&begin_date=20240115&end_date=20240115&datum=MLLW&units=metric&time_zone=gmt&format=json",
+      "note": "Real NOAA CO-OPS response, station 8454000 (Providence, RI), 2024-01-15, verified (q=v), recorded verbatim from the live API by DAF (docs/PHASE_17_LIVE_SCIENTIFIC_OBSERVATION.md, section 7: datum=MLLW units=metric time_zone=gmt).",
+      "raw_flag_counts": {
+        "f": {
+          "0,0,0,0": 240
+        },
+        "q": {
+          "v": 240
+        }
+      }
+    },
+    "held_out": {
+      "label": "2026-08-23 MLLW (preliminary)",
+      "role": "held out",
+      "file": "data/daf/noaa_live_8454000_preliminary.observations.json",
+      "series": [
+        "8454000",
+        "MLLW",
+        "m"
+      ],
+      "first_grid_point": "2026-08-23T00:00:00Z",
+      "last_grid_point": "2026-08-23T23:54:00Z",
+      "n_grid": 240,
+      "evidence_ids_sha256": "0a0c750e92d790d2d621c41f8850dee738c8d5f108dc5806c5f4679fb88c0b2b",
+      "series_check": {
+        "n_second_differences": 238,
+        "rms_second_difference": 0.007992906519023525,
+        "white_error_sigma_bound": 0.0032630904222288207,
+        "rms_stated_sigma": 0.0068236720319780906,
+        "median_stated_sigma": 0.006,
+        "mean_stated_var_over_bound_var": 4.3729858599144995,
+        "null_expected_mean_square": 0.00027931092436974785,
+        "null_rel_sd_mean_square": 0.17888166435086048
+      },
+      "series_extremes": {
+        "max_abs_reading": 1.373,
+        "max_abs_step_change": 0.041000000000000036,
+        "half_range": 0.416
+      },
+      "record_hours": 23.9,
+      "file_sha256": "2654d61c71019bc5731d2f760b1122915190caa98d54650f435d24dcb8161915",
+      "daf_version_id": "1f28ddecdc6b5177191c729663876892eeee27caabcba7e732dfd12141335a7e",
+      "request_url": "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=water_level&station=8454000&begin_date=20260823&end_date=20260823&datum=MLLW&units=metric&time_zone=gmt&format=json",
+      "note": "Real NOAA CO-OPS response, station 8454000, 2026-08-23, preliminary (q=p). DAF does not record this recording's request; the readings' own timestamps fix the day, and MLLW/metric is the binding's default and the datum DAF's own test extracts this fixture with (tests/test_live_scientific_observation.py, _extract).",
+      "raw_flag_counts": {
+        "f": {
+          "0,0,0,0": 161,
+          "1,0,0,0": 79
+        },
+        "q": {
+          "p": 240
+        }
+      }
+    },
+    "stnd": {
+      "label": "2024-01-15 STND",
+      "role": "datum check only",
+      "file": "data/daf/noaa_live_8454000_20240115_stnd.observations.json",
+      "series": [
+        "8454000",
+        "STND",
+        "m"
+      ],
+      "first_grid_point": "2024-01-15T00:00:00Z",
+      "last_grid_point": "2024-01-15T23:54:00Z",
+      "n_grid": 240,
+      "evidence_ids_sha256": "772c3d2f7e603501a0adbd707b7b8728abbcd7171564d5c1f927cd10925de473",
+      "series_check": null,
+      "series_extremes": {
+        "max_abs_reading": 2.775,
+        "max_abs_step_change": 0.08299999999999996,
+        "half_range": 0.9575
+      },
+      "record_hours": 23.9,
+      "file_sha256": "275472ef11df3d15f028fd80ba988d3f5e66f114bcb533b945cb7eedfdf01043",
+      "daf_version_id": "493d8acc0957140a19b6b65abcaf1e0c70f06896c2b4f6d9c463a6c2b496f3a1",
+      "request_url": "https://api.tidesandcurrents.noaa.gov/api/prod/datagetter?product=water_level&station=8454000&begin_date=20240115&end_date=20240115&datum=STND&units=metric&time_zone=gmt&format=json",
+      "note": "Real NOAA CO-OPS response, same station and day on the STND datum (DAF Phase R's datum case, docs/PHASE_18_NOAA_ARTIFACT_IDENTITY.md): a different physical quantity, never pooled with MLLW.",
+      "raw_flag_counts": {
+        "f": {
+          "0,0,0,0": 240
+        },
+        "q": {
+          "v": 240
+        }
+      }
+    }
+  },
+  "fit": {
+    "level_trend": {
+      "day": "fit",
+      "evidence_ids_sha256": "244cc303323772b9b34604d585cf5d4e5174f665b2652132701ac7bbbf19ce3e",
+      "profile": [
+        {
+          "q_scale": 1e-09,
+          "loglik": -2669472.1488614203
+        },
+        {
+          "q_scale": 3.1622776601683795e-09,
+          "loglik": -597767.1636613461
+        },
+        {
+          "q_scale": 1e-08,
+          "loglik": -83604.60115600558
+        },
+        {
+          "q_scale": 3.162277660168379e-08,
+          "loglik": -10673.199595802633
+        },
+        {
+          "q_scale": 1e-07,
+          "loglik": -880.4032339360949
+        },
+        {
+          "q_scale": 3.162277660168379e-07,
+          "loglik": 495.2615170088567
+        },
+        {
+          "q_scale": 1e-06,
+          "loglik": 690.6527544333293
+        },
+        {
+          "q_scale": 3.162277660168379e-06,
+          "loglik": 628.8238893333765
+        },
+        {
+          "q_scale": 9.999999999999999e-06,
+          "loglik": 444.98459734630103
+        },
+        {
+          "q_scale": 3.1622776601683795e-05,
+          "loglik": 195.3645458376863
+        },
+        {
+          "q_scale": 0.0001,
+          "loglik": -75.41521374930718
+        },
+        {
+          "q_scale": 0.00031622776601683794,
+          "loglik": -349.9065176627564
+        },
+        {
+          "q_scale": 0.001,
+          "loglik": -624.9863544351696
+        }
+      ],
+      "argmax_index": 6,
+      "q_scale": 1e-06,
+      "loglik": 690.6527544333293,
+      "interior": true,
+      "units": "m s^-3/2",
+      "per_step": {
+        "rate_std_m_per_s": 1.8973665961010275e-05,
+        "level_std_m": 0.003943602414037196
+      }
+    },
+    "tide_kf": {
+      "day": "fit",
+      "evidence_ids_sha256": "244cc303323772b9b34604d585cf5d4e5174f665b2652132701ac7bbbf19ce3e",
+      "profile": [
+        {
+          "q_scale": 1e-07,
+          "loglik": -14470.356332473004
+        },
+        {
+          "q_scale": 3.162277660168379e-07,
+          "loglik": -14290.615395216988
+        },
+        {
+          "q_scale": 1e-06,
+          "loglik": -12890.66131984943
+        },
+        {
+          "q_scale": 3.162277660168379e-06,
+          "loglik": -8817.683090620198
+        },
+        {
+          "q_scale": 9.999999999999999e-06,
+          "loglik": -4784.014153680751
+        },
+        {
+          "q_scale": 3.1622776601683795e-05,
+          "loglik": -1228.8797995687341
+        },
+        {
+          "q_scale": 0.0001,
+          "loglik": 365.8073846811421
+        },
+        {
+          "q_scale": 0.00031622776601683794,
+          "loglik": 631.1602469036219
+        },
+        {
+          "q_scale": 0.001,
+          "loglik": 484.96898498122755
+        },
+        {
+          "q_scale": 0.0031622776601683794,
+          "loglik": 235.38611320446012
+        },
+        {
+          "q_scale": 0.01,
+          "loglik": -31.96837886458768
+        },
+        {
+          "q_scale": 0.03162277660168379,
+          "loglik": -304.07219448399036
+        },
+        {
+          "q_scale": 0.1,
+          "loglik": -578.5965601366511
+        }
+      ],
+      "argmax_index": 7,
+      "q_scale": 0.00031622776601683794,
+      "loglik": 631.1602469036219,
+      "interior": true,
+      "units": "m s^-1/2",
+      "per_step": {
+        "state_std_m": 0.006
+      }
+    }
+  },
+  "runs": {
+    "level_trend": {
+      "fit": {
+        "R x1": {
+          "q_scale": 1e-06,
+          "r_scale": 1.0,
+          "loglik": 690.6527544333293,
+          "n_steps": 240,
+          "n_observed": 240,
+          "frac_missing": 0.0,
+          "z_mean": 0.02015584055416338,
+          "z_rms": 0.7931537364079937,
+          "z_lag1": 0.7027620651263656,
+          "frac_abs_z_gt_1.96": 0.020833333333333332,
+          "cusum_alarms": 1,
+          "cusum_first_alarm": 10,
+          "r_share_mean": 0.27983543374772296,
+          "status_counts": {
+            "skipped": 240
+          },
+          "n_evidence_ids": 240,
+          "constraint_declared": false,
+          "latency_us_p50": 89.71500210464,
+          "latency_us_p99": 144.12373944651318
+        },
+        "R x10": {
+          "q_scale": 1e-06,
+          "r_scale": 10.0,
+          "loglik": 531.0495203819008,
+          "n_steps": 240,
+          "n_observed": 240,
+          "frac_missing": 0.0,
+          "z_mean": 0.01070637569916345,
+          "z_rms": 0.5355832878582277,
+          "z_lag1": 0.834592402040653,
+          "frac_abs_z_gt_1.96": 0.008333333333333333,
+          "cusum_alarms": 0,
+          "cusum_first_alarm": null,
+          "r_share_mean": 0.47544243104170286,
+          "status_counts": {
+            "skipped": 240
+          },
+          "n_evidence_ids": 240,
+          "constraint_declared": false,
+          "latency_us_p50": 98.39150152401999,
+          "latency_us_p99": 212.45447758701624
+        },
+        "R x100": {
+          "q_scale": 1e-06,
+          "r_scale": 100.0,
+          "loglik": 315.6518623883188,
+          "n_steps": 240,
+          "n_observed": 240,
+          "frac_missing": 0.0,
+          "z_mean": 0.006043319776944026,
+          "z_rms": 0.3831613866580173,
+          "z_lag1": 0.9192110116131644,
+          "frac_abs_z_gt_1.96": 0.0,
+          "cusum_alarms": 0,
+          "cusum_first_alarm": null,
+          "r_share_mean": 0.6436103124172374,
+          "status_counts": {
+            "skipped": 240
+          },
+          "n_evidence_ids": 240,
+          "constraint_declared": false,
+          "latency_us_p50": 98.4009966487065,
+          "latency_us_p99": 220.25974969437777
+        }
+      },
+      "held_out": {
+        "R x1": {
+          "q_scale": 1e-06,
+          "r_scale": 1.0,
+          "loglik": 709.4846826779368,
+          "n_steps": 240,
+          "n_observed": 240,
+          "frac_missing": 0.0,
+          "z_mean": 0.017330150427130864,
+          "z_rms": 0.9926577303440259,
+          "z_lag1": 0.5604349845293635,
+          "frac_abs_z_gt_1.96": 0.05416666666666667,
+          "cusum_alarms": 0,
+          "cusum_first_alarm": null,
+          "r_share_mean": 0.21708300148061513,
+          "status_counts": {
+            "skipped": 240
+          },
+          "n_evidence_ids": 240,
+          "constraint_declared": false,
+          "latency_us_p50": 91.96099927066825,
+          "latency_us_p99": 152.27545889501897
+        },
+        "R x10": {
+          "q_scale": 1e-06,
+          "r_scale": 10.0,
+          "loglik": 584.1185880384185,
+          "n_steps": 240,
+          "n_observed": 240,
+          "frac_missing": 0.0,
+          "z_mean": 0.008793174375032409,
+          "z_rms": 0.6900768797072042,
+          "z_lag1": 0.637433937413716,
+          "frac_abs_z_gt_1.96": 0.020833333333333332,
+          "cusum_alarms": 0,
+          "cusum_first_alarm": null,
+          "r_share_mean": 0.4140564523807508,
+          "status_counts": {
+            "skipped": 240
+          },
+          "n_evidence_ids": 240,
+          "constraint_declared": false,
+          "latency_us_p50": 93.3580013224855,
+          "latency_us_p99": 207.14976992167038
+        },
+        "R x100": {
+          "q_scale": 1e-06,
+          "r_scale": 100.0,
+          "loglik": 400.77138844837754,
+          "n_steps": 240,
+          "n_observed": 240,
+          "frac_missing": 0.0,
+          "z_mean": -0.0008984329850561117,
+          "z_rms": 0.3689455777283477,
+          "z_lag1": 0.7129337094092592,
+          "frac_abs_z_gt_1.96": 0.0,
+          "cusum_alarms": 0,
+          "cusum_first_alarm": null,
+          "r_share_mean": 0.596828166688478,
+          "status_counts": {
+            "skipped": 240
+          },
+          "n_evidence_ids": 240,
+          "constraint_declared": false,
+          "latency_us_p50": 92.90849993703887,
+          "latency_us_p99": 161.45950197824274
+        }
+      }
+    },
+    "tide_kf": {
+      "fit": {
+        "R x1": {
+          "q_scale": 0.00031622776601683794,
+          "r_scale": 1.0,
+          "loglik": 631.1602469036219,
+          "n_steps": 240,
+          "n_observed": 240,
+          "frac_missing": 0.0,
+          "z_mean": -0.09529011938339865,
+          "z_rms": 0.7594554445476231,
+          "z_lag1": 0.8553498411623252,
+          "frac_abs_z_gt_1.96": 0.016666666666666666,
+          "cusum_alarms": 1,
+          "cusum_first_alarm": 109,
+          "r_share_mean": 0.19051533737582266,
+          "status_counts": {
+            "skipped": 240
+          },
+          "n_evidence_ids": 240,
+          "constraint_declared": false,
+          "latency_us_p50": 120.08200064883567,
+          "latency_us_p99": 251.7465040000387
+        },
+        "R x10": {
+          "q_scale": 0.00031622776601683794,
+          "r_scale": 10.0,
+          "loglik": 504.91169732246664,
+          "n_steps": 240,
+          "n_observed": 240,
+          "frac_missing": 0.0,
+          "z_mean": -0.07885684016083974,
+          "z_rms": 0.6161394653115293,
+          "z_lag1": 0.9072811558780862,
+          "frac_abs_z_gt_1.96": 0.0,
+          "cusum_alarms": 1,
+          "cusum_first_alarm": 114,
+          "r_share_mean": 0.4446519056624272,
+          "status_counts": {
+            "skipped": 240
+          },
+          "n_evidence_ids": 240,
+          "constraint_declared": false,
+          "latency_us_p50": 122.28749983478338,
+          "latency_us_p99": 204.94951611908616
+        },
+        "R x100": {
+          "q_scale": 0.00031622776601683794,
+          "r_scale": 100.0,
+          "loglik": 308.17708620646357,
+          "n_steps": 240,
+          "n_observed": 240,
+          "frac_missing": 0.0,
+          "z_mean": -0.026591980771643153,
+          "z_rms": 0.4316368821929167,
+          "z_lag1": 0.9386374066297345,
+          "frac_abs_z_gt_1.96": 0.0,
+          "cusum_alarms": 0,
+          "cusum_first_alarm": null,
+          "r_share_mean": 0.6405042424254764,
+          "status_counts": {
+            "skipped": 240
+          },
+          "n_evidence_ids": 240,
+          "constraint_declared": false,
+          "latency_us_p50": 115.85450192796998,
+          "latency_us_p99": 223.07576793536998
+        }
+      },
+      "held_out": {
+        "R x1": {
+          "q_scale": 0.00031622776601683794,
+          "r_scale": 1.0,
+          "loglik": 673.2636954737792,
+          "n_steps": 240,
+          "n_observed": 240,
+          "frac_missing": 0.0,
+          "z_mean": 0.02037721437803815,
+          "z_rms": 0.7027439173595739,
+          "z_lag1": 0.706308959318638,
+          "frac_abs_z_gt_1.96": 0.0125,
+          "cusum_alarms": 0,
+          "cusum_first_alarm": null,
+          "r_share_mean": 0.11975829181034008,
+          "status_counts": {
+            "skipped": 240
+          },
+          "n_evidence_ids": 240,
+          "constraint_declared": false,
+          "latency_us_p50": 115.5540012405254,
+          "latency_us_p99": 230.17690218694037
+        },
+        "R x10": {
+          "q_scale": 0.00031622776601683794,
+          "r_scale": 10.0,
+          "loglik": 575.1093015924139,
+          "n_steps": 240,
+          "n_observed": 240,
+          "frac_missing": 0.0,
+          "z_mean": 0.013143683225532355,
+          "z_rms": 0.5910639154132808,
+          "z_lag1": 0.7222669819832822,
+          "frac_abs_z_gt_1.96": 0.0125,
+          "cusum_alarms": 0,
+          "cusum_first_alarm": null,
+          "r_share_mean": 0.36302164460811037,
+          "status_counts": {
+            "skipped": 240
+          },
+          "n_evidence_ids": 240,
+          "constraint_declared": false,
+          "latency_us_p50": 112.26149945287034,
+          "latency_us_p99": 210.30573865573345
+        },
+        "R x100": {
+          "q_scale": 0.00031622776601683794,
+          "r_scale": 100.0,
+          "loglik": 398.4013537937913,
+          "n_steps": 240,
+          "n_observed": 240,
+          "frac_missing": 0.0,
+          "z_mean": -0.0064480516116896865,
+          "z_rms": 0.37919624026479404,
+          "z_lag1": 0.7464561993672898,
+          "frac_abs_z_gt_1.96": 0.0,
+          "cusum_alarms": 0,
+          "cusum_first_alarm": null,
+          "r_share_mean": 0.5990298599661295,
+          "status_counts": {
+            "skipped": 240
+          },
+          "n_evidence_ids": 240,
+          "constraint_declared": false,
+          "latency_us_p50": 114.39650188549422,
+          "latency_us_p99": 303.4331505477892
+        }
+      }
+    }
+  },
+  "datum_invariance": {
+    "level_trend": {
+      "q_scale": 1e-06,
+      "state": "level",
+      "burn_in_steps": 20,
+      "max_abs_dz_after_burn_in": 2.0420907742568772e-09,
+      "argmax_step_after_burn_in": 20,
+      "max_abs_dz_all_steps": 0.10639998084800517,
+      "abs_dz_at_step_0": 0.10639998084800517,
+      "max_abs_dz_from_step_1": 2.829365037143594e-05,
+      "offset_final": 1.0639999999999998,
+      "offset_min_after_burn_in": 1.0639999999761172,
+      "offset_max_after_burn_in": 1.0640000000010301,
+      "reported_level_offset_final": 1.0639999999999998,
+      "data_offset_min": 1.0639999999999998,
+      "data_offset_max": 1.0640000000000003,
+      "stated_R_identical": true
+    },
+    "tide_kf": {
+      "q_scale": 0.00031622776601683794,
+      "state": "mean_level",
+      "burn_in_steps": 20,
+      "max_abs_dz_after_burn_in": 0.006516369041668857,
+      "argmax_step_after_burn_in": 28,
+      "max_abs_dz_all_steps": 0.09878990458072483,
+      "abs_dz_at_step_0": 0.09878990458072483,
+      "max_abs_dz_from_step_1": 0.016927364891459407,
+      "offset_final": 1.0639676049027003,
+      "offset_min_after_burn_in": 0.9826394310450102,
+      "offset_max_after_burn_in": 1.0639676049027003,
+      "reported_level_offset_final": 1.0639998014128027,
+      "data_offset_min": 1.0639999999999998,
+      "data_offset_max": 1.0640000000000003,
+      "stated_R_identical": true
+    }
+  },
+  "claims": {
+    "fits_interior": true,
+    "r_is_minority_of_s": true,
+    "innovations_autocorrelated": true,
+    "no_missing": true,
+    "loglik_falls_with_r_scale": true,
+    "stated_var_exceeds_white_bound": true,
+    "white_bound_beyond_sampling_scatter": true,
+    "no_constraint_declared": true,
+    "level_trend_datum_offset_absorbed_at_first_reading": true,
+    "tide_kf_datum_offset_absorbed_slowly": true,
+    "data_offset_constant": true,
+    "level_trend_predicts_both_days_better": true,
+    "tide_one_day_limits": true,
+    "m2_short_of_k1_and_o1_on_the_record": true,
+    "datum_runs_share_stated_R": true,
+    "held_out_preliminary_fit_verified": true,
+    "held_out_has_qc_flagged_readings_fit_day_none": true,
+    "prior_width_extremes_on_2024_01_15": true
+  }
+}

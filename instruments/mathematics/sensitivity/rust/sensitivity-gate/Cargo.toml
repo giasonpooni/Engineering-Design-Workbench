@@ -1,0 +1,10 @@
+[package]
+name = "sensitivity-gate"
+version = "0.1.0"
+edition = "2021"
+license = "MIT"
+description = "Sealed first-order chart and covariance maps. NumPy JSPT is the oracle."
+rust-version = "1.75"
+
+[lib]
+name = "sensitivity_gate"

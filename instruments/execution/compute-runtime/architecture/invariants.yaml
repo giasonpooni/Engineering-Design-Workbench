@@ -1,0 +1,627 @@
+# The core invariant registry -- bound to THIS repository's actual
+# state (inspected 2026-08-25), never to an aspirational one. Every
+# `status: enforced` entry names executable enforcement that exists;
+# every gap is stated, not defaulted.
+# The core version is DECLARED in architecture/core.yaml and is not
+# restated here -- one referent, one place. It versions core schema and
+# invariant semantics only, and moves only under bend_protocol.
+core_declaration: architecture/core.yaml
+# ---------------------------------------------------------------------
+# The substrate control loop -- ACQUISITION-FIRST. A loop, not a stack:
+# the control graph binds to these transitions (edges), each with real
+# input/output types and an error surface, not to the boxes.
+# ---------------------------------------------------------------------
+control_loop:
+  edges:
+    - from: acquisition
+      to: evidence
+      via: [adapters/*.py -> scout/pipeline.py (documents/records),
+            execution/dispatcher.py -> materials/results.py (computed results)]
+      error_surface: AdmissionError (refusal, nothing written)
+      note: class assigned here, immutably (evidence/classes.py)
+    - from: evidence
+      to: observation
+      via: [evidence.admission.admit_observation -> EvidencePool.put_observation]
+      error_surface: AdmissionError
+    - from: observation
+      to: trust
+      via: [retrieval/engine.py (DeterministicRetrievalEngine), materials/value.py]
+      error_surface: typed refusals in the retrieval/value layers
+    - from: trust
+      to: canonical_state
+      via: [core/canonical (defeasible state; content-addressed VersionId)]
+      error_surface: core.canonical.validation
+    - from: canonical_state
+      to: retrieval_execution
+      via: [materials/iteration.reevaluate_program -> experiment session ->
+            execution.dispatcher.SpecificationDispatcher]
+      error_surface: refusal semantics (unrunnable/halted/rejected)
+    - from: retrieval_execution
+      to: validation
+      via: [execution verification (ProofBackend, VerifiedExecution),
+            experiment/step semantic gate]
+      error_surface: VerificationFailure / REJECTED occurrences
+    - from: validation
+      to: derived_state
+      via: [evidence.types.DerivedValue + DerivedGrounding, materials model state]
+      error_surface: AdmissionError (grounding must resolve)
+    - from: derived_state
+      to: acquisition
+      rule: THE RETURN EDGE -- derived state re-enters ONLY through
+            acquisition and admission; no direct write into evidence or
+            canonical state exists
+      status: enforced
+      enforcement:
+        locks: tests/test_architecture_sync.py   # minting/write seam ratchet
+        failure_mode: fail_closed
+
+invariants:
+  # -- epistemic boundary (see architecture/evidence_class.yaml for the
+  #    six evidence-classing invariants; registered there, counted here)
+  - id: evidence_classing_set
+    see: architecture/evidence_class.yaml
+    status: registered
+
+  - id: core_schema_closed
+    rule: verticals cannot widen core evidence schemas; extension happens
+          in vertical modules (structures/, materials/) against the open
+          content mapping, never by adding fields to core types
+    status: enforced
+    enforcement:
+      validator: frozen dataclasses + content-addressed identities
+                 (a widened type is a different identity) + the vertical
+                 conformance gate (architecture/conformance.py)
+      failure_mode: fail_closed
+
+  - id: metric_before_optimization
+    rule: optimization requires declared decision criteria; no metric,
+          no optimization target
+    status: enforced
+    enforcement:
+      validator: materials.iteration.reevaluate_program requires explicit
+                 criteria (make_criterion) before any candidate ranking
+      locks: existing materials test suite
+      failure_mode: fail_closed
+
+  - id: provenance_total
+    rule: every observation names its records, every derived value its
+          grounding; admission refuses references that do not resolve
+    status: enforced
+    enforcement:
+      validator: evidence.admission (referential checks on admit_*)
+      locks: existing evidence admission test suite
+      failure_mode: fail_closed
+
+  - id: evidence_append_only
+    rule: nothing is ever deleted; ids are content-addressed
+    status: enforced
+    limitation: TOMBSTONE SEMANTICS ARE ABSENT -- payload retirement with
+                retained identity/provenance edges, and defeasance
+                propagation to downstream canonical claims, are NOT
+                implemented in this pool. Recorded by the generality
+                probe (revocable_record); implementing it is a core
+                change requiring a version increment, not a quiet patch.
+    enforcement:
+      validator: EvidencePool exposes no delete/mutate primitive
+      failure_mode: structural
+    awaiting_decision: true
+    decision: >-
+      whether to take the bend now or when a revocation-compelling source
+      arrives. DEFERRED, deliberately: no such source exists, and building
+      tombstones for no consumer is a proposal wearing measurement's
+      clothes -- the same discipline that stopped the checker
+      optimization at -6%.
+    deferred_while: >-
+      EvidencePool has no persistence layer, so legacy records are 0 and
+      nothing stored predates the semantics.
+    trigger: >-
+      the deferral EXPIRES when EvidencePool grows a persistence
+      primitive. Today legacy records are 0 because nothing is stored, so
+      the bend is free; the moment records outlive a process it becomes
+      structural and every stored record predates the semantics. The
+      decision must therefore be made BEFORE persistence lands, which is
+      the only window where it stays cheap -- so the trigger is a check
+      that goes red at that event rather than a note that survives it.
+    trigger_enforced_by: tests/test_tombstone_decision_trigger.py
+
+  # -- agent/process boundary (these bind the DEVELOPMENT process, not
+  #    repository runtime; the runtime contains no hosted model bindings
+  #    and no multi-agent doctrine files -- see model_binding.yaml)
+  #
+  #    ALL SCOPED this_repository, and the reason is not bookkeeping. A
+  #    development-process rule has no single project-wide status: each
+  #    repository has its own authorship lineage, its own doctrine and
+  #    its own review history, so two bound parties holding DIFFERENT
+  #    statuses here are both telling the truth. The derived register
+  #    counted four such rows as contested when it joined on the id
+  #    alone, which read as four disagreements about the core and was
+  #    four facts about two repositories. Declaring the scope is what
+  #    makes the register's remaining contests mean something.
+  - id: no_vendor_in_doctrine
+    scope: this_repository
+    rule: vendor identities never appear in doctrine; they belong in
+          model_binding.yaml and in adapters
+    status: enforced
+    enforcement:
+      validator: architecture.conformance.lint_doctrine_vendor_free,
+                 called by architecture.doctrine_generator on every
+                 generated file, so unlinted doctrine cannot be produced
+      locks: tests/test_architecture_sync.py
+      failure_mode: fail_closed
+    note: >-
+      CORRECTED 2026-08-26 by the derived register. This row carried the
+      process status with the note "no doctrine files exist in this
+      repository". Five generated doctrine files and a mechanical vendor
+      lint have existed here since the architecture-sync phase, and the
+      diff gate makes a hand-edited projection fail -- so the row was
+      stale about THIS repository, not about a sibling. Worth recording
+      plainly: the register was built to catch a claim about someone
+      else's state going stale, and the first thing it caught in this
+      file was a claim about our own. A note is not re-checked when the
+      thing it describes changes, and nothing here was watching it.
+  - id: cross_vendor_validation
+    scope: this_repository
+    decided: >-
+      2026-08-27, STANDING. The validator role stays vendor-disjoint
+      from the proposing lineage as a CONSTRAINT, not as a property the
+      current topology happens to have.
+    why_standing: >-
+      it is the only structural check on no_self_validation that is not
+      a prompt-boundary fiction. Left as a coincidence of deployment it
+      would be silently lost the first time a topology was rewired for
+      an unrelated reason.
+    status: partially_enforced
+    enforcement:
+      validator: the declared topology in architecture/model_binding.yaml
+                 is checked -- validator.vendor is disjoint from every
+                 proposing role's vendor
+      locks: tests/test_process_decisions.py
+      failure_mode: fail_closed
+    the_half_that_is_NOT_enforced: >-
+      no binding is instantiated (role_bindings.status:
+      not_instantiated_in_repository), so this binds the DECLARATION and
+      becomes runtime-live only at instantiation. Stated because the
+      intended topology and a live deployment are different objects, and
+      reading the first as the second is how a table describing nothing
+      comes to be cited as a satisfied constraint.
+    and_it_does_not_satisfy_builder_check_lineage: >-
+      that row is about who authored the ENFORCEMENT CODE, where the
+      vendor relationship is recorded as `shared` and actually is. Two
+      different lineages; satisfying one says nothing about the other.
+  - id: no_self_validation
+    scope: this_repository
+    status: process
+    note: artifact lineage inside the runtime IS checked (stage-5
+          registry gate, host recomputation); check-AUTHORSHIP lineage
+          is the model_binding.yaml record
+  - id: agent_concurrence_is_not_corroboration
+    scope: this_repository
+    status: process
+    note: runtime analog enforced -- multiple proof backends over one
+          computation are independent WARRANTS of one statement, never
+          independent evidence (campaign metadata stays out of evidence
+          identity; locked by stage 7/8 tests)
+  - id: snapshot_drift_detected
+    status: superseded
+    superseded_by: model_binding.yaml snapshot_verification (split into
+                   pin_accepted / behavioral_canary / attested_identity)
+
+  # -- doctrine generation (doctrine is a projection, never a source) --
+  - id: doctrine_source_is_canonical
+    rule: doctrine derives only from the canonical YAML sources
+    status: enforced
+    enforcement: {validator: architecture.doctrine_generator,
+                  locks: tests/test_architecture_sync.py,
+                  failure_mode: fail_closed}
+  - id: doctrine_regeneration_is_deterministic
+    rule: generation is a pure function of the canonical file contents
+    status: enforced
+    enforcement: {locks: tests/test_architecture_sync.py, failure_mode: fail_closed}
+  - id: generated_doctrine_matches_source
+    rule: regenerating and diffing against the committed projection is
+          the gate; a non-zero diff fails closed (this also makes manual
+          edits to generated doctrine fail)
+    status: enforced
+    enforcement: {validator: architecture.conformance.check_doctrine_current,
+                  locks: tests/test_architecture_sync.py,
+                  failure_mode: fail_closed}
+    note: no CI workflow infrastructure exists in this repository; the
+          test suite is the gate and any future CI calls the same check
+  - id: doctrine_budget_enforced
+    rule: generated doctrine is capped; overflow fails closed and directs
+          structural material into schemas/enforcement
+    status: enforced
+    enforcement: {validator: architecture.doctrine_generator.DOCTRINE_BUDGET_CHARS,
+                  failure_mode: fail_closed}
+  - id: no_reproducible_agent_execution_mitigated
+    rule: every hosted agent execution retains the complete audit record
+          (binding, snapshot identity where available, adapter version,
+          doctrine hash, effective prompt, input/output fingerprints,
+          timestamp, lineage); auditability != re-executability, and the
+          distinction is stated
+    status: boundary_implemented
+    enforcement: {validator: architecture.retention.AgentExecutionRecord,
+                  locks: tests/test_architecture_sync.py,
+                  failure_mode: fail_closed}
+    note: no live agent-execution path exists in this repository; the
+          record is the mandatory boundary such a path must construct
+  - id: quarantine_not_discard
+    rule: rejected ingest candidates are retained with failing invariant
+          ids, queryable and repairable; repair re-enters through normal
+          ingest; rejection rate per invariant per run is a metric;
+          there is NO force path
+    status: enforced
+    enforcement: {validator: evidence.quarantine.Quarantine,
+                  locks: tests/test_architecture_sync.py,
+                  failure_mode: fail_closed}
+
+  # -- THE PROJECTION DROPS THE PAIRING -------------------------------
+  #
+  # Found by the acquisition layer, in its own substrate, and verified
+  # here at this commit rather than taken on faith: ComparisonGroup
+  # carries (context, values, disagreement) with `values` a bare tuple of
+  # floats, so two properties measured on the same replicate runs come
+  # back as two independent tuples with nothing to join them.
+  #
+  # NOT A DEFECT ROW. Every module involved does what its docstring says,
+  # and the grouping's conservatism is deliberate and documented. What
+  # was missing is a CONSUMER: the pairing survives in the evidence pool
+  # -- observations are content-addressed and each names its Record --
+  # and is lost only in the analysis projection. The sibling stated the
+  # remedy exactly and could not build it, because the module it must sit
+  # beside is here.
+  - id: pairing_recoverable_outside_the_projection
+    scope: this_repository
+    rule: a statistic over paired observations is computed from a join on
+          Record, never from the positional order of two comparison-group
+          value tuples
+    status: enforced
+    implementation: materials/replicate_join.py
+    enforcement: {validator: materials.replicate_join.join_on_record,
+                  locks: tests/test_replicate_join.py,
+                  mutation: scripts/mutate_replicate_join_checks.py,
+                  failure_mode: refuse_to_pair}
+    why_positional_pairing_is_worse_than_no_pairing: |
+      it does not fail. A group's values arrive ordered by
+      RetrievalResult.observation_ids, which is tuple(sorted(set(...)))
+      over CONTENT-ADDRESSED ids -- so two properties, having different
+      content, come back as two unrelated permutations of the same runs.
+      Zipping them succeeds and returns a number. Measured on five
+      replicate GPC runs: rho = +0.38 by index against a true -0.98.
+      Wrong in SIGN, stably, the same wrong number every run, with
+      nothing in the result to indicate it. The polymer vertical's
+      stated question is rho's sign.
+    what_it_refuses_rather_than_guesses: |
+      a Record carrying two different values of one property is either
+      two runs merged or a re-read disagreeing with itself; the join has
+      no basis to choose and choosing would invent a run. Refused whole,
+      never partially, and RETAINED alongside incomplete records so that
+      n is never reported over an unstated denominator.
+    and_what_it_cannot_refuse_on_at_all: |
+      an AGGREGATE ROW. Measured against a real replicate report's shape
+      (Impact Analytical R190048, two injections followed by Average,
+      Standard Deviation and % RSD): five Records land, three of them
+      aggregates, with nothing in the pool distinguishing them, and this
+      join returned n = 5 with ZERO refusals and rho = +0.9986 where the
+      real replicate set is n = 2. Neither the evidence class (a total
+      function of extraction_method, so one adapter yields one class)
+      nor the Record locator (matching it is the literal-enumeration
+      hazard, which breaks silently on the next vendor) can separate
+      them. So a correlation REFUSES until a caller declares which
+      Records are runs -- and raises rather than returning None, since
+      None means undefined on this data and this means you have not said
+      what this data is. A join is a fact; "these are runs" is a claim.
+    depends_on_an_unenforced_acquisition_contract: |
+      one Record per RUN, and the run identifier NOT in content. Both
+      halves are load-bearing and fail in OPPOSITE directions -- a run id
+      in content makes every observation its own group so nothing is
+      comparable, while one Record per report merges equal values and
+      biases an estimated spread DOWNWARD, the overconfident direction.
+      Neither is enforced anywhere. This consumer cannot repair a corpus
+      that violates them; it can only refuse to guess.
+
+  - id: comparison_context_fragmentation_is_visible
+    scope: this_repository
+    rule: a property whose observations all land in singleton comparison
+          groups is a reportable condition, not a silence
+    status: enforced
+    implementation: materials/replicate_join.py (fragmentation, is_fragmented)
+    enforcement: {locks: tests/test_replicate_join.py,
+                  failure_mode: reported_not_refused}
+    measured: |
+      _comparison_context keeps every content key except `property` and
+      the value key -- `uncertainty` included. Five replicates whose
+      per-run uncertainty differs by 1 g/mol split into FIVE singleton
+      groups and every disagreement is None. Not an error, not a
+      refusal, not a warning. An instrument that reports a per-run
+      uncertainty is what a real one does.
+    why_the_rule_was_not_changed: |
+      A DECISION, NOT A MEASUREMENT. The docstring states the intent --
+      absence is never treated as a match -- and differing VALUES
+      splitting a group follows from that same rule rather than being a
+      separate choice. Whether a per-run uncertainty belongs in a
+      comparison context is a question about scientific semantics, and
+      changing grouping semantics is a core-invariant change under
+      bend_protocol. So the consequence is surfaced and the rule is
+      left alone. `awaiting_decision` is set because the question is
+      real and is nobody's to settle by implementation.
+    awaiting_decision: true
+    decision: whether a per-run uncertainty is part of a comparison
+              context or metadata about one value
+    deferred_while: no corpus carrying per-run uncertainties has been
+                    admitted, so nothing is silently fragmenting today
+    trigger_enforced_by: tests/test_replicate_join.py
+
+  # -- THE CHEMISTRY VERTICAL'S INGEST GATES --------------------------
+  #
+  # All five ids were DECLARED FIRST IN THE ACQUISITION LAYER's registry
+  # and are repeated here under those exact names. That repetition is
+  # the point: this repository implements what that one declared, and a
+  # rule implemented second does not get renamed by its second
+  # implementer. Three of them were briefly renamed here on the way in
+  # (`distribution_has_no_point_identity`, `computed_method_fully_
+  # specified`, `prediction_within_declared_domain`) -- the alias
+  # problem's fourth position, caught by a lock that required every gate
+  # id to resolve against a declared invariant.
+  #
+  # WHY `enforced` HERE AND `absent`/`partially_enforced` THERE. Those
+  # are statements about two different repositories, not a disagreement
+  # about the rule; the acquisition layer's own gaps say so in its own
+  # words ("no chemistry representation exists in this repository at
+  # all", "not wired into any admission path"). `scope: this_repository`
+  # keeps the derived register from reading a difference of position as
+  # a contest.
+  #
+  # WHAT CHANGED TO MAKE THESE `enforced`. Not the guards -- they were
+  # correct and tested before, and refused everything put to them
+  # directly. What was missing was POSITION: a per-code probe measured
+  # twenty refusal codes, twenty LIVE, and ZERO reachable through any
+  # acquisition or execution path. `structures/ingest.py` supplies them
+  # to `scout.pipeline.run_scout` as content gates, and the same probe
+  # now measures 15 of 20 reachable through a real ingest (the other 5
+  # are not expressible as a single document: a merge conflict needs two
+  # identities). A gate nothing reaches cannot refuse anything, and a
+  # rejection rate over it reads 0% and is evidence about nothing.
+  - id: quantity_is_typed
+    scope: this_repository
+    rule: every numeric value carries unit, uncertainty and
+          uncertainty_kind
+    status: enforced
+    declared_first_in: notations-acquisition-channel
+    implementation: structures/quantity.py
+    enforcement: {validator: structures.ingest.chemistry_content_gate,
+                  wired_at: "structures/ingest.py::ingest_documents ->
+                             scout.pipeline.run_scout(content_gates=...)",
+                  locks: tests/test_chemistry_ingest.py,
+                  reachability: architecture/chemistry_reachability.yaml,
+                  failure_mode: fail_closed}
+
+  - id: no_context_free_property
+    scope: this_repository
+    rule: a property value is inadmissible without method, conditions
+          and a typed quantity
+    status: enforced
+    declared_first_in: notations-acquisition-channel
+    implementation: structures/quantity.py
+    enforcement: {validator: structures.ingest.chemistry_content_gate,
+                  locks: tests/test_chemistry_ingest.py,
+                  reachability: architecture/chemistry_reachability.yaml,
+                  failure_mode: fail_closed}
+    note: this gate and quantity_is_typed share one call site
+          (assert_property_context delegates to the quantity gate), so a
+          refusal is attributed to ONE of them by the refusal's own
+          message. Filing them together leaves the total right and both
+          per-invariant rates wrong.
+
+  - id: no_point_identity_for_distributions
+    scope: this_repository
+    rule: distribution-kind entities identified only by a structure
+          string are inadmissible
+    status: enforced
+    declared_first_in: notations-acquisition-channel
+    implementation: structures/substance.py
+    enforcement: {validator: structures.ingest.chemistry_content_gate,
+                  locks: tests/test_chemistry_ingest.py,
+                  reachability: architecture/chemistry_reachability.yaml,
+                  failure_mode: fail_closed}
+
+  - id: computed_fully_specified
+    scope: this_repository
+    rule: computed evidence missing its domain method block is
+          inadmissible for canonical assertion
+    status: enforced
+    declared_first_in: notations-acquisition-channel
+    implementation: structures/method_blocks.py
+    enforcement: {validator: structures.ingest.chemistry_content_gate,
+                  locks: tests/test_chemistry_ingest.py,
+                  reachability: architecture/chemistry_reachability.yaml,
+                  failure_mode: fail_closed}
+
+  - id: identity_policy_declared
+    scope: this_repository
+    rule: a substance merge declares a resolution policy per identity
+          dimension, validated against an allowed set
+    status: partially_enforced
+    declared_first_in: notations-acquisition-channel
+    implementation: structures/substance.py (assert_identity_policy)
+    enforcement: {validator: structures.substance.assert_identity_policy,
+                  locks: tests/test_architecture_sync.py,
+                  failure_mode: fail_closed}
+    gap: LIVE and mutation-tested, but NOT reachable through ingest -- no
+         single document payload can express a policy refusal, which
+         needs a SubstanceIdentity constructed, and a merge conflict
+         needs two identities. Recorded in
+         architecture/chemistry_reachability.yaml as
+         NOT_EXPRESSIBLE_AS_A_DOCUMENT.
+    why_not_enforced: this row is deliberately NOT `enforced` alongside
+                      the five gates above. They are wired to the
+                      acquisition path and a plant arrives at each; this
+                      one is not, and flattening the two would erase the
+                      exact distinction this phase exists to make. LIVE
+                      is not REACHABLE.
+
+  - id: applicability_domain_declared
+    scope: this_repository
+    rule: a prediction outside its declared applicability domain is
+          flagged and inadmissible
+    status: enforced
+    declared_first_in: notations-acquisition-channel
+    implementation: structures/method_blocks.py
+    enforcement: {validator: structures.ingest.chemistry_content_gate,
+                  locks: tests/test_chemistry_ingest.py,
+                  reachability: architecture/chemistry_reachability.yaml,
+                  failure_mode: fail_closed}
+    ordering: checked only AFTER computed_fully_specified passes -- a
+              malformed block cannot be checked for domain, and
+              reporting both would double-count one defect across two
+              invariants.
+
+  # -- DECISIONS, NOT MEASUREMENTS ------------------------------------
+  #
+  # A PROPERTY OF THIS PROJECT, recorded because it explains why these
+  # entries have outlived twenty phases of rigour rather than being an
+  # observation about four stragglers: EVERY INSTRUMENT HERE CONVERTS AN
+  # ASSUMPTION INTO A MEASUREMENT, AND NONE CONVERTS A MEASUREMENT INTO
+  # A CHOICE. Probes, mutation batteries, reachability traces, currency
+  # gates and the derived register all answer "what is true"; not one of
+  # them can answer "what should we do about it". These rows will not
+  # resolve by being measured harder -- they are waiting on a person,
+  # which is a reasonable place to wait so long as the register keeps
+  # saying so instead of letting them fade.
+  #
+  # `awaiting_decision: true` is what makes the register say so: it is
+  # derived and re-emitted on every run, so an item cannot survive by
+  # inertia the way a prose note can.
+  - id: multi_writer_write_conflict
+    scope: this_repository
+    rule: a merge policy for concurrent canonical assertions
+    status: awaiting_decision
+    awaiting_decision: true
+    decision: >-
+      which policy governs two writers asserting into one canonical
+      state. Unblocked by the identity-policy work -- the merge GUARD
+      exists and refuses a policy mismatch rather than guessing -- so
+      what is missing is the choice, not the mechanism. LEFT UNDECIDED:
+      it changes the identity model, and there is still exactly one
+      writer.
+    deferred_while: >-
+      exactly one VersionStore implementation exists.
+      core.canonical.version.InMemoryVersionStore documents itself as
+      single-writer, in-process, append-only, and is the only
+      implementation of the protocol. The deferral is safe because of
+      that fact and not because nobody has asked -- so the fact is
+      CHECKED rather than remembered.
+    trigger_enforced_by: tests/test_process_decisions.py
+    enforcement:
+      validator: none; refusal on mismatch is the current behaviour
+      failure_mode: fail_closed
+
+  - id: self_optimization_acceptance_criteria
+    scope: this_repository
+    rule: capabilities 5-9 (measures its own performance, identifies
+          deficiencies, optimizes its architecture) require falsifiable
+          acceptance criteria before any of them may be claimed
+    status: partially_enforced
+    awaiting_decision: true
+    decision: >-
+      SETTLED for capability 6, open for 7-9. The original wording has no
+      SUBJECT: every deficiency this project has found was surfaced by an
+      agent operating on the system, not by the system, and crediting
+      those to the substrate is the same category error as citing a
+      reconstruction as a declaration. So the criterion is a PROVENANCE
+      requirement, not a threshold -- a finding counts only if a
+      committed check surfaced it without an agent reading the code.
+      Capability 5 is evidenced by the gated optimizations. 7-9 stay
+      unclaimed: nothing here optimizes its own architecture.
+    enforcement:
+      validator: metric_before_optimization (no metric, no optimization
+                 target) plus the provenance bar above
+      locks: tests/test_architecture_sync.py
+      failure_mode: fail_closed
+    note: >-
+      the partition is honest in the direction that costs this
+      repository. The two most interesting findings of the phase that set
+      this criterion -- a vacuous pass, and invariants enforced but never
+      stated -- both fall on the NO side, because a human read output and
+      grepped source to find them. A criterion that kept the impressive
+      findings and excluded the dull ones would be a criterion fitted to
+      the answer.
+
+  - id: builder_check_lineage_recorded
+    scope: this_repository
+    decided: >-
+      2026-08-27, THE WEAKER FORM. A validator authored by a binding
+      sharing a vendor with the lineage it constrains requires a REVIEW
+      RECORD; the review itself is not required to be cross-vendor.
+    why_the_weaker_form: >-
+      the residual is real and small. The stronger form makes every
+      enforcement change a two-vendor ceremony, and that is the
+      condition under which someone eventually adds an exception -- at
+      which point the rule has a hole and still costs the ceremony. A
+      rule that survives is worth more than a stricter one that gets
+      holed. Recorded as a deliberate weakening, not as the strongest
+      form anyone could think of, because a rule nobody follows is
+      indistinguishable from no rule and harder to notice.
+    rule: every enforcement validator records its authoring binding; a
+          validator authored by a binding sharing a vendor with the
+          proposing lineage it constrains requires an explicit review
+          record
+    status: recorded_unresolved
+    enforcement:
+      validator: architecture/model_binding.yaml builder_lineage --
+                 vendor_relationship `shared` requires a non-empty,
+                 specific review_record
+      locks: tests/test_process_decisions.py
+      failure_mode: fail_closed
+    residual: >-
+      a shared-vendor review is not independent review. The record makes
+      the exposure visible and auditable; it does not remove it, and
+      saying otherwise would be the ceremony without the substance.
+
+  - id: identity_covers_what_is_bound
+    scope: this_repository
+    decided: >-
+      2026-09-03, AFTER THE DEFECT SHIPPED TWICE. A content digest is
+      published for one purpose -- so a binding party can check the
+      code it bound. A digest over a body of code that party does not
+      import serves that purpose not partially but not at all: it
+      verifies something unused while a change to what IS used moves
+      nothing.
+    found_by: >-
+      measurement, not review. The acquisition channel imports from this
+      repository 291 times (evidence 125, materials 105, scout 46,
+      retrieval 11, structures 4) and from the digested track ZERO. The
+      compute layer imports 41 and zero. No reading of the code would
+      have shown that; counting the imports did.
+    why_it_recurred: >-
+      it is the ORIGINAL CORE-VERSION DEFECT one level down. That one
+      set the version from this repository's packaging rather than from
+      what this repository declares. This one set the digest's surface
+      from what looked like a core rather than from what a binding party
+      reaches for. Both are the right KIND of identity over the wrong
+      REFERENT, and the second was written by a party that had already
+      fixed the first -- which is the part worth recording.
+    rule: a published content identity names the surface it covers, and
+          a party's binding to that surface is MEASURED from what it
+          imports rather than assumed; a digest whose surface the
+          binding party does not import is refused with the counts
+    status: enforced
+    enforcement:
+      validator: architecture/core_identity.py covers_what_is_bound --
+                 returns (False, reason-with-counts) when the bound
+                 track differs from the surface named, and (False,
+                 no-binding) when a party imports neither
+      locks: tests/test_core_identity.py,
+             tests/test_ecosystem_register.py
+      failure_mode: fail_closed
+    driven_both_ways: >-
+      the locks assert TRUE and FALSE for each track over constructed
+      consumers. A check whose inputs cannot span its branches tests
+      nothing about the branch, which is the failure mode this project
+      has now met five times.
+    residual: >-
+      the binding is measured by import COUNT, and ties return None
+      rather than a guess. A consumer that imports one track heavily
+      and depends on the other for one load-bearing type is reported as
+      binding the first. Counting weights nothing, and a weighted count
+      would be a judgement wearing a measurement's clothes.

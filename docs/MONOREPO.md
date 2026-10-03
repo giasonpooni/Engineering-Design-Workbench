@@ -1,198 +1,234 @@
-# Incremental engineering monorepo
+# Engineering superrepo
 
-This draft migration brings selected engineering instruments into the
-Notations Systems Terminal repository while retaining independently runnable
-packages and explicit provider bindings. Repository location becomes a shared
-development boundary; it does not combine evidence, operation, execution,
-result, verification, admission or device-control authority.
+The cumulative branch `feat/engineering-superrepo-20261003` consolidates 21
+public engineering modules alongside the existing Terminal package. Development
+and review share a repository; packages, release identities, deployment choices
+and scientific authority remain module-owned.
 
-The first wave and its audit corrections are developed on
-`feat/engineering-monorepo-wave1-audit-20261002`. Review and scoped qualification
-remain separate from a default-branch merge.
+The import registry is [`instruments/manifest.json`](../instruments/manifest.json).
+It records full source commit and tree identities, original repository IDs,
+ownership, licences, package versions, build boundaries and existing execution
+pins. The branch includes the earlier measurement and inference migration
+history. Native Git transfer is required before publication; this documentation
+does not assert that the branch has been pushed or merged. The
+[second-wave record](MONOREPO_WAVE2.md) preserves the earlier seven-module
+qualification and its scope.
 
-The existing [cross-system architecture](CONSOLIDATION.md),
+## Module map
+
+Paths below are relative to `instruments/`. Repository links identify the
+original projects; the manifest owns their exact selected source identities.
+
+| Area | Role | Directory | Original repository | Licence |
+| --- | --- | --- | --- | --- |
+| Composition | `sra` | `composition/retrieval-agent` | [Retrieval Agent](https://github.com/giasonpooni/Notations-Retrieval-Agent) | MIT |
+| Execution | `scr` | `execution/compute-runtime` | [Compute Runtime](https://github.com/giasonpooni/Notations-Compute-Runtime) | Apache-2.0 |
+| Measurement | `mcur` | `measurement/calibration` | [Calibration Runtime](https://github.com/giasonpooni/Notations-Calibration-Runtime) | MPL-2.0 |
+| Measurement | `tbrt` | `measurement/clocksync` | [ClockSync](https://github.com/giasonpooni/Notations-ClockSync) | MPL-2.0 |
+| Measurement | `rci` | `measurement/metrology` | [Metrology Adapter](https://github.com/giasonpooni/Notations-Metrology-Adapter) | MIT |
+| Measurement | `stfe` | `measurement/signal-processing` | [Signal Processing Runtime](https://github.com/giasonpooni/Notations-Signal-Processing-RunTime) | MPL-2.0 |
+| Inference | `gsie` | `inference/state-inference` | [State Inference Engine](https://github.com/giasonpooni/Notations-State-Inference-Engine) | MPL-2.0 |
+| Inference | `cbsr` | `inference/state-recompiler` | [State Recompiler](https://github.com/giasonpooni/Notations-State-Recompiler) | AGPL-3.0 |
+| Inference | `fdir` | `inference/faultsense` | [FaultSense](https://github.com/giasonpooni/Notations-FaultSense-RunTime) | MPL-2.0 |
+| Verification | `set` | `verification/estimator-bench` | [Estimator Bench](https://github.com/giasonpooni/Notations-Estimator-Bench) | Apache-2.0 |
+| Mathematics | `oit` | `mathematics/observability` | [Observability Testbed](https://github.com/giasonpooni/Notations-Observability-Testbed) | MPL-2.0 |
+| Mathematics | `edspt` | `mathematics/sensor-design` | [SensorDesign Runtime](https://github.com/giasonpooni/Notations-SensorDesign-RunTime) | MPL-2.0 |
+| Mathematics | `sidt` | `mathematics/linear-dynamics` | [Linear Dynamics Testbed](https://github.com/giasonpooni/Notations-Linear-Dynamics-Testbed) | MPL-2.0 |
+| Mathematics | `jspt` | `mathematics/sensitivity` | [Sensitivity Testbed](https://github.com/giasonpooni/Notations-Sensitivity-Testbed) | MIT |
+| Mathematics | `csg` | `mathematics/surface` | [Surface Runtime](https://github.com/giasonpooni/Notations-Surface-RunTime) | MPL-2.0 |
+| Mathematics | `tsde` | `mathematics/polygon-trajectories` | [Polygon Trajectory Experiments](https://github.com/giasonpooni/Polygon-Trajectory-Experiments) | MIT |
+| Domain | `fsrt` | `domain/flowstate` | [FlowState](https://github.com/giasonpooni/Notations-FlowState) | MIT |
+| Domain | `cse` | `domain/bim-estimator` | [Estimator for BIM](https://github.com/giasonpooni/Notations-Estimator-for-BIM) | MIT |
+| Representation | `framemapper` | `representation/frame-mapper` | [FrameMapper Runtime](https://github.com/giasonpooni/Notations-FrameMapper-RunTime) | GPL-3.0 |
+| Views | `gsv` | `views/real-time-globe` | [Real-Time Globe](https://github.com/giasonpooni/Notations-Real-Time-Globe) | GPL-3.0 |
+| Resources | `ywir` | `resources/yield-weighted` | [Yield-Weighted Runtime](https://github.com/giasonpooni/Notations-Yield-Weighted-Runtime) | MIT |
+
+Eighteen modules have independent Python wheel builds. Compute Runtime retains
+its source and release builders; its original Python metadata does not declare
+a wheel build backend. The two views retain independent npm packages and
+lockfiles. The root wheel continues to package `ciw`; importing source into this
+repository does not add every module to the Terminal installation. Dependencies
+and lockfiles remain inside their original packages.
+
+## Source and execution identities
+
+Native, non-squashed import merges retain original commit objects and ancestry.
+Each imported subtree contains the exact selected original tree, including
+module-internal paths, tests, package metadata, licences and notices. Explicitly
+retained public branch histories cover existing execution pins that are absent
+from a project's current default history. This is not an import of every remote
+branch or tag.
+
+| Module | Selected source | Additional retained history and reason |
+| --- | --- | --- |
+| Surface | `1f7bbe380651e8df82db1760d880330aee3dc229` | Default `e8f0938ab243a1905792ba2c43439cb4f40cd4be` is retained; its documentation migration fails original documentation assertions. The selected snapshot preserves the unchanged passing source tests. |
+| FlowState | `3144e3e694419b0c8579938e8d28523174e36abd` | Default `e13e46facc125682776f165ce1b0460b4ff9410a` is retained; its README rename fails the original package identity assertion. The immediate parent retains identical numerical source, tests, locks and fixtures. |
+| FrameMapper | `b788489373cbbeebf69667ddf06c048855e22836` | Default `bdfcb041836e86ab1ce93688b127f8960e8d08cf` is retained; its documentation-only change fails the original route policy. The selected snapshot preserves that policy and package implementation. |
+| Compute Runtime | `da2dc23857dd8665473d3b8d32e6b7452866e749` | Public provider-host branch retains existing NET native pins. Separate default `98ab2f312cb7f9f4dbb18b25f762593eba56653e` is also retained. |
+| Metrology | `a67cfef9f132d2a756186f34dcc718404084126e` | Public CIW adapter history ending at `f863bdd69d49224e0cdc871943bbb052e5b0a975` retains the older qualified adapter alongside the current 0.2.0 package. |
+| Real-Time Globe | `6f1b339dfa103bc45b40f34170043bc23a010c57` | Public geographic-view integration history `06c47bd851d8ea8b363a6bbe60a96c7448cbe12e` is retained separately. The default npm package has no declared NET execution pin. |
+
+Existing declarations in `src/ciw/` continue to select exact historical
+execution revisions. The current imported package and its historical provider
+execution are separate qualification targets. Calibration, clocks,
+calibrated-observable inference, identified design, telemetry, geometry and
+declared workloads retain their own bindings. Updating one requires a separate
+compatibility change with checks for the affected compositions.
+
+`provider_worktrees` in [`scripts/monorepo.py`](../scripts/monorepo.py) materializes
+temporary, standalone detached worktrees from retained history. Existing
+`PinnedSubprocessAdapter` checks remain unchanged: the expected repository root,
+commit, file bytes and interpreter still determine executable identity. An
+imported directory or the superrepo's `HEAD` does not substitute for that pin.
+Explicit external provider checkout support remains available.
+
+FlowState's public source and history are now retained locally. Both its
+calibrated-observable generator pin and CBSR's separate public comparison pin
+can be provisioned from that history. They remain distinct revisions. The npm
+views have no invented Python runtime binding; web build qualification does not
+establish attached-browser interoperability.
+
+## Operator commands
+
+Use Python 3.12 or later for the complete public qualification. The web lane
+requires Node 24 or later, the Surface locked lane requires `uv`, and the bounded
+Compute Runtime lane requires Cargo; the configured Linux CI uses Rust 1.90.0.
+Package dependencies are installed into
+temporary environments. Dependency downloads require public registry access;
+the view tests and builds subsequently use their original locks offline.
+
+From the repository root:
+
+```sh
+python scripts/superrepo.py list
+python scripts/superrepo.py audit
+python scripts/superrepo.py check --output-dir results/superrepo
+```
+
+The audit verifies exact source trees and original-history reachability,
+working file bytes and modes, package/licence identities, preserved execution
+bindings and unexpected untracked source files. Run the underlying gates
+individually to review a particular boundary:
+
+| Gate | Command | Scope |
+| --- | --- | --- |
+| Measurement | `python scripts/check_monorepo.py --output-dir results/monorepo` | Independent Calibration and ClockSync wheels; original clock-to-calibration adapter composition. |
+| Inference | `python scripts/check_monorepo_inference.py --output-dir results/monorepo-inference` | Original seven-module suites, exact public comparison dependencies and actual eight-provider calibrated-observable session/replay. |
+| Mathematics and measurement | `python scripts/check_monorepo_math.py --output-dir results/monorepo-math` | SensorDesign, Linear Dynamics, Sensitivity, Metrology, Signal Processing and Polygon source/installed suites; CPU JAX checks; exact legacy measurement-chain compositions. |
+| FlowState | `python scripts/check_monorepo_flowstate.py --output-dir results/monorepo-flowstate` | Independent wheel numerics and examples; unchanged default source suite, including extended tests. |
+| Surface | `python scripts/check_monorepo_surface.py --output-dir results/monorepo-surface` | Full scientific suite using an installed wheel; regenerated reports, figures and boundary artifacts; five determinism cycles; original locked contract checks and exact NET curved-path replay. |
+| Operations and resources | `python scripts/check_monorepo_operations.py --output-dir results/monorepo-operations` | Retrieval, Yield-Weighted and BIM package checks; identified-design and BIM session/replay; declared schematic and actual bounded CPU heat execution; budget/refusal checks. |
+| Views | `python scripts/check_monorepo_web.py --output-dir results/monorepo-web` | Independent locked npm tests, type checks and production builds for FrameMapper and Globe. |
+
+Budget qualification is called by the operations gate; `check_monorepo_budget.py`
+is a helper, not a separate CLI. Gate output includes `report.json`,
+`commands.log`, original test receipts and composition artifacts where relevant.
+Reports record the actual checkout and execution identities, dependency
+versions, scope, failures and individually unqualified checks.
+
+The original measurement gate also supports Python 3.11. Explicit
+`--set-root`, `--flowstate-root` and `--sensitivity-root` options on the relevant
+gates retain standalone checkout support. Operations accepts `--cargo` to bind
+an explicit trusted Cargo executable; Surface accepts `--uv` for its original
+locked contract lane. The aggregate runner supports repeated `--group` options
+and explicit `--cargo` and `--node-bin` toolchain bindings. For example:
+
+```sh
+python scripts/superrepo.py check --group measurement --group math --output-dir results/measurement-and-math
+```
+
+FlowState's default selection follows its original `not slow` configuration.
+To run its additional public slow reproduction lane:
+
+```sh
+python scripts/check_monorepo_flowstate.py --full-reproduction --output-dir results/monorepo-flowstate-full
+```
+
+That option does not provision private acquisition data. The workflow exposes
+it as an optional manual lane, separate from the normal default-suite matrix.
+FlowState's original `uv.lock` is preserved; its gate reports an explicit test
+environment rather than claiming frozen-uv reproduction. Surface separately
+runs its original locked contract lane with `uv sync --locked`; that lane's
+report records the original lock and the environment actually reproduced.
+
+Nested module workflows are retained source configuration; GitHub discovers
+the root [monorepo workflow](../.github/workflows/monorepo.yml). Its jobs use
+complete Git history and retain per-lane evidence. Configured Python/platform
+matrices are not evidence of remote execution. Observed results belong in
+the retained qualification reports, bound to their exact checkout.
+
+## Terminal source identity
+
+The measurement gate binds NET's tracked source bytes and index to the reported
+commit before and after qualification. Tracked byte changes, staged metadata
+drift and ignored executable shadow sources are refused. Generated results and
+runtime caches are permitted outside those source boundaries. The import audit
+separately preserves every declared original module tree and execution pin;
+co-location does not freeze or replace independently qualified Terminal work.
+
+## Authority and qualification limits
+
+The existing [consolidation architecture](CONSOLIDATION.md),
 [execution responsibilities](EXECUTION_RESPONSIBILITIES.md) and
-[integration coverage](INTEGRATION_COVERAGE.md) remain the governing descriptions
-of those boundaries. This page records the migration and its qualification
-requirements; it does not replace the scientific contracts.
+[integration coverage](INTEGRATION_COVERAGE.md) continue to govern interfaces.
+Evidence, operation, execution, result, verification and admission identities
+remain separate. Candidate estimates remain distinct from admitted state;
+mathematical instruments retain numerical scope, uncertainty and refusal rules.
 
-## First import wave
+Actual composed workflows retain original analytic fixtures, held/refused
+cases and numerical replay checks. Fresh replays retain new occurrence
+identities. Existing receipts mark verification `independent: false` and
+admission `not_performed`. Advisory budget admission is distinct from real
+provider billing or settlement. Quantity-only BIM conditioning is distinct from
+geometry authority. Passing package or numerical tests does not establish
+physical measurement validation or device permission.
 
-The first wave contains two public measurement instruments:
+Unqualified dependencies remain visible: the exact original private GTE
+comparisons in CBSR; private DAF reproduction checks in FlowState; optional BIM
+private PLSR checks and the unavailable JSPT Grams guest interface. Public USD/IFC SDKs and the original three-model corpus are qualified separately; six implemented public JSPT covariance/quantity checks retain their own scope. Gate reports name
+their skipped tests and reasons, and reject unexpected skips. Public slow
+FlowState reproduction is qualified only when its separate lane actually runs.
+Private Periodic Space integration paths remain unqualified. Native-host
+Windows/Julia workers, GPU/prover paths, live provider calls and attached browser
+integrations require their own evidence. Surface preserves its original
+individually named documentation and platform skips; these concern absent prose
+claims or unavailable extended precision and are recorded separately from
+private provider exclusions.
 
-| Directory | Original repository | Imported source revision |
-| --- | --- | --- |
-| `instruments/measurement/calibration` | [Notations-Calibration-Runtime](https://github.com/giasonpooni/Notations-Calibration-Runtime) | `e41f61cf5909e58a1a2e60612308ccffe0bfe7de` |
-| `instruments/measurement/clocksync` | [Notations-ClockSync](https://github.com/giasonpooni/Notations-ClockSync) | `13c5fe75c7e829c24bae12fcf8386d4831224d4e` |
+## Private boundaries, licences and transition
 
-Each import uses a non-squashed subtree merge. The original revision and all its
-ancestor history remain reachable with their original commit SHAs. The subtree
-contains the exact original source tree at that revision, including package
-metadata, tests, workflow files, licences and notices. Module-internal paths
-remain unchanged beneath the import directory.
+Private Data Intake, Periodic Space, Telemetry and PLSR remain external.
+State Ledger's missing licence and CNC Machine MCP's missing licence and
+executable implementation prevent their import in this public consolidation.
+The README-only Scientific Language Runtime and Inference Schematics Engine
+remain backlog entries. `1792` and `A Man of Two Worlds` retain their own product
+repositories, assets, content, state authority and releases.
 
-The retained history includes ancestors of each imported default-branch
-revision; this is not a claim to import every remote draft branch or tag.
+The root AGPL licence and each module's original MIT, MPL, Apache, GPL or AGPL
+licence, notices and inherited attribution remain in force. Preserved package
+metadata includes upstream omissions and differing licence field forms. The
+current [asset permission policy](licensing/README.md) is retained; it does not
+blanket-relicense imported software or existing assets. Combined distribution
+and future asset enrolment remain separate decisions under their existing terms.
 
-Preserving a module's `.github/workflows` files retains its source configuration.
-GitHub does not discover nested workflow directories as root workflows; the
-monorepo gate separately executes the imported checks. Each module retains its
-package, interfaces, test suite and release identity. This migration does not
-publish a new module release or change the original repositories' status.
-
-## Source history and executable bindings
-
-An imported current source tree and a qualified executable source revision are
-different identities. Existing NET contracts continue to bind these historical
-provider revisions:
-
-| Provider role | Existing NET source revision |
-| --- | --- |
-| `mcur` — calibration | `49405ecd623474ddf601989b0a8195be401544e0` |
-| `tbrt` — clock synchronization | `40507060ca7a9126a9d641999b994a757eef3bfd` |
-
-The `provider_worktrees` helper in `scripts/monorepo.py` materializes temporary
-standalone detached worktrees at those original revisions from the retained Git
-history. The migration gate uses this helper. These are ordinary provider
-checkouts with the expected module-internal paths and exact Git `HEAD` during
-the declared execution; existing external checkouts can still be supplied to
-the stack-root interfaces.
-
-`PinnedSubprocessAdapter` remains unchanged. It checks the original qualified
-revision and uses the existing subprocess protocol. A provider binding does
-not silently execute the imported current source tree, a dirty checkout, or the
-monorepo's `HEAD`. Updating a runtime pin requires a separate compatibility
-change and qualification of the affected compositions.
-
-Existing public and private provider routes remain available. Co-locating
-source does not remove external checkout support, require all providers in one
-process, or grant a provider authority over another module's state.
-
-## Packaging and checks
-
-The root wheel continues to package `ciw`. It does not bundle imported provider
-packages into the NET installation. Calibration and clock synchronization have
-their own package metadata and are built and installed as separate wheels.
-
-Audit the migration's source trees and retained history from the repository
-root:
-
-```sh
-python scripts/monorepo.py
-```
-
-Run the migration gate:
-
-```sh
-python scripts/check_monorepo.py
-```
-
-The gate builds and installs the current imported module wheels independently
-and runs their unchanged test suites. It separately prepares the older exact
-NET provider worktrees from retained history and exercises a clock-to-calibration
-composition through the existing pinned adapter. Source-tree tests and the
-qualified historical execution therefore have separate source identities.
-Use `--output-dir /path/to/results` to select the retained gate output location.
-
-The gate binds NET's tracked source bytes and index to the reported commit
-before building, and rechecks them after execution. Ignored or untracked
-executable sources are refused. The first wave deliberately freezes imported
-subtrees at their original import trees; subsequent module development must
-add a separately identified current-source qualification while retaining the
-original import commit and qualified historical runtime pins.
-
-The optional SET exchange-contract dependency remains external. Its public source
-is available through the
-[Notations-Estimator-Bench](https://github.com/giasonpooni/Notations-Estimator-Bench)
-repository alias at the qualified revision
-`bd261a765281a95312f7c91a3857233476294c5b`. The gate requires that exact checkout
-to run all optional exchange tests without skips; it does not import SET into
-this first wave or perform independent scientific verification.
-Its source revision, runtime route and verification scope remain explicit.
-
-```sh
-python scripts/check_monorepo.py --set-root /path/to/qualified-set --output-dir /path/to/results
-```
-
-Passing these checks establishes packaging, source-history preservation,
-declared provider compatibility and the exercised computational behavior. It
-does not establish numerical improvement, new scientific scope, calibrated
-physical measurements, physical validation, canonical admission or permission
-to actuate a machine. The existing synthetic fixtures retain their original
-scope and uncertainty assumptions.
-
-## Remaining staged groups
-
-The following groups describe a migration backlog. Inclusion in this table
-does not mean a repository is already imported or qualified.
-
-| Area | Candidate projects | Boundary to preserve |
-| --- | --- | --- |
-| Terminal and composition | Systems Terminal, Scientific Language Runtime, Inference Schematics Engine, Retrieval Agent | Workflow composition and operation dispatch |
-| Evidence and execution | State Ledger, Data Intake, Compute Runtime | Separate evidence, operation, execution and verification identities |
-| Measurement | Metrology, Calibration, ClockSync, Signal Processing | Raw observations, calibration lineage and uncertainty |
-| Inference and diagnostics | State Inference, State Recompiler, FaultSense, Estimator Bench | Candidate estimates remain separate from admitted state |
-| Mathematical instruments | Observability, SensorDesign, Sensitivity, Linear Dynamics, Surface, Periodic Space, Polygon Trajectories | Explicit mathematical scope and numerical limitations |
-| Domain tools and views | FlowState, Estimator for BIM, FrameMapper, Real-Time Globe | Domain authority and representation authority remain explicit |
-| Resource and device adapters | Yield-Weighted Runtime, CNC Machine MCP | Budget settlement and machine execution retain their own gates |
-
-Several candidates are deliberately deferred:
-
-- Private `Notations-Data-Intake` and `Periodic-Space` remain outside the public
-  migration. Import requires an explicit visibility decision or a retained
-  private boundary.
-- The currently README-only Scientific Language Runtime and Inference
-  Schematics Engine repositories are not executable import candidates in this
-  wave.
-- State Ledger is public, but its missing licence must be resolved before an
-  import or combined distribution is proposed.
-- `1792` and `A Man of Two Worlds` remain independent game-product repositories
-  consuming declared, versioned Notations interfaces. Their content, assets,
-  game state and release lifecycle remain product-owned.
-
-Before each additional import, record the exact original repository identity,
-visibility, source revision and tree; verify that retained history includes the
-qualified runtime pins; preserve licence files, notices and package metadata;
-identify the current consumers, release identity and ownership; and declare
-the intended subtree path without altering module-internal paths.
-
-Qualify each imported package independently, then execute at least one actual
-composed workflow through its existing interfaces. Check refused and held
-cases where the composition depends on those states. Any changed contract,
-runtime pin, package route or authority boundary requires its own review and
-checks. Record qualification against exact source and execution identities
-before expanding the next wave.
-
-## Licences and transition
-
-The calibration and clock synchronization directories retain their MPL licence
-files and notices. The root NET package retains its existing AGPL terms.
-Import does not replace either module's terms with a blanket repository
-licence, remove upstream attribution, or determine the terms of a future
-combined distribution. Distribution decisions require a separate assessment
-of the components and how they are packaged and used.
-
-Keep the original repositories available during the transition. This draft
-does not archive repositories, change releases, merge the migration into the
-default branch, or redirect consumers. Those are separate steps after consumer
-migration and the relevant checks have been completed.
+Keep source repositories available while consumers migrate. An import does not
+publish new package releases, redirect existing consumers or archive sources.
+Future imports must declare public visibility, exact source/history identities,
+licences, ownership, build/release boundaries and compatibility evidence before
+expanding the registry.
 
 ## Native Git transfer
 
-The migration can be transferred in a Git bundle containing the native import
-commits and retained original histories. Verify the bundle and fetch its branch
-into an authenticated checkout of the Terminal repository, then push that
-branch:
+A cumulative Git bundle carries the original histories and native import
+commits. In an authenticated Terminal checkout:
 
 ```sh
-git bundle verify /path/to/migration.bundle
-git fetch /path/to/migration.bundle refs/heads/feat/engineering-monorepo-wave1-audit-20261002:refs/heads/feat/engineering-monorepo-wave1-audit-20261002
-git push origin feat/engineering-monorepo-wave1-audit-20261002
+git bundle verify /path/to/engineering-superrepo.bundle
+git fetch /path/to/engineering-superrepo.bundle refs/heads/feat/engineering-superrepo-20261003:refs/heads/feat/engineering-superrepo-20261003
+git push origin feat/engineering-superrepo-20261003
 ```
 
-Review the resulting branch before a default-branch merge. Use a merge commit
-when merging the migration so the original source commits remain ancestors of
-the resulting branch. A squash or rebase merge would lose that ancestry and
-would not satisfy this migration's history-preservation requirement. Recreating
-the imported files through a file-content API also does not preserve the
-original commits.
+Review the resulting branch and merge it with a merge commit. Squash, rebase or
+file-content recreation loses the required ancestry. Keep native source commits
+reachable after merging so provider worktrees and the source audit continue to
+operate.

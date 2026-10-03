@@ -1,0 +1,180 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<title>Deterministic State Architecture — Three.js Renderer</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #101418; color: #e6e6e6; font-family: system-ui, sans-serif; }
+  #hud { position: fixed; top: 0; left: 0; right: 0; padding: 10px 14px; z-index: 1; display: flex; gap: 12px; align-items: center; background: rgba(16,20,24,0.85); border-bottom: 1px solid #2a323c; }
+  #hud button { background: #2a5d9f; color: white; border: none; padding: 6px 12px; border-radius: 4px; cursor: pointer; }
+  #hud button:hover { background: #3670bd; }
+  #hud span { font-size: 13px; color: #9fb3c8; }
+  canvas { display: block; }
+</style>
+</head>
+<body>
+<div id="hud">
+  <button id="load-v1">Load scene_v1.json</button>
+  <button id="load-v2">Load scene_v2.json</button>
+  <span id="status">This page ONLY consumes a declarative scene descriptor produced by the Python backend.
+    It never reads or writes any upstream state -- it is a downstream consumer only.</span>
+</div>
+
+<script type="importmap">
+{
+  "imports": {
+    "three": "./vendor/three.module.js"
+  }
+}
+</script>
+<!-- three.js is vendored locally (renderer/vendor/three.module.js, MIT
+     licensed, see renderer/vendor/THIRD_PARTY_NOTICES.md) so this page
+     has no runtime dependency on an external CDN. -->
+
+
+<script type="module">
+import * as THREE from "three";
+
+// ---------------------------------------------------------------------
+// This module is the ONLY place in the whole system that constructs real
+// THREE.* objects (Frozen Specification v1.0.0 §14, §8 invariant I8).
+// It is a pure consumer of a declarative ThreeJSSceneDescriptor
+// ({ geometries, materials, meshes, hierarchy }) produced by
+// backends/threejs/compiler.py. There is no function anywhere on this
+// page that writes back into canonical state, a Version, or a
+// ProjectedState -- it has no import, no fetch target, and no callback
+// capable of doing so (acceptance test 7).
+// ---------------------------------------------------------------------
+
+const scene = new THREE.Scene();
+scene.background = new THREE.Color(0x101418);
+
+const camera = new THREE.PerspectiveCamera(50, window.innerWidth / window.innerHeight, 0.1, 100);
+camera.position.set(6, 6, 12);
+camera.lookAt(0, 0, 0);
+
+const renderer = new THREE.WebGLRenderer({ antialias: true });
+renderer.setSize(window.innerWidth, window.innerHeight);
+document.body.appendChild(renderer.domElement);
+
+scene.add(new THREE.AmbientLight(0xffffff, 0.6));
+const dirLight = new THREE.DirectionalLight(0xffffff, 0.8);
+dirLight.position.set(5, 10, 7);
+scene.add(dirLight);
+
+window.addEventListener("resize", () => {
+  camera.aspect = window.innerWidth / window.innerHeight;
+  camera.updateProjectionMatrix();
+  renderer.setSize(window.innerWidth, window.innerHeight);
+});
+
+// geometryCache / materialCache / meshCache are keyed by the descriptor's
+// own geometry_id / material id / visual_id (Frozen Spec §9 identity
+// model). Because those ids are stable across value changes, redrawing a
+// new descriptor UPDATES existing THREE.Mesh/Geometry/Material objects
+// in place instead of destroying and recreating them (§14: "Existing
+// objects should be updated rather than unnecessarily recreated"), and
+// REMOVES any mesh whose id no longer appears in the new descriptor
+// (§14: "Deleted entities must disappear from downstream rendering").
+const geometryCache = new Map();
+const materialCache = new Map();
+const meshCache = new Map();
+
+function buildGeometry(desc) {
+  if (desc.kind === "box") {
+    const [sx, sy, sz] = desc.params.size;
+    return new THREE.BoxGeometry(sx, sy, sz);
+  }
+  throw new Error(`unsupported geometry kind: ${desc.kind}`);
+}
+
+function buildMaterial(desc) {
+  return new THREE.MeshStandardMaterial({ color: desc.color });
+}
+
+function applyDescriptor(descriptor) {
+  const seenGeometryIds = new Set();
+  const seenMaterialIds = new Set();
+  const seenMeshIds = new Set();
+
+  for (const gdesc of descriptor.geometries) {
+    seenGeometryIds.add(gdesc.id);
+    if (!geometryCache.has(gdesc.id)) {
+      geometryCache.set(gdesc.id, buildGeometry(gdesc));
+    }
+  }
+
+  for (const mdesc of descriptor.materials) {
+    seenMaterialIds.add(mdesc.id);
+    if (!materialCache.has(mdesc.id)) {
+      materialCache.set(mdesc.id, buildMaterial(mdesc));
+    }
+  }
+
+  for (const meshDesc of descriptor.meshes) {
+    seenMeshIds.add(meshDesc.id);
+    let mesh = meshCache.get(meshDesc.id);
+    const geometry = geometryCache.get(meshDesc.geometry);
+    const material = materialCache.get(meshDesc.material);
+
+    if (!mesh) {
+      mesh = new THREE.Mesh(geometry, material);
+      meshCache.set(meshDesc.id, mesh);
+      scene.add(mesh);
+    } else {
+      // Update in place: same THREE.Mesh object, only its transform
+      // (and, if it changed, its geometry/material reference) is
+      // touched -- it is never torn down and rebuilt just because a
+      // field value changed (geometry identity survives value changes,
+      // acceptance test 8).
+      if (mesh.geometry !== geometry) mesh.geometry = geometry;
+      if (mesh.material !== material) mesh.material = material;
+    }
+
+    const [px, py, pz] = meshDesc.position;
+    mesh.position.set(px, py, pz);
+    const [ox, oy, oz, ow] = meshDesc.orientation;
+    mesh.quaternion.set(ox, oy, oz, ow);
+    const [scx, scy, scz] = meshDesc.scale;
+    mesh.scale.set(scx, scy, scz);
+  }
+
+  // Deleted entities disappear from downstream rendering (acceptance
+  // test 9): any cached mesh whose id is not in the new descriptor is
+  // removed from the scene and its cache.
+  for (const [id, mesh] of [...meshCache.entries()]) {
+    if (!seenMeshIds.has(id)) {
+      scene.remove(mesh);
+      meshCache.delete(id);
+    }
+  }
+  for (const id of [...geometryCache.keys()]) {
+    if (!seenGeometryIds.has(id)) geometryCache.delete(id);
+  }
+  for (const id of [...materialCache.keys()]) {
+    if (!seenMaterialIds.has(id)) materialCache.delete(id);
+  }
+}
+
+async function loadScene(path) {
+  const response = await fetch(path);
+  const descriptor = await response.json();
+  applyDescriptor(descriptor);
+}
+
+document.getElementById("load-v1").addEventListener("click", () => loadScene("scene_v1.json"));
+document.getElementById("load-v2").addEventListener("click", () => loadScene("scene_v2.json"));
+
+loadScene("scene_v1.json").catch((err) => {
+  document.getElementById("status").textContent =
+    "Could not fetch scene_v1.json (open this file via a local HTTP server, not file://). " + err;
+});
+
+function animate() {
+  requestAnimationFrame(animate);
+  renderer.render(scene, camera);
+}
+animate();
+</script>
+</body>
+</html>

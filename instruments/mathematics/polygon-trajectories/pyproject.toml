@@ -1,0 +1,18 @@
+[build-system]
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "translation-surface-dynamics"
+version = "0.1.0"
+description = "Bounded rational translation flow on declared square-tiled surfaces"
+readme = "README.md"
+requires-python = ">=3.11"
+license = "MIT"
+dependencies = []
+
+[project.scripts]
+translation-surface-dynamics = "translation_surface_dynamics.__main__:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]

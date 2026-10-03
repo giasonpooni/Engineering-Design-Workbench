@@ -1,0 +1,149 @@
+# Vertical contract: CHEMISTRY. The existing molecular/crystal work IS
+# this vertical's first slice -- inspected, not duplicated. Written
+# retroactively against the already-wired slice; the conformance gate
+# (architecture/conformance.py) exists so every FUTURE wiring passes it
+# first.
+extends: core@1.0.0
+
+vertical: chemistry
+
+# -- INSPECTION RESULT (2026-08-25): which candidate chemistry concepts
+#    already exist generically, before anything new was created --------
+concept_reconciliation:
+  Molecule:         structures/molecule.py (content-addressed, cartesian-pm)
+  Material:         evidence Referent kind "formulation" + materials/ machinery
+  Property:         observation content {property, value, unit} (open mapping)
+  Measurement:      NOT minted anywhere -- no instrument path exists;
+                    the class exists (evidence/classes.py), unminted
+  Simulation:       ExecutionSpecification + "simulation:*" dispatch
+  Process:          evidence Referent kind "process"
+  LiteratureSource: evidence Source/Document/Record (scout ingest)
+  Dataset:          EvidencePool contents (no separate type needed yet)
+  Instrument:       "ABSENT (instrument_adapters empty below -- deliberate)"
+  Reaction:         ABSENT (no representation; future frontier, not forced)
+  Polymer:          distribution identity (structures/substance.py) -- no
+                    point identity permitted
+  Sample:           ABSENT as a type; discriminator variables carry
+                    sample context until a workload demands more
+  Batch:            distribution identity (structures/substance.py)
+
+extensions:
+  - structures/molecule.py
+  - structures/crystal.py
+  - structures/substance.py        # identity policies + distributions
+  - structures/lowering.py
+  - structures/gromacs_bridge.py
+  - structures/quantity.py          # typed quantities, property context
+  - structures/method_blocks.py     # computed method blocks
+
+observation_types:
+  - {property: pair_energy, class: computed, via: "simulation:*"}
+  - {property: radius_of_gyration, class: computed, via: "simulation:*"}
+  - {property: lattice_volume, class: computed, via: "simulation:*"}
+  - {property: gmx_potential, class: computed, via: "simulation:*"}
+  # No measured observation type: nothing in this vertical is an
+  # instrument. COMPUTATION != MEASUREMENT.
+
+admissibility_class: reproducible_on_demand
+admissibility_classes_available:
+  reproducible_on_demand: [synthesis, characterization, simulation]
+  singular_observation: [pilot/plant batch, scale-up run, consumed sample]
+
+instrument_adapters: []   # GROMACS is a computation engine, not an
+                          # instrument; declaring it one would be the
+                          # computed->measured promotion this
+                          # architecture forbids
+
+retraction_policy: none   # append-only pool without tombstones (core
+                          # limitation recorded in invariants.yaml);
+                          # this vertical's evidence is reproducible on
+                          # demand, so retraction pressure is low
+
+identity:
+  computational: content-addressed structure identities
+    (ste.structure.molecule.v1 / ste.structure.crystal.v1)
+  substance: structures/substance.py -- declared, versioned resolution
+    policy over {tautomer, stereo, salt_solvate, isotope}; merges on
+    substance identity fail closed on policy mismatch
+    (assert_identity_policy)
+  distributions: polymer/formulation/batch require their field sets; a
+    structure string alone is inadmissible
+    (assert_distribution_identity)
+
+contradiction_discriminators:
+  - identity policy
+  - purity
+  - batch/lot
+  - solvent
+  - concentration
+  - temperature
+  - pressure
+  - atmosphere
+  - rate
+  - thermal history
+  - instrument
+  - method
+  - calibration
+  - sample preparation
+  - laboratory
+  - statistical treatment
+  - reported vs corrected values
+
+method_blocks:
+  quantum: [method, functional, basis_set, solvation_model, convergence]
+  md: [force_field, force_field_version, ensemble, timestep,
+       equilibration, sampling_time, thermostat, barostat]
+  ml: [model_id, snapshot, training_evidence_classes, applicability_domain]
+  note: qualified interpretation of execution_recorded -- narrower for
+        canonical assertion in this vertical, core semantics unchanged
+
+# -- INGEST: WHERE THE GATES ABOVE ACTUALLY RUN ------------------------
+#
+# Added once a call site existed. Before that this contract declared a
+# gate set with NO DECLARED POSITION, which is the same defect the
+# per-code probe went on to measure: twenty guards, all correct, all
+# LIVE, and nothing reaching any of them. A contract that names what a
+# vertical refuses without naming where it refuses it is describing an
+# intention.
+ingest:
+  entry_point: structures.ingest.ingest_documents
+  calls: scout.pipeline.run_scout(content_gates=(chemistry_content_gate,))
+  direction: |
+    THE VERTICAL CALLS ACQUISITION, never the reverse. Nothing under
+    scout/ imports structures/ and nothing should: importing a domain
+    into the generic path would make the core depend on one vertical.
+    The path exists and that import edge does not, which is why an
+    import trace is not a reachability verdict here.
+  routing: |
+    Total and fail-closed over the kinds it recognises, and SILENT on
+    everything else. A candidate declaring none of `property`,
+    `distribution_kind` or `method_block` is not a chemistry claim and
+    passes untouched -- the `gate applied to content it does not
+    govern` class, which the acquisition layer named as the blocking
+    decision for wiring these guards at all.
+  refusal_is_retained: |
+    quarantine_not_discard. A refusal becomes a ScoutAdmissionFailure at
+    stage "content_gate" plus, when a quarantine is supplied, a held
+    record naming the failing invariant ids. A gate that DROPPED would
+    satisfy the letter of the refusal and destroy the metric: the
+    denominator would shrink with the numerator.
+  attribution: |
+    ONE invariant id per refusal. assert_property_context delegates to
+    the quantity gate, so a single call can refuse for either reason;
+    they are told apart by the refusal's own message. A refusal filed
+    under the wrong id leaves the total right and both per-invariant
+    rates wrong.
+  gates_reachable_through_this_path:
+    - quantity_is_typed
+    - no_context_free_property
+    - no_point_identity_for_distributions
+    - computed_fully_specified
+    - applicability_domain_declared
+  gate_LIVE_but_not_reachable_here:
+    identity_policy_declared: |
+      no single document payload can express a policy refusal -- it
+      needs a SubstanceIdentity constructed, and a merge conflict needs
+      two identities. Recorded as NOT_EXPRESSIBLE_AS_A_DOCUMENT rather
+      than counted as unreached: an absence with a named cause.
+  measured: architecture/chemistry_reachability.yaml
+  locks: tests/test_chemistry_ingest.py

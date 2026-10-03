@@ -1,0 +1,19 @@
+{
+  "schema": "portfolio-project-v1",
+  "project": "Translation-Surface-Dynamics-Explorer",
+  "status": "implemented-bounded-reference",
+  "operation_id": "tsde.square-tiled-flow.v1",
+  "claim_scope": "square-tiled-rational-translation-flow-prefix",
+  "required_evidence": [
+    "input-declaration",
+    "invariant-checks",
+    "event-log",
+    "tolerance-budget",
+    "canonical-artifact-digest"
+  ],
+  "does_not_own": [
+    "jacobi-propagation",
+    "spd-covariance-geometry",
+    "triangle-mesh-geodesics"
+  ]
+}

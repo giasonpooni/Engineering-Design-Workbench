@@ -1,0 +1,49 @@
+schema = "rci-assembly-v1"
+assembly_id = "bench-displacement-01"
+version = "1"
+title = "First increment: T-Display-S3 node, documented displacement chain, bench mount"
+
+[board]
+id = "lilygo-t-display-s3"
+model = "LILYGO T-Display-S3"
+revision = "ESP32-S3R8 16MB flash 8MB OPI PSRAM"
+mcu = "ESP32-S3"
+citation = "https://wiki.lilygo.cc/products/t-display-series/t-display-s3/"
+notes = "GPIO15 must be driven high before the panel and some peripherals are powered. Board replacement must not invent a new instrument identity."
+
+[interface]
+id = "sim-bridge-counts"
+kind = "bridge-adc-counts"
+electrical = "declared-simulated; a real LVDT or load-cell chain requires matched excitation and conditioning hardware, not a GPIO alias"
+citation = "Prototype host stand-in. Physical front end is not electrically established by this file."
+notes = "Software abstraction does not make an unknown probe safe to connect."
+
+[instrument]
+id = "displacement-head-01"
+quantity = "displacement"
+unit = "mm"
+principle = "linear-displacement-indication"
+range_min = 0.0
+range_max = 25.0
+citation = "Prototype range declared for the assembled bench, not a certificate for an unidentified surplus head."
+notes = "Stage graduations are a comparison source, not automatic ground truth."
+
+[installation]
+id = "bench-stand-01"
+asset = "hand-operated measuring stand"
+mount = "fixed fixture, visible mechanism, laptop receiver on wired transport"
+notes = "Moving the head requires a new installation binding and requalification."
+
+[calibration]
+id = "linear-v1"
+method = "linear"
+raw_unit = "count"
+output_unit = "mm"
+theta = [0.01, 0.0]
+range_min = 0.0
+range_max = 2500.0
+sigma = 0.02
+sigma_unit = "mm"
+sigma_reason = "Source is silent. Consumer-declared placeholder for the assembled bench; not a certificate and not a repeatability result."
+citation = "Declared prototype conversion y = 0.01 * (raw - 0). Not a NIST traceable certificate."
+notes = "A corrected reading is not automatically exact. Hysteresis is not absorbed into theta. Unknown uncertainty must not become zero."

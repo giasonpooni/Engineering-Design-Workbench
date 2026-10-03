@@ -1,0 +1,38 @@
+[project]
+name = "fluid-state-reconstruction-testbed"
+version = "0.1.0"
+description = "FSRT: estimate fluid-network state, check declared physical balances, and preserve evidence of measurement disagreement."
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.12"
+dependencies = ["numpy>=2.0"]
+
+[project.urls]
+Repository = "https://github.com/giasonpooni/Fluid-State-Reconstruction-Testbed"
+
+[project.optional-dependencies]
+jspt = [
+  "jacobian-sensitivity-propagation-testbed @ git+https://github.com/giasonpooni/Jacobian-Sensitivity-Propagation-Testbed.git@c0a01c1a27f10b099ac200c7e83b0f03187ee4d2",
+]
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.metadata]
+allow-direct-references = true
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/set_lcm"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+markers = [
+  "slow: full-size experiment runs (minutes); select with -m slow",
+  "extended: report regeneration and experiment contracts; excluded from the unit gate",
+  "jspt: requires the pinned JSPT extra",
+]
+addopts = "-m 'not slow'"

@@ -1,0 +1,9 @@
+[package]
+name = "execution-trace"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+execution-model = { path = "../execution-model" }

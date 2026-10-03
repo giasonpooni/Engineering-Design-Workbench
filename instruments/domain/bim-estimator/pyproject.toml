@@ -1,0 +1,41 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "gat-bim"
+version = "0.1.0"
+description = "CSE: portable evidence-to-decision runtime for BIM"
+readme = "README.md"
+requires-python = ">=3.12"
+license = { text = "MIT" }
+authors = [{ name = "Notation Systems" }]
+keywords = ["BIM", "IFC", "CSE", "gaussian", "uncertainty", "compiler", "architecture", "verification"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Science/Research",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Scientific/Engineering",
+]
+dependencies = ["numpy>=1.24"]
+
+[project.scripts]
+gat = "gat.cli:main"
+gat-headless = "gat.headless:main"
+gat-ifc-audit = "gat.cli:ifc_audit_main"
+gat-present = "gat.demo.present_space:main"
+
+[project.optional-dependencies]
+openusd = ["usd-core>=26.8,<27", "cryptography>=40"]
+ifcopenshell = ["ifcopenshell>=0.8"]
+
+[project.urls]
+Repository = "https://github.com/giasonpooni/Construction-State-Estimator-for-BIM"
+
+[tool.setuptools.packages.find]
+include = ["gat*"]
+
+[tool.setuptools.package-data]
+"gat.demo" = ["*.ifc", "material_certificate.json", "material_certificate_followup.json", "harness_fixtures/*.json", "harness_fixtures/*.md"]

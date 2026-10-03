@@ -1,0 +1,11 @@
+[package]
+name = "execution-native"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[dependencies]
+execution-kernel = { path = "../execution-kernel" }
+execution-model = { path = "../execution-model" }
+execution-trace = { path = "../execution-trace" }

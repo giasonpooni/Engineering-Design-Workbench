@@ -1,0 +1,24 @@
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.pytest_cache/
+.coverage
+htmlcov/
+.mypy_cache/
+.ruff_cache/
+*.swp
+.DS_Store
+sp1/beam/target/
+*.sp1-proof
+
+# Local development notes
+.private/
+AGENTS.md
+CLAUDE.md
+HANDOFF.md
+*_HANDOFF.md

@@ -1,0 +1,16 @@
+.venv/
+__pycache__/
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+.ruff_cache/
+.mypy_cache/
+work/
+
+# Local coordination notes
+/AGENTS.md
+/HANDOFF.md
+/docs/handoff/
+/docs/ROADMAP.md
+/docs/COLLABORATOR_BRIEF.md

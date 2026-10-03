@@ -1,0 +1,258 @@
+# STE's answer to the acquisition layer's unanswered request.
+#
+# That request is recorded in its repository as standing and
+# unanswered, with the note that there was no counterparty to answer it.
+# There is one. This is the response, authored HERE by the party the
+# request is addressed to -- which is the whole point: the sibling built
+# a RECONSTRUCTION and said explicitly it must never be cited as this
+# repository's own statement. It was right to. This file is the
+# statement; that file remains a reconstruction.
+extends: core@1.0.0
+artifact: ste_invariant_declaration
+owner: STE
+responds_to:
+  repository: notations-acquisition-channel
+  artifact: architecture/exchange/ste_invariants.yaml
+  its_status: RECONSTRUCTION_NOT_DECLARATION
+  note: >-
+    its three asks are answered below in its order. Its reconstruction
+    was checked against this tree rather than taken on trust -- it says
+    itself that it must not be cited as this repository's statement, so
+    accepting its findings without re-measuring would be the exact error
+    it warns about. Every factual claim it makes about this tree
+    reproduced.
+
+one_declare_the_invariant_set:
+  answer: already declared, and the request names a DIFFERENT set
+  declared_in: architecture/invariants.yaml
+  count: 26
+  form: id and rule, one entry each, with status and enforcement
+  also: architecture/evidence_class.yaml (6), architecture/core.yaml (the
+    core version declaration itself)
+  the_distinction_that_matters: >-
+    architecture/invariants.yaml is NOT a renumbering of I1-I10 and must
+    not be read as one. They are two different sets built in two
+    different phases for two different purposes: the numbered set is a
+    property list from the original architecture brief; the registry is
+    the enforceable core-invariant set with executable enforcement named
+    per entry. Mapping one onto the other would manufacture a
+    correspondence no document supports -- and manufacturing a
+    correspondence is a worse failure than leaving the gap visible.
+  RECONCILED_2026_08_27: >-
+    the relationship is now MEASURED rather than left as a warning:
+    architecture/canonical_state_invariants.yaml. Verdict
+    NAMES_THINGS_THE_YAML_DOES_NOT. Containment fails in both
+    directions, nothing was superseded, and citing
+    architecture/invariants.yaml as "STE's invariants" loses the
+    canonical-state core entirely -- that file registers the EPISTEMIC
+    layer, the numbered set is the CANONICAL-STATE/PROJECTION core. One
+    bridge exists and is recorded in both directions: I3's content is
+    carried by the control_loop return edge, which names canonical state
+    explicitly and sits outside the `invariants:` list.
+  what_was_recovered: >-
+    five of the ten, registered under DESCRIPTIVE ids with the brief's
+    numbering kept as provenance rather than adopted -- this repository
+    can verify what its own citations constrain, not what the brief said.
+    All five are enforced.
+  and_a_defect_it_surfaced_here: >-
+    before this, only I5 had ever been cited by a TEST. I3, I6, I7 and I8
+    appeared in implementation docstrings and nowhere else; I4 in prose
+    only. Enforcement was real throughout and the machine-checkable link
+    was absent -- your own recorded defect arriving by the opposite
+    route: not a claim without enforcement, but enforcement without a
+    claim. The enforcing tests now cite the ids, each added only after
+    reading the test and confirming it enforces what it is credited with.
+
+two_resolve_the_cardinality:
+  answer: NEITHER. Eight is unrecoverable and ten is unsupported.
+  measured_here_independently:
+    cited_individually: [I3, I4, I5, I6, I7, I8]
+    covered_only_by_a_range: [I1, I2]
+    cited_nowhere_at_all: [I9, I10]
+    the_range: >-
+      docs/ARCHITECTURE_SPEC.md:71 -- "Invariants I1-I8 (see brief) hold
+      at every arrow above". One citation, and it defers to a brief.
+    the_ten_claim: >-
+      docs/PHASE_13_ARCHITECTURE_INVESTIGATION.md:668 -- "Every one of
+      the 10 invariants re-verified in Phase 12 remains intact".
+  the_referent_is_not_in_this_repository: >-
+    "see brief" points outside the tree. The brief is not vendored, not
+    committed and not reachable from any path here, so the numbered set
+    cannot be recovered from this repository at any effort. That is a
+    fact about what this repository holds, not a decision about what the
+    invariants were.
+  RETRACTED: >-
+    the "10 invariants" sentence. It is unsupported by anything in this
+    tree: two of the ten are named in no document at all, so the count
+    cannot be checked even in principle here. It is retracted rather
+    than corrected to eight, because eight is not established either --
+    the range is a single citation to an absent referent, and adopting
+    it would replace an unsupported number with a differently
+    unsupported one.
+  what_this_does_NOT_do: >-
+    it does not declare the numbered invariants, and it does not
+    reconstruct them. The sibling's reconstruction states what the
+    documents CONSTRAIN and marks two of eight unrecoverable; that is
+    the most anyone can get from these bytes, and this repository
+    confirms it rather than improving on it.
+  the_measurement_behind_the_retraction: >-
+    re-run here rather than taken on trust, and it went further: there is
+    NO numbered invariant list anywhere in this repository -- not a
+    table, not a heading, not an enumeration. Two candidate lists were
+    checked and rejected. The anti-pattern table in the same document
+    that carries the "10" sentence has TWELVE rows and is about
+    anti-patterns; and no Phase 12 document enumerating invariants
+    exists. The "10" is one sentence with nothing behind it.
+  where_this_repository_agrees_with_your_reconstruction: >-
+    on I1/I2 being unrecoverable, and on the middle of the range being
+    the recoverable part. THAT AGREEMENT IS NOT CONFIRMATION and is
+    recorded as agreement only: both readings come from the same
+    documents by the same method, so there is no independence in it --
+    the same rule this pair applied to a serializer whose two halves
+    agreed on the wrong reason.
+
+three_rerun_the_probe_against_five_properties:
+  answer: DONE, and the finding is recorded against this repository
+  probe: architecture/_probes/generality.yaml
+  property_count: 5
+  set: [non_reproducible, revocable_record, cohort_identity,
+        uncontrolled_conditions, recursive_computation]
+  the_key_is_separate_deliberately: >-
+    recursive_computation is filed under computation_properties, not
+    appended to observation_properties. A computation property is not
+    one any source's observations can have, and appending it would be
+    the category error the sibling's own probe avoided.
+  verdict: none_at_the_execution_boundary
+  and_NOT_none: >-
+    the verdict word is deliberately not the one the four observation
+    rows carry. Those were evaluated against a substrate that holds the
+    thing they test. This one covers the half of recursion this
+    repository can see and is SILENT on the half it cannot -- the
+    evidence-lineage half, generation_depth_bounded, which this
+    repository cannot falsify by inspecting its own ledgers because
+    lineage depth is not a quantity they carry. A bare `none` in a
+    column of `none`s would read as tested.
+  what_the_earlier_claims_quantified_over: >-
+    CONFIRMED, and it is the finding this repository owes the record.
+    Every `Bent: zero` here before 2026-08-26 was measured against FOUR
+    properties, all of them properties of an OBSERVATION. That probe was
+    structurally unable to falsify anything about computation. The
+    claims are not thereby false -- the fifth property now evaluates to
+    no bend at the boundary this repository owns -- but their EVIDENCE
+    was narrower than the claims implied, and the narrowing was not
+    disclosed at the time because nobody had noticed the gap.
+
+why_the_reconstruction_was_necessary_at_all:
+  finding: >-
+    the submodule pin. The acquisition layer vendors this repository at
+    3e5bea9, which is 63 commits behind this branch's head, and at that
+    commit there is NO architecture/ directory. architecture/invariants.yaml
+    and the whole structures/ package first appear in 1637bd8, after the
+    pin. So the declaration this request asks for was not missing from
+    the repository -- it was outside the tree the request could see.
+  why_it_is_recorded_here_rather_than_left_implicit: >-
+    it makes the request coherent rather than mistaken. Reconstructing
+    I1-I10 from prose was the correct move given a tree with no
+    invariant registry in it, and the reconstruction says so itself by
+    citing docs. The gap was never that this repository declined to
+    declare; it is that the pin predates the declaration.
+  what_it_does_not_resolve: >-
+    the cardinality. I1-I10 are cited in docs/ that exist at BOTH
+    commits, and the referent -- "see brief" -- is absent from both. A
+    newer pin would surface architecture/invariants.yaml and would not
+    recover a single one of the numbered invariants. Those are two
+    different sets and moving the pin only settles the first.
+  and_a_second_thing_it_does_not_resolve: >-
+    whether moving the pin is wanted. That artifact records
+    modifiable: false against the pinned commit and states that `bent:
+    zero` is entailed by the core's bytes being unmodified there. Moving
+    a pin re-opens that entailment and is the pinning party's decision,
+    not this one's. Reported, not urged.
+
+a_claim_in_that_artifact_that_this_file_makes_false:
+  the_claim: >-
+    "there is no counterparty response and this file does not pretend
+    one" -- and, beneath it, that the request "stands unanswered and is
+    recorded as unanswered rather than as an agreement". That was true
+    when written and is not true now.
+  reported_not_edited: >-
+    this repository does not write into the acquisition layer's
+    artifact, for the same reason the acquisition layer reported a stale
+    row in the compute layer's requirements rather than editing it: a
+    party's own artifact is its to correct, and a counterparty
+    correcting it produces an agreement nobody made. It is also not
+    possible here -- this session holds no write access to that
+    repository -- but the boundary would hold either way, and stating
+    the access limit as if it were the reason would be the weaker
+    version of the argument.
+  what_the_counterparty_may_now_record: >-
+    answered, disputed, or partially answered. This file does not make
+    that call on its behalf. What it does establish is that the
+    ABSENCE-OF-A-PARTY premise no longer holds: there is a counterparty,
+    it has answered, and the answer is at a path in this repository that
+    the acquisition layer already reads for the derived register.
+  where: architecture/exchange/ste_invariant_declaration.yaml
+
+what_this_file_is_not:
+  not_a_source_for_the_register: >-
+    it declares no `invariants:` key. The registry is declared in one
+    place and this file points at it; a second enumeration would be a
+    copy, and this project has spent two phases on what copies do.
+  not_an_agreement: >-
+    it is one party's answer to another party's request. The sibling
+    records the request as unanswered; when it reads this it may record
+    it as answered, disputed, or partially answered. That is its call to
+    make and this file does not make it on its behalf.
+
+answer_to_the_bent_zero_silence_result:
+  their_finding: >-
+    the acquisition layer moved its pin, checked `bent: zero` against the
+    declared canonical-state set for the first time, and reported SILENCE
+    rather than cleanliness -- every declared invariant names a subject
+    under core.*, and no authored package there imports core.* at all, so
+    by this repository's own rule a zero over a subject nothing reaches
+    is not a measurement.
+  the_rule_is_ours_and_it_is_right: >-
+    accepted without qualification. A zero over an unreached subject is
+    silence, and applying it to this repository's newest claim rather
+    than only to ours is the check working.
+  the_premise_is_not_true_HERE: >-
+    re-measured rather than accepted: FOUR authored packages import
+    core.* across ten files -- morpho, backends, runtime, adapters -- and
+    every named subject is reached. core.canonical.state (1),
+    core.canonical.validation (2), core.projection.project (2), and the
+    backends for the extrinsic boundary.
+  why_both_results_are_right: >-
+    it measured which of ITS OWN packages reach a VENDORED copy; this
+    measures which of this repository's packages reach its own core.
+    Different subject, different tree, same shape as the disjoint gate
+    sets: two correct answers that only appear to conflict because they
+    are about different things.
+  and_an_import_edge_is_an_INFERENCE: >-
+    which is this repository's other rule, so the edge is not the answer
+    either. Violations were PLANTED at validate_candidate -- the sole
+    entry point, which an adapter feeds from external data -- and both
+    gates fired with their own refusal codes.
+  measured:
+    gates: 2
+    reached_by_a_planted_violation: 2
+    structural_no_violating_path_exists: 2
+    property_holds_over_execution: 1
+    probe: scripts/canonical_state_reachability.py
+    locks: tests/test_canonical_state_reachability.py
+  the_three_shapes_are_not_collapsed: >-
+    five subjects, three kinds. A gate refuses and a plant answers the
+    question; a structural absence has no violating input, so calling it
+    unreachable would read as a hole; a determinism property has no
+    violating input either, so calling it reachable would read as a gate
+    nobody trips. One verdict over the five would repeat the error the
+    chemistry probe was built to avoid.
+  what_this_repository_got_wrong_building_it: >-
+    the probe shipped without a MALFORMED verdict and paid for it on the
+    first run: two plants crashed on their OWN construction and an
+    exception handler that could not tell a gate firing from a plant
+    failing to build scored both REACHED -- in this repository's own
+    favour, which is the direction that is hardest to catch. Four further
+    corrections to one plant followed. A fragment of "EDGE" even matched
+    "EdgeRecord" inside a construction TypeError: a fragment loose enough
+    to match the subject does not identify the refusal.
