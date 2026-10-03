@@ -1,0 +1,20 @@
+# The Nexus adapter workspace -- separate from zk/ (SP1) and from crates/.
+#
+# Separate from crates/ for the same reason zk/ is: the substrate stays
+# zero-dependency, and the arrow points adapter -> substrate only.
+# Separate from zk/ because the two proving stacks pin different
+# ecosystems (SP1: succinct toolchain + its stark stack; Nexus:
+# nightly-2025-05-09 + the stwo stack) and neither may constrain the
+# other's dependency resolution. Two backends, two workspaces, one
+# substrate contract.
+[workspace]
+resolver = "2"
+members = ["nexus-adapter"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2021"
+publish = false
+
+[profile.release]
+opt-level = 3

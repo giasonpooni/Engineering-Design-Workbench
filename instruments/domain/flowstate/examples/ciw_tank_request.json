@@ -1,0 +1,23 @@
+{
+  "schema": "ciw.adapter-request.v1",
+  "operation_id": "fsrt.tank-reconstruct.v1",
+  "inputs": {
+    "model": {
+      "kind": "reservoir2-linear-v1",
+      "prior_mean": [50.0, 50.0],
+      "prior_std": 5.0,
+      "total_mass_kg": 100.0,
+      "total_mass_variance_kg2": 0.25
+    },
+    "observations": [{
+      "t": 0.0,
+      "arrival_t": 0.0,
+      "values": [52.0, 46.0],
+      "covariance": [[1.0, 0.25], [0.25, 1.0]],
+      "mask": [true, true],
+      "source_ids": ["SYNTHETIC-tank-1", "SYNTHETIC-tank-2"],
+      "evidence_ids": ["SYNTHETIC-derived-mass-1", "SYNTHETIC-derived-mass-2"],
+      "unit": "kg"
+    }]
+  }
+}

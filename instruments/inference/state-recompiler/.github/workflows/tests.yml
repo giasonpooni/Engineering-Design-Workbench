@@ -1,0 +1,33 @@
+name: Affine exact contract and pinned comparisons
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ['3.11', '3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: cbsr
+      - uses: actions/checkout@v4
+        with:
+          repository: giasonpooni/Fluid-State-Reconstruction-Testbed
+          ref: 56a2bea58ad2657e5aacf0181fe2d0b982b09f3b
+          path: fsrt
+      - uses: actions/checkout@v4
+        with:
+          repository: giasonpooni/Geometric-Telemetry-Engine
+          ref: 2caabae87e467c61904df376271e6b50e36008eb
+          path: gte
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+      - run: python -m pip install -e './cbsr[test]'
+      - run: python -m pytest -q
+        working-directory: cbsr
+        env:
+          CBSR_FSRT_REPO: ${{ github.workspace }}/fsrt
+          CBSR_GTE_REPO: ${{ github.workspace }}/gte

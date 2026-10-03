@@ -1,0 +1,189 @@
+"absent":
+  - "activation"
+  - "adjudication"
+  - "analytical"
+  - "apparatus"
+  - "archive"
+  - "capture"
+  - "challenge"
+  - "closure"
+  - "computation"
+  - "control_plane"
+  - "deployment"
+  - "diff"
+  - "federation"
+  - "harness"
+  - "http"
+  - "journal"
+  - "kernel"
+  - "lexical"
+  - "mcp"
+  - "methodology"
+  - "normalization"
+  - "object_store"
+  - "postgres"
+  - "preflight"
+  - "readiness"
+  - "replay"
+  - "router"
+  - "search"
+  - "security"
+  - "signature"
+  - "signer"
+  - "source_policy"
+  - "spatial"
+  - "telemetry"
+  - "tenant"
+  - "token"
+  - "vector"
+  - "worker"
+"artifact": "plane_coverage"
+"extends": "core@1.0.0"
+"generated_by": "architecture/plane_coverage.py"
+"method": "every module family the specification names is matched by NAME against module and package names across the three apparatuses. Matching by name is a stated weakness: a concept implemented under a different word reads as absent, so this is a LOWER bound on coverage and an UPPER bound on the gap -- the direction that over-reports what is missing rather than what exists"
+"owner": "STE"
+"present":
+  "acquisition":
+    - "DAQ"
+  "admission":
+    - "STE"
+  "agent":
+    - "DAQ"
+    - "STE"
+  "attestation":
+    - "DAQ"
+  "audit":
+    - "STE"
+  "auth":
+    - "DAQ"
+  "canonical":
+    - "DAQ"
+    - "SCL"
+    - "STE"
+  "checkpoint":
+    - "DAQ"
+  "context":
+    - "STE"
+  "corpus":
+    - "DAQ"
+  "coverage":
+    - "STE"
+  "ecosystem":
+    - "STE"
+  "graph":
+    - "DAQ"
+    - "STE"
+  "identity":
+    - "DAQ"
+    - "SCL"
+    - "STE"
+  "index":
+    - "DAQ"
+  "profile":
+    - "STE"
+  "projection":
+    - "STE"
+  "registry":
+    - "DAQ"
+    - "STE"
+  "release":
+    - "STE"
+  "retention":
+    - "STE"
+  "runtime":
+    - "STE"
+  "snapshot":
+    - "STE"
+  "verification":
+    - "STE"
+"subject": "the plane architecture, measured against the tree"
+"summary":
+  "absent": 38
+  "concepts_named": 61
+  "planes_declared": 4
+  "present": 23
+"the_finding":
+  "a_specification_is_a_claim_about_a_tree": "23 of 61 named concepts exist. That is not a criticism -- a design may describe what is not built. It is recorded because a document describing a system reads exactly the same whether the system exists or not, and this is the only thing that tells them apart"
+  "unenforceable_rather_than_merely_unbuilt": "['tenant', 'http', 'mcp', 'token', 'signature'] are absent, and their absence is a different kind from the rest. Three of the four planes are defined as TENANT-BOUND and no tenant concept exists anywhere. A plane distinction resting on an authority boundary the tree does not have cannot be enforced, and an API carrying tenant-shaped names with no tenant enforcement reads as isolated while isolating nothing -- which is worse than one that never claimed to"
+  "what_was_built_instead": "api/envelope.py -- the specification's own key invariant, which is the one part buildable before any of the absent concepts: a response is grounded or it says it is not, there is no third construction, and the read-only planes cannot report a mutation. It does not authenticate, authorise or bind a tenant, and says so"
+"treatments":
+  "architecture and topology, logical views only":
+    - "ecosystem"
+    - "apparatus"
+    - "control_plane"
+    - "security"
+  "corpus catalog, comparison, membership, time-bound reads":
+    - "corpus"
+    - "admission"
+    - "profile"
+    - "identity"
+    - "diff"
+    - "release"
+  "governance and readiness with typed evidence":
+    - "preflight"
+    - "readiness"
+  "governance and research: candidates, reviews, reproducibility":
+    - "adjudication"
+    - "challenge"
+    - "harness"
+    - "computation"
+  "governed ingestion; read policy/receipt/retention":
+    - "source_policy"
+    - "acquisition"
+    - "normalization"
+    - "capture"
+    - "archive"
+    - "retention"
+  "infrastructure: capability and status only":
+    - "object_store"
+    - "token"
+    - "auth"
+    - "deployment"
+    - "http"
+    - "mcp"
+    - "runtime"
+  "internal persistence, read via tenant-bound resolvers":
+    - "journal"
+    - "closure"
+    - "postgres"
+  "operations: lag, replay state, bounded health, evidence":
+    - "worker"
+    - "checkpoint"
+    - "telemetry"
+    - "snapshot"
+  "projection catalog and bounded query with exact proof roots":
+    - "lexical"
+    - "vector"
+    - "spatial"
+    - "analytical"
+    - "graph"
+    - "coverage"
+    - "index"
+    - "projection"
+  "release and trust status; activation and signing operator-only":
+    - "methodology"
+    - "attestation"
+    - "signer"
+    - "activation"
+  "signed packet ingestion, acknowledgements, audit reads":
+    - "federation"
+    - "signature"
+    - "replay"
+    - "audit"
+  "tenant-bound agent tools returning references and authorization":
+    - "context"
+    - "agent"
+    - "search"
+  "universal reference resolution and proof verification":
+    - "kernel"
+    - "canonical"
+    - "registry"
+    - "verification"
+    - "router"
+"unenforceable_today":
+  - "tenant"
+  - "http"
+  - "mcp"
+  - "token"
+  - "signature"
+"what_this_does_not_claim": "that an absent concept is missing from the PRODUCT. It is missing from these three repositories, matched by name. A concept living in another repository, under another word, or in a design not yet committed is absent HERE and this artifact says only that"

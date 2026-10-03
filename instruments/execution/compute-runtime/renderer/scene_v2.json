@@ -1,0 +1,334 @@
+{
+  "geometries": [
+    {
+      "id": "charge",
+      "kind": "box",
+      "params": {
+        "size": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      }
+    },
+    {
+      "id": "density",
+      "kind": "box",
+      "params": {
+        "size": [
+          0.5000148038490008,
+          0.5000148038490008,
+          0.5000148038490008
+        ]
+      }
+    },
+    {
+      "id": "energy",
+      "kind": "box",
+      "params": {
+        "size": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      }
+    },
+    {
+      "id": "frequency",
+      "kind": "box",
+      "params": {
+        "size": [
+          0.5000148038490008,
+          0.5000148038490008,
+          0.5000148038490008
+        ]
+      }
+    },
+    {
+      "id": "luminosity",
+      "kind": "box",
+      "params": {
+        "size": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      }
+    },
+    {
+      "id": "mass",
+      "kind": "box",
+      "params": {
+        "size": [
+          0.5006217616580311,
+          0.5006217616580311,
+          0.5006217616580311
+        ]
+      }
+    },
+    {
+      "id": "pressure",
+      "kind": "box",
+      "params": {
+        "size": [
+          2.0,
+          2.0,
+          2.0
+        ]
+      }
+    },
+    {
+      "id": "temperature",
+      "kind": "box",
+      "params": {
+        "size": [
+          0.5045891931902294,
+          0.5045891931902294,
+          0.5045891931902294
+        ]
+      }
+    },
+    {
+      "id": "velocity",
+      "kind": "box",
+      "params": {
+        "size": [
+          0.5,
+          0.5,
+          0.5
+        ]
+      }
+    },
+    {
+      "id": "volume",
+      "kind": "box",
+      "params": {
+        "size": [
+          0.5000148038490008,
+          0.5000148038490008,
+          0.5000148038490008
+        ]
+      }
+    }
+  ],
+  "hierarchy": [],
+  "materials": [
+    {
+      "color": "#3366cc",
+      "id": "default_material",
+      "kind": "standard"
+    }
+  ],
+  "meshes": [
+    {
+      "geometry": "charge",
+      "id": "charge",
+      "material": "default_material",
+      "orientation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "position": [
+        0.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "geometry": "density",
+      "id": "density",
+      "material": "default_material",
+      "orientation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "position": [
+        2.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "geometry": "energy",
+      "id": "energy",
+      "material": "default_material",
+      "orientation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "position": [
+        4.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "geometry": "frequency",
+      "id": "frequency",
+      "material": "default_material",
+      "orientation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "position": [
+        6.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "geometry": "luminosity",
+      "id": "luminosity",
+      "material": "default_material",
+      "orientation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "position": [
+        8.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "geometry": "mass",
+      "id": "mass",
+      "material": "default_material",
+      "orientation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "position": [
+        10.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "geometry": "pressure",
+      "id": "pressure",
+      "material": "default_material",
+      "orientation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "position": [
+        12.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "geometry": "temperature",
+      "id": "temperature",
+      "material": "default_material",
+      "orientation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "position": [
+        14.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "geometry": "velocity",
+      "id": "velocity",
+      "material": "default_material",
+      "orientation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "position": [
+        16.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    },
+    {
+      "geometry": "volume",
+      "id": "volume",
+      "material": "default_material",
+      "orientation": [
+        0.0,
+        0.0,
+        0.0,
+        1.0
+      ],
+      "position": [
+        18.0,
+        0.0,
+        0.0
+      ],
+      "scale": [
+        1.0,
+        1.0,
+        1.0
+      ]
+    }
+  ]
+}

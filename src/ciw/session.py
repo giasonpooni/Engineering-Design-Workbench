@@ -156,6 +156,9 @@ def _validate_evidence(run: dict) -> None:
     if run["instrument"] == "org.notationsystems.rci":
         from .investigation import _validate_source
         _validate_source(run)
+    elif run["instrument"] == "org.notationsystems.simulated-mass-observation":
+        from .simulated_fsrt import validate_source
+        validate_source(run)
     elif run["instrument"] == "org.notationsystems.gte":
         from .geodesic import validate_source
         validate_source(run)
@@ -688,6 +691,8 @@ class Session:
             execution_ids.add(result["execution_id"])
         from .adapters.covariance_records import validate_result_dependencies
         validate_result_dependencies(result_map)
+        from .impact_workflow import validate_result_dependencies as validate_impact_dependencies
+        validate_impact_dependencies(result_map)
         from .system_workflow import validate_saved_dependencies as validate_system_dependencies
         validate_system_dependencies(result_map, retained_workbench.retained_sources())
         executions = workspace.get("executions", [])

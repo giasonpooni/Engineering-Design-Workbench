@@ -1,0 +1,25 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+work/
+.DS_Store
+uv.lock
+
+# Local assistant coordination and unpublished work notes
+AGENTS.md
+HANDOFF.md
+**/*HANDOFF*.md
+**/*handoff*.md
+**/*WORKLOG*.md
+**/*worklog*.md

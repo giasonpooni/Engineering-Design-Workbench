@@ -1,0 +1,185 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      run_sp1:
+        description: Build SP1 guests and produce CPU proofs (satellite; 45 min)
+        type: boolean
+        default: false
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        python-version: ["3.12", "3.13"]
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: Install CSE
+        run: python -m pip install -e .
+
+      - name: Run test suite
+        run: python -m unittest discover -v
+
+      - name: Run the milestone demo (self-asserting)
+        run: python -m gat.demo ci-out
+
+      - name: Run the geometry demo (self-asserting)
+        run: python -m gat.demo.geometry ci-out
+
+      - name: Run the USD interchange demo (self-asserting)
+        run: python -m gat.demo.usd ci-out
+
+      - name: Run the construction workflow demo (self-asserting)
+        run: python -m gat.demo.workflow
+
+      - name: Run the active-inference demo (self-asserting)
+        run: python -m gat.demo.active_inference
+
+      - name: Run the snapshot-portability demo (self-asserting)
+        run: python -m gat.demo.portability ci-portability-out
+
+      - name: Run the temporal predict-update demo (self-asserting)
+        run: python -m gat.demo.temporal_process
+
+      - name: Run incremental propagation scale smoke probe
+        run: python -m gat.demo.incremental_scale --sizes 8 16 32 --repeats 1 --output ci-out/incremental-scale.json
+
+      - name: Run the ledger replay demo (self-asserting)
+        run: python -m gat.demo.ledger_replay ci-out/execution-ledger.json
+
+  test-openusd:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install CSE with native OpenUSD and signature support
+        run: python -m pip install -e ".[openusd]"
+
+      - name: Run native OpenUSD and signed-carrier tests
+        run: python -m unittest tests.test_openusd tests.test_headless tests.test_beam_openusd_portability -v
+
+      - name: Run native OpenUSD portability demo (self-asserting)
+        run: python -m gat.demo.openusd_portability ci-openusd-out
+
+      - name: Run signed beam-chain OpenUSD continuation (self-asserting)
+        run: python -m gat.demo.beam_openusd_portability ci-beam-openusd-out
+
+  test-public-ifc:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install CSE
+        run: python -m pip install -e .
+
+      - name: Fetch commit-pinned public IFC corpus
+        run: python validation/fetch_ifc_corpus.py ci-ifc-corpus
+
+      - name: Verify measured public-model compatibility baselines
+        env:
+          GAT_IFC_VALIDATION_ROOT: ci-ifc-corpus
+        run: python -m unittest tests.test_public_ifc_corpus -v
+
+  test-extras:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install with the openusd extra
+        run: python -m pip install -e ".[openusd]"
+
+      - name: Run the full test suite (no optional skips)
+        run: python -m unittest discover -v
+
+      - name: Exercise the gat CLI
+        run: |
+          gat audit gat/demo/model.ifc --text
+          gat verify gat/demo/model.ifc
+          gat check gat/demo/model.ifc
+          gat inspect gat/demo/model.ifc --var "Level 1.TotalWallCost"
+          gat splats gat/demo/model.ifc ci-out-splats --variations 2
+          gat sample gat/demo/model.ifc --n 100
+
+  test-sp1-beam:
+    if: >
+      (github.event_name == 'workflow_dispatch' && inputs.run_sp1) ||
+      (github.event_name == 'push' && contains(github.event.head_commit.message, '[sp1]'))
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Install CSE
+        run: python -m pip install -e .
+
+      - name: Install native build prerequisites
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y protobuf-compiler
+
+      - name: Install the pinned SP1 toolchain
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          curl -L https://sp1up.succinct.xyz | bash
+          "$HOME/.sp1/bin/sp1up" --token "$GITHUB_TOKEN" --version 6.5.0
+          echo "$HOME/.sp1/bin" >> "$GITHUB_PATH"
+
+      - name: Host i32 kernel pin
+        run: |
+          cargo test --manifest-path rust/Cargo.toml -p cse-fixedpoint-kernel
+          cargo test --manifest-path sp1/kernel/Cargo.toml -p gat-sp1-kernel-lib
+
+      - name: Build the kernel guest host
+        run: cargo build --release --manifest-path sp1/kernel/Cargo.toml -p gat-sp1-kernel
+
+      - name: Second callback prove (statement_digest, integrity-only)
+        env:
+          SP1_PROVER: cpu
+        run: >-
+          python -m gat.demo.kernel_sp1 ci-sp1-out
+          --executable sp1/kernel/target/release/gat-sp1-kernel
+          --prove
+          --timeout 2400
+
+      - name: Validate Python/Rust fixed-point agreement (beam lib)
+        run: cargo test --locked --manifest-path sp1/beam/Cargo.toml -p gat-sp1-beam-lib
+
+      - name: Build the SP1 beam guest and proof host
+        run: cargo build --locked --release --manifest-path sp1/beam/Cargo.toml -p gat-sp1-beam
+
+      - name: Generate and independently verify the ledger-bound beam proof
+        env:
+          SP1_PROVER: cpu
+        run: >-
+          python -m gat.demo.beam_sp1 ci-sp1-out
+          --executable sp1/beam/target/release/gat-sp1-beam
+          --timeout 2400

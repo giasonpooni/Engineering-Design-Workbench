@@ -1,0 +1,105 @@
+{
+  "schema": "ciw.adapter-request.v1",
+  "operation_id": "fsrt.tank-reconstruct.v2",
+  "inputs": {
+    "model": {
+      "kind": "reservoir2-linear-v1",
+      "prior_mean": [
+        50.0,
+        50.0
+      ],
+      "prior_std": 5.0,
+      "total_mass_kg": 100.0,
+      "total_mass_variance_kg2": 0.25
+    },
+    "observations": [
+      {
+        "t": 0.0,
+        "arrival_t": 0.0,
+        "values": [
+          52.0,
+          46.0
+        ],
+        "covariance": [
+          [
+            1.0,
+            0.25
+          ],
+          [
+            0.25,
+            1.0
+          ]
+        ],
+        "mask": [
+          true,
+          true
+        ],
+        "source_ids": [
+          "SYNTHETIC-tank-1",
+          "SYNTHETIC-tank-2"
+        ],
+        "evidence_ids": [
+          "sha256:cbd2b95f64ba5a4b304623a9a60b30ac24dbf25708e8877439031721095f174f",
+          "sha256:078bc1f324e0dd28c57e089b5c2d7e4d985a2e0c05559aef42f71e4c7a3a18b9"
+        ],
+        "unit": "kg"
+      }
+    ],
+    "state_order": [
+      "tank-1.mass",
+      "tank-2.mass"
+    ],
+    "observation_covariance": {
+      "schema": "covariance-artifact.v1",
+      "quantity_ids": [
+        "SYNTHETIC-tank-1",
+        "SYNTHETIC-tank-2"
+      ],
+      "units": [
+        "kg",
+        "kg"
+      ],
+      "frame": "reservoir2.mass",
+      "reference_values": [
+        52.0,
+        46.0
+      ],
+      "matrix": [
+        [
+          1.0,
+          0.25
+        ],
+        [
+          0.25,
+          1.0
+        ]
+      ],
+      "method": "declared_correlated_measurement_covariance",
+      "basis": {
+        "kind": "calibrated_observation",
+        "id": "SYNTHETIC-calibrated-two-tank-snapshot"
+      },
+      "provenance": {
+        "provider": "FSRT-synthetic-example",
+        "source_evidence_ids": [
+          "sha256:cbd2b95f64ba5a4b304623a9a60b30ac24dbf25708e8877439031721095f174f",
+          "sha256:078bc1f324e0dd28c57e089b5c2d7e4d985a2e0c05559aef42f71e4c7a3a18b9"
+        ],
+        "source_covariance_ids": [],
+        "metadata": {
+          "shared_dependencies": [
+            "SYNTHETIC-shared-mass-reference"
+          ],
+          "prior_independent_of_observations": true,
+          "declared_total_independent_of_observations": true,
+          "prior_independent_of_declared_total": true
+        }
+      },
+      "assumptions": [
+        "SYNTHETIC demonstration: no physical calibration or validation was performed.",
+        "The declared correlated measurement covariance includes a shared mass reference."
+      ],
+      "covariance_id": "sha256:60a6588552870d918e5ad87edf6c96ac4ac1f6d1e5afa717c93f5b623e7827ef"
+    }
+  }
+}

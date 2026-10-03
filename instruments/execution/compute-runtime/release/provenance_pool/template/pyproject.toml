@@ -1,0 +1,57 @@
+[build-system]
+# 77, not 68, and the nine versions between are not a detail. PEP 639
+# metadata -- `license = "Apache-2.0"` as an SPDX expression, and
+# `license-files` -- landed in setuptools 77.0.0. Measured against real
+# interpreters: 76.1.0 rejects this file, 77.0.1 builds it.
+#
+# The understated pin survived because `pip wheel` builds in an ISOLATED
+# environment, where ">=68" resolves to the newest setuptools there is.
+# The declaration was never the thing being tested. Anyone building with
+# --no-build-isolation, or with an older setuptools pinned, got a
+# configuration error instead of a package.
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "provenance-pool"
+version = "0.1.0"
+description = "An append-only evidence pool where every value carries its provenance, and the admission gate refuses what it cannot ground."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+authors = [{ name = "Notation Systems Inc." }]
+keywords = [
+    "provenance", "evidence", "reproducibility", "active-learning",
+    "experiment-design", "scientific-computing", "data-lineage",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Science/Research",
+    "Programming Language :: Python :: 3",
+    "Topic :: Scientific/Engineering",
+    "Typing :: Typed",
+]
+
+# DELIBERATELY EMPTY, and this is a feature rather than an omission.
+# The whole library is standard library only, so it installs anywhere a
+# supported Python runs and can never break because a transitive pin
+# moved. Adding a dependency here is a decision to give that up.
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.urls]
+# The repository this distribution is DERIVED FROM, which is
+# where its source actually lives and where an issue about it
+# can be acted on. A URL naming a repository that does not
+# exist is metadata that 404s on a first release.
+Source = "https://github.com/giasonpooni/Scientific-Computation-Runtime"
+
+[tool.setuptools]
+packages = ["evidence", "scout", "retrieval", "materials", "experiment", "operations"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]

@@ -1,0 +1,11 @@
+{
+  "schema": "invariant-corpus-v1",
+  "claim_scope": "computational-integrity-only",
+  "cites": "giasonpooni/Construction-State-Estimator-for-BIM",
+  "invariants": [
+    {"id": "lattice.constraints", "kind": "identity", "statement": "projection enforces declared constraints. it does not invent them."}
+  ],
+  "free_coordinates": [
+    {"id": "var.local-estimate", "quantity": "state", "needs": ["declared-constraint"]}
+  ]
+}

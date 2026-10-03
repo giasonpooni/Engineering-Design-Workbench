@@ -1,0 +1,17 @@
+{
+  "schema": "ciw.ifc-transition-verification-summary.v1",
+  "run_ref": "sha256:95b448b2146842765054b5ac2053f4dbe765dc42250ab1be2016b41062f300fe",
+  "source_kind": "SYNTHETIC_FIXTURE",
+  "input_ref": "sha256:7407d51c47daded8ac49e1ad0e26137b154aaacd0244134e17c57a5d77c49890",
+  "native_status": "accepted",
+  "reason": "raw_scalar_conditioning_verified",
+  "qualification": "QUALIFIED",
+  "transition_readiness": "READY_FOR_AUTHORITY_REVIEW",
+  "independent_verification_scope": "one explicit declared IFC length quantity; logical source-object identity only",
+  "verified_raw_posterior_entries": 9,
+  "current_runtime_checked": true,
+  "standard_conformance_certified": false,
+  "physical_validity_established": false,
+  "state_admission_performed": false,
+  "canonical_state_mutated": false
+}

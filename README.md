@@ -86,7 +86,7 @@ its synthetic reference establishes workflow behavior, not physical calibration.
 ## Architecture
 
 NET owns investigation state, operation selection and retained execution
-history. Specialist repositories retain their mathematics and implementations.
+history. Specialist modules retain their mathematics and implementations.
 SCR remains the shared native-execution foundation where registered; evidence
 handoff and verification retain their separate authority.
 
@@ -100,9 +100,17 @@ The [Geospatial Systems Compiler](https://github.com/atomtrapping/Notations-Fram
 [State Estimator for BIM](https://github.com/atomtrapping/Notations-Estimator-for-BIM)
 remain independently scoped projects, not capabilities absorbed into NET.
 
-The [incremental engineering monorepo migration](docs/MONOREPO.md) records the
-first measurement imports, retained history, independent packages and unchanged
-provider authority boundaries.
+The [engineering superrepo](docs/MONOREPO.md) co-locates 21 public modules
+across composition, execution, measurement, inference, mathematics, domain
+tools, representations and resources. Each keeps its package, original source
+history, tests, licence and release boundary. The root Terminal package retains
+its existing interfaces; declared provider revisions remain explicit.
+
+Use `python scripts/superrepo.py list` to inspect the module registry,
+`python scripts/superrepo.py audit` to verify source preservation, and
+`python scripts/superrepo.py check --output-dir results/superrepo` to run the
+independent public qualification lanes. The migration guide records exact
+commands, selected snapshots, dependency requirements and qualification limits.
 
 ## Explore the work
 

@@ -1,0 +1,37 @@
+"artifact": "recomputability"
+"extends": "core@1.0.0"
+"generated_by": "architecture/recomputability.py"
+"owner": "STE"
+"records":
+  - "carries":
+      - "id"
+      - "derived_from"
+      - "method"
+      - "content"
+      - "confidence"
+      - "derived_at"
+    "demonstration_attempted": true
+    "demonstration_succeeded": false
+    "detail": "`method` is 'mean_of_replicates' -- a STRING. It says what was done and is part of the record's identity, so two derivations by different methods are different facts. It is not a definition: a reader holding this record cannot obtain the method from it, and recomputation requires the reader to already possess it"
+    "grade": "NAMES_ITS_METHOD"
+    "kind": "evidence.types.DerivedValue"
+  - "carries":
+      - "program"
+      - "configuration"
+      - "input_payload"
+    "demonstration_attempted": true
+    "demonstration_succeeded": true
+    "detail": "the record carries the PROGRAM ITSELF, not a name for it, and its identity is a commitment over (program, configuration, input). A reader holding the record holds everything the computation consumed, which is why this path can be proved at all: a proof about a program nobody can exhibit proves nothing a reader can check. Demonstrated through a SERIALISED record rather than from the live object, and with the negative half: removing the program changes the identity, so the field is load-bearing rather than merely present"
+    "grade": "SELF_CONTAINED"
+    "kind": "execution.specification.ExecutionSpecification"
+"summary":
+  "demonstrations_attempted": 2
+  "names_its_method": 1
+  "record_kinds_probed": 2
+  "self_contained": 1
+  "ungrounded": 0
+"the_claim_being_measured": "architecture/apparatus.yaml: 'a computed result carries what it was computed from and can be recomputed by the party reading it'"
+"the_verdict": "TRUE OF ONE PATH AND WEAKER ON THE OTHER, and the declaration did not distinguish them. The proof-bearing execution path carries the PROGRAM and a reader can rerun it. The generic derivation path carries a method NAME and a reader can rerun it only if it already has that method"
+"what_naming_a_method_still_buys": "the method is part of the record's IDENTITY, so two derivations by different methods are different facts and cannot be confused downstream. That is provenance-bearing. It is not self-sufficient, and the gap between those is exactly what this artifact exists to state"
+"what_this_does_not_claim": "that a self-contained record is CORRECT. It says a reader can run the computation again, not that the computation was the right one to run -- an identity, not a warrant"
+"what_would_close_it": "carrying a DIGEST of the method's definition, the way the execution path carries the program -- so a reader could at least check that the method it possesses is the method that was run. NOT DONE HERE: it changes what a DerivedValue is, which is a core-schema change under bend_protocol, and it is a decision rather than a measurement"

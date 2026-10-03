@@ -1,0 +1,629 @@
+/**
+ * GEOSPATIAL STATE VISUALIZATION — inspector + timeline instrument styles (.pi-)
+ * Consumes :root tokens from theme.css; defines none of its own.
+ */
+
+/* ================================================================ */
+/* INSPECTOR PANEL                                                  */
+/* ================================================================ */
+
+.pi-panel {
+  position: fixed;
+  right: 14px;
+  top: 96px;
+  width: 340px;
+  max-height: calc(100vh - 260px);
+  overflow-y: auto;
+  overflow-x: hidden;
+  pointer-events: auto;
+  background: var(--glass);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  font-family: var(--font-ui);
+  color: var(--text-hi);
+  scrollbar-width: thin;
+  scrollbar-color: var(--line-strong) transparent;
+}
+.pi-panel::-webkit-scrollbar {
+  width: 6px;
+}
+.pi-panel::-webkit-scrollbar-thumb {
+  background: var(--line-strong);
+}
+.pi-panel.pi-hidden {
+  display: none;
+}
+
+.pi-close {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  width: 22px;
+  height: 22px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--text-dim);
+  font-family: var(--font-ui);
+  font-size: 13px;
+  line-height: 1;
+  cursor: pointer;
+}
+.pi-close:hover {
+  color: var(--text-hi);
+  border-color: var(--line-strong);
+}
+
+/* ---- header block ---- */
+
+.pi-head {
+  padding: 14px 16px 12px;
+}
+.pi-kind {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  font-family: var(--font-ui);
+  margin-bottom: 4px;
+  padding-right: 26px;
+}
+.pi-kind .pi-kind-mode {
+  letter-spacing: 0.14em;
+}
+.pi-name {
+  font-family: var(--font-ui);
+  font-weight: 600;
+  font-size: 18px;
+  line-height: 1.25;
+  color: var(--text-hi);
+  padding-right: 20px;
+}
+.pi-statusline {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-top: 7px;
+}
+.pi-status-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex: none;
+}
+.pi-status-text {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+.pi-tone-ok {
+  color: var(--ok);
+}
+.pi-tone-warn {
+  color: var(--warn);
+}
+.pi-tone-alert {
+  color: var(--alert);
+}
+.pi-tone-dim {
+  color: var(--text-dim);
+}
+.pi-bg-ok {
+  background: var(--ok);
+}
+.pi-bg-warn {
+  background: var(--warn);
+}
+.pi-bg-alert {
+  background: var(--alert);
+}
+.pi-bg-dim {
+  background: var(--text-dim);
+}
+
+/* origin → destination hero line (routes) */
+.pi-od {
+  display: flex;
+  align-items: baseline;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 8px;
+  font-family: var(--font-ui);
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-hi);
+}
+.pi-od-arrow {
+  color: var(--text-dim);
+  font-weight: 400;
+}
+.pi-od-end {
+  cursor: pointer;
+}
+.pi-od-end:hover {
+  color: var(--accent);
+}
+
+/* ---- sections ---- */
+
+.pi-section {
+  border-top: 1px solid var(--line);
+  padding: 10px 16px 12px;
+}
+.pi-sec-title {
+  font-size: 10px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  font-family: var(--font-ui);
+  margin-bottom: 8px;
+}
+
+/* ---- key / value rows ---- */
+
+.pi-kv {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 3px 0;
+}
+.pi-kv-k {
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  font-family: var(--font-ui);
+  flex: none;
+}
+.pi-kv-v {
+  font-family: var(--font-mono);
+  font-size: 12px;
+  color: var(--text-hi);
+  text-align: right;
+  overflow-wrap: anywhere;
+}
+.pi-kv.pi-click {
+  cursor: pointer;
+}
+.pi-kv.pi-click:hover .pi-kv-v {
+  color: var(--accent);
+}
+
+/* ---- meters (utilization / congestion) ---- */
+
+.pi-meter {
+  padding: 4px 0;
+}
+.pi-meter-head {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  margin-bottom: 4px;
+}
+.pi-meter-label {
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-dim);
+  font-family: var(--font-ui);
+}
+.pi-meter-value {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-hi);
+}
+.pi-meter-track {
+  height: 3px;
+  background: var(--line);
+}
+.pi-meter-fill {
+  height: 100%;
+}
+
+/* ---- entity rows (clickable references) ---- */
+
+.pi-row {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  padding: 3px 0;
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--text-mid);
+}
+.pi-row.pi-click {
+  cursor: pointer;
+}
+.pi-row.pi-click:hover,
+.pi-row.pi-click:hover .pi-row-main {
+  color: var(--accent);
+}
+.pi-row-main {
+  color: var(--text-hi);
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.pi-row-sub {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  flex: none;
+}
+.pi-dot {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  flex: none;
+  align-self: center;
+}
+
+/* mode group label inside CONNECTED TRANSPORT */
+.pi-group-label {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 6px 0 2px;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--text-mid);
+  font-family: var(--font-ui);
+}
+.pi-group-label:first-child {
+  margin-top: 0;
+}
+
+/* ---- severity bars (events / constraints) ---- */
+
+.pi-sev {
+  height: 2px;
+  background: var(--line);
+  margin: 3px 0 6px;
+}
+.pi-sev-fill {
+  height: 100%;
+}
+
+/* ---- constraint entries ---- */
+
+.pi-con {
+  padding: 4px 0;
+}
+.pi-con-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.pi-con-type {
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-mid);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  padding: 1px 5px;
+  flex: none;
+}
+.pi-con-desc {
+  font-family: var(--font-ui);
+  font-size: 11px;
+  color: var(--text-mid);
+  line-height: 1.4;
+  flex: 1;
+}
+.pi-con.pi-click {
+  cursor: pointer;
+}
+.pi-con.pi-click:hover .pi-con-desc {
+  color: var(--accent);
+}
+
+/* ---- route chain (flow panel) ---- */
+
+.pi-step {
+  border-left: 3px solid var(--line-strong);
+  padding: 4px 0 4px 10px;
+  margin: 3px 0;
+  cursor: pointer;
+}
+.pi-step:hover .pi-step-od {
+  color: var(--accent);
+}
+.pi-step-mode {
+  font-size: 9px;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  font-family: var(--font-mono);
+  margin-bottom: 2px;
+}
+.pi-step-od {
+  font-family: var(--font-ui);
+  font-size: 12px;
+  color: var(--text-hi);
+  line-height: 1.35;
+}
+.pi-step-dist {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  margin-top: 1px;
+}
+
+/* ---- expandable infrastructure categories (country panel) ---- */
+
+.pi-cat {
+  margin: 2px 0;
+}
+.pi-cat-head {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 3px 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  font-size: 11px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-mid);
+  font-family: var(--font-ui);
+  text-align: left;
+}
+.pi-cat-head:hover {
+  color: var(--text-hi);
+}
+.pi-cat-caret {
+  color: var(--text-dim);
+  font-size: 9px;
+  flex: none;
+  width: 8px;
+}
+.pi-cat-count {
+  font-family: var(--font-mono);
+  font-size: 11px;
+  color: var(--text-hi);
+  margin-left: auto;
+}
+.pi-cat-body {
+  padding-left: 16px;
+}
+.pi-more {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  color: var(--text-dim);
+  padding: 2px 0;
+}
+
+/* ---- sparkline ---- */
+
+.pi-spark {
+  display: block;
+  width: 100%;
+  height: 44px;
+}
+
+/* ---- evidence ---- */
+
+.pi-chip {
+  display: inline-block;
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--text-mid);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  padding: 2px 7px;
+}
+.pi-chip-warn {
+  color: var(--warn);
+  border-color: var(--warn);
+}
+
+.pi-empty {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  color: var(--text-dim);
+  padding: 2px 0;
+}
+
+/* ================================================================ */
+/* TIMELINE                                                         */
+/* ================================================================ */
+
+.pi-timeline {
+  position: fixed;
+  bottom: 14px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: min(680px, calc(100vw - 360px));
+  pointer-events: auto;
+  background: var(--glass);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  padding: 10px 14px;
+  font-family: var(--font-ui);
+  color: var(--text-hi);
+}
+
+.pi-tl-row1 {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pi-tl-play {
+  width: 24px;
+  height: 24px;
+  padding: 0;
+  flex: none;
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  color: var(--text-hi);
+  font-family: var(--font-ui);
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+}
+.pi-tl-play:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+.pi-tl-speeds {
+  display: flex;
+  gap: 4px;
+  flex: none;
+}
+.pi-tl-speed {
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.08em;
+  padding: 3px 6px;
+  cursor: pointer;
+}
+.pi-tl-speed:hover {
+  color: var(--text-mid);
+  border-color: var(--line-strong);
+}
+.pi-tl-speed.active {
+  color: var(--accent);
+  border-color: var(--accent);
+  background: var(--accent-soft);
+}
+
+.pi-tl-readout {
+  flex: 1;
+  text-align: center;
+  font-family: var(--font-mono);
+  font-size: 13px;
+  color: var(--text-hi);
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  min-width: 0;
+}
+
+.pi-tl-regime {
+  flex: none;
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 3px 7px;
+  color: var(--text-dim);
+}
+.pi-tl-regime.regime-current {
+  color: var(--ok);
+  border-color: var(--ok);
+}
+.pi-tl-regime.regime-forecast {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+.pi-tl-regime.regime-historical {
+  color: var(--text-dim);
+  border-color: var(--line-strong);
+}
+
+.pi-tl-nowbtn {
+  flex: none;
+  background: transparent;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius);
+  color: var(--text-mid);
+  font-family: var(--font-mono);
+  font-size: 9px;
+  letter-spacing: 0.12em;
+  padding: 3px 8px;
+  cursor: pointer;
+}
+.pi-tl-nowbtn:hover {
+  color: var(--accent);
+  border-color: var(--accent);
+}
+
+/* ---- scrubber ---- */
+
+.pi-tl-scrub {
+  position: relative;
+  padding: 9px 0 7px;
+  margin-top: 4px;
+  cursor: pointer;
+  touch-action: none;
+  user-select: none;
+}
+.pi-tl-track {
+  position: relative;
+  height: 6px;
+  background: var(--line);
+}
+.pi-tl-played {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background: rgba(77, 166, 255, 0.22);
+  pointer-events: none;
+}
+.pi-tl-nowtick {
+  position: absolute;
+  top: -3px;
+  bottom: -3px;
+  width: 1px;
+  background: var(--text-mid);
+  pointer-events: none;
+}
+.pi-tl-evt {
+  position: absolute;
+  top: -2px;
+  width: 2px;
+  height: 10px;
+  background: var(--warn);
+  cursor: pointer;
+}
+.pi-tl-evt.pi-evt-alert {
+  background: var(--alert);
+}
+.pi-tl-evt:hover {
+  transform: scaleX(2);
+}
+.pi-tl-playhead {
+  position: absolute;
+  top: -2px;
+  width: 2px;
+  height: 10px;
+  background: var(--accent);
+  pointer-events: none;
+}
+.pi-tl-playhead::after {
+  content: '';
+  position: absolute;
+  top: -4px;
+  left: -2px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--accent);
+}

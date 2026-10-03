@@ -1,0 +1,14 @@
+{
+  "schema": "ciw.projectile-scenario.v1",
+  "name": "authored-projectile-01",
+  "model": "point-projectile-no-contact.v1",
+  "entity": "projectile",
+  "frame": "local-y-up-m",
+  "p0_m": [0, 5, 0],
+  "v0_m_s": [2, 0, 0],
+  "gravity_m_s2": [0, -9.81, 0],
+  "mass_kg": 1,
+  "step_hz": 120,
+  "ticks": 60,
+  "inputs": []
+}

@@ -28,16 +28,29 @@ record proves local consistency, not independent attestation.
 ## Publication and qualification
 
 The scientific extension is additive to current main. Preserve its repository
-URLs, correction/Legibility changes and import manifest. The local 21-instrument
-native-history consolidation is a separate checkpoint until native Git transport
-can publish its ancestry; do not simulate that migration by uploading a directory
-snapshot. Source-only publication must not claim all 21 imports are on main.
+URLs, correction/Legibility changes and import manifest. The 21-instrument
+native-history consolidation is published on main through
+[PR #126](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/126).
+Preserve the imported ancestry and manifest when integrating composition;
+directory snapshots cannot substitute for that history.
+
+Historical qualification covers PR head
+`6453fbe9987783e732bb0a52ecd3acf0cbd02762`. The actual OCI artifact from
+[run 37105589209](https://github.com/atomtrapping/Notations-Systems-Terminal/actions/runs/37105589209)
+records the clean hosted merge checkout
+`c979d1da5887bfc60b1a28ad2a5ed6e83a8ab456`, tree
+`9ba7ee78eccc59adb8952a99d10079f456b9522b`. Its eight scientific-runtime source
+hashes match that PR head. The retained artifact establishes local/subprocess/OCI
+candidate parity and the observed digest/resource policy for those runtime bytes.
+It does not qualify the newly integrated source or attest the complete environment.
 
 Before publishing, run system suites, affected root regression, wheel-installed
 checks outside the source checkout, and import-tree audit. Record exact source
 and runtime identities with outputs. A configured CI job is not a passed check.
 Only an observed real container run establishes OCI parity. An expected failed
 approximation or startup threshold is retained evidence, not a CI defect.
+Every new integration head needs fresh source, installed-wheel, Linux/Windows
+and actual OCI checks; prior passed runs remain evidence of their exact scope.
 
 Publish through a new branch based on current main. Reconcile later changes
 additively, never force-push. Merge only the exact tested, mergeable head under
@@ -47,8 +60,9 @@ after it merges, create a fresh branch from the updated main.
 ## Next bounded priorities
 
 1. Resolve defects in the current qualification before expanding scope.
-2. Qualify real OCI execution and retained digest/resource receipts on hosted
-   runners; distinguish an unavailable engine from a failed calculation.
+2. Requalify real OCI execution and retained digest/resource receipts on the
+   current integration head; distinguish an unavailable engine from a failed
+   calculation and preserve earlier qualified receipts.
 3. Add typed parameter studies with retained per-configuration outcomes and
    explicit validity ranges, using existing operation and dependency identities.
 4. Add coordinate transformations with declared state/operator/observation laws

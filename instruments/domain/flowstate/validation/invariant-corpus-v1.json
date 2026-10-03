@@ -1,0 +1,29 @@
+{
+  "schema": "invariant-corpus-v1",
+  "claim_scope": "computational-integrity-only",
+  "cites": "giasonpooni/Construction-State-Estimator-for-BIM",
+  "invariants": [
+    {
+      "id": "disp.hold-on-inconsistency",
+      "kind": "disposition",
+      "statement": "large disagreement is held; balance cannot hide it."
+    },
+    {
+      "id": "graph.incidence",
+      "kind": "identity",
+      "statement": "clique is the incidence row, not the next basin."
+    },
+    {
+      "id": "name.not-visual",
+      "kind": "naming",
+      "statement": "not 3DGS / NeRF / PDE visual reconstruction."
+    }
+  ],
+  "free_coordinates": [
+    {
+      "id": "var.storage",
+      "quantity": "storage",
+      "needs": ["declared-balance", "gauge"]
+    }
+  ]
+}

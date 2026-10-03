@@ -4,9 +4,10 @@ NET compiles a declared scientific configuration into a typed state schema and
 execution graph, runs coupled reference models, and retains distinct numerical
 verification and reduction comparisons in its existing Session. This extends
 NET's existing substrate, Legibility, Surface provenance fixes and the
-correction journal without changing imported instrument packages. The local
-history-preserving 21-instrument consolidation remains a separate checkpoint;
-publishing this extension does not replace the current import manifest.
+correction journal without changing imported instrument packages. The
+history-preserving 21-instrument consolidation is published on main through
+[PR #126](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/126).
+Composition preserves that ancestry and the current import manifest.
 
 ## Run the polymer reference
 
@@ -146,10 +147,36 @@ samples. Startup failures remain visible even when later-time benchmarks pass.
 The subprocess path has measured deterministic parity. OCI packaging is in
 `containers/system-reference/`, with immutable image digest selection, no network,
 resource limits and an explicit worker entrypoint. Local and subprocess execution
-support Linux and Windows; the OCI adapter requires POSIX user/group identity.
-A real OCI build and run must
-be qualified where Docker is available. This environment has no container engine;
-the adapter and recipe are implemented, but container parity is not claimed.
+support Linux and Windows. Diagnostic draining uses bounded reader threads and
+a queue; review files use explicit UTF-8 and LF output. The OCI adapter requires
+POSIX user/group identity.
+
+On deadline failure, the adapter terminates the selected worker and allows
+bounded cleanup: up to five seconds to reap it and 0.2 seconds per diagnostic
+reader. OCI failures additionally allow up to five seconds to remove the unique
+task-owned container. These allowances can extend total elapsed time beyond the
+requested worker timeout. The trusted reference worker currently spawns no
+subprocesses. General descendant process-tree termination and inherited-pipe
+cleanup are outside the qualified contract, especially on Windows.
+
+Real OCI qualification is retained for PR head
+`6453fbe9987783e732bb0a52ecd3acf0cbd02762`. The artifact from
+[run 37105589209](https://github.com/atomtrapping/Notations-Systems-Terminal/actions/runs/37105589209)
+records the tested hosted merge commit
+`c979d1da5887bfc60b1a28ad2a5ed6e83a8ab456`, tree
+`9ba7ee78eccc59adb8952a99d10079f456b9522b`; all eight retained scientific-runtime
+source hashes match the PR head. Its `checks.json` reports exact
+local/subprocess/OCI candidate parity, separate numerical verification,
+restoration and an actual container-policy probe. The selected worker repository
+digest is `sha256:5a03bc52a24afdb041eb04ba8fe2e287a224d4f3286db8deb4be63f3f3080858`;
+the loopback image reference is a qualification fixture, not a public deployment.
+Environment attestation and reproducible image bytes remain unestablished.
+
+These are historical, runtime-bound observations. Integrating composition with
+the newer main changes the source context and requires a fresh qualified head,
+installed wheel, Linux/Windows checks and actual OCI execution before publication.
+This local execution environment has no container engine, so that renewed OCI
+qualification runs on provisioned hosted runners.
 
 ## Extend the family
 

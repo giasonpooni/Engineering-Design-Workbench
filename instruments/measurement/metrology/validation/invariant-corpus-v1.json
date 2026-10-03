@@ -1,0 +1,12 @@
+{
+  "schema": "invariant-corpus-v1",
+  "claim_scope": "computational-integrity-only",
+  "cites": "giasonpooni/Construction-State-Estimator-for-BIM",
+  "invariants": [
+    {"id": "chain.parts", "kind": "identity", "statement": "board, interface, sensor, installation are separate."},
+    {"id": "cal.declared", "kind": "calibration", "statement": "sigma is declared before Observe."}
+  ],
+  "free_coordinates": [
+    {"id": "var.indicated", "quantity": "reading", "needs": ["declared-calibration"]}
+  ]
+}

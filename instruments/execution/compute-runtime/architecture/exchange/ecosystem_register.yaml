@@ -1,0 +1,269 @@
+"apparatuses":
+  - "bound_core": "core@1.0.0"
+    "branch": "claude/deterministic-state-architecture-q9kl5c"
+    "commit": "0e5e916b25d5"
+    "commits": 175
+    "core_declaring_files": 9
+    "name": "Scout-Retrieval-Agent"
+    "remote": "notationsystems/Scout-Retrieval-Agent"
+    "role": "the CORE the other apparatuses resolve against, and the computation"
+    "role_source": "architecture/apparatus.yaml"
+    "verdict_because": "declares core@1.0.0 in 9 architecture file(s) and its history is authored here"
+  - "bound_core": "core@1.0.0"
+    "branch": "claude/daf-state-space-architecture-v8peqd"
+    "commit": "6b378590da30"
+    "commits": 135
+    "core_declaring_files": 85
+    "name": "notations-acquisition-channel"
+    "remote": "notationsystems/notations-acquisition-channel"
+    "role": "NOT_DECLARED"
+    "role_source": ""
+    "verdict_because": "declares core@1.0.0 in 85 architecture file(s) and its history is authored here"
+  - "bound_core": "core@1.0.0"
+    "branch": "claude/scl-architecture-design-0jzkm9"
+    "commit": "5e62820f8682"
+    "commits": 36
+    "core_declaring_files": 5
+    "name": "scientific-compute-layer"
+    "remote": "notationsystems/Scientific-Compute-Layer-SCL-"
+    "role": "NOT_DECLARED"
+    "role_source": ""
+    "verdict_because": "declares core@1.0.0 in 5 architecture file(s) and its history is authored here"
+"artifact": "ecosystem_register"
+"company_claim": "Notation Systems builds and operates provenance-bearing computational corpora"
+"extends": "core@1.0.0"
+"generated_by": "architecture/ecosystem.py"
+"method": "every repository in reach is classified on EVIDENCE -- an authored core declaration, external commit authorship, a third-party copyright -- and never on the GitHub org it sits under. Integration is then measured rather than assumed: an input named only in prose is MENTIONED and an input named nowhere is UNREFERENCED"
+"owner": "STE"
+"reconciled_against_an_independent_census":
+  "and_it_counts_differently": "it enumerates 6 repositories carrying the name and 7 APPARATUSES; this register reports 3. The predicates differ and neither count is wrong: this one measures BOUND-TO-THE-CORE (an authored architecture declaration), the census measures CARRIES-THE-NAME. A repository can carry the name and bind nothing"
+  "not_transcribed": "the census's rows are POINTED AT, not copied here. It is that party's artifact and its claims are its own to state; duplicating them would create a second copy that drifts and a reader could not tell which was the source"
+  "the_correction_it_forced": "the census lists morphohdl as a company repository. This register had it VENDORED_INPUT -- on a copyright match that turned out to be Apache-2.0 BOILERPLATE ('Licensor shall mean the copyright owner...'), which would have disowned every Apache-licensed repository on no evidence at all. Six repositories moved from VENDORED_INPUT to UNRESOLVED once strong evidence was required"
+  "the_sibling_measured_the_same_question": "the acquisition channel recorded architecture/ecosystem_census.yaml independently, against this repository at an OLDER pin than this register existed at -- so it is not derived from this artifact and the two are genuinely independent readings"
+  "what_this_register_structurally_cannot_see": "an apparatus with NO REPOSITORY. The census records Notation Physical Commerce living in commerce/ inside the acquisition channel, deliberately, with no repository of its own. This register is keyed on repositories and would never have a row for it. Recorded as a limitation rather than closed, because closing it means keying on something other than what is being enumerated"
+"summary":
+  "apparatuses": 3
+  "apparatuses_declaring_a_role": 1
+  "cores_bound":
+    - "core@1.0.0"
+  "repositories_in_reach": 25
+  "unresolved": 6
+  "vendored_and_referenced_by_nothing": 8
+  "vendored_but_under_our_org": 6
+  "vendored_inputs": 16
+"the_core_they_bind":
+  "digest": "sha256:8a8c73f4cba45c70299ced9f4dddd870d430a94bc90c684363e330c2b010c560"
+  "how_to_check": "architecture/core_identity.py::covers_what_is_bound(your path, the surface name) FIRST -- to establish the digest is about code you actually import -- then verify(digest, root, surface_name) over your own copy. A mismatch names the file. BOTH steps matter: verify() without a surface name checks the twin track, which is not what any party measured here binds, and checking a digest without checking its referent is what produced the defect this field records"
+  "measured":
+    "tracks":
+      "evidence_platform": "sha256:41b191759ffaef4666d4d10a44bd18a4811baba77e7ba9ed671f875400d453f8"
+      "twin_compiler": "sha256:8a8c73f4cba45c70299ced9f4dddd870d430a94bc90c684363e330c2b010c560"
+    "who_binds_what":
+      "DAQ":
+        "binds": "evidence_platform"
+        "imports":
+          "evidence_platform": 294
+          "twin_compiler": 0
+      "SCL":
+        "binds": "evidence_platform"
+        "imports":
+          "evidence_platform": 41
+          "twin_compiler": 0
+  "the_digest_field_is_the_TWIN_track": "kept for continuity and NAMED, because an earlier version published it as 'the core they bind' when no binding party imports that track. What each party actually binds is under `measured` -- read that one"
+  "what_it_does_not_settle": "whether a party HAS this core. This register reads the sibling clones on one machine; it does not know what any party has checked out elsewhere, and does not pretend to"
+  "why_it_is_here": "every apparatus binds core@1.0.0 BY LABEL, and the label moves only under bend_protocol -- so many core commits carry it and a binding party cannot tell which one it bound. The digest is what makes the binding checkable rather than nominal, and it is published beside the bindings so a party reading this register has both"
+"the_finding":
+  "a_folder_is_not_an_ecosystem": "8 vendored repositories are referenced by NOTHING in any apparatus. Presence is not participation, and they are recorded unreferenced rather than listed as components -- the same reasoning that makes an unreached gate a silence rather than a clean result"
+  "no_apparatus_declares_its_role": "2 of 3 apparatuses carry no architecture/apparatus.yaml. All bind core@1.0.0, so they agree on the core and none states what it IS within the company. That is the coherence gap, and it is filled per-repository BY EACH PARTY: a role written here on another party's behalf would be a self-declaration this party is not entitled to make"
+  "org_ownership_is_not_authorship": "6 of 16 vendored repositories sit under the notationsystems/ org while being other parties' work, by their own commit history and copyright. A map that read the org prefix as a provenance claim would have declared 25 apparatuses and been wrong about 22 of them"
+  "which_rule_this_is": "a mirror is not a source, at REPOSITORY scale. The same rule the invariant register enforces per file, and a fork under your own org is the most convincing mirror there is because the URL agrees with the claim"
+"the_namesake_question":
+  "and_the_substance_is_LESS_shared_than_the_name_suggests": "measured across both trees: ZERO shared domain vocabulary (circuit, netlist, verilog, cell definition, rewiring, wasm appear in neither direction), zero cross-reference in either direction, and disjoint subject matter -- a content-addressed language front-end with provenance here, an experimental graph-rewrite system for growing circuits there"
+  "the_artifact_that_would_settle_it": "this package implements FROZEN SPECIFICATION v1.0.0, sections 7.A and 7.B, cited by name in morpho/lexer.py, morpho/parser.py and morpho/ast.py. Nothing in morphohdl references that specification, and its only grammar hit is inside a vendored syntax highlighter"
+  "the_name_is_MORE_shared_than_the_census_knew": "this repository's package does not merely say `morpho`. Its modules call themselves MORPHO HDL, in their own docstrings -- the same two words, not a prefix in common"
+  "verdict": "SHARED NAME, UNSHARED REFERENT AS FAR AS THIS TREE SHOWS. Not asserted as unrelated: two implementations of one idea in two languages would look exactly like this, and this machine holds no document that decides it. What is settled is that nothing HERE licenses treating them as one thing, and the census's instruction not to assume from the name stands, now with the evidence behind it"
+  "what_was_asked": "the sibling census records that this repository contains a morpho/ package naming a Morpho IR, and that whether that IR is notationsystems/morphohdl's or a namesake is NOT determined there and must not be assumed from the name. Settled here as far as evidence allows, because it is this repository's package"
+"unresolved":
+  - "because": "under our org, no core declaration, no declared upstream and no copyright grant. A squashed snapshot's commit author is NOT evidence of ownership -- it is whoever last touched whatever was imported. Unsettled, and rounded toward NEITHER party"
+    "name": "chemical-kinetics-and-program-execution"
+    "remote": "notationsystems/chemical-kinetics-and-program-execution"
+  - "because": "under our org, no core declaration, no declared upstream and no copyright grant. A squashed snapshot's commit author is NOT evidence of ownership -- it is whoever last touched whatever was imported. Unsettled, and rounded toward NEITHER party"
+    "name": "game-theory-foundation-models"
+    "remote": "notationsystems/game-theory-foundation-models"
+  - "because": "under our org, no core declaration, no declared upstream and no copyright grant. A squashed snapshot's commit author is NOT evidence of ownership -- it is whoever last touched whatever was imported. Unsettled, and rounded toward NEITHER party"
+    "name": "geometrickernels"
+    "remote": "notationsystems/geometrickernels"
+  - "because": "under our org, no core declaration, no declared upstream and no copyright grant. A squashed snapshot's commit author is NOT evidence of ownership -- it is whoever last touched whatever was imported. Unsettled, and rounded toward NEITHER party"
+    "name": "morphohdl"
+    "remote": "notationsystems/morphohdl"
+  - "because": "under our org, no core declaration, no declared upstream and no copyright grant. A squashed snapshot's commit author is NOT evidence of ownership -- it is whoever last touched whatever was imported. Unsettled, and rounded toward NEITHER party"
+    "name": "neural-networks-on-riemannian-manifolds"
+    "remote": "notationsystems/neural-networks-on-riemannian-manifolds"
+  - "because": "under our org, no core declaration, no declared upstream and no copyright grant. A squashed snapshot's commit author is NOT evidence of ownership -- it is whoever last touched whatever was imported. Unsettled, and rounded toward NEITHER party"
+    "name": "physgto"
+    "remote": "notationsystems/physgto"
+"vendored_inputs":
+  - "copyright": []
+    "integration": "INTEGRATED"
+    "name": "SP1-zero-knowledge-virtual-machine"
+    "referenced_by":
+      - "apparatus": "Scout-Retrieval-Agent"
+        "files": 7
+      - "apparatus": "notations-acquisition-channel"
+        "files": 3
+    "remote": "notationsystems/SP1-zero-knowledge-virtual-machine"
+    "under_our_org_but_not_ours": true
+    "upstream_authors":
+      - "Eugene Rabinovich"
+  - "copyright": []
+    "integration": "INTEGRATED"
+    "name": "ShinkaEvolve"
+    "referenced_by":
+      - "apparatus": "Scout-Retrieval-Agent"
+        "files": 2
+    "remote": "SakanaAI/ShinkaEvolve"
+    "under_our_org_but_not_ours": false
+    "upstream_authors":
+      - "Robert Tjarko Lange"
+  - "copyright":
+      - "2021 AiiDAlab team"
+    "integration": "INTEGRATED"
+    "name": "aiidalab"
+    "referenced_by":
+      - "apparatus": "Scout-Retrieval-Agent"
+        "files": 1
+    "remote": "aiidalab/aiidalab"
+    "under_our_org_but_not_ours": false
+    "upstream_authors":
+      - "Edan Bainglass"
+  - "copyright":
+      - "2018: Chris Rackauckas."
+    "integration": "INTEGRATED"
+    "name": "diffeqpy"
+    "referenced_by":
+      - "apparatus": "Scout-Retrieval-Agent"
+        "files": 2
+    "remote": "SciML/diffeqpy"
+    "under_our_org_but_not_ours": false
+    "upstream_authors":
+      - "PositroniumJS"
+  - "copyright":
+      - "(C) 1991, 1999 Free Software Foundation, Inc."
+    "integration": "INTEGRATED"
+    "name": "gromacs"
+    "referenced_by":
+      - "apparatus": "Scout-Retrieval-Agent"
+        "files": 16
+      - "apparatus": "notations-acquisition-channel"
+        "files": 2
+      - "apparatus": "scientific-compute-layer"
+        "files": 15
+    "remote": "gromacs/gromacs"
+    "under_our_org_but_not_ours": false
+    "upstream_authors":
+      - "Mark Abraham"
+  - "copyright":
+      - "2017 MariaDB Corporation Ab, All Rights Reserved. “Business Source License” is a"
+    "integration": "INTEGRATED"
+    "name": "nexus-zkvm"
+    "referenced_by":
+      - "apparatus": "Scout-Retrieval-Agent"
+        "files": 7
+      - "apparatus": "notations-acquisition-channel"
+        "files": 2
+    "remote": "nexus-xyz/nexus-zkvm"
+    "under_our_org_but_not_ours": false
+    "upstream_authors":
+      - "Samuel Judson"
+  - "copyright": []
+    "integration": "INTEGRATED"
+    "name": "nvalchemi-toolkit"
+    "referenced_by":
+      - "apparatus": "Scout-Retrieval-Agent"
+        "files": 1
+    "remote": "NVIDIA/nvalchemi-toolkit"
+    "under_our_org_but_not_ours": false
+    "upstream_authors":
+      - "Kelvin Lee"
+  - "copyright": []
+    "integration": "INTEGRATED"
+    "name": "risc0-zero"
+    "referenced_by":
+      - "apparatus": "Scout-Retrieval-Agent"
+        "files": 6
+      - "apparatus": "notations-acquisition-channel"
+        "files": 1
+    "remote": "notationsystems/risc0-zero"
+    "under_our_org_but_not_ours": true
+    "upstream_authors":
+      - "Remi Bernotavicius"
+  - "copyright": []
+    "integration": "UNREFERENCED"
+    "name": "AI-Scientist-v2"
+    "referenced_by": []
+    "remote": "SakanaAI/AI-Scientist-v2"
+    "under_our_org_but_not_ours": false
+    "upstream_authors":
+      - "Robert Tjarko Lange"
+  - "copyright":
+      - "2026 Yongli Mou"
+    "integration": "UNREFERENCED"
+    "name": "RiemannFM"
+    "referenced_by": []
+    "remote": "notationsystems/RiemannFM"
+    "under_our_org_but_not_ours": true
+    "upstream_authors":
+      - "Yongli Mou"
+  - "copyright": []
+    "integration": "UNREFERENCED"
+    "name": "continuous-thought-machines"
+    "referenced_by": []
+    "remote": "SakanaAI/continuous-thought-machines"
+    "under_our_org_but_not_ours": false
+    "upstream_authors":
+      - "Luke Darlow"
+  - "copyright":
+      - "2009-2026 The Regents of the University of Michigan."
+    "integration": "UNREFERENCED"
+    "name": "hoomd-blue"
+    "referenced_by": []
+    "remote": "glotzerlab/hoomd-blue"
+    "under_our_org_but_not_ours": false
+    "upstream_authors":
+      - "Joshua A. Anderson"
+  - "copyright":
+      - "2023 NLNR"
+    "integration": "UNREFERENCED"
+    "name": "jacobi-polynomial-algo"
+    "referenced_by": []
+    "remote": "notationsystems/jacobi-polynomial-algo"
+    "under_our_org_but_not_ours": true
+    "upstream_authors":
+      - "NLNR"
+  - "copyright":
+      - "2020 Filippo Bianchi"
+    "integration": "UNREFERENCED"
+    "name": "spectral-clustering-with-graph-neural-networks-for-graph-pooling"
+    "referenced_by": []
+    "remote": "notationsystems/spectral-clustering-with-graph-neural-networks-for-graph-pooling"
+    "under_our_org_but_not_ours": true
+    "upstream_authors":
+      - "Filippo Maria Bianchi"
+  - "copyright": []
+    "integration": "UNREFERENCED"
+    "name": "text-to-lora"
+    "referenced_by": []
+    "remote": "SakanaAI/text-to-lora"
+    "under_our_org_but_not_ours": false
+    "upstream_authors":
+      - "51616"
+  - "copyright":
+      - "2018, Dan Maljovec"
+    "integration": "UNREFERENCED"
+    "name": "topopy"
+    "referenced_by": []
+    "remote": "notationsystems/topopy"
+    "under_our_org_but_not_ours": true
+    "upstream_authors":
+      - "Dan Maljovec"
+"what_this_does_not_claim": "that the vendored inputs are unimportant, that anything here is a licence review, or that APPARATUS means 'belongs to the company'. It means BOUND TO THE CORE, which is narrower and is what the evidence supports. It classifies AUTHORSHIP and measures REFERENCE: an INTEGRATED input is one an apparatus names in a load-bearing file, which is a fact about this tree and not an assessment of the input"

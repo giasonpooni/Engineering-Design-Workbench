@@ -1,0 +1,32 @@
+name: bounded-window-reference
+on: [push, pull_request]
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python: ['3.11', '3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install -e '.[test]'
+      - uses: actions/checkout@v4
+        with:
+          repository: giasonpooni/State-Estimation-Evaluation-Testbed
+          ref: c4d39c755187796ce2c72552a90454871c516c8f
+          path: .conformance/set
+          persist-credentials: false
+      - uses: actions/checkout@v4
+        with:
+          repository: giasonpooni/Computational-Instrumentation-Workbench
+          ref: 4ac382b4f3bab490de30347af58c7cfdffa9547e
+          path: .conformance/ciw
+          persist-credentials: false
+      - run: python -m pytest -q
+        env:
+          STFE_SET_REPO: .conformance/set
+          STFE_CIW_REPO: .conformance/ciw

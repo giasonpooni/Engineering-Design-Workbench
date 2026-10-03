@@ -1,0 +1,70 @@
+name: NET spatial provider and scene starter
+on:
+  pull_request:
+    paths:
+      - 'src/ciw/spatial_*.py'
+      - 'src/ciw/provider_catalog.py'
+      - 'src/ciw/operations/schemas.py'
+      - 'tests/test_spatial_provider.py'
+      - 'scripts/check_spatial_installed.py'
+      - '.github/workflows/spatial-provider.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  local-frame:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    env:
+      GSC_REVISION: acc6a4c43dd1d28e3fc6890dadf5cd2b4ae40125
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: giasonpooni/Geospatial-Systems-Compiler
+          ref: ${{ env.GSC_REVISION }}
+          path: .ciw-gsc-source
+          persist-credentials: false
+      - name: Provision explicit dependencies before provider requests
+        run: |
+          python -m pip install -e '.[dev,openusd]' build
+          python -m pip install -r .ciw-gsc-source/tools/ciw-local-frame/requirements.txt
+          python -c 'from pxr import Usd; import pyproj; assert pyproj.__version__ == "3.7.2"; print(Usd.GetVersion(), pyproj.proj_version_str)'
+      - name: Real worker numerical checks and bounded NET contracts
+        run: |
+          python -m pytest .ciw-gsc-source/tools/ciw-local-frame/test_worker.py -q --junitxml=gsc-worker.xml
+          GSC_LOCAL_FRAME_ROOT="$GITHUB_WORKSPACE/.ciw-gsc-source" python -m pytest tests/test_spatial_provider.py -q --junitxml=spatial-contracts.xml
+          python - <<'PY'
+          import xml.etree.ElementTree as E
+          for name,count in [('gsc-worker.xml',14),('spatial-contracts.xml',39)]:
+              suites=list(E.parse(name).getroot().iter('testsuite'))
+              assert sum(int(s.attrib['tests']) for s in suites)==count
+              assert all(int(s.attrib[k])==0 for s in suites for k in ('failures','errors','skipped'))
+          PY
+      - name: Existing Session, operations and USDA regressions
+        run: python -m pytest tests/test_workbench_session.py tests/test_operation_runner.py tests/test_operation_failure_retention.py tests/test_operation_publication.py tests/test_usda_export.py tests/test_usd_export.py tests/test_json_numeric_boundary.py tests/test_cli_json_boundary.py -q --junitxml=spatial-regressions.xml
+      - name: Build and exercise installed wheel outside checkout
+        run: |
+          python -m build --wheel
+          python -m pip install --force-reinstall --no-deps dist/*.whl
+          cd "$RUNNER_TEMP"
+          python -I "$GITHUB_WORKSPACE/scripts/check_spatial_installed.py" --gsc-root "$GITHUB_WORKSPACE/.ciw-gsc-source" --gsc-revision "$GSC_REVISION" --output-dir "$GITHUB_WORKSPACE/spatial-evidence"
+      - name: Retain exact source
+        run: git archive --format=zip --output=spatial-source.zip HEAD
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: net-spatial-provider-linux
+          if-no-files-found: error
+          path: |
+            gsc-worker.xml
+            spatial-contracts.xml
+            spatial-regressions.xml
+            spatial-evidence
+            spatial-source.zip
+            dist/*.whl

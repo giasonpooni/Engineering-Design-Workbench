@@ -1,0 +1,24 @@
+{
+  "schema": "invariant-corpus-v1",
+  "claim_scope": "computational-integrity-only",
+  "cites": "giasonpooni/Construction-State-Estimator-for-BIM",
+  "invariants": [
+    {
+      "id": "pin.chain-jvp-i32",
+      "kind": "numeric",
+      "y": [5, 3]
+    },
+    {
+      "id": "alg.no-duplicate",
+      "kind": "pin",
+      "statement": "Shared coordinate-transform adapters do not duplicate T F T^-1 or T P T^T implementations."
+    }
+  ],
+  "free_coordinates": [
+    {
+      "id": "var.dx",
+      "quantity": "tangent",
+      "needs": ["declared-J"]
+    }
+  ]
+}

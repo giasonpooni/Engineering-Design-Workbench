@@ -1,0 +1,34 @@
+{
+  "schema": "net.foundry-delivery-preservation.v1",
+  "status": "byte_inventory_verified",
+  "archive": "NET_Foundry_1792_v1.zip",
+  "archive_sha256": "0c80669cf353e6ddf3ccf30c9eab61be22d47e4c160fd645a25ba37784321357",
+  "archive_bytes": 2955319,
+  "original_bundle_sha256": "88e9ba377369e27d152d5cc1497802f56b77fb5c028c1f5331b9df209ef3c822",
+  "original_file_count": 131,
+  "all_original_file_bytes_preserved": true,
+  "archive_encoding": "deterministic_repack_not_original_zip_bytes",
+  "runtime_execution": "not_performed",
+  "new_native_qualification": "not_performed",
+  "input_artifacts": {
+    "native": {
+      "id": 11015799398,
+      "sha256": "3d81ff0e973d125176a731e8a346e85f4dccb3c5245bcc9cdd63cb556395b9e3"
+    },
+    "ubuntu": {
+      "id": 11016491173,
+      "sha256": "9f584bae733cdc296c6091ecc52743c764c5bdd1c4d6e4a9f2faacac37a05fee"
+    },
+    "windows": {
+      "id": 11015697994,
+      "sha256": "9f6bb56e28774247fda0639efa6be215e935cdb468c57b91d118ada826729c5f"
+    },
+    "initial": {
+      "id": 11015997939,
+      "sha256": "b853dd82f2b804a4c288c137a77bcd3f141b283da0fb47c0a9d0bdc0b9acdefe"
+    }
+  },
+  "net_runtime_head": "67225cb061560ad26218ea8473a6b70fb3ab98c1",
+  "game_runtime_head": "2bb8a16e63716d54de2d4e97daabc4671d3e07f4",
+  "scope": "repository retention; not ESM admission, a new runtime test or a product release"
+}

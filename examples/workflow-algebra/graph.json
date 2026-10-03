@@ -1,0 +1,25 @@
+{
+  "schema": "ciw.workflow-request.v1",
+  "target": "graph",
+  "expression": {
+    "kind": "parallel",
+    "items": [
+      {
+        "kind": "call",
+        "node_id": "statistics",
+        "operation_id": "statistics.v1",
+        "parameters": {
+          "channel": "q"
+        }
+      },
+      {
+        "kind": "call",
+        "node_id": "spectrum",
+        "operation_id": "spectrum.periodogram.v1",
+        "parameters": {
+          "channel": "q"
+        }
+      }
+    ]
+  }
+}

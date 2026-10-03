@@ -1,0 +1,19 @@
+{
+  "run_id": "experiment.ifc-public-wall.v1",
+  "canonical_entity_id": "candidate:ifc-public-wall",
+  "required_admission_authority": "authority.external-review.v1",
+  "target": {
+    "ifc_class": "IfcBuildingStorey",
+    "global_id": "2GNgSHJ5j9BRUjqT$7tE8w",
+    "quantity": "ClearHeight"
+  },
+  "model_frame": "synthetic-declared-model-frame",
+  "source_provenance": {
+    "kind": "PUBLIC_REFERENCE",
+    "source_uri": "https://github.com/buildingSMART/Sample-Test-Files",
+    "revision": "e6f1c1d80ac216e1c1d6f88d4650f13d8c8277b7",
+    "source_path": "IFC 4.0.2.1 (IFC 4)/ISO Spec - ReferenceView_V1.2/wall-with-opening-and-window.ifc",
+    "license": "CC-BY-4.0",
+    "sha256": "sha256:73b0e45d931d5dc13bfee5fdc7bd80f796526445458b2de74c4168d209097832"
+  }
+}

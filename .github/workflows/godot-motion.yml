@@ -1,0 +1,113 @@
+name: Native Godot stateful owner
+on:
+  pull_request:
+    paths:
+      - 'src/ciw/godot_motion*.py'
+      - 'src/ciw/engine_assets/godot_motion/**'
+      - 'src/ciw/simulation*.py'
+      - 'src/ciw/control_*.py'
+      - 'src/ciw/net.py'
+      - 'tests/test_godot_motion.py'
+      - 'tests/test_simulation*.py'
+      - 'scripts/check_godot_motion_native.py'
+      - 'pyproject.toml'
+      - '.github/workflows/godot-motion.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  contracts:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[dev]' build
+      - name: Preserve both stateful profiles and original numerical controls
+        shell: bash
+        run: |
+          python -m pytest tests/test_godot_motion.py tests/test_simulation_control.py tests/test_simulation_study.py -q --junitxml=native-owner-contracts.xml
+          python -m pytest tests/test_control_plane.py tests/test_scientific.py tests/test_scientific_observations.py tests/test_check_suite.py tests/test_math_inspector.py tests/test_information_display.py -q --junitxml=native-owner-regressions.xml
+          python - <<'PY'
+          import xml.etree.ElementTree as E
+          for path,count in [('native-owner-contracts.xml',161),('native-owner-regressions.xml',338)]:
+              suites=list(E.parse(path).getroot().iter('testsuite'))
+              assert sum(int(s.attrib['tests']) for s in suites)==count
+              assert all(int(s.attrib[k])==0 for s in suites for k in ('failures','errors','skipped'))
+          PY
+      - run: python -m build --wheel
+      - name: Installed wheel and packaged engine source
+        shell: bash
+        run: |
+          python - <<'PY'
+          import pathlib,subprocess,sys,tempfile,shutil
+          root=pathlib.Path.cwd();wheel=next((root/'dist').glob('*.whl'))
+          subprocess.run([sys.executable,'-m','pip','install','--force-reinstall','--no-deps',str(wheel)],check=True)
+          with tempfile.TemporaryDirectory() as tmp:
+              target=pathlib.Path(tmp)
+              shutil.copyfile(root/'tests/test_godot_motion.py',target/'test_godot_motion.py')
+              (target/'pytest.ini').write_text('[pytest]\n')
+              subprocess.run([sys.executable,'-I','-m','pytest','-c','pytest.ini','-q','test_godot_motion.py','--junitxml='+str(root/'native-owner-installed.xml')],cwd=target,check=True)
+          PY
+      - name: Retain source
+        if: always()
+        run: git archive --format=zip --output=native-owner-source.zip HEAD
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: godot-owner-contracts-${{ matrix.os }}
+          if-no-files-found: error
+          path: |
+            native-owner-*.xml
+            native-owner-source.zip
+            dist/*.whl
+  native:
+    needs: contracts
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Provision checksum-checked Godot and installed NET
+        shell: bash
+        run: |
+          python -m pip install . build
+          mkdir -p "$RUNNER_TEMP/godot-owner"
+          cd "$RUNNER_TEMP/godot-owner"
+          curl --fail --location --retry 2 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.5.2-stable/Godot_v4.5.2-stable_linux.x86_64.zip
+          echo '87f6e6be292929e363d15ed9052f277b2ba4e95ed994e1e099048097be2dfd03  godot.zip' | sha256sum --check
+          unzip -q godot.zip
+          chmod +x Godot_v4.5.2-stable_linux.x86_64
+          echo "GODOT=$PWD/Godot_v4.5.2-stable_linux.x86_64" >> "$GITHUB_ENV"
+          echo "GODOT_SHA256=sha256:$(sha256sum Godot_v4.5.2-stable_linux.x86_64 | cut -d' ' -f1)" >> "$GITHUB_ENV"
+      - name: Real engine-owned continuation and failure campaign
+        shell: bash
+        run: |
+          cd "$RUNNER_TEMP"
+          python -I "$GITHUB_WORKSPACE/scripts/check_godot_motion_native.py" --godot "$GODOT" --godot-sha256 "$GODOT_SHA256" --output-dir "$GITHUB_WORKSPACE/godot-owner-evidence"
+      - name: Retain exact source and built wheel
+        if: always()
+        run: |
+          python -m build --wheel
+          git archive --format=zip --output=godot-owner-source.zip HEAD
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: godot-owner-native-linux
+          if-no-files-found: error
+          path: |
+            godot-owner-evidence
+            godot-owner-source.zip
+            dist/*.whl

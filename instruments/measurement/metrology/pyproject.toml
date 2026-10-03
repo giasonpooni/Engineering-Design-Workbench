@@ -1,0 +1,22 @@
+[project]
+name = "retrofitted-computational-instrumentation"
+version = "0.2.0"
+description = "Measurement-chain contract for retrofitted instruments."
+readme = "README.md"
+license = "MIT"
+requires-python = ">=3.12"
+dependencies = ["numpy>=2.0"]
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/instrument_chain"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"

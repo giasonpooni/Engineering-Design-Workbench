@@ -1,0 +1,82 @@
+[build-system]
+# 77, not 68, and the nine versions between are not a detail. PEP 639
+# metadata -- `license = "Apache-2.0"` as an SPDX expression, and
+# `license-files` -- landed in setuptools 77.0.0. Measured against real
+# interpreters: 76.1.0 rejects this file, 77.0.1 builds it.
+#
+# The understated pin survived because `pip wheel` builds in an ISOLATED
+# environment, where ">=68" resolves to the newest setuptools there is.
+# The declaration was never the thing being tested. Anyone building with
+# --no-build-isolation, or with an older setuptools pinned, got a
+# configuration error instead of a package.
+requires = ["setuptools>=77"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "canonical-state"
+version = "0.1.0"
+description = "One immutable versioned state, and every view of it a derived projection that can never write back."
+readme = "README.md"
+requires-python = ">=3.10"
+license = "Apache-2.0"
+license-files = ["LICENSE", "NOTICE"]
+authors = [{ name = "Notation Systems Inc." }]
+keywords = [
+    "state-management", "versioning", "immutable", "provenance",
+    "determinism", "projection", "compiler", "content-addressing",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "Programming Language :: Python :: 3",
+    "Topic :: Software Development :: Libraries",
+    "Typing :: Typed",
+]
+
+# DELIBERATELY EMPTY, and a feature rather than an omission. The whole
+# library is standard library only, so it installs anywhere a supported
+# Python runs and can never break because a transitive pin moved.
+# Adding a dependency here is a decision to give that up.
+dependencies = []
+
+[project.optional-dependencies]
+dev = ["pytest>=7"]
+
+[project.urls]
+# The repository this distribution is DERIVED FROM, which is
+# where its source actually lives and where an issue about it
+# can be acted on. A URL naming a repository that does not
+# exist is metadata that 404s on a first release.
+Source = "https://github.com/giasonpooni/Scientific-Computation-Runtime"
+
+# EVERY package, SUBPACKAGES INCLUDED, and listed rather than found.
+# The first version of this listed only the five top-level names, and
+# `pip install .` then produced a distribution whose `core/` and
+# `backends/` contained nothing but `__init__.py` -- every real module
+# missing, and importable only by whoever still had the source tree.
+# The derived suite did not catch it because it runs inside the emitted
+# directory, so `.` is on the path and it imports the source, never the
+# installed copy. `build.py` now compares this list against the tree it
+# emitted and refuses on any difference.
+[tool.setuptools]
+packages = [
+    "core", "core.canonical", "core.projection",
+    "morpho",
+    "backends", "backends.diagram", "backends.graph",
+    "backends.neural", "backends.simulation", "backends.threejs",
+    "runtime",
+    "adapters",
+    # not importable Python -- a browser view. Declared anyway, because a
+    # directory that is not a package is dropped from the wheel entirely.
+    "renderer",
+]
+
+# The assets `renderer` exists to carry. Without these the directory
+# installs as a bare __init__.py and the NOTICE names a third-party file
+# that is not there.
+[tool.setuptools.package-data]
+renderer = ["*.html", "*.json", "vendor/*.js", "vendor/*.md"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+python_files = ["test_*.py"]

@@ -1,0 +1,324 @@
+/**
+ * ═══════════════════════════════════════════════════════════════
+ *  Payload — API Catalog
+ *  Machine-readable description of every public route under /api.
+ *  Kept in sync by hand with src/app/api/ * /route.ts
+ * ═══════════════════════════════════════════════════════════════
+ */
+
+export type HttpMethod = 'GET' | 'POST';
+
+export interface ApiParam {
+  name: string;
+  required?: boolean;
+  desc: string;
+  example?: string;
+}
+
+export interface ApiEndpoint {
+  /** Path relative to the deployment origin, e.g. `/api/flights` */
+  path: string;
+  method: HttpMethod | HttpMethod[];
+  summary: string;
+  /** Query-string parameters (GET) */
+  params?: ApiParam[];
+  /** Top-level keys present on a 2xx response */
+  returns: string[];
+  /** Free-form notes: caching, auth, upstream source, failure modes */
+  notes?: string;
+  /** Environment variables the route reads */
+  env?: string[];
+  /** Pretty-printed JSON request body, for POST routes */
+  bodyExample?: string;
+  /** True when the route needs a credential the docs cannot supply */
+  requiresAuth?: boolean;
+}
+
+/** Stable DOM id / deep-link anchor for an endpoint. */
+export function endpointId(ep: ApiEndpoint): string {
+  const method = Array.isArray(ep.method) ? ep.method[0] : ep.method;
+  return `ep-${method}-${ep.path.replace(/[^a-zA-Z0-9]+/g, '-').replace(/^-|-$/g, '')}`.toLowerCase();
+}
+
+/** Example request URL with required params filled from their documented examples. */
+export function sampleUrl(ep: ApiEndpoint, origin = ''): string {
+  const qs = (ep.params || [])
+    .filter(p => p.required || p.example)
+    .map(p => `${p.name}=${encodeURIComponent((p.example || '').split(' | ')[0] || 'value')}`)
+    .join('&');
+  return `${origin}${ep.path}${qs ? `?${qs}` : ''}`;
+}
+
+export interface ApiGroup {
+  id: string;
+  title: string;
+  blurb: string;
+  endpoints: ApiEndpoint[];
+}
+
+export const API_GROUPS: ApiGroup[] = [
+  {
+    id: 'system',
+    title: 'System',
+    blurb: 'Liveness and aggregate counters. Safe to poll from monitoring.',
+    endpoints: [
+      {
+        path: '/api/health',
+        method: 'GET',
+        summary: 'Liveness probe. Never touches an upstream feed, so it stays fast under load.',
+        returns: ['status', 'platform', 'version', 'uptime', 'timestamp', 'endpoints'],
+        notes: '`status` is the literal string `operational`. `uptime` is process uptime in seconds.',
+      },
+      {
+        path: '/api/stats',
+        method: 'GET',
+        summary:
+          'Fans out to the heavy feeds in parallel and returns only the counts — roughly 100 bytes instead of 10 MB of GeoJSON.',
+        returns: ['stats', 'timestamp'],
+        notes:
+          '`stats` contains `flights`, `sats`, `cctv`, `weather`, `nuclear`, `incidents`. Cached `s-maxage=30, stale-while-revalidate=60`, so 10k concurrent dashboard boots collapse into one upstream fetch per minute.',
+      },
+    ],
+  },
+  {
+    id: 'earth',
+    title: 'Earth & Environment',
+    blurb: 'Seismic, fire, atmospheric, and orbital-imagery feeds.',
+    endpoints: [
+      {
+        path: '/api/weather',
+        method: 'GET',
+        summary: 'Severe weather and natural events from NASA EONET.',
+        returns: ['events', 'total', 'timestamp'],
+      },
+      {
+        path: '/api/air-quality',
+        method: 'GET',
+        summary: 'Ground station air quality readings.',
+        returns: ['stations', 'total', 'timestamp'],
+      },
+    ],
+  },
+  {
+    id: 'media-markets',
+    title: 'Media & Markets',
+    blurb: 'News aggregation, live broadcast streams, and financial instruments.',
+    endpoints: [
+      {
+        path: '/api/news',
+        method: 'GET',
+        summary: 'Aggregated OSINT news items.',
+        returns: ['news', 'total', 'timestamp'],
+      },
+      {
+        path: '/api/markets',
+        method: 'GET',
+        summary: 'Defence-sector equities and commodities.',
+        returns: ['stocks', 'timestamp'],
+      },
+    ],
+  },
+  {
+    id: 'surveillance',
+    title: 'Surveillance & Infrastructure',
+    blurb: 'Camera networks, fixed infrastructure, maritime traffic, and tile/stream proxies.',
+    endpoints: [
+      {
+        path: '/api/infrastructure',
+        method: 'GET',
+        summary: 'Fixed strategic infrastructure — nuclear sites, plants, and facilities.',
+        returns: ['infrastructure', 'total', 'timestamp'],
+      },
+      {
+        path: '/api/maritime',
+        method: 'GET',
+        summary: 'Ports, chokepoints, and vessel positions.',
+        returns: ['ports', 'chokepoints', 'ships', 'total_ports', 'total_chokepoints', 'total_ships', 'timestamp'],
+        env: ['AIS_API_KEY'],
+      },
+      {
+        path: '/api/arcgis',
+        method: 'GET',
+        summary: 'Queries a configured ArcGIS feature service.',
+        params: [
+          { name: 'service', desc: 'Service identifier to query.' },
+          { name: 'q', desc: 'Attribute query string.' },
+          { name: 'bbox', desc: 'Bounding box filter, `minLng,minLat,maxLng,maxLat`.' },
+        ],
+        returns: ['…feature collection'],
+      },
+      {
+        path: '/api/proxy-tiles',
+        method: 'GET',
+        summary: 'Same-origin raster tile proxy for basemaps that block cross-origin reads.',
+        params: [{ name: 'url', required: true, desc: 'Upstream tile URL.' }],
+        returns: ['…binary tile'],
+      },
+      {
+        path: '/api/geo',
+        method: 'GET',
+        summary: 'Geolocates the calling client by IP.',
+        returns: ['status', 'query', 'city', 'regionName', 'country', 'lat', 'lon', 'isp', 'org'],
+      },
+    ],
+  },
+  {
+    id: 'osint',
+    title: 'OSINT Toolkit',
+    blurb:
+      'Infrastructure attribution and counterparty screening. Every route takes a single subject and returns a normalised result, so they compose well in scripts. Scoped to organisations: never used to profile a person.',
+    endpoints: [
+      {
+        path: '/api/osint/dns',
+        method: 'GET',
+        summary: 'Resolves A, AAAA, MX, NS, TXT, and SOA records.',
+        params: [{ name: 'domain', required: true, desc: 'Domain to resolve.', example: 'example.com' }],
+        returns: ['…record sets'],
+      },
+      {
+        path: '/api/osint/whois',
+        method: 'GET',
+        summary: 'Registration and registrar detail for a domain.',
+        params: [{ name: 'domain', required: true, desc: 'Domain to look up.', example: 'example.com' }],
+        returns: ['…registration record'],
+      },
+      {
+        path: '/api/osint/certs',
+        method: 'GET',
+        summary: 'Certificate transparency search — an effective passive subdomain enumerator.',
+        params: [{ name: 'domain', required: true, desc: 'Apex domain to search.', example: 'example.com' }],
+        returns: ['certificates', 'subdomains', 'total_certs', 'unique_subdomains', 'timestamp'],
+      },
+      {
+        path: '/api/osint/ip',
+        method: 'GET',
+        summary: 'Geolocation, ASN, and network ownership for an address.',
+        params: [{ name: 'ip', required: true, desc: 'IPv4 or IPv6 address.', example: '8.8.8.8' }],
+        returns: ['…address record'],
+      },
+      {
+        path: '/api/osint/bgp',
+        method: 'GET',
+        summary: 'ASN, prefix, and peering relationships.',
+        params: [{ name: 'query', required: true, desc: 'ASN, prefix, or IP.', example: 'AS15169' }],
+        returns: ['…routing record'],
+      },
+      {
+        path: '/api/osint/mac',
+        method: 'GET',
+        summary: 'Resolves a MAC address or OUI prefix to its hardware vendor.',
+        params: [{ name: 'mac', required: true, desc: 'MAC address or OUI prefix.', example: '00:1A:2B:3C:4D:5E' }],
+        returns: ['mac', 'prefix', 'vendor', 'address', 'detail'],
+      },
+      {
+        path: '/api/osint/sanctions',
+        method: 'GET',
+        summary: 'Searches the OpenSanctions mirror of the US OFAC SDN list.',
+        params: [
+          { name: 'query', required: true, desc: 'Name of a person, organisation, or vessel.' },
+          { name: 'schema', desc: 'Entity type filter.', example: 'Person | Organization | Vessel' },
+          { name: 'limit', desc: 'Maximum results to return.', example: '10' },
+        ],
+        returns: ['schema', 'total', 'source', 'timestamp'],
+      },
+      {
+        path: '/api/osint/threats',
+        method: 'GET',
+        summary: 'Reputation and threat-intel enrichment for an indicator.',
+        params: [{ name: 'query', required: true, desc: 'IP, domain, or file hash.' }],
+        returns: ['…enrichment record'],
+      },
+    ],
+  },
+  {
+    id: 'graph',
+    title: 'Entity Graph',
+    blurb: 'Link analysis over entities surfaced elsewhere in the platform.',
+    endpoints: [
+      {
+        path: '/api/entity/expand',
+        method: 'GET',
+        summary: 'Expands one graph node into its neighbours.',
+        params: [
+          { name: 'id', required: true, desc: 'Entity identifier to expand.' },
+          { name: 'type', required: true, desc: 'Entity type, which selects the expansion strategy.' },
+        ],
+        returns: ['…nodes and edges'],
+      },
+    ],
+  },
+  {
+    id: 'ai',
+    title: 'AI Analysis',
+    blurb:
+      'Gemini-backed correlation over feed data you supply. All three are POST, all three are rate limited to 5 requests per minute per IP.',
+    endpoints: [
+    ],
+  },
+  {
+    id: 'sdk',
+    title: 'Polybolos SDK',
+    blurb:
+      'Push entities from an external platform into the Common Operating Picture, and stream the merged picture back out.',
+    endpoints: [
+      {
+        path: '/api/sdk/ingest',
+        method: 'POST',
+        summary: 'Accepts Polybolos-format entities from an external system and merges them into the map.',
+        returns: ['accepted', 'rejected', 'errors', 'timestamp'],
+        env: ['SDK_INGEST_KEY'],
+        requiresAuth: true,
+        notes:
+          'Each entity needs `id`, `position.lat`, and `position.lng`; everything else is defaulted. Stored ids are namespaced to `ext-{source}-{id}`, so two platforms can push the same id safely. Fails closed: 503 when `SDK_INGEST_KEY` is unset, 401 on key mismatch, 400 on a malformed payload.',
+        bodyExample: `{
+  "source": "lattice",
+  "apiKey": "$SDK_INGEST_KEY",
+  "entities": [
+    {
+      "id": "TRK-4471",
+      "name": "UNKNOWN SURFACE CONTACT",
+      "domain": "SEA",
+      "entityType": "TRACK",
+      "position": { "lat": 36.14, "lng": -5.35, "heading": 271, "speed": 14.2 },
+      "threat": "UNKNOWN",
+      "classification": "UNCLASSIFIED",
+      "confidence": 0.86
+    }
+  ]
+}`,
+      },
+      {
+        path: '/api/sdk/ingest',
+        method: 'GET',
+        summary: 'Reports how many external entities are currently held, plus recent ingest history.',
+        returns: ['sdk', 'version', 'entityCount', 'recentIngestions', 'timestamp'],
+      },
+      {
+        path: '/api/sdk/stream',
+        method: 'GET',
+        summary: 'Server-Sent Events stream of normalised entities as they arrive.',
+        returns: ['…SSE event stream'],
+        notes:
+          'Opens with a `status` event carrying `connected`, `entityCount`, `feedCount`, `latticeStatus`, and `lastUpdate`. Consume with `EventSource`, not `fetch`.',
+      },
+    ],
+  },
+  {
+    id: 'webhooks',
+    title: 'Webhooks',
+    blurb: 'Inbound hooks from external services.',
+    endpoints: [
+      {
+        path: '/api/github-webhook',
+        method: 'POST',
+        summary: 'Receives GitHub repository events.',
+        returns: ['success', 'message', 'error'],
+        requiresAuth: true,
+        notes: 'Signature-verified. Unsigned or mismatched deliveries are rejected with 401.',
+      },
+    ],
+  },
+];
+
+/** Total endpoint count, derived rather than hard-coded so it cannot drift. */
+export const ENDPOINT_COUNT = API_GROUPS.reduce((n, g) => n + g.endpoints.length, 0);

@@ -1,0 +1,12 @@
+{
+  "description": "Synthetic random-walk fixture, not recorded sensor data",
+  "frame_id": "frame:synthetic-scalar",
+  "units": ["m"],
+  "prior": {"time": 0, "mean": [0], "covariance": [[1]]},
+  "process_variance": 0.1,
+  "observations": [
+    {"id": "example:scalar-1", "time": 1, "value": 1.2, "variance": 0.25},
+    {"id": "example:scalar-2", "time": 2, "value": 0.9, "variance": 0.25},
+    {"id": "example:scalar-3", "time": 3, "value": 1.1, "variance": 0.25}
+  ]
+}

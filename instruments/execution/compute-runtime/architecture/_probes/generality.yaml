@@ -1,0 +1,128 @@
+# Zero-implementation generality probe: falsify substrate generality by
+# observation PROPERTIES, not named fields. No ingest path, no
+# extension-tree entry, no code. Re-run whenever a core invariant
+# changes.
+purpose: falsify substrate generality
+status: paper_only
+extends: core@1.0.0
+
+observation_properties:
+  - non_reproducible          # the observed event cannot be re-run
+  - revocable_record          # the source may compel removal
+  - cohort_identity           # the subject is a population, not an object
+  - uncontrolled_conditions   # conditions are recorded, not set
+
+# PROBE COVERAGE DEFECT, FOUND 2026-08-26 BY COMPARING THIS FILE AGAINST
+# THE ACQUISITION LAYER'S COPY, AND RECORDED RATHER THAN QUIETLY FIXED.
+# Every property above is a property of an OBSERVATION. This probe
+# therefore could not falsify anything about COMPUTATION -- and the
+# acquisition layer's probe, which gained the key below, found exactly
+# such a case and returned its first FAIL. Adding it here as a separate
+# key rather than appending to the list above: a computation property is
+# not one any source's observations can have, and appending it would be
+# the category error the sibling probe explicitly avoided.
+#
+# CONSEQUENCE FOR THIS REPOSITORY'S OWN RECORD, STATED PLAINLY: every
+# `Bent: zero` this repository has claimed was measured against a probe
+# with no computation key. The claim is not thereby false -- the
+# evaluation below finds no bend -- but its EVIDENCE was narrower than
+# the claim implied, which is the same shape as trusting an anchor for
+# the property that made it blind.
+computation_properties:
+  - recursive_computation     # iteration over its own prior output
+
+gate: re-run whenever a core invariant changes
+
+criterion:
+  pass: zero core invariants require modification; qualification via
+        per-vertical admissibility classes is permitted
+  fail: any core invariant requires modification to admit these
+        properties
+  on_fail: the invariant was domain-specific and was misfiled as core
+
+# -- evaluation against core@1.0.0; observation properties 2026-08-25,
+#    computation properties 2026-08-26 -----------------------------------
+evaluation:
+  non_reproducible:
+    finding: reproducibility is ALREADY per-vertical here, not a
+      substrate invariant -- the molecular/crystal vertical declares
+      admissibility_class reproducible_on_demand while the substrate
+      only requires execution_recorded (computation identity + trace
+      occurrence). singular_observation (pilot batch, consumed sample)
+      is representable without bending core.
+    bend: none
+  revocable_record:
+    finding: BENDS. evidence_append_only holds with no tombstone
+      semantics -- payload retirement with retained id/provenance edges,
+      and defeasance propagation to canonical claims, do not exist in
+      this pool. A revocation-compelling source cannot be honestly
+      onboarded today.
+    bend: recorded in architecture/invariants.yaml (evidence_append_only
+      limitation); fixing it is a core version increment, not a patch
+  cohort_identity:
+    finding: untested -- no cohort-subject vertical exists; Referent
+      natural_key + kind could carry it, but nothing exercises it.
+    bend: unknown (recorded, not guessed)
+    measured_elsewhere: >-
+      the acquisition layer RAN this probe in its own substrate on
+      2026-08-26 and reports a representation gap rather than a defect.
+      Its result is deliberately NOT transcribed here, for the same
+      reason this repository stopped transcribing statuses it does not
+      own: a copy is current only until the owner corrects it, and this
+      project has already had one go two corrections stale with every
+      suite green. Read it at the source, which the derived register
+      names and pins to a commit.
+    why_this_repository_s_verdict_is_UNCHANGED: >-
+      the sibling measured ITS substrate. `unknown` here is a statement
+      about this one, and the reason still holds unaltered: nothing in
+      this repository constructs a population-subject observation, so
+      there is nothing to plant a cohort violation against. A sibling
+      finding a gap in its own gates is not evidence about gates this
+      repository does not have -- which is the same boundary the
+      recursive_computation entry above records from the other side.
+  uncontrolled_conditions:
+    finding: untested at substrate level; the domain vertical's
+      no_context_free_property machinery (structures/quantity.py) makes
+      recorded-not-set conditions REPRESENTABLE, but no such ingest
+      exists.
+    bend: unknown (recorded, not guessed)
+  recursive_computation:
+    # THE VERDICT WORD IS DELIBERATELY NOT `none`. It does not mean what
+    # the four observation rows' `none` means. Those were evaluated
+    # against a substrate that HOLDS the thing they test. This one
+    # covers the half of recursion this repository can see and is silent
+    # on the half it cannot -- and a bare `none` sitting in a column of
+    # `none`s reads as tested rather than as bounded.
+    bend: none_at_the_execution_boundary
+    finding: >-
+      NO BEND, and the reason is structural rather than a policy this
+      repository chose. An N-iteration estimator runs to completion
+      INSIDE one ExecutionSpecification, so it is one computation
+      identity and one trace occurrence here -- the iteration count is
+      not visible to any identity this repository mints, and cannot
+      inflate one. That is the correct reading of the recursive case at
+      the EXECUTION boundary, which is the boundary this repository
+      owns.
+    evidence_boundary: >-
+      what this repository CANNOT evaluate is the evidence-lineage half:
+      whether a chain of derivations is bounded and its depth recorded.
+      That is generation_depth_bounded, which the derived register shows
+      is owned and enforced by the acquisition layer (implementation,
+      two suites, declared bound, composition guard, planted hole). This
+      repository's local copy of that invariant said `identified` while
+      the owner had closed it -- the row that motivated the derived
+      register, and for which this repository now states no status at
+      all: it names the owner, and the register resolves the live value
+      on every derivation.
+    what_would_change_this_verdict: >-
+      an execution path here that mints one computation identity PER
+      ITERATION rather than per specification. The iteration count would
+      then be visible to an identity this repository mints and could
+      inflate one. No such path exists today; if one is built this row
+      is re-evaluated, never inherited.
+    caveat: >-
+      recorded because it qualifies the claim rather than supporting it:
+      this verdict covers the execution boundary only. A repository that
+      owns execution identity cannot falsify a lineage-depth invariant
+      by inspecting its own ledgers, because lineage depth is not a
+      quantity its ledgers carry.
