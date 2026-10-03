@@ -47,6 +47,10 @@ def validate_role(operation_id: str, role: str) -> None:
                 "impact.plate-contact-verify.v1": "verification",
                 "atmosphere.compile.v1": "backend",
                 "atmosphere.verify.v1": "verification",
+                "fluid.reservoir.simulate.v1": "backend",
+                "fluid.reservoir.verify.v1": "verification",
+                "fluid.wave.simulate.v1": "backend",
+                "fluid.wave.verify.v1": "verification",
                 "polymer.assess-cycle.v1": "backend",
                 "polymer.copilot-context.v1": "backend",
                 "polymer.control-simulate.v1": "backend",
@@ -96,6 +100,9 @@ def validate_payload(operation_id: str, data: dict, run: dict, parameters: dict,
         from ..spatial_records import validate_payload as validator
     elif operation_id == "oscillator.rhs-native.v1":
         from ..adapters.oscillator_kernel import validate_payload as validator
+    elif operation_id in {"fluid.reservoir.simulate.v1", "fluid.reservoir.verify.v1",
+                          "fluid.wave.simulate.v1", "fluid.wave.verify.v1"}:
+        from ..fluid_workflow import validate_payload as validator
     elif operation_id in {"atmosphere.compile.v1", "atmosphere.verify.v1"}:
         from ..atmosphere_workflow import validate_payload as validator
     elif operation_id in {"polymer.assess-cycle.v1", "polymer.copilot-context.v1",

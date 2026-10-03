@@ -64,6 +64,18 @@ explicit runtime checkouts, executables or credentials. Consolidation alone does
 not establish that every workflow can run after an upstream repository is removed.
 The migration and qualification guides record the current dependency closure.
 
+## Bounded dynamic fluid models
+
+`net fluid` retains a time-dependent two-reservoir exchange model with a
+bidirectionally coupled compliant boundary, and a separate periodic linear
+surface-wave profile. Independent references, mass/energy/interface-work
+checks, and temporal/spatial refinement qualify their declared numerical
+domains. The [fluid guide](docs/FLUID_DYNAMICS.md) includes runnable commands,
+model equations, a qualified scalar-state handoff, and explicit expansion
+routes. The existing FlowState snapshot estimator and runtime pin remain
+unchanged; experimental validation and general molecular/CFD coupling remain
+unestablished.
+
 ## Quickstart
 
 Python **3.11 or newer** is required. From a checkout:
