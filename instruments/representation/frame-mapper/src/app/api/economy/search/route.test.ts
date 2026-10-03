@@ -1,0 +1,249 @@
+import { describe, it, expect } from 'vitest';
+import { GET } from './route';
+import { getEconomyState } from '@/lib/economy/store';
+
+const get = (qs: string) => GET(new Request(`http://localhost/api/economy/search?${qs}`));
+
+describe('GET /api/economy/search', () => {
+  it('finds Escondida by name with coordinates and an evidence headline', async () => {
+    const res = await get('q=escondida');
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    const hit = body.results[0];
+    expect(hit.id).toBe('ent:mine:escondida');
+    expect(hit.kind).toBe('mine');
+    expect(hit.operator).toBe('BHP');
+    expect(typeof hit.lat).toBe('number');
+    expect(typeof hit.lng).toBe('number');
+    expect(hit.zoom).toBe(9);
+    // The headline is resolved evidence, labeled with its valueKind — the
+    // search result never presents a number without its epistemic status.
+    expect(hit.headline).toContain('production');
+    expect(hit.headline).toMatch(/reported|estimated|representative|derived/);
+    // The entity itself carries its attestation class too: Escondida's
+    // facility-level evidence is all curation-class, and the hit says so.
+    expect(hit.attestation).toBe('representative');
+  });
+
+  it('attestation distinguishes measured identities from curated ones', async () => {
+    const chile = await (await get('q=chile')).json();
+    expect(chile.results[0].id).toBe('ent:country:cl');
+    expect(chile.results[0].attestation).toBe('reported');
+    const jv = await (await get('q=antamina')).json();
+    const vehicle = jv.results.find((r: { id: string }) => r.id === 'ent:company:antamina-jv');
+    expect(vehicle.attestation).toBe('structural_only'); // exists on a curated relationship claim alone
+  });
+
+  it('is case-insensitive and matches by operator and country', async () => {
+    const byOperator = await (await get('q=freeport')).json();
+    expect(byOperator.results.map((r: { id: string }) => r.id)).toContain('ent:mine:grasberg');
+    const byCountry = await (await get('q=CHILE')).json();
+    // Direct name match (the country) surfaces first; facilities follow.
+    expect(byCountry.results[0].id).toBe('ent:country:cl');
+    expect(byCountry.results.length).toBeGreaterThan(1);
+  });
+
+  it('rejects 1-char queries and caps results at 8', async () => {
+    expect((await get('q=g')).status).toBe(400); // no fuzzy-matching noise
+    const port = await (await get('q=port of')).json();
+    expect(port.results.length).toBeLessThanOrEqual(8);
+    expect(port.results.every((r: { kind: string }) => r.kind === 'port')).toBe(true);
+  });
+
+  it('rejects unknown commodities, short queries, and malformed dates', async () => {
+    expect((await get('q=escondida&commodity=unobtainium')).status).toBe(404);
+    expect((await get('q=')).status).toBe(400);
+    expect((await get('q=escondida&asOf=not-a-date')).status).toBe(400);
+    expect((await get('q=escondida&asOf=2019-06-01&knowledge=psychic')).status).toBe(400);
+  });
+
+  it('honours the knowledge state: entities not knowable at asOf are withheld and counted', async () => {
+    // Canada exists in the register only for live observations whose knownAt
+    // is 2025+. Under AS KNOWN at 2019 it must be withheld — search must not
+    // be the way around the badge.
+    const then = await (await get('q=canada&asOf=2019-06-01&knowledge=as_known_then')).json();
+    expect(then.results).toEqual([]);
+    expect(then.withheld).toBeGreaterThanOrEqual(1);
+    expect(then.withheldNote).toContain('not knowable on 2019-06-01');
+    const now = await (await get('q=canada')).json();
+    expect(now.results.map((r: { id: string }) => r.id)).toContain('ent:country:ca');
+  });
+
+  it('headlines never leak hindsight under as_known_then', async () => {
+    // Escondida is knowable in 2019 via curated structure, but its
+    // observation evidence carries knownAt 2025 — the headline must not
+    // surface a 2024 figure under a 2019 AS KNOWN state.
+    const then = await (await get('q=escondida&asOf=2019-06-01&knowledge=as_known_then')).json();
+    const hit = then.results[0];
+    expect(hit.id).toBe('ent:mine:escondida');
+    expect(hit.headline ?? '').not.toContain('2024');
+  });
+});
+
+describe('search miss → registry gap', () => {
+  it('a true miss names the registered-but-unbuilt sources that could answer it', async () => {
+    const body = await (await get('q=vessel shipping movements')).json();
+    expect(body.results).toEqual([]);
+    const ids = body.registryGaps.map((g: { sourceId: string }) => g.sourceId);
+    expect(ids).toContain('maritime-ais');
+    // Built sources are never gaps.
+    expect(ids).not.toContain('westmetall-lme');
+    expect(body.missNote).toContain('demand signal');
+  });
+
+  it('an ownership miss surfaces the parent-chain register', async () => {
+    const body = await (await get('q=beneficial ownership parent')).json();
+    expect(body.results).toEqual([]);
+    const ids = body.registryGaps.map((g: { sourceId: string }) => g.sourceId);
+    expect(ids).toContain('openownership');
+  });
+
+  it('a hit carries no gaps; a withheld miss is a knowledge state, not a registry gap', async () => {
+    const hit = await (await get('q=escondida')).json();
+    expect(hit.registryGaps).toBeUndefined();
+    // Canada at 2019 AS KNOWN: the state CAN answer — the knowledge state
+    // withholds it. Offering registry gaps here would misdiagnose coherence
+    // as absence.
+    const withheldMiss = await (await get('q=canada&asOf=2019-06-01&knowledge=as_known_then')).json();
+    expect(withheldMiss.results).toEqual([]);
+    expect(withheldMiss.withheld).toBeGreaterThanOrEqual(1);
+    expect(withheldMiss.registryGaps).toBeUndefined();
+  });
+});
+
+describe('second commodity through the search surface', () => {
+  it('finds aluminium entities with attestation, and evidence kinds run per commodity', async () => {
+    const hit = await (await get('q=bratsk&commodity=aluminium')).json();
+    expect(hit.results[0].id).toBe('ent:smelter:bratsk');
+    expect(hit.results[0].attestation).toBe('representative');
+    const vintages = await (await get('q=vintage&commodity=aluminium')).json();
+    expect(vintages.evidenceResults.map((h: { type: string }) => h.type)).toContain('usgs-mcs2025-live');
+  });
+});
+
+describe('evidence-layer search kinds', () => {
+  it('refused:topology at 2017 finds the facility events the country vintage cannot attribute — one shared remedy per type', async () => {
+    // Work order 3.2 changed what refuses at 2017: the country vintage
+    // SERVES the date, so facility events refuse via the allocation model
+    // (topology frame), while the Grasberg export halt — whose corridors
+    // are served but gross — refuses via basis and moves to refused:basis.
+    const body = await (await get('q=refused:topology&asOf=2017-02-15')).json();
+    expect(body.evidenceKind).toBe('refused');
+    expect(body.evidenceType).toBe('topology');
+    expect(body.results).toEqual([]);
+    const titles = body.evidenceResults.map((h: { title: string }) => h.title);
+    expect(titles.join(' ')).toContain('Escondida 44-day strike');
+    expect(titles.join(' ')).not.toContain('Grasberg concentrate export halt');
+    for (const h of body.evidenceResults) {
+      expect(h.type).toBe('topology');
+      expect(h.remedy).toContain('flow vintages'); // the shared fix is what the type is FOR
+      expect(h.remedy).toContain('allocation model');
+    }
+  });
+
+  it('refused:basis at 2017 finds the export halt whose real corridors refuse conversion', async () => {
+    const body = await (await get('q=refused:basis&asOf=2017-02-15')).json();
+    const halt = body.evidenceResults.find((h: { title: string }) => h.title.includes('Grasberg concentrate export halt'));
+    expect(halt).toBeDefined();
+    expect(halt.type).toBe('basis');
+    expect(halt.detail).toContain('corridor grade');
+  });
+
+  it('stale:topology surfaces the live extrapolation contradiction', async () => {
+    const body = await (await get('q=stale:topology')).json();
+    const hit = body.evidenceResults[0];
+    expect(hit).toBeDefined();
+    expect(hit.title).toContain('structural contradiction');
+    expect(hit.evidenceIds).toContain('evt:grasberg-mud-rush-2025');
+  });
+
+  it('evidence queries honour the knowledge state end-to-end', async () => {
+    // 2025-09-09 sits in the mud rush's occurrence→report window: the
+    // contradiction exists under best_known, and is not yet knowable under
+    // as_known_then — the evidence layer must not be a way around the badge.
+    const best = await (await get('q=stale:topology&asOf=2025-09-09')).json();
+    expect(best.evidenceResults.length).toBeGreaterThan(0);
+    const known = await (await get('q=stale:topology&asOf=2025-09-09&knowledge=as_known_then')).json();
+    expect(known.evidenceResults).toEqual([]);
+  });
+
+  it('contested is typed by divergence class and vintage inventories the held editions', async () => {
+    const contested = await (await get('q=contested:unexplained')).json();
+    expect(contested.evidenceResults.length).toBeGreaterThan(0);
+    for (const h of contested.evidenceResults) expect(h.type).toBe('unexplained');
+    const vintages = await (await get('q=vintage usgs')).json();
+    const ids = vintages.evidenceResults.map((h: { type: string }) => h.type);
+    expect(ids).toContain('usgs-mcs2025-live');
+    expect(ids).toContain('usgs-mcs2024-vintage');
+  });
+});
+
+describe('search policy: no natural persons', () => {
+  it('SearchHit projects register fields only — no person-shaped keys can leak', async () => {
+    const REGISTER_FIELDS = ['id', 'name', 'kind', 'stage', 'country', 'operator', 'lat', 'lng', 'zoom', 'headline', 'attestation'];
+    const body = await (await get('q=freeport')).json();
+    expect(body.results.length).toBeGreaterThan(0);
+    for (const hit of body.results) {
+      for (const key of Object.keys(hit)) expect(REGISTER_FIELDS).toContain(key);
+    }
+  });
+
+  it('the entity register holds no person-shaped kinds', async () => {
+    const { state } = await getEconomyState('copper');
+    const PERSON_SHAPED = ['person', 'individual', 'officer', 'director', 'beneficial_owner'];
+    for (const e of state.entities) {
+      expect(PERSON_SHAPED, `entity ${e.id}`).not.toContain(e.kind);
+    }
+  });
+});
+
+/**
+ * AT THE SEAM. The census exists in evidenceSearch.ts and is unit-tested
+ * there; what the researcher meets is this route and the bar above it. The
+ * lesson that produced these assertions is the one from the map's basis
+ * axis: a mechanism can be correct, unit-tested, and operating on data whose
+ * accounting was discarded one layer up, and nothing fails.
+ */
+describe('the evidence layer states its own accounting at the route', () => {
+  it('the empty type the RUNBOOK sends a reader to comes back with a note, not a blank', async () => {
+    const body = await (await get('q=refused:basis')).json();
+    expect(body.evidenceResults).toEqual([]);
+    expect(body.evidenceTotal).toBe(0);
+    expect(body.evidenceNote).toMatch(/No refused:basis/);
+    expect(body.evidenceNote).toMatch(/2017-06-30/);          // where the type is live
+    expect(body.evidenceNote).toMatch(/refused:resolution \(\d+\)/); // what the kind DOES hold
+    expect(body.evidenceRefused).toBeUndefined();             // valid type, genuinely empty
+  });
+
+  it('an undeclared type is refused by name and never answered with an empty list', async () => {
+    const body = await (await get('q=refused:bassis')).json();
+    expect(body.evidenceRefused?.type).toBe('bassis');
+    expect(body.evidenceRefused?.declared).toContain('basis');
+    expect(body.evidenceNote).toMatch(/not a declared refused type/);
+  });
+
+  it('`refused:` reaches the evidence layer instead of falling through to the entity register', async () => {
+    // The exact token docs/RUNBOOK.md prints. Before the fix this returned
+    // entity results and a source-registry miss note about copper.
+    const body = await (await get('q=refused%3A')).json();
+    expect(body.evidenceKind).toBe('refused');
+    expect(body.evidenceType).toBeUndefined();
+    expect(body.missNote).toBeUndefined();
+    expect(body.evidenceTotal).toBeGreaterThan(0);
+  });
+
+  it('the served page states the cap and the full queue depth', async () => {
+    const body = await (await get('q=refused')).json();
+    // The interactive cap is 20 and the standing queue is deeper — the
+    // condition this pins. If the queue ever drains below the cap the
+    // assertion below goes vacuous, so the depth is asserted first.
+    expect(body.evidenceTotal).toBeGreaterThan(body.evidenceResults.length);
+    expect(body.evidenceTruncated).toBe(true);
+    expect(body.evidenceShown).toBe(body.evidenceResults.length);
+    expect(body.evidenceNote).toMatch(new RegExp(`Showing ${body.evidenceShown} of ${body.evidenceTotal}`));
+    // The census sums to the total over the whole kind, so nothing is
+    // invisible behind the cut.
+    const summed = body.evidenceByType.reduce((s: number, t: { count: number }) => s + t.count, 0);
+    expect(summed).toBe(body.evidenceTotal);
+  });
+});
