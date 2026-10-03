@@ -141,8 +141,17 @@ def validate_execution(execution: dict, run: dict, revision: int, results: dict)
     if runtime is not None and (not isinstance(runtime, dict) or not runtime):
         raise ValueError("Invalid execution runtime identity")
     if operation_id in {"fluid.reservoir.simulate.v1", "fluid.reservoir.verify.v1",
-                        "fluid.wave.simulate.v1", "fluid.wave.verify.v1"}:
+                        "fluid.wave.simulate.v1", "fluid.wave.verify.v1",
+                        "fluid.molecular.simulate.v1", "fluid.molecular.verify.v1",
+                        "fluid.sph.simulate.v1", "fluid.sph.verify.v1",
+                        "fluid.fsi.simulate.v1", "fluid.fsi.verify.v1"}:
         from ..fluid_workflow import validate_runtime
+        validate_runtime(operation_id, runtime, allow_absent=execution.get("status") == "refused")
+    if operation_id in {"fluid.experiment.compare.v1", "fluid.experiment.verify.v1"}:
+        from ..fluid_experiment import validate_runtime
+        validate_runtime(operation_id, runtime, allow_absent=execution.get("status") == "refused")
+    if operation_id in {"fluid.interface.transfer.v1", "fluid.interface.verify.v1"}:
+        from ..fluid_interface_workflow import validate_runtime
         validate_runtime(operation_id, runtime, allow_absent=execution.get("status") == "refused")
     try:
         timestamp = datetime.fromisoformat(execution["created_at"])

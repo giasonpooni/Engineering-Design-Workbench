@@ -13,9 +13,11 @@ covariance and guarded reconstruction behavior remain unchanged.
 | Wave | Surface elevation at cells, velocity/volume flux at faces, hydrostatic bottom pressure, volume and energy on a declared periodic grid | One-dimensional, uniform-depth, small-amplitude, long-wavelength linear surface gravity waves | Vertical velocity/shear, dispersion beyond shallow-water approximation, viscosity, breaking, wetting/drying and open-boundary reflections |
 
 The wave profile and the reservoir profile are independently qualified models.
-There is no hidden wave-to-reservoir interface, molecular simulation, automatic
-parameter inference, or atmospheric traction connection. The reservoir's
-compliant boundary is the implemented bidirectional fluid–structure interface.
+The additive [multiscale catalog](FLUID_MULTISCALE.md) supplies separate atomistic,
+SPH and resolved wave–wall providers, explicit particle reductions, a generic SI
+coupling interface and an experimental-data comparison path. There is no hidden
+wave-to-reservoir interface or automatic parameter inference. The reservoir's
+compliant boundary is this profile's bidirectional fluid–structure interface.
 Its structure is a spring/mass/damper degree of freedom, not a resolved plate or
 nonlinear polymer constitutive law. An incompressible connector slug is a lumped
 continuum state; it is not an SPH particle, suspended grain or molecule.
@@ -110,9 +112,11 @@ force and mass transfer; the [preCICE mapping documentation](https://precice.org
 distinguishes interpolation of intensive quantities from conservation of
 extensive quantities. No external solver adapter is activated by this increment.
 
-## Validation path beyond this release
+## Experimental validation and additional model arrows
 
-Physical validation requires a recorded two-tank experiment with independently
+The [experimental-data workflow](FLUID_EXPERIMENTS.md) accepts held-out reservoir
+observations with explicit covariance and provenance. Physical validation still
+requires a recorded two-tank experiment with independently
 measured areas, connector dimensions, density, levels/flows, clock uncertainty,
 boundary motion, preload and dissipation. Calibration data and held-out runs
 must stay separate. Agreement against an analytical model validates the

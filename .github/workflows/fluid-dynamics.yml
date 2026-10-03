@@ -4,12 +4,15 @@ on:
     paths:
       - 'src/ciw/fluid_*.py'
       - 'src/ciw/net.py'
+      - 'src/ciw/operator_commands.py'
       - 'src/ciw/operations/**'
       - 'src/ciw/session.py'
       - 'tests/test_fluid*.py'
       - 'scripts/check_fluid_installed.py'
-      - 'docs/FLUID_DYNAMICS.md'
+      - 'docs/FLUID*.md'
+      - 'pyproject.toml'
       - 'examples/fluid-dynamics/**'
+      - 'examples/fluid-experiments/**'
       - '.github/workflows/fluid-dynamics.yml'
   workflow_dispatch:
 permissions:
@@ -24,7 +27,7 @@ jobs:
       matrix:
         os: [ubuntu-24.04, windows-latest]
     runs-on: ${{ matrix.os }}
-    timeout-minutes: 20
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
@@ -35,7 +38,20 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install -e '.[dev]' build
       - name: Dynamics, independent audit, and retained substrate
-        run: python -m pytest -q tests/test_fluid_reservoir.py tests/test_fluid_wave.py tests/test_fluid_workflow.py tests/test_fluid_cli.py tests/test_fluid_handoff.py tests/test_fluid_independent_audit.py tests/test_operation_runner.py tests/test_operation_failure_retention.py tests/test_operation_publication.py tests/test_preservation_contracts.py tests/test_finite_preservation.py tests/test_control_plane.py tests/test_semantic_capabilities.py --junitxml=fluid-tests.xml
+        shell: bash
+        run: |
+          python - <<'PYTHON'
+          from pathlib import Path
+          import subprocess, sys
+          fluid_tests = sorted(str(path) for path in Path('tests').glob('test_fluid*.py'))
+          assert fluid_tests
+          retained_tests = ['tests/test_operation_runner.py', 'tests/test_operation_failure_retention.py',
+                            'tests/test_operation_publication.py', 'tests/test_preservation_contracts.py',
+                            'tests/test_finite_preservation.py', 'tests/test_control_plane.py',
+                            'tests/test_semantic_capabilities.py']
+          subprocess.run([sys.executable, '-m', 'pytest', '-q', *fluid_tests, *retained_tests,
+                          '--junitxml=fluid-tests.xml'], check=True)
+          PYTHON
       - name: Require complete qualification
         shell: bash
         run: |
@@ -51,6 +67,7 @@ jobs:
                     'source_tree': subprocess.check_output(['git','rev-parse','HEAD^{tree}'], text=True).strip(),
                     'python': sys.version, 'platform': platform.platform(),
                     'tests': count, 'failures': 0, 'errors': 0, 'skipped': 0,
+                    'profiles': ['reservoir', 'wave', 'molecular', 'sph', 'fsi'],
                     'physical_validation': 'not_established', 'state_admission': 'not_performed'}
           Path('fluid-qualification.json').write_text(json.dumps(report, indent=2), encoding='utf-8')
           PYTHON

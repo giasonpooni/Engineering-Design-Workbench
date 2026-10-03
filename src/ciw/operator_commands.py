@@ -15,7 +15,7 @@ COMMANDS = (
     ('polymer', 'polymer_cli', 'Assess retained molding cycles, inspect metrology and run numerical audits'),
     ('rewrite', 'rewrite_cli', 'Retain bounded typed hypergraph transformations and replay checks'),
     ('compose', 'workflow_cli', 'Compile typed wiring and checked stages into existing NET graphs'),
-    ('fluid', 'fluid_cli', 'Run and independently check bounded synthetic reservoir and surface-wave models'),
+    ('fluid', 'fluid_cli', 'Run and independently check bounded reservoir, wave, atomistic, SPH and wave–structure models'),
     ('dsp', 'dsp_workflow', 'Run and inspect the bounded specialist DSP instrument'),
     ('impact', 'impact_cli', 'Run the bounded elastic contact benchmark with independent verification'),
     ('lab', 'preservation_experiments', 'Run bounded shared-preservation experiments'),
