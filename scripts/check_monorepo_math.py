@@ -28,11 +28,11 @@ import venv
 if __package__:
     from .check_monorepo import _copy_source, _environment, _git, _IMPORT_PROBE, _junit, _run, _wheel
     from .check_monorepo_inference import _validate, _worktree
-    from .monorepo import ROOT, _retained, load_manifest, provider_worktrees, verify_imports
+    from .monorepo import ROOT, _retained, load_manifest, provider_worktrees, verify_imports, verify_terminal_source
 else:
     from check_monorepo import _copy_source, _environment, _git, _IMPORT_PROBE, _junit, _run, _wheel
     from check_monorepo_inference import _validate, _worktree
-    from monorepo import ROOT, _retained, load_manifest, provider_worktrees, verify_imports
+    from monorepo import ROOT, _retained, load_manifest, provider_worktrees, verify_imports, verify_terminal_source
 
 ROLES = frozenset({"edspt", "sidt", "jspt", "rci", "stfe", "tsde"})
 DEPENDENCIES = ["numpy==2.4.3", "pytest==8.4.2", "websockets==16.0"]
@@ -535,7 +535,12 @@ def main(argv=None) -> int:
         "admission": "not_performed", "surface_qualified": False,
         "identified_design_stack_qualified": False, "log": str(log)}
     try:
+        report["terminal_source"] = verify_terminal_source(root=ROOT)
+        if report["terminal_source"]["revision"] != report["terminal_revision"]:
+            raise ValueError("Terminal revision changed before qualification")
         _qualify(args, report, output, log)
+        if verify_terminal_source(root=ROOT) != report["terminal_source"]:
+            raise ValueError("Terminal source identity changed during qualification")
     except Exception as error:
         report["status"] = "failed"
         report["error"] = {"type": type(error).__name__, "message": str(error)}

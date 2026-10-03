@@ -91,16 +91,17 @@ worlds. NET requests supported operations and inspects explicit observations;
 it does not impose one universal scene tree or ECS model on those applications.
 A project does not have to use every tool.
 
-The [Geospatial Systems Compiler](https://github.com/atomtrapping/Notations-FrameMapper-RunTime),
-[Curved Surface Runtime](https://github.com/atomtrapping/Notations-Surface-RunTime), and
-[State Estimator for BIM](https://github.com/atomtrapping/Notations-Estimator-for-BIM)
-remain independently scoped projects, not capabilities absorbed into NET.
-
 The [engineering superrepo](docs/MONOREPO.md) co-locates 21 public modules
 across composition, execution, measurement, inference, mathematics, domain
 tools, representations and resources. Each keeps its package, original source
 history, tests, licence and release boundary. The root Terminal package retains
 its existing interfaces; declared provider revisions remain explicit.
+
+The [Geospatial Systems Compiler](https://github.com/atomtrapping/Notations-FrameMapper-RunTime),
+[Curved Surface Runtime](https://github.com/atomtrapping/Notations-Surface-RunTime), and
+[State Estimator for BIM](https://github.com/atomtrapping/Notations-Estimator-for-BIM)
+retain their scientific and representation responsibilities within the shared
+repository. NET composes their declared interfaces.
 
 Use `python scripts/superrepo.py list` to inspect the module registry,
 `python scripts/superrepo.py audit` to verify source preservation, and

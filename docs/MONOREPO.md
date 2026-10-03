@@ -8,10 +8,15 @@ and scientific authority remain module-owned.
 The import registry is [`instruments/manifest.json`](../instruments/manifest.json).
 It records full source commit and tree identities, original repository IDs,
 ownership, licences, package versions, build boundaries and existing execution
-pins. The merged imports retain the earlier measurement and inference migration
-history and original source ancestry. The
+pins. All 21 public modules are co-located on the default branch with their
+original native Git ancestry. The workspace includes the earlier measurement
+and inference migration history, the retained Terminal correction loop,
+Legibility, and the integrated NET workloads. The
 [second-wave record](MONOREPO_WAVE2.md) preserves the earlier seven-module
 qualification and its scope.
+The Legibility Instrument is composed into the existing `ciw` package;
+retained correction inspection and representation compilation remain available
+through the same CLI.
 
 ## Module map
 
@@ -20,27 +25,27 @@ original projects; the manifest owns their exact selected source identities.
 
 | Area | Role | Directory | Original repository | Licence |
 | --- | --- | --- | --- | --- |
-| Composition | `sra` | `composition/retrieval-agent` | [Retrieval Agent](https://github.com/giasonpooni/Notations-Retrieval-Agent) | MIT |
-| Execution | `scr` | `execution/compute-runtime` | [Compute Runtime](https://github.com/giasonpooni/Notations-Compute-Runtime) | Apache-2.0 |
-| Measurement | `mcur` | `measurement/calibration` | [Calibration Runtime](https://github.com/giasonpooni/Notations-Calibration-Runtime) | MPL-2.0 |
-| Measurement | `tbrt` | `measurement/clocksync` | [ClockSync](https://github.com/giasonpooni/Notations-ClockSync) | MPL-2.0 |
-| Measurement | `rci` | `measurement/metrology` | [Metrology Adapter](https://github.com/giasonpooni/Notations-Metrology-Adapter) | MIT |
-| Measurement | `stfe` | `measurement/signal-processing` | [Signal Processing Runtime](https://github.com/giasonpooni/Notations-Signal-Processing-RunTime) | MPL-2.0 |
-| Inference | `gsie` | `inference/state-inference` | [State Inference Engine](https://github.com/giasonpooni/Notations-State-Inference-Engine) | MPL-2.0 |
-| Inference | `cbsr` | `inference/state-recompiler` | [State Recompiler](https://github.com/giasonpooni/Notations-State-Recompiler) | AGPL-3.0 |
-| Inference | `fdir` | `inference/faultsense` | [FaultSense](https://github.com/giasonpooni/Notations-FaultSense-RunTime) | MPL-2.0 |
-| Verification | `set` | `verification/estimator-bench` | [Estimator Bench](https://github.com/giasonpooni/Notations-Estimator-Bench) | Apache-2.0 |
-| Mathematics | `oit` | `mathematics/observability` | [Observability Testbed](https://github.com/giasonpooni/Notations-Observability-Testbed) | MPL-2.0 |
-| Mathematics | `edspt` | `mathematics/sensor-design` | [SensorDesign Runtime](https://github.com/giasonpooni/Notations-SensorDesign-RunTime) | MPL-2.0 |
-| Mathematics | `sidt` | `mathematics/linear-dynamics` | [Linear Dynamics Testbed](https://github.com/giasonpooni/Notations-Linear-Dynamics-Testbed) | MPL-2.0 |
-| Mathematics | `jspt` | `mathematics/sensitivity` | [Sensitivity Testbed](https://github.com/giasonpooni/Notations-Sensitivity-Testbed) | MIT |
-| Mathematics | `csg` | `mathematics/surface` | [Surface Runtime](https://github.com/giasonpooni/Notations-Surface-RunTime) | MPL-2.0 |
-| Mathematics | `tsde` | `mathematics/polygon-trajectories` | [Polygon Trajectory Experiments](https://github.com/giasonpooni/Polygon-Trajectory-Experiments) | MIT |
-| Domain | `fsrt` | `domain/flowstate` | [FlowState](https://github.com/giasonpooni/Notations-FlowState) | MIT |
-| Domain | `cse` | `domain/bim-estimator` | [Estimator for BIM](https://github.com/giasonpooni/Notations-Estimator-for-BIM) | MIT |
-| Representation | `framemapper` | `representation/frame-mapper` | [FrameMapper Runtime](https://github.com/giasonpooni/Notations-FrameMapper-RunTime) | GPL-3.0 |
-| Views | `gsv` | `views/real-time-globe` | [Real-Time Globe](https://github.com/giasonpooni/Notations-Real-Time-Globe) | GPL-3.0 |
-| Resources | `ywir` | `resources/yield-weighted` | [Yield-Weighted Runtime](https://github.com/giasonpooni/Notations-Yield-Weighted-Runtime) | MIT |
+| Composition | `sra` | `composition/retrieval-agent` | [Retrieval Agent](https://github.com/atomtrapping/Notations-Retrieval-Agent) | MIT |
+| Execution | `scr` | `execution/compute-runtime` | [Compute Runtime](https://github.com/atomtrapping/Notations-Compute-Runtime) | Apache-2.0 |
+| Measurement | `mcur` | `measurement/calibration` | [Calibration Runtime](https://github.com/atomtrapping/Notations-Calibration-Runtime) | MPL-2.0 |
+| Measurement | `tbrt` | `measurement/clocksync` | [ClockSync](https://github.com/atomtrapping/Notations-ClockSync) | MPL-2.0 |
+| Measurement | `rci` | `measurement/metrology` | [Metrology Adapter](https://github.com/atomtrapping/Notations-Metrology-Adapter) | MIT |
+| Measurement | `stfe` | `measurement/signal-processing` | [Signal Processing Runtime](https://github.com/atomtrapping/Notations-Signal-Processing-RunTime) | MPL-2.0 |
+| Inference | `gsie` | `inference/state-inference` | [State Inference Engine](https://github.com/atomtrapping/Notations-State-Inference-Engine) | MPL-2.0 |
+| Inference | `cbsr` | `inference/state-recompiler` | [State Recompiler](https://github.com/atomtrapping/Notations-State-Recompiler) | AGPL-3.0 |
+| Inference | `fdir` | `inference/faultsense` | [FaultSense](https://github.com/atomtrapping/Notations-FaultSense-RunTime) | MPL-2.0 |
+| Verification | `set` | `verification/estimator-bench` | [Estimator Bench](https://github.com/atomtrapping/Notations-Estimator-Bench) | Apache-2.0 |
+| Mathematics | `oit` | `mathematics/observability` | [Observability Testbed](https://github.com/atomtrapping/Notations-Observability-Testbed) | MPL-2.0 |
+| Mathematics | `edspt` | `mathematics/sensor-design` | [SensorDesign Runtime](https://github.com/atomtrapping/Notations-SensorDesign-RunTime) | MPL-2.0 |
+| Mathematics | `sidt` | `mathematics/linear-dynamics` | [Linear Dynamics Testbed](https://github.com/atomtrapping/Notations-Linear-Dynamics-Testbed) | MPL-2.0 |
+| Mathematics | `jspt` | `mathematics/sensitivity` | [Sensitivity Testbed](https://github.com/atomtrapping/Notations-Sensitivity-Testbed) | MIT |
+| Mathematics | `csg` | `mathematics/surface` | [Surface Runtime](https://github.com/atomtrapping/Notations-Surface-RunTime) | MPL-2.0 |
+| Mathematics | `tsde` | `mathematics/polygon-trajectories` | [Polygon Trajectory Experiments](https://github.com/atomtrapping/Polygon-Trajectory-Experiments) | MIT |
+| Domain | `fsrt` | `domain/flowstate` | [FlowState](https://github.com/atomtrapping/Notations-FlowState) | MIT |
+| Domain | `cse` | `domain/bim-estimator` | [Estimator for BIM](https://github.com/atomtrapping/Notations-Estimator-for-BIM) | MIT |
+| Representation | `framemapper` | `representation/frame-mapper` | [FrameMapper Runtime](https://github.com/atomtrapping/Notations-FrameMapper-RunTime) | GPL-3.0 |
+| Views | `gsv` | `views/real-time-globe` | [Real-Time Globe](https://github.com/atomtrapping/Notations-Real-Time-Globe) | GPL-3.0 |
+| Resources | `ywir` | `resources/yield-weighted` | [Yield-Weighted Runtime](https://github.com/atomtrapping/Notations-Yield-Weighted-Runtime) | MIT |
 
 Eighteen modules have independent Python wheel builds. Compute Runtime retains
 its source and release builders; its original Python metadata does not declare
@@ -104,9 +109,33 @@ python scripts/superrepo.py audit
 python scripts/superrepo.py check --output-dir results/superrepo
 ```
 
+For temporary worktrees, builds and runtime files outside synchronized storage,
+choose an existing private directory with `--temp-root`:
+
+```sh
+task_temp_root="$(mktemp -d /tmp/notations-qualification.XXXXXX)"
+python scripts/superrepo.py check --temp-root "$task_temp_root" --output-dir results/superrepo
+rmdir "$task_temp_root"
+```
+
+The resolved directory is passed to child gates through `TMPDIR`, `TEMP` and
+`TMP`; reports stay in `--output-dir`. Without this option the inherited temporary
+directory settings remain unchanged. Cleanup failures still fail qualification.
+
 The audit verifies exact source trees and original-history reachability,
 working file bytes and modes, package/licence identities, preserved execution
-bindings and unexpected untracked source files. Run the underlying gates
+bindings and unexpected untracked source files. Module records must also retain
+their repository identifier, historical repository label, ownership declaration
+and import status. These declarations are provenance metadata; the audit does
+not authenticate legal ownership. Cache exclusions must not admit executable
+source merely because a nested directory has a cache or environment name.
+
+All seven qualification gates bind the actual Terminal source tree before and
+after execution. The aggregate checks each child's source identity and retains
+its report byte hash. Fresh verification occurrences remain distinct from
+source identities and from historical qualification evidence.
+
+Run the underlying gates
 individually to review a particular boundary:
 
 | Gate | Command | Scope |
@@ -163,9 +192,9 @@ commit alongside every declared original module tree and execution pin. Each
 qualification lane audits before and after execution. Tracked byte changes,
 staged metadata drift and ignored executable shadow sources are refused.
 Directory names such as `venv`, `__pycache__` and `.egg-info` do not authorize
-untracked source. Only bytecode and specifically named pytest cache and package
-metadata files with regular file and ancestor types are permitted inside source
-boundaries; gate output remains outside executable source directories.
+untracked source. Only bytecode backed by an existing Python source file and specifically named
+pytest cache and package metadata files with regular file and ancestor types
+are permitted inside source boundaries; gate output remains outside executable source directories.
 
 The aggregate coordinator removes Python import/test and Git repository-selection
 overrides before launching child gates and retains failed reports for subprocess errors,
@@ -225,16 +254,16 @@ expanding the registry.
 
 ## Native Git transfer
 
-A cumulative Git bundle carries the original histories and native import
-commits. In an authenticated Terminal checkout:
+The merged default branch retains the original histories and native import
+commits. Qualification requires a complete checkout, as configured in CI.
+For an existing shallow checkout, retrieve the retained history before auditing:
 
 ```sh
-git bundle verify /path/to/engineering-superrepo.bundle
-git fetch /path/to/engineering-superrepo.bundle refs/heads/feat/engineering-superrepo-20261003:refs/heads/feat/engineering-superrepo-20261003
-git push origin feat/engineering-superrepo-20261003
+git fetch --unshallow origin
+python scripts/superrepo.py audit
 ```
 
-Review the resulting branch and merge it with a merge commit. Squash, rebase or
-file-content recreation loses the required ancestry. Keep native source commits
+Use merge commits for future import branches. Squash, rebase or file-content
+recreation loses the required ancestry. Keep native source commits
 reachable after merging so provider worktrees and the source audit continue to
 operate.

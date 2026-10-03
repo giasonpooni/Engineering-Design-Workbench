@@ -26,11 +26,11 @@ import xml.etree.ElementTree as ET
 if __package__:
     from .check_monorepo import DEPENDENCIES, _copy_source, _environment, _git, _IMPORT_PROBE, _wheel
     from .check_monorepo_inference import _validate, _worktree
-    from .monorepo import ROOT, load_manifest, provider_worktrees, verify_imports
+    from .monorepo import ROOT, load_manifest, provider_worktrees, verify_imports, verify_terminal_source
 else:
     from check_monorepo import DEPENDENCIES, _copy_source, _environment, _git, _IMPORT_PROBE, _wheel
     from check_monorepo_inference import _validate, _worktree
-    from monorepo import ROOT, load_manifest, provider_worktrees, verify_imports
+    from monorepo import ROOT, load_manifest, provider_worktrees, verify_imports, verify_terminal_source
 
 SENSITIVITY_REPOSITORY = "https://github.com/giasonpooni/Notations-Sensitivity-Testbed.git"
 SENSITIVITY_REPOSITORY_ID = 1372780016
@@ -337,7 +337,12 @@ def main(argv=None) -> int:
         "canonicalAdmission": False, "admission": "not_performed", "private_daf_qualified": False,
         "log": str(log)}
     try:
+        report["terminal_source"] = verify_terminal_source(root=ROOT)
+        if report["terminal_source"]["revision"] != report["terminal_revision"]:
+            raise ValueError("Terminal revision changed before qualification")
         _qualify(args, report, output, log)
+        if verify_terminal_source(root=ROOT) != report["terminal_source"]:
+            raise ValueError("Terminal source identity changed during qualification")
     except Exception as error:
         report["status"] = "failed"
         report["error"] = {"type": type(error).__name__, "message": str(error)}
