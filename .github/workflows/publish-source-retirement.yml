@@ -18,12 +18,22 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 20
     permissions:
-      contents: write
+      contents: read
     steps:
+      - name: Require workflow-capable native-history publication credential
+        shell: bash
+        env:
+          NET_HISTORY_PUBLISH_TOKEN: ${{ secrets.NET_HISTORY_PUBLISH_TOKEN }}
+        run: |
+          if [[ -z "$NET_HISTORY_PUBLISH_TOKEN" ]]; then
+            echo "::error::Set NET_HISTORY_PUBLISH_TOKEN for this repository with Contents and Workflows write permissions, then rerun. The default GITHUB_TOKEN cannot publish preserved workflow history."
+            exit 1
+          fi
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
         with:
           ref: ${{ github.event.pull_request.head.sha }}
           fetch-depth: 0
+          token: ${{ secrets.NET_HISTORY_PUBLISH_TOKEN }}
           persist-credentials: true
       - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
         with:
