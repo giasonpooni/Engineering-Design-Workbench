@@ -35,6 +35,7 @@ def test_review_exposes_export_failure_and_refuses_overwrite(published, tmp_path
     assert main(["legibility", "review", str(published), "--output", str(output)]) == 2
     assert json.loads(capsys.readouterr().out)["export_status"] == "failed"
     assert "export_mismatch" in output.read_text(encoding="utf-8")
+    assert "Export mismatch" in output.read_text(encoding="utf-8")
     original = output.read_bytes()
     assert main(["legibility", "review", str(published), "--output", str(output)]) == 2
     assert output.read_bytes() == original
