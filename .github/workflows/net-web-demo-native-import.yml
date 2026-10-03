@@ -1,0 +1,41 @@
+name: Import reviewed NET web demo native history
+
+on:
+  push:
+    branches: [transport/net-scientific-web-demo-20261003]
+
+permissions:
+  contents: write
+
+concurrency:
+  group: net-web-demo-native-history-20261003
+  cancel-in-progress: false
+
+jobs:
+  import-reviewed-demo-history:
+    if: github.repository == 'atomtrapping/Notations-Systems-Terminal' && github.repository_id == '1377790873' && github.ref == 'refs/heads/transport/net-scientific-web-demo-20261003' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Check out exact reviewed control commit
+        uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          ref: ${{ github.sha }}
+          fetch-depth: 1
+          persist-credentials: false
+          sparse-checkout: .github/net-web-demo-native-transport
+
+      - name: Verify reviewed transport script bytes
+        shell: bash
+        run: |
+          printf '%s  %s\n' '7fa27004a89b9a218b00fdf992955736191261f6e27b7f31a5192596bd0b3645' '.github/net-web-demo-native-transport/import_history.py' | sha256sum --check --strict
+
+      - name: Fetch fixed anonymous prerequisite and verify native objects
+        shell: bash
+        run: python3 -I .github/net-web-demo-native-transport/import_history.py prepare
+
+      - name: Publish exact native feature head to fixed new review branch
+        shell: bash
+        env:
+          NET_NATIVE_PUSH_TOKEN: ${{ github.token }}
+        run: python3 -I .github/net-web-demo-native-transport/import_history.py publish
