@@ -33,6 +33,7 @@ def catalog() -> dict:
                 for name, _module, purpose in COMMANDS]
     commands.extend({"command": "net " + name, "purpose": purpose, "help_command": f"net {name} --help"}
                     for name, purpose in (
+                        ("polymer leakage", "Assess coolant volume and material mass balances with the explicitly pinned native provider"),
                         ("providers", "Read declared oscillator provider manifests"),
                         ("capabilities", "Filter declared oscillator operation capabilities"),
                         ("inspect", "Inspect retained records without execution"),

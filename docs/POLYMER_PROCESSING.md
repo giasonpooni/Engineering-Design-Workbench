@@ -16,6 +16,12 @@ a second evidence store or merging their authority with numerical verification.
 
 ## Operator readiness
 
+For coolant and material-loss accounting, use the separate
+[fluid and material leakage workload](leakage.md). It reuses the pinned FlowState
+balance kernels, retains joint covariance, and can bind its evidence to an actual
+retained cycle assessment. The original cycle request and sensor schema are
+unchanged; the balance decision and part-metrology decision remain separate.
+
 Install the project, then run the finite readiness gate:
 
 ```bash

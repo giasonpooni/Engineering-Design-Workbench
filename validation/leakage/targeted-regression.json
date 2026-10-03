@@ -1,0 +1,56 @@
+{
+  "schema": "ciw.leakage-targeted-regression.v1",
+  "status": "PASS",
+  "base_revision": "d313351f96aad73fe40229b7d705b18c12e96b64",
+  "tests": 497,
+  "skipped": 0,
+  "initial_passes": 489,
+  "resource_failure_retries": [
+    {
+      "node": "tests/test_fluid_workflow.py::test_expansion_scope_blocks_export_even_when_numerics_pass[wave-resolved_vertical_velocity]",
+      "exit_code": 0
+    },
+    {
+      "node": "tests/test_fluid_workflow.py::test_failed_provider_is_a_reopenable_refusal_with_no_receipts[wave-verification]",
+      "exit_code": 0
+    },
+    {
+      "node": "tests/test_fluid_workflow.py::test_default_wave_full_large_retained_bundle_runs_verifies_and_exports",
+      "exit_code": 0
+    },
+    {
+      "node": "tests/test_fluid_cli.py::test_cli_full_lifecycle_and_persisted_fresh_verification_witness[reservoir]",
+      "exit_code": 0
+    },
+    {
+      "node": "tests/test_fluid_cli.py::test_cli_full_lifecycle_and_persisted_fresh_verification_witness[wave]",
+      "exit_code": 0
+    },
+    {
+      "node": "tests/test_fluid_cli.py::test_cli_expand_and_refuse_exit_codes",
+      "exit_code": 0
+    },
+    {
+      "node": "tests/test_fluid_cli.py::test_cli_requires_exactly_one_request_path_and_never_overwrites_run",
+      "exit_code": 0
+    },
+    {
+      "node": "tests/test_fluid_cli.py::test_cli_handoff_routes_to_exact_reservoir_snapshot",
+      "exit_code": 0
+    }
+  ],
+  "scope": "targeted_leakage_and_existing_session_polymer_fluid_agent_regressions",
+  "source_sha256": {
+    "src/ciw/agent_mcp.py": "c8cd2b6da1c3f887cc89742f33dc9db62fea568b87bd2837071a46fd7e5dac35",
+    "src/ciw/leakage_cli.py": "668f7640de7d4c0d6431705106c306f9455bba8614f5d1af88a698e477cb9689",
+    "src/ciw/leakage_contract.py": "497a51b286a87ca9f01a2cd734ebb329e0fb3eb98c1477a1b32f34d1cdb06b64",
+    "src/ciw/leakage_native.py": "efeaa3a0d68380c25830e5e0003dafac98efe6065882ea1aeca84837618c1b43",
+    "src/ciw/leakage_verification.py": "c3c13f35d55b2b7d5b4e0d8f8ca46f176421f98773d4ca3567a37483c3cf0256",
+    "src/ciw/leakage_workflow.py": "13010dd7eb130bd012271efe1fc6dddbc90ea30882d0eb9535a955c8a64d6a8f",
+    "src/ciw/operations/runner.py": "0d496cb428357ae8cdd57a4287c2a5c09cc55b92e069015e6a373590df3ba3c4",
+    "src/ciw/operations/schemas.py": "47f2a47ce79dfe8f68795e8f4fc76576d33c2bcde1a656a92ba574a2c229b69f",
+    "src/ciw/operator_catalog.py": "abd004dfa3fa07b62f2b5cd9a8f193b08dcccd7907efa3c40d077f316dd82892",
+    "src/ciw/polymer_cli.py": "7107f102e0020dfe0e7b707f2fd704d64084c133b75a8bd084565300d1113411",
+    "src/ciw/session.py": "121601189f3737ac552deb1d1684894af092b5c1de1df9f0a76303c162e0f422"
+  }
+}

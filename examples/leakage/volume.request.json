@@ -1,0 +1,405 @@
+{
+  "schema": "ciw.leakage-request.v1",
+  "identity": {
+    "facility_id": "synthetic.factory",
+    "machine_id": "synthetic.machine.4",
+    "tool_id": "synthetic.tool.1",
+    "material_lot_id": "synthetic.resin.lot.1",
+    "cycle_id": "synthetic.cycle.10",
+    "part_id": "synthetic.part.10"
+  },
+  "process": "injection_molding",
+  "source_kind": "synthetic",
+  "frame": "polymer.machine.v1",
+  "clock": {
+    "id": "synthetic.aligned-clock",
+    "start_s": 0.0,
+    "end_s": 10.0,
+    "clock_ref": "sha256:6d0839c0d497bf1cf96f695de56525afa3f2add0f9485cc84270f1df4d056e80",
+    "support_policy": "declared_exact_interval_labels"
+  },
+  "boundary_id": "synthetic.inventory-boundary",
+  "basis": "volume",
+  "unit": "m3",
+  "edges_s": [
+    0.0,
+    2.5,
+    5.0,
+    7.5,
+    10.0
+  ],
+  "inventory": {
+    "support": "instant",
+    "unit": "m3",
+    "readings": [
+      {
+        "time_s": 0.0,
+        "value": 10.0,
+        "evidence_refs": [
+          "sha256:2201c97a1bd4094142da33a979ac5f7ad14a18f86387a6b2a240f344fc3b6ff3"
+        ],
+        "calibration_ref": "sha256:e189d3d3a1f4b1f769f61062f1ac34578d46803d6980c0a8c33300ed6c73c356",
+        "clock_ref": "sha256:6d0839c0d497bf1cf96f695de56525afa3f2add0f9485cc84270f1df4d056e80"
+      },
+      {
+        "time_s": 2.5,
+        "value": 10.15,
+        "evidence_refs": [
+          "sha256:c2002780d6096891478fbd043f607088b82cc7660b74648517cf07514c3af13c"
+        ],
+        "calibration_ref": "sha256:fea8c430ea52011096de7713ab2ccec89728582915797051d1c16d549376f2cc",
+        "clock_ref": "sha256:6d0839c0d497bf1cf96f695de56525afa3f2add0f9485cc84270f1df4d056e80"
+      },
+      {
+        "time_s": 5.0,
+        "value": 10.3,
+        "evidence_refs": [
+          "sha256:53cfd3cbbb9f59ede5e40cecccba15518dbc8c69e2f43c477c2de7fcf0483dfc"
+        ],
+        "calibration_ref": "sha256:7fdd7c48e544fc8ba444149cc4776b5927c0445d01fa5a2f584ec36fa66fadb8",
+        "clock_ref": "sha256:6d0839c0d497bf1cf96f695de56525afa3f2add0f9485cc84270f1df4d056e80"
+      },
+      {
+        "time_s": 7.5,
+        "value": 10.45,
+        "evidence_refs": [
+          "sha256:974fc3d1c296ac786bcee121be2eb26b2dc2b5a49d2f0c1b546310a07212f1e3"
+        ],
+        "calibration_ref": "sha256:2b390ba0cd1350288dd2f92f9cc65a32261270bc039c9e1ab16704741a78b2a7",
+        "clock_ref": "sha256:6d0839c0d497bf1cf96f695de56525afa3f2add0f9485cc84270f1df4d056e80"
+      },
+      {
+        "time_s": 10.0,
+        "value": 10.6,
+        "evidence_refs": [
+          "sha256:4c4d16a1998edcbc1d39606cc3a7c2e58822d1b19f4bd082f8013d07a3c5c5ed"
+        ],
+        "calibration_ref": "sha256:8aa08d420b09dc061f1599c01f0c7d0077ba7ce8198466356673e011352105e7",
+        "clock_ref": "sha256:6d0839c0d497bf1cf96f695de56525afa3f2add0f9485cc84270f1df4d056e80"
+      }
+    ]
+  },
+  "channels": [
+    {
+      "channel_id": "feed",
+      "direction": "in",
+      "purpose": "feed",
+      "support": "integrated_total",
+      "unit": "m3",
+      "readings": [
+        {
+          "start_s": 0.0,
+          "end_s": 2.5,
+          "value": 1.0,
+          "evidence_refs": [
+            "sha256:37afcea063ce6e7f4b720c195260fea7ce0082b40b32d294d6c4e774641b26e5"
+          ],
+          "calibration_ref": "sha256:d44ac97fb74a078087476621385f9c48c4111407a868868990291419183f17bd",
+          "clock_ref": "sha256:6d0839c0d497bf1cf96f695de56525afa3f2add0f9485cc84270f1df4d056e80"
+        },
+        {
+          "start_s": 2.5,
+          "end_s": 5.0,
+          "value": 1.0,
+          "evidence_refs": [
+            "sha256:bc14ca0ebce947069afe16835a5b3fef645e40cf9bf69cbc01bce7161c12b6b1"
+          ],
+          "calibration_ref": "sha256:18263fe1a2ea4614f581349b50ae6ebbdee2dcc10fc1642150025e72a7ec0eb9",
+          "clock_ref": "sha256:6d0839c0d497bf1cf96f695de56525afa3f2add0f9485cc84270f1df4d056e80"
+        },
+        {
+          "start_s": 5.0,
+          "end_s": 7.5,
+          "value": 1.0,
+          "evidence_refs": [
+            "sha256:fa3d2ae27eb6464e0d5d6cd5a9ed19055952c17b4d03ca7eece66fb4f3150e31"
+          ],
+          "calibration_ref": "sha256:529423eb4484eb90d41bc7137f97cfe5aad5a256aa31adc50dacb30f3e598f96",
+          "clock_ref": "sha256:6d0839c0d497bf1cf96f695de56525afa3f2add0f9485cc84270f1df4d056e80"
+        },
+        {
+          "start_s": 7.5,
+          "end_s": 10.0,
+          "value": 1.0,
+          "evidence_refs": [
+            "sha256:fcdec318ebb1a59c8c1d629bf8717d9fa277a1e7c21042e7a70d8ea3630a3bbc"
+          ],
+          "calibration_ref": "sha256:0beec6563fa25fb0240d9e1fcc87d8a67412a963704596b5a60e5eaae206b2c3",
+          "clock_ref": "sha256:6d0839c0d497bf1cf96f695de56525afa3f2add0f9485cc84270f1df4d056e80"
+        }
+      ]
+    },
+    {
+      "channel_id": "product",
+      "direction": "out",
+      "purpose": "product",
+      "support": "integrated_total",
+      "unit": "m3",
+      "readings": [
+        {
+          "start_s": 0.0,
+          "end_s": 2.5,
+          "value": 0.8,
+          "evidence_refs": [
+            "sha256:bb36196efa4d6a441f7ead0023b0d45690c69885781dffabf2db17d2bd74ab3a"
+          ],
+          "calibration_ref": "sha256:c1bce7a5950b8cef1a524e5cccfcb55af1fb71873b4c93a0d999a052bbbd1037",
+          "clock_ref": "sha256:6d0839c0d497bf1cf96f695de56525afa3f2add0f9485cc84270f1df4d056e80"
+        },
+        {
+          "start_s": 2.5,
+          "end_s": 5.0,
+          "value": 0.8,
+          "evidence_refs": [
+            "sha256:8369eb3b6eaff5b1b1d831b33ad391f56035f011f63a0ee9865011eaefed2d9e"
+          ],
+          "calibration_ref": "sha256:effc38e0717d68fa206663905e6f242b0cbf3da27572e1c305aff8fd791d044c",
+          "clock_ref": "sha256:6d0839c0d497bf1cf96f695de56525afa3f2add0f9485cc84270f1df4d056e80"
+        },
+        {
+          "start_s": 5.0,
+          "end_s": 7.5,
+          "value": 0.8,
+          "evidence_refs": [
+            "sha256:bf19dbcd88bdae285f8c38186a49fec215bb7e1e6e3d20cb260d64f0620e7eda"
+          ],
+          "calibration_ref": "sha256:52577c6118651a71bebafd4908ac3255c218393019806ec3a681c1fd5045ad1e",
+          "clock_ref": "sha256:6d0839c0d497bf1cf96f695de56525afa3f2add0f9485cc84270f1df4d056e80"
+        },
+        {
+          "start_s": 7.5,
+          "end_s": 10.0,
+          "value": 0.8,
+          "evidence_refs": [
+            "sha256:d064e9721ff58bf34cf4ca17156a8f12a7dd3924b869dae67e8126b2614de59a"
+          ],
+          "calibration_ref": "sha256:154807963e01f568d1a0e3132f88c21e3277b75771c9b6637d378a8df21c1da9",
+          "clock_ref": "sha256:6d0839c0d497bf1cf96f695de56525afa3f2add0f9485cc84270f1df4d056e80"
+        }
+      ]
+    }
+  ],
+  "covariance": {
+    "unit": "m6",
+    "raw_order": [
+      "inventory:0",
+      "inventory:1",
+      "inventory:2",
+      "inventory:3",
+      "inventory:4",
+      "transfer:feed:0",
+      "transfer:product:0",
+      "transfer:feed:1",
+      "transfer:product:1",
+      "transfer:feed:2",
+      "transfer:product:2",
+      "transfer:feed:3",
+      "transfer:product:3"
+    ],
+    "matrix": [
+      [
+        0.0001,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0001,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0001,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0001,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0001,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1e-06,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1e-06,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1e-06,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1e-06,
+        0.0,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1e-06,
+        0.0,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1e-06,
+        0.0,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1e-06,
+        0.0
+      ],
+      [
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        0.0,
+        1e-06
+      ]
+    ],
+    "evidence_refs": [
+      "sha256:f31afdd5ba00830fcf3aebfb8741d5c79861a7c4ebab228701ec5595c38c2f19"
+    ]
+  },
+  "decision_policy": {
+    "loss_threshold": 0.01,
+    "coverage_factor": 2.0,
+    "threshold_ref": "sha256:5678baf069a6c9dd3d04a751de3a1da3e175b7f6686d618966d8ffbeaef7732d"
+  }
+}

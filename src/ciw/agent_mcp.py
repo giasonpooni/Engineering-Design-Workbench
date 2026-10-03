@@ -17,10 +17,10 @@ from .agent_api import AgentHost, MAX_DOCUMENT, encode, parse
 from .agent_tools import descriptions
 from .control_contracts import keys, save_new, json_tree
 from .session import loads_json
-from .control_plane import builtin_registry, experiment, ParameterSpace, Choice
+from .control_plane import builtin_registry, experiment, plan_graph, ParameterSpace, Choice
 
 VERSIONS = ("2025-11-25", "2025-06-18")
-INSTRUMENTS = ("builtin", "polymer")
+INSTRUMENTS = ("builtin", "polymer", "leakage")
 MAX_MESSAGE = 1024 * 1024
 MAX_REQUESTS = 4096
 INSTRUCTIONS = (
@@ -144,10 +144,30 @@ def _read(path: Path) -> bytes:
     return raw
 
 
-def from_profile(path: Path, *, instrument: str = "builtin") -> AgentHost:
-    """Only the operator's launch command selects this file; not an MCP tool."""
-    if type(instrument) is not str or instrument not in INSTRUMENTS:
-        raise ValueError("Require a fixed operator-selected instrument")
+def _leakage_graph(value: dict, registry) -> None:
+    """Check frozen graph wiring before the first native assessment can run."""
+    from .leakage_workflow import ASSESS, VERIFY
+    plan_graph(value, registry)
+    if value["parameters"] != {}:
+        raise ValueError("Leakage graph cannot add literal operation parameters")
+    nodes = {node["node_id"]: node for node in value["nodes"]}
+    for node in nodes.values():
+        if node["parameters"] != {}:
+            raise ValueError("Leakage graph cannot add literal operation parameters")
+        if node["operation_id"] == ASSESS:
+            if node["inputs"] != {}:
+                raise ValueError("Leakage assessment reads its exact bound source only")
+        elif node["operation_id"] == VERIFY:
+            edge = node["inputs"].get("assessment")
+            if (type(edge) is not dict or edge.get("port") != "result" or
+                    nodes.get(edge.get("node_id"), {}).get("operation_id") != ASSESS):
+                raise ValueError("Leakage verification requires the actual assessment result edge")
+        else:
+            raise ValueError("Leakage graph requires explicitly advertised leakage operations")
+
+
+def _profile(path: Path) -> tuple[Path, dict]:
+    """Read the fixed data-only profile before native launch binding or probes."""
     path = path.expanduser().resolve(strict=True)
     value = parse(_read(path))
     keys(value, {"schema", "inputs", "output_dir", "allow_operations", "candidate_domains",
@@ -156,6 +176,20 @@ def from_profile(path: Path, *, instrument: str = "builtin") -> AgentHost:
         raise ValueError("Unsupported host profile")
     if type(value["inputs"]) is not dict or type(value["allow_operations"]) is not list:
         raise ValueError("Invalid explicit host bindings")
+    return path, value
+
+
+def from_profile(path: Path, *, instrument: str = "builtin", leakage_backend=None) -> AgentHost:
+    """Only the operator's launch command selects this file; not an MCP tool."""
+    if type(instrument) is not str or instrument not in INSTRUMENTS:
+        raise ValueError("Require a fixed operator-selected instrument")
+    if instrument == "leakage":
+        from .leakage_native import NativeLeakageBackend
+        if not isinstance(leakage_backend, NativeLeakageBackend):
+            raise ValueError("Leakage requires an explicitly constructed NativeLeakageBackend")
+    elif leakage_backend is not None:
+        raise ValueError("Native leakage backend requires the explicit leakage instrument selector")
+    path, value = _profile(path)
     inputs = {}
     for alias, location in value["inputs"].items():
         if type(location) is not str or not location:
@@ -167,6 +201,15 @@ def from_profile(path: Path, *, instrument: str = "builtin") -> AgentHost:
     if instrument == "polymer":
         from .polymer_workflow import capability_registry
         registry = capability_registry(bind=bool(value["allow_operations"]))
+    elif instrument == "leakage":
+        from .leakage_workflow import capability_registry
+        if value["candidate_domains"] != {}:
+            raise ValueError("Leakage operations have no operator-granted candidate parameter domains")
+        registry = capability_registry(leakage_backend, bind=bool(value["allow_operations"]))
+        for raw in inputs.values():
+            artifact = parse(raw)
+            if artifact.get("schema") == "ciw.experiment.v1":
+                _leakage_graph(artifact, registry)
     else:
         registry = builtin_registry(bind=bool(value["allow_operations"]))
     return AgentHost(registry=registry, inputs=inputs,
@@ -234,6 +277,30 @@ def polymer_config(destination: Path, process: str = "injection_molding") -> Pat
     return destination / "profile.json"
 
 
+def leakage_config(destination: Path, basis: str = "volume") -> Path:
+    """Create synthetic declaration and typed wiring without native execution."""
+    from .leakage_contract import example_request
+    from .leakage_workflow import ASSESS, VERIFY, make_source
+    request = example_request(basis)
+    source = make_source(request)
+    graph = experiment("agent-leakage-balance", model_id="retained-boundary-balance.v1", nodes=[
+        {"node_id": "assessment", "operation_id": ASSESS, "parameters": {}, "inputs": {}, "depends_on": []},
+        {"node_id": "verification", "operation_id": VERIFY, "parameters": {},
+         "inputs": {"assessment": {"node_id": "assessment", "port": "result"}}, "depends_on": []},
+    ])
+    destination = destination.expanduser().absolute()
+    destination.mkdir(parents=False, exist_ok=False)
+    save_new(destination / "request.json", request)
+    save_new(destination / "source.json", source)
+    save_new(destination / "experiment.json", graph)
+    profile = {"schema": "ciw.agent-host-profile.v1", "inputs": {
+        "source": "source.json", "baseline": "experiment.json"}, "output_dir": "agent-output",
+        "allow_operations": [ASSESS, VERIFY], "candidate_domains": {},
+        "comparisons": {}, "check_suites": {}, "max_executions": 8, "max_nodes": 2}
+    save_new(destination / "profile.json", profile)
+    return destination / "profile.json"
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     subs = parser.add_subparsers(dest="command", required=True)
@@ -241,12 +308,19 @@ def main(argv: list[str] | None = None) -> int:
     command.add_argument("--profile", type=Path, required=True)
     command.add_argument("--instrument", choices=INSTRUMENTS, default="builtin",
                          help="Explicit trusted instrument binding; profile data cannot select providers")
+    command.add_argument("--provider-checkout", type=Path,
+                         help="Absolute operator-selected pinned FlowState checkout; leakage only")
+    command.add_argument("--python", type=Path,
+                         help="Absolute operator-selected native interpreter; leakage only")
     command = subs.add_parser("demo-config", help="Create an explicitly synthetic builtin-only operator profile")
     command.add_argument("--output-dir", type=Path, required=True)
     command = subs.add_parser("polymer-config", help="Create a synthetic four-operation polymer profile and typed graph")
     command.add_argument("--output-dir", type=Path, required=True)
     command.add_argument("--process", choices=("injection_molding", "extrusion_blow_molding"),
                          default="injection_molding")
+    command = subs.add_parser("leakage-config", help="Create a synthetic two-operation leakage profile and typed graph")
+    command.add_argument("--output-dir", type=Path, required=True)
+    command.add_argument("--basis", choices=("volume", "mass"), default="volume")
     args = parser.parse_args(argv)
     try:
         if args.command == "demo-config":
@@ -255,11 +329,27 @@ def main(argv: list[str] | None = None) -> int:
         if args.command == "polymer-config":
             print(polymer_config(args.output_dir, args.process))
             return 0
+        if args.command == "leakage-config":
+            print(leakage_config(args.output_dir, args.basis))
+            return 0
+        leakage_backend = None
+        if args.instrument == "leakage":
+            if args.provider_checkout is None or not args.provider_checkout.is_absolute():
+                raise ValueError("Leakage launch requires an absolute --provider-checkout")
+            if args.python is not None and not args.python.is_absolute():
+                raise ValueError("Native --python must be an absolute operator-selected interpreter")
+        elif args.provider_checkout is not None or args.python is not None:
+            raise ValueError("Native provider flags require --instrument leakage")
+        if args.instrument == "leakage":
+            _profile(args.profile)
         # Reserve the original stdout solely for protocol; redirect even C/native stdout
         # diagnostics to stderr. This protects framing, not provider sandboxing.
         with os.fdopen(os.dup(sys.stdout.fileno()), "wb", buffering=0) as wire:
             os.dup2(sys.stderr.fileno(), sys.stdout.fileno())
-            host = from_profile(args.profile, instrument=args.instrument)
+            if args.instrument == "leakage":
+                from .leakage_native import NativeLeakageBackend
+                leakage_backend = NativeLeakageBackend(args.provider_checkout, python=args.python)
+            host = from_profile(args.profile, instrument=args.instrument, leakage_backend=leakage_backend)
             return serve(host, sys.stdin.buffer, wire)
     except (OSError, ValueError, TypeError, KeyError) as exc:
         print(f"NET agent startup refused: {type(exc).__name__}: {exc}", file=sys.stderr)
