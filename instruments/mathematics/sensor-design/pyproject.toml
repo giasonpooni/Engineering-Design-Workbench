@@ -1,0 +1,23 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "experiment-design-and-sensor-placement-testbed"
+version = "0.1.0"
+description = "Advisory information ranking of finite, supplied measurement candidates."
+readme = "README.md"
+requires-python = ">=3.11"
+license = {text = "MPL-2.0"}
+dependencies = ["numpy>=1.24"]
+
+[project.optional-dependencies]
+test = ["pytest>=7"]
+exchange = ["state-estimation-testbed @ git+https://github.com/giasonpooni/State-Estimation-Evaluation-Testbed.git@bd261a765281a95312f7c91a3857233476294c5b"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["src"]
