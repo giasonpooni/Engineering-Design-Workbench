@@ -58,7 +58,7 @@ def main():
                 exact_revision(existing, revision)
                 destination.symlink_to(existing, target_is_directory=True)
             else:
-                call(["git", "clone", "--quiet", "--no-checkout", "https://github.com/giasonpooni/" + repository + ".git", str(destination)])
+                call(["git", "clone", "--quiet", "--no-checkout", "https://github.com/atomtrapping/" + repository + ".git", str(destination)])
                 call(["git", "-C", str(destination), "checkout", "--quiet", "--detach", revision])
                 if role == "ppda":
                     call(["git", "-C", str(destination), "submodule", "update", "--init", "--recursive", "--", VENDOR_PATH])

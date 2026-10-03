@@ -98,7 +98,7 @@ def main():
             else:
                 path = temporary / role
                 call(["git", "clone", "--quiet", "--no-checkout",
-                      "https://github.com/giasonpooni/" + repository + ".git", str(path)])
+                      "https://github.com/atomtrapping/" + repository + ".git", str(path)])
                 call(["git", "-C", str(path), "-c", "core.autocrlf=false", "checkout", "--quiet", "--detach", revision])
             checked.append((path, revision, exact_source(path, revision)))
             return path

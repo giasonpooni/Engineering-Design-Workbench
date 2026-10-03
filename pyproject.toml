@@ -15,7 +15,7 @@ dependencies = ["numpy==2.4.3", "websockets==16.0"]
 dev = ["pytest==9.0.2", "PyYAML==6.0.3"]
 bench-models = ["jsonschema==4.26.0"]
 openusd = ["usd-core==25.11"]
-plsr = ["parameterized-lyapunov-stability-runtime @ git+https://github.com/giasonpooni/Parameterized-Lyapunov-Stability-Runtime.git@19ea6967060166ba09db6cd4563bd87bd6b3d196"]
+plsr = ["parameterized-lyapunov-stability-runtime @ git+https://github.com/atomtrapping/Parameterized-Lyapunov-Stability-Runtime.git@19ea6967060166ba09db6cd4563bd87bd6b3d196"]
 
 [project.scripts]
 ciw = "ciw.cli:main"

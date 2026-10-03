@@ -84,18 +84,18 @@ worlds. NET requests supported operations and inspects explicit observations;
 it does not impose one universal scene tree or ECS model on those applications.
 A project does not have to use every tool.
 
-The [Geospatial Systems Compiler](https://github.com/giasonpooni/Geospatial-Systems-Compiler),
-[Curved Surface Runtime](https://github.com/giasonpooni/Curved-Surface-Runtime), and
-[State Estimator for BIM](https://github.com/giasonpooni/State-Estimator-for-BIM)
+The [Geospatial Systems Compiler](https://github.com/atomtrapping/Notations-FrameMapper-RunTime),
+[Curved Surface Runtime](https://github.com/atomtrapping/Notations-Surface-RunTime), and
+[State Estimator for BIM](https://github.com/atomtrapping/Notations-Estimator-for-BIM)
 remain independently scoped projects, not capabilities absorbed into NET.
 
 ## Explore the work
 
 | Case study | Implementation and evidence |
 | --- | --- |
-| Blender-authored Godot / Bevy experiment | [PR #45](https://github.com/giasonpooni/Notations-Engineering-Terminal/pull/45): bounded, headless projectile work; not a released game. |
-| Julia-authored native oscillator | [PR #47](https://github.com/giasonpooni/Notations-Engineering-Terminal/pull/47): checked C export with Python/Rust consumers. |
-| C++ and Godot native consumers | [PR #50](https://github.com/giasonpooni/Notations-Engineering-Terminal/pull/50): native-interface and headless numerical qualification. |
+| Blender-authored Godot / Bevy experiment | [PR #45](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/45): bounded, headless projectile work; not a released game. |
+| Julia-authored native oscillator | [PR #47](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/47): checked C export with Python/Rust consumers. |
+| C++ and Godot native consumers | [PR #50](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/50): native-interface and headless numerical qualification. |
 
 These links identify separate development increments. Consult each PR's current
 branch and status rather than assuming its implementation has been merged into

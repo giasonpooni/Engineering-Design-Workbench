@@ -33,7 +33,7 @@ def main():
             providers.mkdir()
             for role, repository in REPOSITORIES.items():
                 path = providers / role
-                call(["git", "clone", "--quiet", "--no-checkout", "https://github.com/giasonpooni/" + repository + ".git", str(path)])
+                call(["git", "clone", "--quiet", "--no-checkout", "https://github.com/atomtrapping/" + repository + ".git", str(path)])
                 call(["git", "-C", str(path), "checkout", "--quiet", "--detach", pins[role]["revision"]])
         wheels = temporary / "wheels"
         call([sys.executable, "-m", "pip", "wheel", "--no-deps", "--no-build-isolation", str(root), "--wheel-dir", str(wheels)])

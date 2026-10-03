@@ -76,7 +76,7 @@ def main():
             path = stack/role
             if not args.stack_root:
                 call(["git","-c","core.autocrlf=false","clone","--quiet","--no-checkout",
-                      "https://github.com/giasonpooni/"+repository+".git",str(path)])
+                      "https://github.com/atomtrapping/"+repository+".git",str(path)])
                 call(["git","-C",str(path),"-c","core.autocrlf=false","checkout","--quiet","--detach",declarations[role]["revision"]])
             providers[role] = exact_source(path,declarations[role])
         build = temporary/"build"
