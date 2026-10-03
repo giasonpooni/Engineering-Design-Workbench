@@ -1,7 +1,9 @@
 """Preflight availability cannot stand in for execution or source qualification."""
 import importlib.util
 import json
+import os
 from pathlib import Path
+import shutil
 import subprocess
 import sys
 from types import SimpleNamespace
@@ -86,6 +88,11 @@ def tools(doctor, monkeypatch, tmp_path):
         # Native wrapper fixtures can have .cmd/.exe suffixes; the simulated
         # version result still identifies the requested tool, not its wrapper.
         value = versions[Path(command[0]).stem]
+        if Path(command[0]).stem == "npm":
+            environment = {key.lower(): item for key, item in kwargs["env"].items()}
+            user, global_config = (Path(environment[key]) for key in ("npm_config_userconfig", "npm_config_globalconfig"))
+            assert user.resolve() != global_config.resolve()
+            assert user.read_bytes() == global_config.read_bytes() == b""
         if isinstance(value, BaseException):
             raise value
         return SimpleNamespace(returncode=0, stdout=value, stderr="")
@@ -323,7 +330,13 @@ def test_selected_node_pair_is_available_without_provider_credentials_or_npm_aut
         # Windows normalizes os.environ keys to uppercase; the child context
         # has the same values regardless of that platform casing convention.
         environment = {key.upper(): value for key, value in kwargs["env"].items()}
-        assert environment["NPM_CONFIG_USERCONFIG"] == module.os.devnull
+        if Path(command[0]).stem == "npm":
+            user = Path(environment["NPM_CONFIG_USERCONFIG"])
+            global_config = Path(environment["NPM_CONFIG_GLOBALCONFIG"])
+            assert user != global_config
+            assert not user.exists() and not global_config.exists()
+        else:
+            assert environment["NPM_CONFIG_USERCONFIG"] == module.os.devnull
         assert not {"CIW_PROVIDER_READ_TOKEN", "PYTHONPATH"} & environment.keys()
         assert environment["NODE_OPTIONS"] == "--require do-not-load"
         assert environment["NODE_PATH"] == "/selected/node/modules"
@@ -332,6 +345,35 @@ def test_selected_node_pair_is_available_without_provider_credentials_or_npm_aut
         assert environment["RUSTUP_TOOLCHAIN"] == "selected-rust-toolchain"
         assert environment["NPM_CONFIG_REGISTRY"] == "https://do-not-contact.invalid"
     assert "do-not-retain-secret" not in json.dumps(report)
+
+
+def test_installed_posix_npm_version_uses_distinct_empty_configs_and_cleans_them(doctor, monkeypatch):
+    module, root, _ = doctor
+    if os.name != "posix":
+        pytest.skip("Real POSIX npm version regression; opaque native Windows launchers are tested separately")
+    npm = shutil.which("npm")
+    if npm is None:
+        pytest.skip("Installed npm is optional for this real-tool regression")
+    observed = []
+    actual_run = subprocess.run
+
+    def run(command, **kwargs):
+        environment = {key.lower(): value for key, value in kwargs["env"].items()}
+        configs = tuple(Path(environment[key]) for key in ("npm_config_userconfig", "npm_config_globalconfig"))
+        assert configs[0].resolve() != configs[1].resolve()
+        assert all(path.read_bytes() == b"" for path in configs)
+        observed.extend(configs)
+        return actual_run(command, **kwargs)
+
+    monkeypatch.setattr(module, "subprocess", SimpleNamespace(run=run, PIPE=subprocess.PIPE,
+                                                             SubprocessError=subprocess.SubprocessError))
+    source_files = set(root.rglob("*"))
+    result = module._tool("npm", root, module._probe_environment(), Path(npm))
+    assert result["status"] == "available", result
+    assert result["version"]
+    assert len(observed) == 2
+    assert all(not path.parent.exists() for path in observed)
+    assert set(root.rglob("*")) == source_files
 
 
 def test_incomplete_explicit_node_bin_does_not_probe_fallback_npm(doctor, tools, tmp_path):

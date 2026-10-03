@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 import ast
+from contextlib import ExitStack
 from datetime import datetime, timezone
 from hashlib import sha256
 import json
@@ -12,6 +13,7 @@ import re
 import shutil
 import subprocess
 import sys
+import tempfile
 import uuid
 
 if __package__:
@@ -98,8 +100,21 @@ def _tool(name, root, environment, supplied=None):
     if name in {"cargo", "rustc", "rustdoc"}:
         command.append("--verbose")
     try:
-        process = subprocess.run(command, cwd=root, env=environment, check=False, timeout=10,
-                                 stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        with ExitStack() as temporary:
+            probe_environment = environment
+            if name == "npm":
+                directory = Path(temporary.enter_context(tempfile.TemporaryDirectory(prefix="notations-npm-doctor-")))
+                user_config, global_config = directory / "user.npmrc", directory / "global.npmrc"
+                user_config.write_text("")
+                global_config.write_text("")
+                # npm refuses to load the same path as both user and global
+                # config. Keep distinct empty files alive through the probe,
+                # replacing inherited casing variants on Windows as well.
+                probe_environment = {key: value for key, value in environment.items()
+                                     if key.lower() not in {"npm_config_userconfig", "npm_config_globalconfig"}}
+                probe_environment.update(npm_config_userconfig=str(user_config), npm_config_globalconfig=str(global_config))
+            process = subprocess.run(command, cwd=root, env=probe_environment, check=False, timeout=10,
+                                     stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
     except (OSError, subprocess.SubprocessError) as error:
         return {**result, "status": "refused", "reason": "Version probe could not complete",
                 "error_type": type(error).__name__}

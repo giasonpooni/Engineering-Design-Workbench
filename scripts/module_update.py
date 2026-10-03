@@ -69,9 +69,19 @@ def _json(data):
     def non_json(value):
         raise ValueError("Non-JSON numeric constant: " + value)
     try:
-        return json.loads(data, object_pairs_hook=unique, parse_constant=non_json)
+        result = json.loads(data, object_pairs_hook=unique, parse_constant=non_json)
     except RecursionError as error:
         raise ValueError("The JSON document exceeds the supported nesting bound") from error
+    # A host or test runner can increase Python's recursion limit. Keep this
+    # bound explicit rather than deriving the input contract from that setting.
+    pending = [(result, 0)]
+    while pending:
+        value, depth = pending.pop()
+        if depth > 32:
+            raise ValueError("The JSON document exceeds the supported nesting bound")
+        children = value.values() if isinstance(value, dict) else value if isinstance(value, list) else ()
+        pending.extend((child, depth + 1) for child in children)
+    return result
 
 
 def _canonical(value):
