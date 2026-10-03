@@ -11,12 +11,12 @@ import tempfile
 EXPECTED_TARGET = '235032554b9847bf88103e95c401374466f2ac51'
 EXPECTED_BASE = '98b7dfccec61f295d0bd0240723fb64bf0f58d17'
 PREVIOUS_TARGET = 'c7762d8ad632ac5e5ff4d021c3911fd29a3451ab'
-EXPECTED_BUNDLE = 'fce7284b31fb3990b3ac106331d895547cd6e90c3cb5f3d1c9e1c6d81c79ffc0'
-EXPECTED_SIZE = 14655761
+EXPECTED_BUNDLE = '843eba2703ce7d19341a2906f2c59da4e2157176f4f1c66c3a63f75d86c370be'
+EXPECTED_SIZE = 14730876
 PARTS = (
-    ('native-full-final.bundle.part01', 5242880, 'f0292ea7cb2ceed6d55948729b5e806ccc233ab2e0e7490a0fc4b3f5461fb2ac'),
-    ('native-full-final.bundle.part02', 5242880, 'ac9f9883e941274467a18a52edd65e9303be5c372f5a4eb1b704741481010b37'),
-    ('native-full-final.bundle.part03', 4170001, '9025803ed329a16ea7b87e10380d6f85950240fa4d78c2a77e8fd77eaee0e617'),
+    ('native-full-final.bundle.part01', 5242880, '0058bb357fdb59df3b05855036e6967a45ef0920430415d13646e31aaaa9f2d3'),
+    ('native-full-final.bundle.part02', 5242880, '6e4cc6528b95706b65b52bca16754b851c075750e0a899f731c7856a6039d617'),
+    ('native-full-final.bundle.part03', 4245116, '64790342348f71fd9d95604e5ecec44d2aa3054bda165fc8e810ff8a2babde10'),
 )
 TARGET_BRANCH = 'feat/source-retirement-20261003'
 TRANSPORT_BRANCH = 'transfer/source-retirement-20261003'
