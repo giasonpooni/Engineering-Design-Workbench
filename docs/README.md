@@ -22,6 +22,7 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 | Elastic contact, independent impulse/energy checks and typed preservation | [Impact contact benchmark](IMPACT_CONTACT_BENCHMARK.md) (research branch increment) |
 | Irreversible crush state, plastic work and independent energy accounting | [Impact crush benchmark](IMPACT_CRUSH_BENCHMARK.md) (research branch increment) |
 | Finite parameter cases and separate numerical/design qualification | [Impact scenario envelope](IMPACT_SCENARIO_ENVELOPE.md) (research branch increment) |
+| Simply supported elastic plate, finite contact patch and temporal/modal refinement | [Impact plate benchmark](IMPACT_PLATE_BENCHMARK.md) (research branch increment) |
 | Bounded scalar linearization error with exact reference | [Interval requirement check](INTERVAL_REQUIREMENT.md) |
 | Optional providers and the next acceptance experiments | [Provider development sequence](PROVIDER_DEVELOPMENT.md) |
 | Multi-provider assembly and local deployment | [Workbench assembly](WORKBENCH_ASSEMBLY.md) |

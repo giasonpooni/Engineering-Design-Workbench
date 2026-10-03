@@ -19,6 +19,8 @@ SIMULATE = "impact.spring-contact.v1"
 VERIFY = "impact.spring-contact-verify.v1"
 CRUSH_SIMULATE = "impact.crush-contact.v1"
 CRUSH_VERIFY = "impact.crush-contact-verify.v1"
+PLATE_SIMULATE = "impact.plate-contact.v1"
+PLATE_VERIFY = "impact.plate-contact-verify.v1"
 FRAME = "impact.normal.inward_positive.v1"
 AUTHORITY = {"physical_validation": "not_established", "scale_preservation": "not_established",
              "state_admission": "not_performed", "hardware_actuation": "not_performed"}
@@ -28,9 +30,16 @@ def _crush(request: dict) -> bool:
     return isinstance(request, dict) and request.get("schema") == "ciw.impact-crush-request.v1"
 
 
+def _plate(request: dict) -> bool:
+    return isinstance(request, dict) and request.get("schema") == "ciw.impact-plate-request.v1"
+
+
 def _modules(request: dict):
     # Fixed installed profiles only. Saved schema IDs never name import paths.
-    if _crush(request):
+    if _plate(request):
+        from . import impact_plate_contract as contract, impact_plate_solver as solver
+        from . import impact_plate_verification as verification, impact_plate_preservation as preservation
+    elif _crush(request):
         from . import impact_crush_contract as contract, impact_crush_solver as solver
         from . import impact_crush_verification as verification, impact_crush_preservation as preservation
     else:
@@ -40,11 +49,16 @@ def _modules(request: dict):
 
 
 def _operation_ids(request: dict) -> tuple[str, str]:
+    if _plate(request):
+        return PLATE_SIMULATE, PLATE_VERIFY
     return (CRUSH_SIMULATE, CRUSH_VERIFY) if _crush(request) else (SIMULATE, VERIFY)
 
 
-def runtime_identity(kind: str, *, crush: bool = False) -> dict:
-    if crush:
+def runtime_identity(kind: str, *, crush: bool = False, plate: bool = False) -> dict:
+    if plate:
+        from . import impact_plate_contract as contract, impact_plate_reference as reference
+        from . import impact_plate_solver as solver, impact_plate_verification as verification
+    elif crush:
         from . import impact_crush_contract as contract, impact_crush_reference as reference
         from . import impact_crush_solver as solver, impact_crush_verification as verification
     else:
@@ -55,8 +69,16 @@ def runtime_identity(kind: str, *, crush: bool = False) -> dict:
     raw = b"\0".join(Path(m.__file__).name.encode() + b"\0" +
                      Path(m.__file__).read_text(encoding="utf-8").replace("\r\n", "\n").encode()
                      for m in modules)
-    return {"provider": "ciw.impact." + ("crush-" if crush else "") + kind, "version": "1", "code_sha256": sha256(raw).hexdigest(),
-            "source_normalization": "utf8_lf", "scope": "synthetic_elastic_plastic_crush_only" if crush else "synthetic_elastic_contact_only"}
+    identity = {"provider": "ciw.impact." + ("plate-" if plate else "crush-" if crush else "") + kind,
+            "version": "1", "code_sha256": sha256(raw).hexdigest(), "source_normalization": "utf8_lf",
+            "scope": "synthetic_modal_plate_contact_only" if plate else
+                     "synthetic_elastic_plastic_crush_only" if crush else "synthetic_elastic_contact_only"}
+    if plate:
+        import platform
+        import numpy
+        identity["environment"] = {"python": platform.python_version(), "numpy": numpy.__version__,
+                                   "floating_point": "binary64"}
+    return identity
 
 
 def make_source(request: dict) -> dict:
@@ -71,8 +93,12 @@ def make_source(request: dict) -> dict:
     units = {"compression": "m", "velocity": "m/s", "force": "N"}
     if _crush(request):
         units.update(plastic_compression="m", plastic_work="J")
+    if _plate(request):
+        units.update(striker_displacement="m", plate_contact_displacement="m", plate_contact_velocity="m/s")
     manifest = InstrumentManifest(
-        instrument_id="impact-crush-initial-state.v1" if _crush(request) else "impact-initial-state.v1", role="synthetic_initial_conditions",
+        instrument_id="impact-plate-initial-state.v1" if _plate(request) else
+                      "impact-crush-initial-state.v1" if _crush(request) else "impact-initial-state.v1",
+        role="synthetic_initial_conditions",
         units=units, frames=(FRAME,),
         sampling={"kind": "one_initial_state_at_first_contact"},
         supported_operations=(simulate_id, verify_id),
@@ -90,6 +116,10 @@ def make_source(request: dict) -> dict:
     if _crush(request):
         run["channels"].update(plastic_compression={"unit": "m", "values": [0.0]},
                                plastic_work={"unit": "J", "values": [0.0]})
+    if _plate(request):
+        run["channels"].update(striker_displacement={"unit": "m", "values": [0.0]},
+                               plate_contact_displacement={"unit": "m", "values": [0.0]},
+                               plate_contact_velocity={"unit": "m/s", "values": [0.0]})
     run["evidence_id"] = evidence_id(run)
     return run
 
@@ -144,7 +174,9 @@ def operations() -> list[Operation]:
     return [Operation(SIMULATE, "backend", bind(SIMULATE, _simulate), lambda: runtime_identity("solver")),
             Operation(VERIFY, "verification", bind(VERIFY, _verify), lambda: runtime_identity("verifier")),
             Operation(CRUSH_SIMULATE, "backend", bind(CRUSH_SIMULATE, _simulate), lambda: runtime_identity("solver", crush=True)),
-            Operation(CRUSH_VERIFY, "verification", bind(CRUSH_VERIFY, _verify), lambda: runtime_identity("verifier", crush=True))]
+            Operation(CRUSH_VERIFY, "verification", bind(CRUSH_VERIFY, _verify), lambda: runtime_identity("verifier", crush=True)),
+            Operation(PLATE_SIMULATE, "backend", bind(PLATE_SIMULATE, _simulate), lambda: runtime_identity("solver", plate=True)),
+            Operation(PLATE_VERIFY, "verification", bind(PLATE_VERIFY, _verify), lambda: runtime_identity("verifier", plate=True))]
 
 
 def registry():
@@ -184,7 +216,7 @@ def validate_result_dependencies(results: dict) -> None:
     """Verification snapshots must match an actually retained solver occurrence."""
     verification_ids = set()
     for result in results.values():
-        if result.get("operation_id") not in {VERIFY, CRUSH_VERIFY}:
+        if result.get("operation_id") not in {VERIFY, CRUSH_VERIFY, PLATE_VERIFY}:
             continue
         candidate = result["parameters"]["candidate"]
         if results.get(candidate["result_id"]) != candidate:
@@ -255,13 +287,15 @@ def _read(destination: Path):
     if load(destination / "verification.json") != verification["data"]:
         raise ValueError("Verification artifact differs from retained verification result")
     validate = _modules(source_request(session.run))[3].validate
-    validate(load(destination / "preservation.json"), source_request(session.run), candidate["data"],
-             verification["data"]["report"])
+    preservation = load(destination / "preservation.json")
+    validate(preservation, source_request(session.run), candidate["data"], verification["data"]["report"])
+    # Ephemeral inspection state only. Keep the exact validated receipt with
+    # this snapshot; subsequent inspection/export never reopens another epoch.
+    session._impact_preservation = deepcopy(preservation)
     return session, candidate, verification
 
 
-def inspect(destination: Path) -> dict:
-    session, candidate, verification = _read(destination)
+def _inspection_from_read(session, candidate: dict | None, verification: dict | None) -> dict:
     if verification is None:
         attempts = [{name: deepcopy(value) for name, value in entry.items() if name != "parameters"}
                     for entry in session.executions.values()]
@@ -269,7 +303,7 @@ def inspect(destination: Path) -> dict:
                 "evidence_id": session.run["evidence_id"], "executions": attempts,
                 "fresh_execution": False, "fresh_numerical_verification": False, "authority": deepcopy(AUTHORITY)}
     report = verification["data"]["report"]
-    preservation = load(Path(destination) / "preservation.json")
+    preservation = session._impact_preservation
     return {"schema": "ciw.impact-inspection.v1", "status": report["qualification"]["action"],
             "qualification": report["qualification"], "evidence_id": session.run["evidence_id"],
             "operation_id": candidate["operation_id"], "execution_id": candidate["execution_id"], "result_id": candidate["result_id"],
@@ -284,30 +318,40 @@ def inspect(destination: Path) -> dict:
             "authority": deepcopy(AUTHORITY)}
 
 
-def verify_retained(destination: Path) -> dict:
-    session, candidate, verification = _read(destination)
+def inspect(destination: Path) -> dict:
+    return _inspection_from_read(*_read(destination))
+
+
+def _verify_read(session, candidate: dict | None, verification: dict | None) -> dict:
     if verification is None:
-        return inspect(destination)
+        return _inspection_from_read(session, candidate, verification)
     request = source_request(session.run)
     fresh = _modules(request)[2].verify(request, candidate["data"])
     if fresh != verification["data"]["report"]:
         raise ValueError("Independent recomputation differs from retained verification report")
-    result = inspect(destination)
+    result = _inspection_from_read(session, candidate, verification)
     result["fresh_numerical_verification"] = True
     result["recomputed_report_digest"] = fresh["record_digest"]
-    result["recomputed_with_runtime"] = runtime_identity("verifier", crush=_crush(request))
+    result["recomputed_with_runtime"] = runtime_identity("verifier", crush=_crush(request), plate=_plate(request))
     return result
 
 
+def verify_retained(destination: Path) -> dict:
+    return _verify_read(*_read(destination))
+
+
 def export_csv(destination: Path, output: Path) -> dict:
-    checked = verify_retained(destination)
+    session, candidate, verification = _read(destination)
+    checked = _verify_read(session, candidate, verification)
     if checked["status"] != "LOCAL":
         raise ValueError("Only a numerically qualified LOCAL trace can be exported")
-    _, candidate, _ = _read(destination)
     trace = candidate["data"]["primary"]
     names = ["time_s", "compression_m", "velocity_m_per_s", "force_n"]
     if candidate["operation_id"] == CRUSH_SIMULATE:
         names.extend(["plastic_compression_m", "plastic_work_j"])
+    if candidate["operation_id"] == PLATE_SIMULATE:
+        names = ["time_s", "striker_displacement_m", "compression_m", "velocity_m_per_s", "force_n",
+                 "plate_contact_displacement_m", "plate_contact_velocity_m_per_s"]
     output = Path(output)
     output.parent.mkdir(parents=True, exist_ok=True)
     with output.open("x", encoding="utf-8", newline="") as stream:
@@ -316,3 +360,49 @@ def export_csv(destination: Path, output: Path) -> dict:
         writer.writerows(zip(*(trace[name] for name in names)))
     return {"status": "exported", "file": str(output), "source_result_id": candidate["result_id"],
             "source_execution_id": candidate["execution_id"], "authority": deepcopy(AUTHORITY)}
+
+
+def export_plate_field(destination: Path, output: Path, *, time_index: int, grid_size: int = 17) -> dict:
+    """Reconstruct one retained finite-basis displacement field after fresh audit."""
+    if type(time_index) is not int or time_index < 0:
+        raise ValueError("time_index must be a nonnegative integer")
+    if type(grid_size) is not int or not 3 <= grid_size <= 33 or grid_size % 2 != 1:
+        raise ValueError("grid_size must be an odd integer inside 3..33")
+    session, candidate, verification = _read(destination)
+    request = source_request(session.run)
+    if not _plate(request) or candidate is None:
+        raise ValueError("A retained plate result is required for spatial field export")
+    trace = candidate["data"]["primary"]
+    if time_index >= len(trace["time_s"]):
+        raise ValueError("time_index lies outside the retained primary trace")
+    checked = _verify_read(session, candidate, verification)
+    if checked["status"] != "LOCAL":
+        raise ValueError("Only a numerically qualified LOCAL plate field can be exported")
+    model = request["model"]
+    x = [model["length_x_m"] * i / (grid_size - 1) for i in range(grid_size)]
+    y = [model["length_y_m"] * i / (grid_size - 1) for i in range(grid_size)]
+    modes = trace["modes"]
+    amplitudes = [values[time_index] for values in trace["modal_displacement_m"]]
+    field = [[0.0 if i in {0, grid_size - 1} or j in {0, grid_size - 1} else
+              sum(amplitude * math.sin(m * math.pi * xi / model["length_x_m"])
+                  * math.sin(n * math.pi * yj / model["length_y_m"])
+                  for (m, n), amplitude in zip(modes, amplitudes))
+              for i, xi in enumerate(x)] for j, yj in enumerate(y)]
+    payload = seal({"schema": "ciw.impact-plate-field.v1", "request_digest": digest(request),
+                    "source_evidence_id": session.run["evidence_id"], "source_result_id": candidate["result_id"],
+                    "source_execution_id": candidate["execution_id"], "source_record_digest": candidate["record_digest"],
+                    "verification_id": checked["verification_id"],
+                    "recomputed_report_digest": checked["recomputed_report_digest"],
+                    "time_index": time_index, "time_s": trace["time_s"][time_index],
+                    "units": {"x_m": "m", "y_m": "m", "deflection_m": "m", "time_s": "s"},
+                    "geometry": {"length_x_m": model["length_x_m"], "length_y_m": model["length_y_m"],
+                                 "thickness_m": model["thickness_m"], "support": model["support"]},
+                    "modes": deepcopy(modes), "modal_displacement_m": amplitudes,
+                    "x_m": x, "y_m": y, "deflection_m": field,
+                    "interpretation": "finite-basis displacement at one retained primary-grid time; no interpolation, stress, damage or continuum qualification",
+                    "authority": deepcopy(AUTHORITY)})
+    save_new(output, payload)
+    return {"status": "exported", "file": str(output), "field_digest": payload["record_digest"],
+            "source_result_id": candidate["result_id"], "source_execution_id": candidate["execution_id"],
+            "time_index": time_index, "time_s": trace["time_s"][time_index],
+            "authority": deepcopy(AUTHORITY)}

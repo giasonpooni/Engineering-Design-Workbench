@@ -2,7 +2,8 @@
 
 `net impact sweep` evaluates an explicit Cartesian grid of scalar contact
 scenarios on the original impact Session workflow. It supports the elastic
-spring profile and the unilateral elastic-perfectly-plastic crush profile.
+spring profile, the unilateral elastic-perfectly-plastic crush profile, and
+the explicitly selected simply supported rectangular thin-plate profile.
 Each case retains its own source evidence, solver execution, independent
 verification occurrence, and preservation contract. The existing numerical
 providers remain responsible for their respective physical models.
@@ -67,7 +68,8 @@ aggregate requirements verdict `FAIL`; otherwise any unresolved case makes it
 
 A requirement verdict does not establish physical failure, experimental
 validation, a confidence bound, or failure probability. Effective spring
-stiffness and yield force are scalar model parameters. Geometry, polymer
+stiffness and yield force are scalar model parameters in the original contact
+profiles. In those profiles, geometry, polymer
 identification, rate response, thermal response, fracture, hardness, molecular
 mechanisms, and continuum plate response require additional qualified models
 or evidence through the existing scope gate.
@@ -91,8 +93,11 @@ It executes no solver or numerical verifier. Missing cases, changed file bytes,
 relabelled verdicts, altered coordinates, and resealed aggregate modifications
 are rejected. Case paths are derived from trusted integer indices rather than
 saved path strings.
-Retained case workspaces have a separate 64 MiB file budget to accommodate the
-declared integration limits; other documents retain the 8 MiB budget. File
+Retained scalar-contact case workspaces have a separate 64 MiB file budget to
+accommodate the declared integration limits. The fixed installed plate profile
+uses a 128 MiB workspace budget for its retained primary, time-refined, and
+spatially refined modal histories; the validated base request selects this
+bound. Other documents retain the 8 MiB budget. File
 sizes and symlinks are checked before opening the retained Session.
 
 `verify` additionally invokes the existing independent retained-sample verifier
@@ -101,3 +106,64 @@ without executing a solver, creating new operation occurrences, or modifying
 the retained bundle. Seals identify content; they do not authenticate who
 produced it. Evidence, operation, execution, verification, and admission
 identities remain separate, and no state admission or actuation is performed.
+
+## Plate geometry scenarios
+
+The original default example and its manifest schema are unchanged. Selecting
+`--profile plate` creates a separate geometry-aware base request:
+
+```sh
+net impact sweep example --profile plate --output plate-scenarios.json
+net impact sweep run plate-scenarios.json --output-dir plate-scenarios
+net impact sweep inspect plate-scenarios
+net impact sweep verify plate-scenarios
+```
+
+This example enumerates thicknesses 0.0028 and 0.003 m and initial speeds 0.01
+and 0.02 m/s, keeping the plate material, rectangular geometry, loading patch,
+supports, and integration profile declared in the plate base request. Its
+duration is explicitly twice the striker/spring nominal contact time so that
+the thinner plate's first release remains inside the retained history. The
+requirements are peak contact force at most 10 N and a sampled conservative
+plate deflection bound at most 0.0003 m. It remains a four-case deterministic
+envelope within the qualified thin-plate model.
+
+The plate profile uses the fixed installed `ciw.impact-plate-request.v1`
+contract. Its geometry and material axes extend the scalar mass, contact
+stiffness, and impact-speed axes:
+
+| Additional plate axis | Exact unit |
+| --- | --- |
+| `length_x_m`, `length_y_m`, `thickness_m` | `m` |
+| `young_modulus_pa` | `Pa` |
+| `density_kg_per_m3` | `kg/m^3` |
+| `patch_center_x_m`, `patch_center_y_m` | `m` |
+| `patch_width_x_m`, `patch_width_y_m` | `m` |
+
+The existing bounds of 1–3 dimensions, 1–6 values per dimension, and 24 total
+cases still apply. Every generated request must satisfy the plate contract,
+including patch containment and the declared thin-wavelength condition, before
+any output is written. Valid request geometry does not automatically pass the
+run's independently checked deflection, slope, contact, energy, and refinement
+conditions. An unqualified case retains `UNRESOLVED` requirement values.
+The 0.0025 m thickness at 0.01 m/s, for example, passes input validation but
+fails the declared spatial refinement checks in this profile. Such a case
+retains `REFUSE` numerical qualification and unresolved design comparisons.
+Accepted grid points do not establish qualification between those points.
+
+| Plate requirement quantity | Exact unit | Meaning |
+| --- | --- | --- |
+| `peak_force_n` | `N` | Sampled maximum contact force |
+| `restitution` | `1` | Signed terminal rebound speed divided by incident speed |
+| `plate_peak_deflection_m` | `m` | Maximum retained-time sum of absolute modal displacements; a conservative spatial deflection bound for the retained basis |
+| `plate_contact_peak_deflection_m` | `m` | Sampled maximum absolute displacement averaged over the declared contact patch |
+| `max_deflection_over_thickness` | `1` | The same sampled conservative deflection bound divided by plate thickness |
+
+The modal sum bounds the retained plate's deflection over space at each sampled
+time; it does not certify a continuous-time maximum or the untruncated continuum
+solution. It can exceed the actual deflection peak because the modal amplitudes
+need not reach their extrema at one spatial point. The patch quantity measures
+a different observable and is not interchangeable with this spatial bound.
+No plastic-work, permanent-compression, yielding, fracture, or hardness
+requirement is supported by this elastic plate profile. Those quantities remain
+qualified only by a provider and evidence that explicitly establish them.
