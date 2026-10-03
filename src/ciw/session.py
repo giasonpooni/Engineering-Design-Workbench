@@ -543,10 +543,15 @@ class Session:
                 recording_file = self.recording_file
                 operation_id = payload["operation_id"]
                 operations = self.operations
+                from .operations.schemas import dependency_result_ids
+                dependencies = {identity: copy.deepcopy(self.results[identity])
+                                for identity in dependency_result_ids(operation_id, parameters)
+                                if identity in self.results}
                 self._pending_operations += 1
             try:
                 execution, result = execute_operation(
-                    operations, captured_run, selected, recording_file, operation_id, parameters)
+                    operations, captured_run, selected, recording_file, operation_id, parameters,
+                    retained_results=dependencies)
                 with self._lock:
                     # Legacy analysis can publish while this provider runs;
                     # recheck before writing either half of the operation pair.
@@ -692,6 +697,8 @@ class Session:
         validate_impact_dependencies(result_map)
         from .atmosphere_workflow import validate_result_dependencies as validate_atmosphere_dependencies
         validate_atmosphere_dependencies(result_map)
+        from .polymer_workflow import validate_result_dependencies as validate_polymer_dependencies
+        validate_polymer_dependencies(result_map)
         executions = workspace.get("executions", [])
         if not isinstance(executions, list) or len(executions) > 1024:
             raise ValueError("Invalid saved executions")

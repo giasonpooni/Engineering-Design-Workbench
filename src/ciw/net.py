@@ -119,6 +119,9 @@ def main(argv: list[str] | None = None) -> int:
     if argv and argv[0] == "legibility":
         from .legibility_cli import main as legibility_main
         return legibility_main(argv[1:])
+    if argv and argv[0] == "polymer":
+        from .polymer_cli import main as polymer_main
+        return polymer_main(argv[1:])
     if argv and argv[0] == "compose":
         from .workflow_cli import main as compose_main
         return compose_main(argv[1:])

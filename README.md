@@ -74,6 +74,11 @@ does not imply that a hosted demo or released game exists.
 
 Use the [integration coverage matrix](docs/INTEGRATION_COVERAGE.md) to distinguish
 callable operations, required provider bindings and remaining qualification.
+The [polymer processing instrument](docs/POLYMER_PROCESSING.md) adds retained
+cycle metrology, scoped cooling and pressure-arrival estimates, evidence-linked
+copilot context, and bounded control simulations for injection and extrusion
+blow molding. Its numerical checks do not establish production metrology or
+machine-control qualification.
 The [2026-10-03 concerns audit](docs/CONCERNS_AUDIT_2026-10-03.md) checks the broader
 platform narrative against merged source. The [retained correction loop](docs/CORRECTION_LOOP.md)
 demonstrates local dependency review with preserved history and fresh results;
