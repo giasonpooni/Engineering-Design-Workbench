@@ -20,6 +20,13 @@ def _fake_worker(command, *, cwd, env, timeout_s, output_path):
     return b""
 
 
+@pytest.fixture
+def posix_container_identity(monkeypatch):
+    """Unit-test Linux container arguments on any host; no Docker is launched."""
+    monkeypatch.setattr(execution.os, "getuid", lambda: 1001, raising=False)
+    monkeypatch.setattr(execution.os, "getgid", lambda: 1001, raising=False)
+
+
 def test_real_subprocess_matches_direct_candidate():
     spec = demo_spec(cells=8, force_n=5.0, boundary="free")
     direct = simulate(compile_spec(spec))
@@ -51,7 +58,16 @@ def test_container_missing_engine_does_not_fall_back(monkeypatch):
         execution.execute_worker(demo_spec(), engine="oci", image="worker@sha256:" + "a" * 64)
 
 
-def test_container_argv_uses_one_task_mount_and_explicit_limits(monkeypatch):
+def test_container_requires_real_posix_identity_without_fallback(monkeypatch):
+    monkeypatch.setattr(execution.shutil, "which", lambda _name: "/usr/bin/docker")
+    monkeypatch.delattr(execution.os, "getuid", raising=False)
+    monkeypatch.delattr(execution.os, "getgid", raising=False)
+    monkeypatch.setattr(execution, "_run_bounded", lambda *args, **kwargs: pytest.fail("no unsafe launch"))
+    with pytest.raises(execution.SystemExecutionError, match="POSIX uid and gid"):
+        execution.execute_worker(demo_spec(), engine="oci", image="worker@sha256:" + "a" * 64)
+
+
+def test_container_argv_uses_one_task_mount_and_explicit_limits(monkeypatch, posix_container_identity):
     observed = {}
     monkeypatch.setattr(execution.shutil, "which", lambda _name: "/usr/bin/docker")
     monkeypatch.setenv("DO_NOT_INHERIT_SECRET", "secret-value")
@@ -76,7 +92,7 @@ def test_container_argv_uses_one_task_mount_and_explicit_limits(monkeypatch):
     # by default. The volume shorthand's bare `rw` is invalid --mount syntax.
     assert mount == f"type=bind,source={observed['cwd']},target=/work"
     assert all("=" in field for field in mount.split(","))
-    assert str(observed["cwd"]).startswith("/tmp/net-system-worker-")
+    assert observed["cwd"].name.startswith("net-system-worker-")
     assert not observed["cwd"].exists(), "task directory must be removed after return"
     assert "DO_NOT_INHERIT_SECRET" not in observed["env"]
     assert observed["env"]["PYTHONPATH"] != "/outside/untrusted"
@@ -85,10 +101,10 @@ def test_container_argv_uses_one_task_mount_and_explicit_limits(monkeypatch):
     assert reply["execution_runtime"]["resources"] == {"cpu": 1, "memory_mb": 256}
     assert reply["execution_runtime"]["resource_limits_enforced"] is True
     assert reply["execution_runtime"]["timeout_s"] == 60.0
-    assert not any("/tmp/net-system-worker-" in arg for arg in reply["execution_runtime"]["command"])
+    assert not any(str(observed["cwd"]) in arg for arg in reply["execution_runtime"]["command"])
 
 
-def test_container_honors_nondefault_declared_resource_quotas(monkeypatch):
+def test_container_honors_nondefault_declared_resource_quotas(monkeypatch, posix_container_identity):
     observed = {}
     monkeypatch.setattr(execution.shutil, "which", lambda _name: "/usr/bin/docker")
     def fake(command, **kwargs):
@@ -200,7 +216,7 @@ def test_bounded_runner_refuses_diagnostic_overflow(tmp_path):
                                timeout_s=5, output_path=tmp_path / "candidate.json")
 
 
-def test_container_timeout_cleanup_uses_only_named_task(monkeypatch):
+def test_container_timeout_cleanup_uses_only_named_task(monkeypatch, posix_container_identity):
     calls = []
     monkeypatch.setattr(execution.shutil, "which", lambda _name: "/usr/bin/docker")
     def fail(command, **_kwargs):

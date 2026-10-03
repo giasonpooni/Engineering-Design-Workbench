@@ -174,7 +174,7 @@ def write_system_review(destination, session):
     destination.parent.mkdir(parents=True, exist_ok=True)
     temporary = None
     try:
-        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", dir=destination.parent,
+        with tempfile.NamedTemporaryFile(mode="w", encoding="utf-8", newline="\n", dir=destination.parent,
                 prefix="." + destination.name + ".", suffix=".tmp", delete=False) as stream:
             temporary = Path(stream.name)
             stream.write(content)

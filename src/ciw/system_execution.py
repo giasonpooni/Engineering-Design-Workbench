@@ -12,13 +12,14 @@ import math
 import os
 from pathlib import Path
 import re
-import selectors
+import queue
 import shutil
 import signal
 import stat
 import subprocess
 import sys
 import tempfile
+import threading
 import time
 from typing import Any
 import uuid
@@ -134,36 +135,83 @@ def _terminate(process: subprocess.Popen) -> None:
 
 def _run_bounded(command: list[str], *, cwd: Path, env: dict[str, str],
                  timeout_s: float, output_path: Path) -> bytes:
-    """Read pipes incrementally, refusing excess bytes before accumulating them."""
+    """Drain both pipes portably without selecting Windows pipe handles.
+
+    Each reader holds at most one 8 KiB chunk; the shared queue holds at most
+    eight.  The parent retains no more than the declared diagnostic budget,
+    polls the candidate size, and terminates the task when any envelope fails.
+    Pipe reads occur only in daemon readers so they cannot block the deadline.
+    """
     try:
         process = subprocess.Popen(command, cwd=cwd, env=env, stdin=subprocess.DEVNULL,
                                    stdout=subprocess.PIPE, stderr=subprocess.PIPE,
-                                   shell=False, start_new_session=True)
+                                   shell=False, start_new_session=os.name == "posix")
     except OSError as exc:
         raise SystemExecutionError(f"System worker launch failed: {exc.strerror}") from exc
-    selector = selectors.DefaultSelector()
+    chunks = queue.Queue(maxsize=8)
+    cancelled = threading.Event()
     diagnostic = bytearray()
     deadline = time.monotonic() + timeout_s
+
+    def publish(kind, chunk=None):
+        while not cancelled.is_set():
+            try:
+                chunks.put((kind, chunk), timeout=0.05)
+                return True
+            except queue.Full:
+                continue
+        return False
+
+    def read_stream(stream):
+        try:
+            while not cancelled.is_set():
+                chunk = stream.read1(8192)
+                if not chunk:
+                    publish("eof")
+                    return
+                if not publish("data", chunk):
+                    return
+        except (OSError, ValueError):
+            publish("error")
+        finally:
+            stream.close()
+
+    def check_candidate_budget():
+        try:
+            size = output_path.stat().st_size
+        except FileNotFoundError:
+            return
+        if size > MAX_CANDIDATE_BYTES:
+            raise SystemExecutionError("System worker candidate exceeds 16 MiB byte budget")
+
+    readers = []
     try:
         for stream in (process.stdout, process.stderr):
             assert stream is not None
-            os.set_blocking(stream.fileno(), False)
-            selector.register(stream, selectors.EVENT_READ)
-        while selector.get_map() or process.poll() is None:
+            reader = threading.Thread(target=read_stream, args=(stream,), daemon=True,
+                                      name="net-system-diagnostic-reader")
+            reader.start()
+            readers.append(reader)
+        finished = 0
+        while finished < 2 or process.poll() is None:
             remaining = deadline - time.monotonic()
             if remaining <= 0:
                 raise SystemExecutionError(f"System worker timeout after {timeout_s:g} seconds")
-            if output_path.exists() and output_path.stat().st_size > MAX_CANDIDATE_BYTES:
-                raise SystemExecutionError("System worker candidate exceeds 16 MiB byte budget")
-            for key, _events in selector.select(min(remaining, 0.1)):
-                chunk = os.read(key.fileobj.fileno(), 8192)
-                if not chunk:
-                    selector.unregister(key.fileobj)
-                    continue
+            check_candidate_budget()
+            try:
+                kind, chunk = chunks.get(timeout=min(remaining, 0.05))
+            except queue.Empty:
+                continue
+            if kind == "eof":
+                finished += 1
+            elif kind == "error":
+                raise SystemExecutionError("System worker diagnostic pipe could not be read safely")
+            else:
                 if len(diagnostic) + len(chunk) > MAX_DIAGNOSTIC_BYTES:
                     raise SystemExecutionError("System worker exceeds 64 KiB diagnostic byte budget")
                 diagnostic.extend(chunk)
         returncode = process.wait(timeout=max(0.001, deadline - time.monotonic()))
+        check_candidate_budget()
         if returncode:
             # Keep error reporting bounded independently of the retained pipe budget.
             detail = bytes(diagnostic[-4096:]).decode("utf-8", errors="replace").strip()
@@ -173,8 +221,13 @@ def _run_bounded(command: list[str], *, cwd: Path, env: dict[str, str],
         _terminate(process)
         raise
     finally:
-        selector.close()
-        for stream in (process.stdout, process.stderr):
+        cancelled.set()
+        for reader in readers:
+            reader.join(timeout=0.2)
+        # Each started reader owns closing its stream.  Closing a BufferedReader
+        # from another thread can wait on its blocking read lock, defeating the
+        # deadline if a descendant inherited a pipe.  Close only unowned pipes.
+        for stream in (process.stdout, process.stderr)[len(readers):]:
             if stream is not None:
                 stream.close()
 

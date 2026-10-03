@@ -61,7 +61,7 @@ def test_import_is_data_only_and_retains_raw_and_normalized_identities(tmp_path)
 @pytest.mark.parametrize("raw", [
     b"{}", b'{"schema":"ciw.system-spec.v1","schema":"ciw.system-spec.v1"}',
     b'{"value":NaN}', b" " * (MAX_BYTES + 1),
-])
+], ids=["missing_schema", "duplicate_key", "nonfinite", "oversized"])
 def test_source_import_refuses_malformed_nonfinite_duplicate_or_unbounded_json(raw):
     with pytest.raises(ValueError):
         _source(raw)

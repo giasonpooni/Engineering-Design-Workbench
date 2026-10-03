@@ -150,10 +150,11 @@ def test_atomic_review_write_preserves_existing_file_on_replace_failure(tmp_path
     with patch("ciw.system_view.os.replace", side_effect=OSError("replace refused")):
         with pytest.raises(OSError, match="replace refused"):
             write_system_review(destination, retained[0])
-    assert destination.read_text() == "old review"
+    assert destination.read_text(encoding="utf-8") == "old review"
     assert not list(tmp_path.glob(".review.html.*.tmp"))
     assert write_system_review(destination, retained[0]) == destination
-    assert destination.read_text().startswith("<!doctype html>")
+    assert destination.read_text(encoding="utf-8").startswith("<!doctype html>")
+    assert b"\r\n" not in destination.read_bytes()
 
 
 def test_cli_review_and_full_inspection_preserve_input_workspace(tmp_path, capsys, retained):
@@ -172,7 +173,7 @@ def test_cli_review_and_full_inspection_preserve_input_workspace(tmp_path, capsy
         full = json.loads(capsys.readouterr().out)
     assert compact["detail"] == "compact" and full["detail"] == "full"
     assert "simulation" in full["simulations"][0]
-    assert _embedded_data(output.read_text())["schema"] == "ciw.system-review.v1"
+    assert _embedded_data(output.read_text(encoding="utf-8"))["schema"] == "ciw.system-review.v1"
     assert workspace.read_bytes() == before
 
 
@@ -266,7 +267,7 @@ elements["retained-system-data"].textContent=html.match(/<script id="retained-sy
 const document={getElementById:id=>elements[id],createElement:tag=>new Element(tag),createElementNS:(_ns,tag)=>new Element(tag)};
 const context={document,window:{addEventListener(){}},setInterval(){return 1},clearInterval(){},console,fetch(){throw new Error("network forbidden")}};
 vm.createContext(context);
-const script=html.match(/<script>\n([\s\S]*?)<\/script>/)[1];vm.runInContext(script,context,{timeout:3000});
+const script=html.match(/<script>\r?\n([\s\S]*?)<\/script>/)[1];vm.runInContext(script,context,{timeout:3000});
 assert(elements.checks.children.length>0);assert(elements.graph.children.length>0);
 const initial=elements.thermal.children.find(e=>e.tag==="polyline").attributes.points;
 elements.time.value="10";elements.time.listeners.input();

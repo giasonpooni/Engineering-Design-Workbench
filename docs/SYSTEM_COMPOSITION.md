@@ -145,7 +145,9 @@ samples. Startup failures remain visible even when later-time benchmarks pass.
 
 The subprocess path has measured deterministic parity. OCI packaging is in
 `containers/system-reference/`, with immutable image digest selection, no network,
-resource limits and an explicit worker entrypoint. A real OCI build and run must
+resource limits and an explicit worker entrypoint. Local and subprocess execution
+support Linux and Windows; the OCI adapter requires POSIX user/group identity.
+A real OCI build and run must
 be qualified where Docker is available. This environment has no container engine;
 the adapter and recipe are implemented, but container parity is not claimed.
 
