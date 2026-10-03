@@ -1,0 +1,32 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Geospatial State Visualization</title>
+    <meta name="description" content="Read-only geographic entities, routes, flows, and temporal state on a synthetic-data globe." />
+    <link
+      rel="icon"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'%3E%3Crect width='16' height='16' fill='%2304070c'/%3E%3Ccircle cx='8' cy='8' r='5' fill='none' stroke='%234da6ff' stroke-width='1.4'/%3E%3C/svg%3E"
+    />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500;600&family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+  </head>
+  <body>
+    <div id="app">
+      <canvas id="scene"></canvas>
+      <div id="hud"></div>
+      <div id="boot">
+        <div class="boot-mark">GEOSPATIAL</div>
+        <div class="boot-sub">STATE VISUALIZATION · SYNTHETIC DATA</div>
+        <div class="boot-bar"><div class="boot-fill" id="boot-fill"></div></div>
+        <div class="boot-status" id="boot-status">INITIALIZING RENDERER</div>
+      </div>
+    </div>
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>
