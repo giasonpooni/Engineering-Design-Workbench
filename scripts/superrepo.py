@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import argparse
 from datetime import datetime, timezone
+from hashlib import sha256
 import json
 import os
 from pathlib import Path
@@ -10,7 +11,7 @@ import subprocess
 import sys
 import uuid
 
-from monorepo import ROOT, git, load_manifest, verify_imports
+from monorepo import ROOT, git, load_manifest, verify_imports, verify_terminal_source
 from check_monorepo import _environment
 
 GATES = {
@@ -39,6 +40,9 @@ def check(args):
         "status": "running",
     }
     try:
+        report["terminal_source"] = verify_terminal_source(ROOT)
+        if report["terminal_source"]["revision"] != report["terminal_revision"]:
+            raise ValueError("The repository revision changed before qualification")
         report["imports"] = verify_imports(ROOT)
         run_output = output / report["verification_id"].split(":", 1)[1]
         run_output.mkdir(exist_ok=False)
@@ -64,8 +68,11 @@ def check(args):
             evidence = group_output / "report.json"
             result = {"exit_code": process.returncode, "report": str(evidence),
                       "status": "failed"}
+            report["groups"][group] = result
             if evidence.is_file():
-                qualification = json.loads(evidence.read_text())
+                evidence_bytes = evidence.read_bytes()
+                result["report_sha256"] = sha256(evidence_bytes).hexdigest()
+                qualification = json.loads(evidence_bytes)
                 if not isinstance(qualification, dict):
                     raise ValueError("Child qualification evidence must be an object: " + group)
                 schema = ("notations.monorepo-gate-report.v1" if group == "measurement"
@@ -84,14 +91,18 @@ def check(args):
                     raise ValueError("The repository revision changed during qualification")
                 if "error" in qualification:
                     result["error"] = qualification["error"]
+                result["terminal_source"] = qualification.get("terminal_source")
+                if result["terminal_source"] != report["terminal_source"]:
+                    raise ValueError("Child qualification source identity differs from the aggregate: " + group)
                 if process.returncode == 0 and qualification.get("status") == "passed":
                     result["status"] = "passed"
             else:
                 result["error"] = {"type": "MissingEvidence", "message": "The child did not write its qualification report"}
-            report["groups"][group] = result
         report["post_execution_imports"] = verify_imports(ROOT)
         if git(ROOT, "rev-parse", "HEAD").decode().strip() != report["terminal_revision"]:
             raise ValueError("The repository revision changed during qualification")
+        if verify_terminal_source(ROOT) != report["terminal_source"]:
+            raise ValueError("Terminal source identity changed during qualification")
         report["status"] = "passed" if all(r["status"] == "passed" for r in report["groups"].values()) else "failed"
     except (OSError, ValueError, subprocess.SubprocessError) as error:
         report.update(status="failed", error={"type": type(error).__name__, "message": str(error)})

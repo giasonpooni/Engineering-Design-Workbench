@@ -25,10 +25,10 @@ import xml.etree.ElementTree as ET
 
 if __package__:
     from .check_monorepo import DEPENDENCIES, _copy_source, _environment, _git, _IMPORT_PROBE, _junit, _run, _wheel
-    from .monorepo import ROOT, load_manifest, provider_worktrees, verify_imports
+    from .monorepo import ROOT, load_manifest, provider_worktrees, verify_imports, verify_terminal_source, worktree_mutation_lock
 else:
     from check_monorepo import DEPENDENCIES, _copy_source, _environment, _git, _IMPORT_PROBE, _junit, _run, _wheel
-    from monorepo import ROOT, load_manifest, provider_worktrees, verify_imports
+    from monorepo import ROOT, load_manifest, provider_worktrees, verify_imports, verify_terminal_source, worktree_mutation_lock
 
 ROLES = frozenset({"mcur", "tbrt", "oit", "gsie", "cbsr", "fdir", "set"})
 FLOWSTATE_REPOSITORY = "https://github.com/giasonpooni/Notations-FlowState.git"
@@ -93,15 +93,17 @@ print('Exact checkout bytes, index and source identity verified')
 
 @contextmanager
 def _worktree(repository: Path, revision: str, path: Path, temporary: Path, log: Path):
-    _run(["git", "-c", "core.autocrlf=false", "-C", repository,
-          "worktree", "add", "--detach", path, revision],
-         cwd=temporary, log=log)
+    with worktree_mutation_lock(repository):
+        _run(["git", "-c", "core.autocrlf=false", "-C", repository,
+              "worktree", "add", "--detach", path, revision],
+             cwd=temporary, log=log)
     try:
         _validate(path, revision, temporary, log)
         yield path
     finally:
-        _run(["git", "-C", repository, "worktree", "remove", "--force", path],
-             cwd=temporary, log=log)
+        with worktree_mutation_lock(repository):
+            _run(["git", "-C", repository, "worktree", "remove", "--force", path],
+                 cwd=temporary, log=log)
 
 
 def _flowstate(supplied: Path | None, temporary: Path, log: Path) -> Path:
@@ -424,7 +426,12 @@ def main(argv=None) -> int:
         "admission": "not_performed", "gte_integration_qualified": False,
         "dependencies": DEPENDENCIES, "log": str(log)}
     try:
+        report["terminal_source"] = verify_terminal_source(root=ROOT)
+        if report["terminal_source"]["revision"] != report["terminal_revision"]:
+            raise ValueError("Terminal revision changed before qualification")
         _qualify(args, report, output, log)
+        if verify_terminal_source(root=ROOT) != report["terminal_source"]:
+            raise ValueError("Terminal source identity changed during qualification")
     except Exception as error:
         report["status"] = "failed"
         report["error"] = {"type": type(error).__name__, "message": str(error)}

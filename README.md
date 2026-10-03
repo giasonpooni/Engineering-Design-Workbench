@@ -97,6 +97,12 @@ tools, representations and resources. Each keeps its package, original source
 history, tests, licence and release boundary. The root Terminal package retains
 its existing interfaces; declared provider revisions remain explicit.
 
+The [Geospatial Systems Compiler](https://github.com/atomtrapping/Notations-FrameMapper-RunTime),
+[Curved Surface Runtime](https://github.com/atomtrapping/Notations-Surface-RunTime), and
+[State Estimator for BIM](https://github.com/atomtrapping/Notations-Estimator-for-BIM)
+retain their scientific and representation responsibilities within the shared
+repository. NET composes their declared interfaces.
+
 Use `python scripts/superrepo.py list` to inspect the module registry,
 `python scripts/superrepo.py audit` to verify source preservation, and
 `python scripts/superrepo.py check --output-dir results/superrepo` to run the

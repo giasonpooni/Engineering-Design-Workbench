@@ -29,10 +29,10 @@ import zipfile
 
 if __package__:
     from .check_monorepo import DEPENDENCIES, _copy_source, _environment, _git, _IMPORT_PROBE, _junit, _wheel
-    from .monorepo import ROOT, load_manifest, project_version, provider_worktrees, verify_imports
+    from .monorepo import ROOT, load_manifest, project_version, provider_worktrees, verify_imports, verify_terminal_source
 else:
     from check_monorepo import DEPENDENCIES, _copy_source, _environment, _git, _IMPORT_PROBE, _junit, _wheel
-    from monorepo import ROOT, load_manifest, project_version, provider_worktrees, verify_imports
+    from monorepo import ROOT, load_manifest, project_version, provider_worktrees, verify_imports, verify_terminal_source
 
 SURFACE_REVISION = "1f7bbe380651e8df82db1760d880330aee3dc229"
 SURFACE_RUNTIME_REVISION = "bbc535af29c30997e56fd120320c570830676462"
@@ -635,11 +635,16 @@ def main(argv=None) -> int:
                 "previous_log":{"path":previous.get("log"),
                     "sha256":sha256(Path(previous["log"]).read_bytes()).hexdigest()},
                 "new_execution_output":str(execution_output)}
-            log.write_text("")
+        log.write_text("")
+        report["terminal_source"] = verify_terminal_source(root=ROOT)
+        if report["terminal_source"]["revision"] != report["terminal_revision"]:
+            raise ValueError("Terminal revision changed before qualification")
+        if args.resume_remaining:
             resume_remaining(args,report,previous,previous_path.parent,execution_output,log)
         else:
-            log.write_text("")
             qualify(args,report,output,log)
+        if verify_terminal_source(root=ROOT) != report["terminal_source"]:
+            raise ValueError("Terminal source identity changed during qualification")
     except Exception as error:
         report.update(status="failed",error={"type":type(error).__name__,"message":str(error)})
         print("Surface gate failed:",error,file=sys.stderr)

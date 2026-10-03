@@ -1,6 +1,6 @@
 # Engineering superrepo
 
-The cumulative branch `feat/engineering-superrepo-20261003` consolidates 21
+The cumulative branch `feat/monorepo-continuation-20261003` consolidates 21
 public engineering modules alongside the existing Terminal package. Development
 and review share a repository; packages, release identities, deployment choices
 and scientific authority remain module-owned.
@@ -14,6 +14,9 @@ Calibration and ClockSync are already on the default branch; the remaining
 imports are proposed together with preserved native ancestry. The
 [second-wave record](MONOREPO_WAVE2.md) preserves the earlier seven-module
 qualification and its scope.
+The Legibility Instrument is composed into the existing `ciw` package;
+retained correction inspection and representation compilation remain available
+through the same CLI.
 
 ## Module map
 
@@ -108,7 +111,18 @@ python scripts/superrepo.py check --output-dir results/superrepo
 
 The audit verifies exact source trees and original-history reachability,
 working file bytes and modes, package/licence identities, preserved execution
-bindings and unexpected untracked source files. Run the underlying gates
+bindings and unexpected untracked source files. Module records must also retain
+their repository identifier, historical repository label, ownership declaration
+and import status. These declarations are provenance metadata; the audit does
+not authenticate legal ownership. Cache exclusions must not admit executable
+source merely because a nested directory has a cache or environment name.
+
+All seven qualification gates bind the actual Terminal source tree before and
+after execution. The aggregate checks each child's source identity and retains
+its report byte hash. Fresh verification occurrences remain distinct from
+source identities and from historical qualification evidence.
+
+Run the underlying gates
 individually to review a particular boundary:
 
 | Gate | Command | Scope |
