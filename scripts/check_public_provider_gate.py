@@ -1,6 +1,6 @@
 """Run unchanged public composition gates using exact retained provider history.
 
-Only the three declared public compositions are accepted. Imported current
+Only the four declared public compositions are accepted. Imported current
 subdirectories never substitute for an execution pin, missing Git history is
 an error, and this route neither reads nor exports private provider sources.
 """
@@ -22,11 +22,12 @@ else:
 
 
 GATES = {
+    "calibrated-window": ("check_calibrated_window.py", frozenset({"tbrt", "mcur", "stfe", "gsie", "set"})),
     "declared-workloads": ("check_declared_workloads.py", frozenset({"sra", "scr"})),
     "calibrated-observable": ("check_calibrated_observable.py", frozenset({"fsrt", "tbrt", "mcur", "oit", "gsie", "cbsr", "fdir", "set"})),
     "identified-design": ("check_identified_design.py", frozenset({"fsrt", "tbrt", "mcur", "oit", "gsie", "cbsr", "fdir", "set", "sidt", "edspt", "ywir"})),
 }
-OUTPUT_GATES = frozenset({"declared-workloads"})
+OUTPUT_GATES = frozenset({"declared-workloads", "calibrated-window"})
 
 
 def gate_pins(gate: str, root: Path = ROOT) -> dict[str, str]:

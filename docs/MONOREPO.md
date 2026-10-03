@@ -65,6 +65,7 @@ branch or tag.
 
 | Module | Selected source | Additional retained history and reason |
 | --- | --- | --- |
+| Estimator Bench | `928ae6a76d4f853aa8306fef8207f81244b7066f` | Public calibrated-window replay history `2f838f4e196f453efc3a59045b0b3ec4b5680296` is retained as an original Git parent. Its exact replay provider remains distinct from the normal SET runtime `5e7bda36f521a5c1b0082b512f35e29803bffafc`. |
 | Surface | `1f7bbe380651e8df82db1760d880330aee3dc229` | Default `e8f0938ab243a1905792ba2c43439cb4f40cd4be` is retained; its documentation migration fails original documentation assertions. The selected snapshot preserves the unchanged passing source tests. |
 | FlowState | `3144e3e694419b0c8579938e8d28523174e36abd` | Default `e13e46facc125682776f165ce1b0460b4ff9410a` is retained; its README rename fails the original package identity assertion. The immediate parent retains identical numerical source, tests, locks and fixtures. |
 | FrameMapper | `b788489373cbbeebf69667ddf06c048855e22836` | Default `bdfcb041836e86ab1ce93688b127f8960e8d08cf` is retained; its documentation-only change fails the original route policy. The selected snapshot preserves that policy and package implementation. |
@@ -85,6 +86,16 @@ temporary, standalone detached worktrees from retained history. Existing
 commit, file bytes and interpreter still determine executable identity. An
 imported directory or the superrepo's `HEAD` does not substitute for that pin.
 Explicit external provider checkout support remains available.
+
+The public calibrated-window CI lane uses these retained histories through
+`python scripts/check_public_provider_gate.py calibrated-window --output-dir results/calibrated-window`.
+It runs the unchanged installed-package gate at all five original provider pins,
+with source checks before and after execution. The SET side history is required;
+missing ancestry refuses instead of downloading or substituting another revision.
+This route requires no private-provider credential. Its configured CI matrix is
+not a claim of completed qualification; successful run evidence must identify the
+actual tested source. Preserve the additional Git parent when merging this change.
+
 
 FlowState's public source and history are now retained locally. Both its
 calibrated-observable generator pin and CBSR's separate public comparison pin

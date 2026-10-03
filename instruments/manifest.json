@@ -125,6 +125,7 @@
       "import_revision": "928ae6a76d4f853aa8306fef8207f81244b7066f",
       "import_tree": "04d48ef9cf84a73a0cd029187263dca89d7c7e56",
       "runtime_revision": "5e7bda36f521a5c1b0082b512f35e29803bffafc",
+      "additional_history_roots": ["2f838f4e196f453efc3a59045b0b3ec4b5680296"],
       "distribution": "state-estimation-testbed",
       "version": "0.3.0",
       "python_import": "state_estimation_testbed",

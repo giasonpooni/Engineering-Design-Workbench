@@ -23,7 +23,8 @@ def gate(monkeypatch):
 
 
 @pytest.mark.parametrize("name,count", [("declared-workloads", 2),
-                                        ("calibrated-observable", 8), ("identified-design", 11)])
+                                        ("calibrated-observable", 8), ("identified-design", 11),
+                                        ("calibrated-window", 5)])
 def test_public_gate_reads_exact_existing_lane_pins(gate, name, count):
     pins = gate.gate_pins(name)
     assert len(pins) == count
@@ -49,7 +50,9 @@ def retained_route(gate, monkeypatch, tmp_path):
     source = tmp_path / "stack/sra"
     source.mkdir(parents=True)
     subprocess.run(["git", "init", "--quiet", str(source)], check=True)
-    (source / "provider.py").write_text("value = 1\n")
+    # Exact-byte source audits must not depend on host newline conversion.
+    subprocess.run(["git", "-C", str(source), "config", "core.autocrlf", "false"], check=True)
+    (source / "provider.py").write_bytes(b"value = 1\n")
     subprocess.run(["git", "-C", str(source), "add", "provider.py"], check=True)
     subprocess.run(["git", "-C", str(source), "-c", "user.name=Route Test", "-c",
                     "user.email=route-test@invalid.example", "commit", "--quiet", "-m", "Fixture"], check=True)
@@ -91,10 +94,28 @@ def test_unchanged_native_gate_failure_propagates_and_private_credentials_do_not
     assert retained_route["closed"] is True
 
 
+def test_calibrated_window_forwards_output_to_the_original_gate(gate, monkeypatch, retained_route, tmp_path):
+    seen = {}
+
+    def child(command, **kwargs):
+        seen.update(command=command, **kwargs)
+        return SimpleNamespace(returncode=0)
+
+    monkeypatch.setattr(gate, "subprocess", SimpleNamespace(run=child))
+    output = tmp_path / "window-evidence"
+    assert gate.run_gate("calibrated-window", output) == 0
+    assert seen["command"] == [
+        sys.executable, str(ROOT / "scripts/check_calibrated_window.py"),
+        "--stack-root", str(retained_route["source"].parent),
+        "--output-dir", str(output.resolve()),
+    ]
+    assert retained_route["closed"] is True
+
+
 def test_public_gate_refuses_hidden_tracked_drift_before_child(gate, monkeypatch, retained_route):
     source = retained_route["source"]
     subprocess.run(["git", "-C", str(source), "update-index", "--assume-unchanged", "provider.py"], check=True)
-    (source / "provider.py").write_text("value = 2\n")
+    (source / "provider.py").write_bytes(b"value = 2\n")
     monkeypatch.setattr(gate, "subprocess", SimpleNamespace(run=lambda *a, **k: pytest.fail("Dirty source cannot execute")))
     with pytest.raises(ValueError, match="tracked bytes differ"):
         gate.run_gate("declared-workloads")
@@ -102,13 +123,17 @@ def test_public_gate_refuses_hidden_tracked_drift_before_child(gate, monkeypatch
 
 
 def test_public_gate_rechecks_sources_after_failed_execution(gate, monkeypatch, retained_route):
+    calls = []
+
     def child(*args, **kwargs):
-        (retained_route["source"] / "provider.py").write_text("value = 3\n")
+        calls.append(True)
+        (retained_route["source"] / "provider.py").write_bytes(b"value = 3\n")
         return SimpleNamespace(returncode=1)
 
     monkeypatch.setattr(gate, "subprocess", SimpleNamespace(run=child))
     with pytest.raises(ValueError, match="tracked bytes differ"):
         gate.run_gate("declared-workloads")
+    assert calls == [True]
     assert retained_route["closed"] is True
 
 
