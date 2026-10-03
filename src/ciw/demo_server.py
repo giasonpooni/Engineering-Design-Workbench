@@ -189,8 +189,10 @@ class DemoService:
                 self._validate_response(first, source)
                 replay = self._invoke({"mode": "replay", "bundle": first["bundle"]}, threading.Event())
                 self._validate_response(replay, source)
-                if not replay["replay_receipt"] or replay["replay_receipt"]["numerical_match"] is not True:
-                    raise DemoError("QUALIFICATION_REPLAY", "Native replay did not retain a numerical match.", 503)
+                receipt = replay["replay_receipt"]
+                if (not isinstance(receipt, dict) or receipt.get("numerical_match") is not True or
+                        receipt.get("source_bundle_digest") != first["bundle"]["bundle_digest"]):
+                    raise DemoError("QUALIFICATION_REPLAY", "Native replay did not reproduce and bind the original execution.", 503)
                 self.qualified.append(deepcopy(example))
                 self.qualification.append({"example": identity, "outcome": "passed",
                     "bundle_digest": first["bundle"]["bundle_digest"],
@@ -405,8 +407,12 @@ class DemoService:
                         raise DemoError("WORKER_FAILED", "The scientific worker failed or reached a resource limit. Reset and retry.", 503) from exc
                     raise DemoError("WORKER_RESPONSE", "The worker did not return valid scientific JSON. Contact the operator.", 503) from exc
                 if isinstance(response, dict) and response.get("ok") is False:
-                    error = response.get("error", {})
-                    raise DemoError(str(error.get("code", "WORKER_REFUSED")),
+                    error = response.get("error")
+                    if (set(response) != {"ok", "error"} or not isinstance(error, dict) or
+                            not isinstance(error.get("code"), str) or
+                            re.fullmatch(r"[A-Z][A-Z0-9_]{0,63}", error["code"]) is None):
+                        raise DemoError("WORKER_RESPONSE", "The worker returned a malformed refusal. Contact the operator.", 503)
+                    raise DemoError(error["code"],
                         "The pinned provider refused this run. Reset the example; if it persists, contact the operator.", 503)
                 if process.returncode != 0:
                     raise DemoError("WORKER_FAILED", "The scientific worker failed or reached a resource limit. Reset and retry.", 503)

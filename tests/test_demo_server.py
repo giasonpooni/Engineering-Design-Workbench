@@ -139,6 +139,11 @@ def fake_service(code, **limits):
     ("import sys;sys.stdout.write('not-json')", "WORKER_RESPONSE"),
     ("import sys;sys.exit(3)", "WORKER_FAILED"),
     ("import json;print(json.dumps({'ok':False,'error':{'code':'SOURCE_PIN_MISMATCH'}}))", "SOURCE_PIN_MISMATCH"),
+    ("print('{\"ok\":false,\"error\":null}')", "WORKER_RESPONSE"),
+    ("print('{\"ok\":false,\"error\":[]}')", "WORKER_RESPONSE"),
+    ("print('{\"ok\":false,\"error\":{\"code\":[]}}')", "WORKER_RESPONSE"),
+    ("print('{\"ok\":false,\"error\":{\"code\":123}}')", "WORKER_RESPONSE"),
+    ("print('{\"ok\":false,\"error\":{}}')", "WORKER_RESPONSE"),
     ("import sys;sys.stdout.write('x'*10000)", "OUTPUT_LIMIT"),
     ("import time;time.sleep(10)", "TIMEOUT"),
 ])
@@ -311,6 +316,38 @@ def test_failed_qualification_never_exposes_example():
         with pytest.raises(DemoError) as error:
             service.submit(owner, "metrology", {})
         assert error.value.code == "EXAMPLE_UNAVAILABLE"
+    finally:
+        service.close()
+
+
+@pytest.mark.parametrize("refusal", ["not-json", '{"ok":false,"error":null}', '{"ok":false,"error":[]}'])
+def test_malformed_worker_refusal_marks_qualification_unavailable(refusal):
+    service = fake_service(f"print({refusal!r})")
+    service.qualified = []
+    try:
+        report = service.qualify()
+        assert len(report) == 3
+        assert all(item["outcome"] == "failed" and item["error"]["code"] == "WORKER_RESPONSE" for item in report)
+        assert service.qualified == []
+    finally:
+        service.close()
+
+
+def test_qualification_requires_receipt_binding_to_the_execution_it_qualified(monkeypatch):
+    service = fake_service("import sys;sys.exit(1)")
+    service.qualified = []
+    # The native verifier checks each complete bundle independently. This fault
+    # isolates the orchestration boundary: a coherent receipt for another
+    # retained execution must not qualify the first execution.
+    responses = iter([{"bundle": {"bundle_digest": "original"}},
+                      {"replay_receipt": {"numerical_match": True, "source_bundle_digest": "unrelated"}}] * 3)
+    monkeypatch.setattr(service, "_invoke", lambda request, cancel: next(responses))
+    monkeypatch.setattr(service, "_validate_response", lambda response, source: None)
+    try:
+        report = service.qualify()
+        assert len(report) == 3
+        assert all(item["outcome"] == "failed" and item["error"]["code"] == "QUALIFICATION_REPLAY" for item in report)
+        assert service.qualified == []
     finally:
         service.close()
 
