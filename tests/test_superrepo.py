@@ -17,6 +17,7 @@ MEASUREMENT_SCHEMA = "notations.monorepo-gate-report.v1"
 @pytest.fixture
 def coordinator(monkeypatch):
     # Load the operator without changing the installed ciw package or Git state.
+    monkeypatch.syspath_prepend(str(ROOT / "scripts"))
     spec = importlib.util.spec_from_file_location("superrepo_test_monorepo", ROOT / "scripts/monorepo.py")
     monorepo = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(monorepo)
