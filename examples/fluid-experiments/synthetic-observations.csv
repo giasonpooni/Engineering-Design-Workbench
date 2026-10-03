@@ -1,0 +1,4 @@
+sample_id,time_s,role,head1_m
+s0,0.1,holdout,0.0098
+s1,0.2,holdout,0.0095
+s2,0.3,holdout,0.0090

@@ -1,0 +1,154 @@
+{
+  "schema": "ciw.fluid-experiment-metadata.v1",
+  "profile": "reservoir",
+  "csv_sha256": "sha256:e5af491db356c4036debd067f408be6bd0d9580f15cf7a0601e902f6a146e9c0",
+  "target_request_digest": "sha256:a1d5c04ba2c932f66193e25d7e0da0ddb867b4cdf4a0a5ce0f865ea9a46b994e",
+  "coordinate_frame": "two_reservoir_vertical_head_and_outward_piston",
+  "baseline": "hydrostatic_pressure_deviation_from_preloaded_equilibrium",
+  "provenance": {
+    "source_kind": "synthetic_fixture",
+    "acquisition_id": "synthetic-example",
+    "operator_id": "fixture-generator",
+    "sensor_id": "no-physical-sensor",
+    "acquired_at_utc": "2026-10-03T00:00:00Z",
+    "declaration": "operator_declaration_only_not_authenticated"
+  },
+  "observation_operator": {
+    "kind": "direct_retained_state_linear_time_interpolation.v1",
+    "channels": [
+      {
+        "column": "head1_m",
+        "model_field": "head1_m",
+        "unit": "m"
+      }
+    ],
+    "spatial_semantics": "lumped_reservoir_state_no_local_sensor_field_resolution"
+  },
+  "clock": {
+    "id": "fixture-clock",
+    "target_model_clock": "fluid.reservoir.synthetic_model_clock.v1",
+    "scale": 1.0,
+    "offset_s": 0.0,
+    "offset_standard_uncertainty_s": 0.0,
+    "distribution": "zero_mean_gaussian",
+    "propagation": "linearized_common_offset_outer_product",
+    "alignment_window_sigma": 3.0
+  },
+  "split": {
+    "holdout_dataset_id": "synthetic-holdout",
+    "calibration_dataset_ids": [
+      "synthetic-external-calibration-declaration"
+    ],
+    "parameter_fit_dataset_ids": [],
+    "calibration_sample_ids": [],
+    "parameter_fit_sample_ids": [],
+    "calibration_refs": [
+      "sha256:8ef4979b2d1b1324db6a9218f89caef623e340ac2b32ce006b956206c4b76102"
+    ],
+    "parameter_fit_refs": [],
+    "fixed_parameters_before_holdout": true,
+    "uncertainty_specified_before_holdout": true
+  },
+  "uncertainty": {
+    "distribution": "joint_zero_mean_gaussian",
+    "terms_mutually_independent": true,
+    "axes": [
+      "s0/head1_m",
+      "s1/head1_m",
+      "s2/head1_m"
+    ],
+    "alpha": 0.05,
+    "measurement": {
+      "matrix": [
+        [
+          1e-08,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          1e-08,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1e-08
+        ]
+      ],
+      "rationale": "Declared zero only for this synthetic pipeline fixture",
+      "source_refs": [
+        "sha256:8ef4979b2d1b1324db6a9218f89caef623e340ac2b32ce006b956206c4b76102"
+      ]
+    },
+    "parameter_prediction": {
+      "matrix": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "rationale": "Declared zero only for this synthetic pipeline fixture",
+      "source_refs": [
+        "sha256:8ef4979b2d1b1324db6a9218f89caef623e340ac2b32ce006b956206c4b76102"
+      ]
+    },
+    "model_discrepancy": {
+      "matrix": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "rationale": "Declared zero only for this synthetic pipeline fixture",
+      "source_refs": [
+        "sha256:8ef4979b2d1b1324db6a9218f89caef623e340ac2b32ce006b956206c4b76102"
+      ]
+    },
+    "numerical_interpolation": {
+      "matrix": [
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          0.0
+        ]
+      ],
+      "rationale": "Declared zero only for this synthetic pipeline fixture",
+      "source_refs": [
+        "sha256:8ef4979b2d1b1324db6a9218f89caef623e340ac2b32ce006b956206c4b76102"
+      ]
+    }
+  }
+}

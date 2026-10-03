@@ -32,7 +32,7 @@ AUTHORITY = {
     "resolved_vertical_flow": "not_established", "general_fluid_structure_coupling": "not_established",
     "state_admission": "not_performed", "hardware_actuation": "not_performed",
 }
-OPERATIONS = contract.OPERATIONS
+OPERATIONS = contract.ALL_OPERATIONS
 
 
 def runtime_identity(profile: str, kind: str) -> dict:
@@ -40,18 +40,11 @@ def runtime_identity(profile: str, kind: str) -> dict:
     import numpy as np
     domain = contract.module(profile)
     if kind == "solver":
-        if profile == "reservoir":
-            from . import fluid_reservoir_solver as provider
-        else:
-            from . import fluid_wave_solver as provider
+        provider = contract.provider_module(profile, "solver")
         modules = [domain, provider]
     elif kind == "verifier":
-        if profile == "reservoir":
-            from . import fluid_reservoir_verification as provider
-            from . import fluid_reservoir_reference as reference
-        else:
-            from . import fluid_wave_verification as provider
-            from . import fluid_wave_reference as reference
+        provider = contract.provider_module(profile, "verification")
+        reference = contract.provider_module(profile, "reference")
         modules = [domain, provider, reference]
     else:
         raise ValueError("Unsupported fluid runtime kind")
@@ -206,6 +199,15 @@ def validate_result_dependencies(results: dict) -> None:
         if identity in identities:
             raise ValueError("Duplicate fluid verification occurrence identity")
         identities.add(identity)
+
+
+def validate_live_dependency(parameters: dict, retained_results: dict) -> None:
+    """Only an actually retained simulation occurrence can be verified live."""
+    keys(parameters, {"candidate"})
+    candidate = parameters["candidate"]
+    if (type(candidate) is not dict or type(candidate.get("result_id")) is not str
+            or retained_results.get(candidate["result_id"]) != candidate):
+        raise ValueError("Fluid verification dependency is not the actually retained simulation occurrence")
 
 
 def _execute(session, operation: str, parameters: dict) -> dict:
@@ -374,6 +376,8 @@ def verify_retained(destination: Path) -> dict:
 
 
 def _csv_rows(profile: str, result: dict):
+    if profile in contract.EXTENDED_PROFILES:
+        return contract.provider_module(profile, "solver").csv_rows(result)
     if profile == "reservoir":
         trace = result["resolutions"]["finer"]["trace"]
         names = list(trace)
@@ -410,3 +414,31 @@ def export_csv(destination: Path, output: Path) -> dict:
             "fresh_verification_execution_id": checked["fresh_verification_execution_id"],
             "fresh_verification_result_id": checked["fresh_verification_result_id"],
             "recomputed_report_digest": checked["recomputed_report_digest"], "authority": deepcopy(AUTHORITY)}
+
+
+def reduce_particles(destination: Path, output: Path, *, sample_index: int, bins: list[int]) -> dict:
+    """Freshly qualify a retained sample, then audit its instantaneous bin map."""
+    from . import fluid_scale_maps as maps
+    from .control_contracts import save_new
+    session, candidate, verification = _read(destination)
+    checked = _verify_read(session, candidate, verification)
+    if checked["status"] != "LOCAL" or checked["profile"] not in {"molecular", "sph"}:
+        raise ValueError("Particle reduction requires a freshly qualified LOCAL molecular or SPH trajectory")
+    snapshot = maps.particle_snapshot(checked["profile"], source_request(session.run), candidate["data"],
+                                     verification["data"]["report"], sample_index=sample_index)
+    mapped = maps.reduce(snapshot, bins_per_axis=bins)
+    report = maps.verify(snapshot, mapped)
+    if report["status"] != "PASS":
+        raise ValueError("Finite particle map conservation audit failed")
+    artifact = {"schema": "ciw.fluid-retained-scale-map.v1", "snapshot": snapshot, "mapped": mapped,
+                "map_verification": report,
+                "source_occurrences": {"evidence_id": session.run["evidence_id"], "result_id": candidate["result_id"],
+                                       "execution_id": candidate["execution_id"],
+                                       "fresh_verification_id": checked["fresh_verification_id"],
+                                       "fresh_verification_execution_id": checked["fresh_verification_execution_id"],
+                                       "fresh_verification_result_id": checked["fresh_verification_result_id"]},
+                "fresh_source_verification": checked["fresh_verification_record"], "authority": deepcopy(AUTHORITY)}
+    save_new(output, artifact)
+    return {"status": "LOCAL", "file": str(output), "profile": checked["profile"],
+            "map_digest": mapped["record_digest"], "fresh_verification_id": checked["fresh_verification_id"],
+            "scope": "instantaneous finite mass, momentum and kinetic-energy accounting; no constitutive closure"}

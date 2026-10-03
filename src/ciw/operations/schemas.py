@@ -11,6 +11,8 @@ from ..core.records import finite_tree
 from .registry import valid_operation_id
 
 _VALIDATORS: dict[str, Callable] = {}
+_FLUID_VERIFY_OPERATIONS = {"fluid.reservoir.verify.v1", "fluid.wave.verify.v1", "fluid.molecular.verify.v1",
+                            "fluid.sph.verify.v1", "fluid.fsi.verify.v1"}
 
 
 def dependency_result_ids(operation_id: str, parameters: dict) -> list[str]:
@@ -19,12 +21,29 @@ def dependency_result_ids(operation_id: str, parameters: dict) -> list[str]:
         candidate = parameters.get("assessment")
         identity = candidate.get("result_id") if type(candidate) is dict else None
         return [identity] if type(identity) is str else []
+    if operation_id in _FLUID_VERIFY_OPERATIONS or operation_id == "fluid.experiment.verify.v1":
+        candidate = parameters.get("candidate")
+        identity = candidate.get("result_id") if type(candidate) is dict else None
+        return [identity] if type(identity) is str else []
+    if operation_id == "fluid.interface.verify.v1":
+        candidate = parameters.get("candidate")
+        identity = candidate.get("result_id") if type(candidate) is dict else None
+        return [identity] if type(identity) is str else []
     return []
 
 
 def validate_request_dependencies(operation_id: str, parameters: dict, retained: dict) -> None:
+    if operation_id in _FLUID_VERIFY_OPERATIONS:
+        from ..fluid_workflow import validate_live_dependency
+        validate_live_dependency(parameters, retained)
     if operation_id in {"polymer.copilot-context.v1", "polymer.verify-cycle.v1"}:
         from ..polymer_workflow import validate_live_dependency
+        validate_live_dependency(parameters, retained)
+    if operation_id == "fluid.experiment.verify.v1":
+        from ..fluid_experiment import validate_live_dependency
+        validate_live_dependency(parameters, retained)
+    if operation_id == "fluid.interface.verify.v1":
+        from ..fluid_interface_workflow import validate_live_dependency
         validate_live_dependency(parameters, retained)
 
 
@@ -51,6 +70,16 @@ def validate_role(operation_id: str, role: str) -> None:
                 "fluid.reservoir.verify.v1": "verification",
                 "fluid.wave.simulate.v1": "backend",
                 "fluid.wave.verify.v1": "verification",
+                "fluid.molecular.simulate.v1": "backend",
+                "fluid.molecular.verify.v1": "verification",
+                "fluid.sph.simulate.v1": "backend",
+                "fluid.sph.verify.v1": "verification",
+                "fluid.fsi.simulate.v1": "backend",
+                "fluid.fsi.verify.v1": "verification",
+                "fluid.experiment.compare.v1": "backend",
+                "fluid.experiment.verify.v1": "verification",
+                "fluid.interface.transfer.v1": "backend",
+                "fluid.interface.verify.v1": "verification",
                 "polymer.assess-cycle.v1": "backend",
                 "polymer.copilot-context.v1": "backend",
                 "polymer.control-simulate.v1": "backend",
@@ -101,8 +130,15 @@ def validate_payload(operation_id: str, data: dict, run: dict, parameters: dict,
     elif operation_id == "oscillator.rhs-native.v1":
         from ..adapters.oscillator_kernel import validate_payload as validator
     elif operation_id in {"fluid.reservoir.simulate.v1", "fluid.reservoir.verify.v1",
-                          "fluid.wave.simulate.v1", "fluid.wave.verify.v1"}:
+                          "fluid.wave.simulate.v1", "fluid.wave.verify.v1",
+                          "fluid.molecular.simulate.v1", "fluid.molecular.verify.v1",
+                          "fluid.sph.simulate.v1", "fluid.sph.verify.v1",
+                          "fluid.fsi.simulate.v1", "fluid.fsi.verify.v1"}:
         from ..fluid_workflow import validate_payload as validator
+    elif operation_id in {"fluid.experiment.compare.v1", "fluid.experiment.verify.v1"}:
+        from ..fluid_experiment import validate_payload as validator
+    elif operation_id in {"fluid.interface.transfer.v1", "fluid.interface.verify.v1"}:
+        from ..fluid_interface_workflow import validate_payload as validator
     elif operation_id in {"atmosphere.compile.v1", "atmosphere.verify.v1"}:
         from ..atmosphere_workflow import validate_payload as validator
     elif operation_id in {"polymer.assess-cycle.v1", "polymer.copilot-context.v1",

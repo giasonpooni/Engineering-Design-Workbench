@@ -162,8 +162,16 @@ def _validate_evidence(run: dict) -> None:
     elif run["instrument"] == "org.notationsystems.gte":
         from .geodesic import validate_source
         validate_source(run)
-    elif run["instrument"] in {"fluid-reservoir-configuration-declaration.v1", "fluid-wave-configuration-declaration.v1"}:
+    elif run["instrument"] in {"fluid-reservoir-configuration-declaration.v1", "fluid-wave-configuration-declaration.v1",
+                               "fluid-molecular-configuration-declaration.v1",
+                               "fluid-sph-configuration-declaration.v1", "fluid-fsi-configuration-declaration.v1"}:
         from .fluid_workflow import source_request
+        source_request(run)
+    elif run["instrument"] == "fluid-experiment-observations.v1":
+        from .fluid_experiment import validate_source
+        validate_source(run)
+    elif run["instrument"] == "fluid-interface-configuration-declaration.v1":
+        from .fluid_interface_workflow import source_request
         source_request(run)
 
 
@@ -702,6 +710,12 @@ class Session:
         validate_atmosphere_dependencies(result_map)
         from .fluid_workflow import validate_result_dependencies as validate_fluid_dependencies
         validate_fluid_dependencies(result_map)
+        if any(row["operation_id"] in {"fluid.experiment.compare.v1", "fluid.experiment.verify.v1"} for row in result_map.values()):
+            from .fluid_experiment import validate_result_dependencies as validate_experiment_dependencies
+            validate_experiment_dependencies(result_map)
+        if any(row["operation_id"] in {"fluid.interface.transfer.v1", "fluid.interface.verify.v1"} for row in result_map.values()):
+            from .fluid_interface_workflow import validate_result_dependencies as validate_interface_dependencies
+            validate_interface_dependencies(result_map)
         from .polymer_workflow import validate_result_dependencies as validate_polymer_dependencies
         validate_polymer_dependencies(result_map)
         executions = workspace.get("executions", [])

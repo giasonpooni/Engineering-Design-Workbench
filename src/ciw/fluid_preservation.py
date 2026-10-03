@@ -37,6 +37,8 @@ def _property(profile, name):
 
 
 def _scope(profile, request):
+    if profile in domain.EXTENDED_PROFILES:
+        return domain.module(profile).preservation_scope(request)
     if profile == "reservoir":
         return {"representation": "lumped linear incompressible continuum perturbation",
                 "particle_meaning": "none", "spatial_detail": "two reservoir heads and one connector flow; no spatial velocity field",
@@ -56,11 +58,17 @@ def _scope(profile, request):
 
 
 def _representation(identity, role, schema, refs, profile, scope, scale, queries):
+    descriptions = {
+        "molecular": ("declared classical force-shifted LJ sites and finite position, velocity, force, energy, momentum and toy thermodynamic traces", "Reduced Lennard-Jones units with m=sigma=epsilon=k_B=1; optional SI scales remain explicit unvalidated declarations"),
+        "sph": ("declared one-dimensional SPH computational fluid parcels and finite trajectories, density, pressure, energy and momentum", "SI metres, seconds, kilograms, pascals and joules; each parcel represents continuum fluid mass"),
+        "fsi": ("declared linear shallow-water channel and moving wall; finite surface, velocity, boundary traction, wall displacement and interface work", "SI metres, seconds, kilograms, pascals, newtons and joules; pressure perturbation about a preloaded equilibrium"),
+    }
+    quantity, units = descriptions.get(profile, (None, None))
     return {"representation_id": identity, "role": role, "source_state_type": scope["representation"],
             "schema_id": schema,
-            "quantity_semantics": ("declared synthetic continuum inputs and finite SI time traces of reservoir transfer, head, pressure, connector velocity, piston motion and energy"
+            "quantity_semantics": quantity or ("declared synthetic continuum inputs and finite SI time traces of reservoir transfer, head, pressure, connector velocity, piston motion and energy"
                                    if profile == "reservoir" else "declared synthetic shallow-water inputs and finite SI time/space traces of surface elevation, depth-averaged velocity, volume flux, hydrostatic pressure and energy"),
-            "unit_semantics": "SI metres, seconds, cubic metres, kilograms, pascals, newtons and joules; no implicit conversion",
+            "unit_semantics": units or "SI metres, seconds, cubic metres, kilograms, pascals, newtons and joules; no implicit conversion",
             "frame_semantics": scope["spatial_detail"], "time_semantics": scope["clock"], "scale": scale,
             "uncertainty_semantics": "declared numerical residual thresholds only; experimental and physical model uncertainty unqualified",
             "equivalence_contract": "TASK_SPECIFIC", "preserved_queries": queries, "supported_interventions": [],
@@ -77,10 +85,13 @@ def _assemble(request, result, report):
     request_ref, result_ref, report_ref = digest(request), result["record_digest"], report["record_digest"]
     refs = [request_ref, result_ref, report_ref]
     scope = _scope(profile, request)
-    scale = {"length_m": request["connector"]["length_m"] if profile == "reservoir" else request["model"]["length_m"],
-             "time_s": request["clock"]["duration_s"] if profile == "reservoir" else request["integration"]["duration_s"],
+    scale = {"length_m": (contract.length_scale_m(request) if profile in domain.EXTENDED_PROFILES else
+                           request["connector"]["length_m"] if profile == "reservoir" else request["model"]["length_m"]),
+             "time_s": (contract.time_scale_s(request) if profile in domain.EXTENDED_PROFILES else
+                         request["clock"]["duration_s"] if profile == "reservoir" else request["integration"]["duration_s"]),
              "energy_j": None, "resolution": None,
-             "label": "declared continuum model domain only; no molecular or cross-scale qualification"}
+             "label": ("declared bounded model domain; source representation and unit conversion explicit; cross-scale maps qualified separately"
+                       if profile in domain.EXTENDED_PROFILES else "declared continuum model domain only; no molecular or cross-scale qualification")}
     queries = [_property(profile, "numerical_" + row["name"]) for row in report["checks"]]
     sem = _semantic()
     registry = registry_from_specs(
@@ -89,7 +100,7 @@ def _assemble(request, result, report):
         [{"morphism_id": morphism, "kind": "SIMULATE", "domain_representation_id": source,
           "codomain_representation_id": target, "semantic_capability": None,
           "parameter_names": sorted(request),
-          "preconditions": ["exact bounded synthetic SI declaration", "fixed model-owned clock and hard physical domain bounds"],
+          "preconditions": ["exact bounded synthetic declaration in explicit units" if profile in domain.EXTENDED_PROFILES else "exact bounded synthetic SI declaration", "fixed model-owned clock and hard physical domain bounds"],
           "validity": {"assumptions": [scope["representation"], scope["vertical_detail"], scope["receiver_coupling"]],
                        "operating_regime": [scope["physical_validity"], "exact finite retained time and spatial grids"],
                        "failure_conditions": ["failed independent numerical acceptance", "requested unrepresented scales or physical observables"]},
@@ -99,14 +110,18 @@ def _assemble(request, result, report):
           "reversibility": "NONE", "authority_requirements": [],
           "verification_requirements": ["independent reference and conservation checks", "declared refinement checks", "LOCAL qualification and every check PASS"],
           "provenance_refs": refs,
-          "notes": "Session owns operation occurrences. This fixed synthetic provider retains finite trajectories; omitted molecular and richer continuum state was never acquired or reduced."}], sem)
+          "notes": ("Session owns operation occurrences. This fixed synthetic provider retains explicitly declared atomistic, parcel or continuum trajectories; absent richer physics is not a proved physical reduction."
+                    if profile in domain.EXTENDED_PROFILES else "Session owns operation occurrences. This fixed synthetic provider retains finite trajectories; omitted molecular and richer continuum state was never acquired or reduced.")}], sem)
     effects = [{"property_id": _property(profile, "numerical_" + row["name"]), "effect": "BOUND",
                 "output_property_id": _property(profile, "numerical_" + row["name"]), "transform_id": None,
                 "bound": {"metric": "retained_report_" + row["name"], "upper_bound": row["tolerance"],
                           "unit": "1", "composition": "ADDITIVE_ABSOLUTE"},
                 "notes": "Named retained numerical report threshold only; no receiver-model or experimental error bound."}
                for row in report["checks"]]
-    omissions = sorted(OMISSIONS | contract.EXPANSION_OBSERVABLES | getattr(contract, "REFUSED_OBSERVABLES", set()))
+    absent = OMISSIONS
+    if profile == "molecular":
+        absent = (OMISSIONS - {"molecular_identity"}) | {"chemical_molecular_identity", "bonded_molecular_structure"}
+    omissions = sorted(absent | contract.EXPANSION_OBSERVABLES | getattr(contract, "REFUSED_OBSERVABLES", set()))
     effects += [{"property_id": _property(profile, name), "effect": "FORGET", "output_property_id": None,
                  "transform_id": None, "bound": None,
                  "notes": "Explicit schema absence; no physical reduction, molecular mapping or receiver verification is claimed."}
@@ -137,9 +152,13 @@ def _assemble(request, result, report):
         {"gate_id": prefix + ".trajectory-preservation-gate.v1",
          "forbidden_forgets": sorted(_property(profile, name) for name in request["desired_observables"] if name in omissions),
          "notes": "Numerical eligibility only. LOCAL and all checks PASS under the loss policy are required. No state admission performed."})
+    claims = deepcopy(CLAIMS)
+    if profile in domain.EXTENDED_PROFILES:
+        claims["represented_particle_semantics"] = scope["particle_meaning"]
+        claims["cross_scale_constitutive_closure_established"] = False
     return seal({"schema": SCHEMA, "profile": profile, "request_digest": request_ref, "result_digest": result_ref,
                  "report_digest": report_ref, "model_scope": scope, "registry": registry, "contract": preserved_contract,
-                 "verification": verification, "admission_gate": gate, "claims": deepcopy(CLAIMS)})
+                 "verification": verification, "admission_gate": gate, "claims": claims})
 
 
 def build(request: dict, result: dict, report: dict) -> dict:
