@@ -1,0 +1,13 @@
+{
+  "description": "FSRT: check fluid-network measurements against declared physical balances and estimate system state. Not visual fluid reconstruction.",
+  "homepage": "https://github.com/giasonpooni/Fluid-State-Reconstruction-Testbed",
+  "topics": [
+    "data-reconciliation",
+    "state-estimation",
+    "measurement",
+    "hydrology",
+    "fault-detection",
+    "python",
+    "reproducible-research"
+  ]
+}

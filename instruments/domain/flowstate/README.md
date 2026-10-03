@@ -1,0 +1,155 @@
+# Flow Reconstructor
+
+**Estimate measured fluid-network state and retain disagreements with declared conservation balances.**
+
+| NET micro-tool | Identity and scope |
+| --- | --- |
+| User-facing name | **Flow Reconstructor** |
+| Proposed NET operation | `flow.reconstruct` |
+| Implementation repository | `Fluid-State-Reconstruction-Testbed` |
+| Existing provider and import | Fluid State Reconstruction Testbed / FSRT; `set_lcm` |
+| Current boundary | Measurement-based fluid-network estimation and guarded balance reconciliation; the existing CIW adapter is a narrower two-reservoir snapshot operation |
+
+`flow.reconstruct` is the agreed friendly operation target. It does not rename
+the existing CIW operation IDs or establish a newly registered alias. Use the
+runnable examples and adapter contract below. This is **not a CFD solver,
+volumetric reconstruction tool or game-fluid renderer**.
+
+NET retains session composition and dispatch; FSRT retains its estimation,
+conservation and covariance mathematics. Evidence, operation specifications,
+execution attempts and verification records remain distinct. The repository URL,
+package imports, recorded evidence, numerical contracts and licence are unchanged.
+
+Part of **Notation Systems' computational instrumentation and evidence infrastructure** for industrial and cyber-physical systems.
+
+[Notations Engineering Terminal (CIW)](https://github.com/giasonpooni/Notations-Engineering-Terminal) · [Stack map](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/main/docs/STACK.md) · [Component role and interfaces](docs/STACK_ROLE.md)
+
+**Check whether measurements in a fluid network agree with a declared physical balance.**
+
+This is **not** visual reconstruction of a fluid volume. It is not a 3DGS / NeRF / PDE fluid solver. “State reconstruction” here means estimating a physical system from measurements and keeping the evidence needed to challenge that estimate.
+
+| Surface | Name |
+|---|---|
+| User-facing micro-tool | Flow Reconstructor |
+| Scientific provider | FSRT (Fluid State Reconstruction Testbed) |
+| GitHub repository | `giasonpooni/Fluid-State-Reconstruction-Testbed` |
+| Installable project | `fluid-state-reconstruction-testbed` |
+| Import | `set_lcm` (historical: state estimate + linear constraint matching) |
+
+FSRT is a Python research toolkit for water levels, flow gauges and storage measurements. It estimates the state of a system, checks the estimate against a declared balance, and keeps a record of the disagreement and any correction.
+
+The aim is to help investigate degrading measurements: **when did the readings stop agreeing, what could explain the difference, and what can this sensor arrangement actually detect?**
+
+The upstream acquisition component is now presented as
+[Data Intake / Provenance-Preserving Data Acquisition](https://github.com/giasonpooni/Provenance-Preserving-Data-Acquisition).
+The `daf` package, `set_lcm.bridge.daf` interface, recorded source URLs, and
+acquisition commit pins retain their historical identities. The new tool
+name does not change the evidence or imply that these experiments were rerun
+against its current revision.
+
+## Guarded reconstruction workflow
+
+```mermaid
+flowchart TD
+    Observations["Arrived observations and evidence refs"] --> Estimator["Declared estimator"]
+    Model["Prior, dynamics and public inputs"] --> Estimator
+    Estimator --> Candidate["Unprojected state and covariance"]
+    Candidate --> Balance["Balance residual and statistic"]
+    Law["Declared balance and uncertainty"] --> Balance
+    Balance --> Guard{"Guard permits correction?"}
+    Guard -->|"yes"| Corrected["Reconciled state and covariance"]
+    Guard -->|"no"| Held["Correction held"]
+    Candidate --> Record["Retained run record"]
+    Corrected --> Record
+    Held --> Record
+```
+
+Solid arrows show the implemented guarded path in the experimental runner.
+Estimator specifications can disable reconciliation or select explicit feedback;
+this drawing does not imply that every run corrects its state. The record keeps
+pre-correction estimates, residuals and correction status. Disagreement is not
+unique fault attribution. The single-snapshot CIW operation is a narrower
+contract, described below and in the [Instrumentation diagram atlas](https://github.com/giasonpooni/Notations-Engineering-Terminal/blob/main/docs/DIAGRAMS.md).
+
+## A practical example
+
+A reservoir has measurements of stored water, incoming flow and outgoing flow. Over the same time interval, conservation relates them:
+
+```text
+change in stored water = water in − water out
+```
+
+If the measurements do not support that balance, FSRT can flag the disagreement and show its size under your stated uncertainties. The cause could be a drifting instrument, an outdated rating curve, an unmeasured inflow, or an unsuitable model. **An alarm starts an investigation; it does not, by itself, identify a broken sensor.**
+
+## Try it
+
+You need [uv](https://docs.astral.sh/uv/getting-started/installation/) and a checkout of this repository. Python 3.12 and 3.13; runtime dependency NumPy.
+
+The checkout is about 50 MB. Most of that is committed NOAA/USGS replay fixtures under `data/` and generated reports under `results/`. The quickstart does not read `data/` and makes no network requests.
+
+```bash
+git clone https://github.com/giasonpooni/Fluid-State-Reconstruction-Testbed.git
+cd Fluid-State-Reconstruction-Testbed
+uv run --frozen --python 3.13 python examples/quickstart.py
+```
+
+The example uses two tanks and a declared total of 100 kg. It shows two cases:
+
+- A small disagreement: reconcile the estimate while retaining the original values.
+- A large disagreement: flag it and hold the correction so the balance cannot hide the problem.
+
+The example uses synthetic values and makes no network requests. See the [usage guide](docs/USAGE.md).
+
+For integration with Notations Engineering Terminal, the existing CIW workbench,
+FSRT exposes a [pinned JSON subprocess operation](docs/CIW_ADAPTER.md)
+for one simultaneous two-reservoir snapshot. It retains full channel covariance,
+the original observations, model disagreement, and explicit numerical refusals.
+Its additive v2 operation carries ordered covariance provenance and full innovation,
+posterior and reconciled covariance artifacts while preserving the v1 science.
+The workbench title does not rename the `ciw` namespace or FSRT's operation and
+result contracts.
+
+## Explore the examples
+
+| Example | What it demonstrates | Report |
+|---|---|---|
+| Camera and gauge | Synthetic grayscale measurements, fixed-marker motion compensation, timing problems and disagreement under shared calibration uncertainty. | [Camera baseline results](results/camera_baseline.md) |
+| Invariant filtering | Ordinary KF equivalence under unit, coordinate and measurement-order changes, including missing and biased readings. | [Invariant layer results](results/invariant_layer.md) |
+| Fluid fault benchmark | Offset, drift and gain across 128 evaluation seeds per case, including confounded faults and physical changes. | [Baseline results](results/fluid_baseline.md) |
+| Ridgway measurement baseline | Matching daily intervals and full residual covariance, under declared timing/model and uncertainty assumptions. | [Measurement replay](results/real_fluid_baseline.md) |
+| Two-reservoir simulation | Noise, missing readings, biased sensors and stale balances, scored against hidden simulated truth. | [Simulation results](results/summary.md) |
+| NOAA tide gauge | Measurement replay, water-level filters and checks that do not require known truth. | [Water-level results](results/real_noaa.md) |
+| NOAA tide gauge, one month | What record length changes: which tidal constituents 31 days separate and 15 do not, a q fitted on the first half and scored on the second, and the stated per-reading uncertainty against a model-free bound. | [Month results](results/real_noaa_month.md) |
+| Ridgway filter study | Historical estimator comparison, retaining its documented daily-mean/reference approximation. | [Water-balance results](results/real_water_balance.md) |
+| Real-record diagnosis | The first isolation result on real evidence: two candidates a practitioner separates are exactly collinear on a closure residual, and the engine reports ambiguity rather than naming one. | [Diagnosis](results/real_diagnosis.md) |
+| Taylor Park, a second reservoir | What a second site cost, and what it found: three inflow gauges instead of two, two of them seasonal, and a balance that does not close — 9.80% of gauged inflow even on the days every gauge reports. | [Second-site results](results/real_taylor_park.md) |
+| Two-reach river | The first topology here that can name an instrument: six declared faults recovered in 100% of records with routing, none of the storage ones without it. | [Muskingum results](results/muskingum_reach.md) |
+| Second-balance design study | Which proposed topology could actually isolate a fault, computed before either is built: conservation alone reaches 1 of 7, the constitutive relation reaches 5 of 7. | [Design study](results/second_balance.md) |
+| Cooling-manifold procurement study | How many metered circuits are worth buying, computed before any are: conservation alone isolates nothing because a fouling circuit conserves energy, the duty row reaches 18 of 19, and the answer is still the hardest pair rather than the count — going from one metered circuit to six moves it by a factor of 1.14, while the declared heat load moves it by 88. | [Circuit study](results/cooling_circuits.md) |
+| Uncertain relations | What treating a measured coefficient as exact costs, against a null that is true by construction: 26 to 30 times the nominal false-alarm rate. | [Calibration](results/errors_in_variables.md) |
+| Uncertain relations, reconciled | The same cost to the estimate rather than the test: a nominal 95% region that actually covers 1.5%, and an over-confidence measured to be quadratic in the operating point to within 0.10%. | [Projection](results/eiv_projection.md) |
+
+To run tests:
+
+```bash
+# Unit / contract gate (no experiment regeneration)
+uv run --frozen --python 3.13 --dev pytest -q -o addopts= -m "not slow and not extended"
+
+# Default suite (excludes only the multi-minute slow marker)
+uv run --frozen --python 3.13 --dev pytest -q
+```
+
+## Read further
+
+- [Usage guide](docs/USAGE.md)
+- [Methods and interpretation](docs/METHODS.md)
+- [Capabilities and limits](docs/CAPABILITIES.md)
+- [Contributing](docs/CONTRIBUTING.md)
+- [Detailed research history](docs/RESULTS.md)
+- [Data provenance](data/daf/PROVENANCE.md)
+
+“State reconstruction” means estimating a physical system from measurements. FSRT retains the evidence needed to challenge its estimates. Whether a fault can be detected depends on the measurements, model and declared uncertainty.
+
+## License
+
+FSRT is available under the [MIT License](LICENSE).
