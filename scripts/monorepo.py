@@ -21,6 +21,20 @@ ROOT = Path(__file__).resolve().parents[1]
 _PATHS = {
     "mcur": "instruments/measurement/calibration",
     "tbrt": "instruments/measurement/clocksync",
+    "oit": "instruments/mathematics/observability",
+    "gsie": "instruments/inference/state-inference",
+    "cbsr": "instruments/inference/state-recompiler",
+    "fdir": "instruments/inference/faultsense",
+    "set": "instruments/verification/estimator-bench",
+}
+_CONTRACTS = {
+    "mcur": ("mcur", "src", "MPL-2.0", {"text": "MPL-2.0"}, "NOTICE.md"),
+    "tbrt": ("tbrt", "src", "MPL-2.0", {"text": "MPL-2.0"}, "NOTICE.md"),
+    "oit": ("oit", "src", "MPL-2.0", {"text": "MPL-2.0"}, "NOTICE.md"),
+    "gsie": ("geometric_state_inference", "src", "MPL-2.0", "MPL-2.0", "NOTICE.md"),
+    "cbsr": ("cbsr", "src", "AGPL-3.0", {"file": "LICENSE"}, None),
+    "fdir": ("fdir", "src", "MPL-2.0", {"text": "MPL-2.0"}, "NOTICE.md"),
+    "set": ("state_estimation_testbed", ".", "Apache-2.0", None, None),
 }
 _CACHES = {".venv", "venv", "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache"}
 
@@ -52,7 +66,7 @@ def load_manifest(root=ROOT):
         raise ValueError("Unsupported import manifest")
     modules = manifest["modules"]
     if not isinstance(modules, list) or len(modules) != len(_PATHS):
-        raise ValueError("First-wave manifest must name exactly two modules")
+        raise ValueError("Import manifest must name exactly the seven registered modules")
     roles = set()
     pins = json.loads((root / "src/ciw/calibrated-observable-runtimes.json").read_text())
     for module in modules:
@@ -62,24 +76,28 @@ def load_manifest(root=ROOT):
         if role not in _PATHS or role in roles or module.get("path") != _PATHS[role]:
             raise ValueError("Duplicate or unsupported module role/path")
         roles.add(role)
-        if module.get("visibility") != "public" or module.get("license") != "MPL-2.0":
-            raise ValueError("First-wave imports require declared public MPL-2.0 source")
+        python_import, source_root, license_name, project_license, notice = _CONTRACTS[role]
+        if module.get("visibility") != "public" or module.get("license") != license_name:
+            raise ValueError("Imports require declared public source and their original per-module license")
         for key in ("import_revision", "import_tree", "runtime_revision"):
             if not isinstance(module.get(key), str) or not re.fullmatch(r"[0-9a-f]{40}", module[key]):
                 raise ValueError("Full SHA-1 source identities are required")
         if module["runtime_revision"] != pins[role]["revision"]:
             raise ValueError("Runtime pin differs from the existing NET declaration")
-        if module.get("source_root") != "src" or module.get("python_import") != role:
+        if (module.get("source_root") != source_root or module.get("python_import") != python_import
+                or source_root != pins[role]["source_root"]):
             raise ValueError("Module import contract changed")
         path = (root / module["path"]).resolve()
         if not path.is_relative_to(root) or path != root / module["path"]:
             raise ValueError("Imported module paths must not traverse symlinks")
         project = tomllib.loads((path / "pyproject.toml").read_text())["project"]
         if (project["name"] != module["distribution"] or project["version"] != module["version"]
-                or project["license"] != {"text": module["license"]}):
+                or project.get("license") != project_license):
             raise ValueError("Package identity or license differs from the import declaration")
-        if module.get("notice") != "NOTICE.md" or not (path / "NOTICE.md").is_file() or not (path / "LICENSE").is_file():
-            raise ValueError("Preserved license and notice are required")
+        if module.get("notice") != notice or not (path / "LICENSE").is_file():
+            raise ValueError("Preserved license and notice declarations are required")
+        if notice is not None and not (path / notice).is_file():
+            raise ValueError("The original module notice must remain present")
     return manifest
 
 
@@ -121,20 +139,35 @@ def verify_imports(root=ROOT):
 
 
 @contextmanager
-def provider_worktrees(root=ROOT, revisions="runtime"):
+def provider_worktrees(root=ROOT, revisions="runtime", roles=None, overrides=None):
     """Yield explicit original-pin bindings, then remove their Git worktrees."""
     if revisions not in {"runtime", "import"}:
         raise ValueError("revisions must be runtime or import")
     root = Path(root).resolve()
     verify_imports(root)
     modules = load_manifest(root)["modules"]
+    selected = set(_PATHS) if roles is None else set(roles)
+    if not selected or not selected <= set(_PATHS):
+        raise ValueError("Select nonempty registered provider roles")
+    overrides = {} if overrides is None else dict(overrides)
+    if not set(overrides) <= selected:
+        raise ValueError("Revision overrides must refer to selected roles")
+    modules = [module for module in modules if module["role"] in selected]
+    for module in modules:
+        revision = overrides.get(module["role"], module[revisions + "_revision"])
+        if not isinstance(revision, str) or not re.fullmatch(r"[0-9a-f]{40}", revision):
+            raise ValueError("Provider revisions must be full source commit identities")
+        # Overrides are explicit operator bindings for existing exchange pins,
+        # never executable instructions taken from persisted investigations.
+        git(root, "merge-base", "--is-ancestor", revision, module["import_revision"])
     created = []
     with tempfile.TemporaryDirectory(prefix="notations-providers-") as temporary:
         providers = {}
         try:
             for module in modules:
                 path = Path(temporary) / module["role"]
-                git(root, "worktree", "add", "--detach", str(path), module[revisions + "_revision"])
+                revision = overrides.get(module["role"], module[revisions + "_revision"])
+                git(root, "worktree", "add", "--detach", str(path), revision)
                 created.append(path)
                 providers[module["role"]] = path
             yield providers

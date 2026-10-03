@@ -41,3 +41,30 @@ jobs:
           name: monorepo-qualification-python-${{ matrix.python }}
           path: results/monorepo/
           if-no-files-found: error
+
+  inference-and-public-process-replay:
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    strategy:
+      fail-fast: false
+      matrix:
+        python: ['3.12', '3.13']
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+      - name: Install wheel build tooling
+        run: python -m pip install 'setuptools>=77' wheel
+      - name: Qualify public inference packages and full original process replay
+        run: python scripts/check_monorepo_inference.py --output-dir results/monorepo-inference
+      - name: Retain inference qualification evidence and sessions
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: monorepo-inference-python-${{ matrix.python }}
+          path: results/monorepo-inference/
+          if-no-files-found: error

@@ -1,7 +1,7 @@
 """Qualify the public measurement imports as independent wheels and providers.
 
 This gate exercises unchanged provider suites and the existing Terminal adapter
-at its historical runtime pins. It does not qualify the private eight-provider
+at its historical runtime pins. It does not qualify the full eight-provider
 workflow, admit scientific state, or claim physical calibration or validation.
 """
 from __future__ import annotations
@@ -34,7 +34,7 @@ DEPENDENCIES = ["numpy==2.4.3", "pytest==9.0.2", "websockets==16.0"]
 SCOPE = (
     "Synthetic computational interoperability of public calibration and clock "
     "providers only; no physical calibration, validation, state admission, "
-    "causal fault claim, or private eight-provider workflow qualification."
+    "causal fault claim, or full eight-provider workflow qualification."
 )
 
 
@@ -296,7 +296,7 @@ print(json.dumps({'composition': 'passed', 'refusals': sorted(refusals), 'runs':
 
 def _qualify(args, report: dict, output: Path, log: Path) -> None:
     manifest = load_manifest(root=ROOT)
-    modules = {module["role"]: module for module in manifest["modules"]}
+    modules = {module["role"]: module for module in manifest["modules"] if module["role"] in {"mcur", "tbrt"}}
     if set(modules) != {"tbrt", "mcur"}:
         raise ValueError("Initial measurement gate binds exactly calibration and clock providers")
     report["imports"] = verify_imports(root=ROOT)
@@ -323,7 +323,7 @@ def _qualify(args, report: dict, output: Path, log: Path) -> None:
         wheels = {"ciw": _wheel(python, terminal, temporary / "wheel-ciw", log),
                   "state_estimation_testbed": _wheel(python, build / "set", temporary / "wheel-set", log)}
         provider_checks = {}
-        with provider_worktrees(root=ROOT, revisions="import") as imported:
+        with provider_worktrees(root=ROOT, revisions="import", roles=modules) as imported:
             for role, module in sorted(modules.items()):
                 _copy_source(imported[role], build / role)
                 wheels[module["python_import"]] = _wheel(python, build / role, temporary / ("wheel-" + role), log)
@@ -365,7 +365,7 @@ def _qualify(args, report: dict, output: Path, log: Path) -> None:
                 examples[name] = {"source_sha256": sha256(example.read_bytes()).hexdigest(),
                     "output_sha256": sha256(result.encode()).hexdigest(), "output": str(retained)}
             report["provider_examples"][role] = examples
-        with provider_worktrees(root=ROOT, revisions="runtime") as providers:
+        with provider_worktrees(root=ROOT, revisions="runtime", roles=modules) as providers:
             dirty = temporary / "dirty-tbrt"
             _run(["git", "init", dirty], cwd=temporary, log=log)
             _run(["git", "-C", dirty, "fetch", "--depth=1", providers["tbrt"],
