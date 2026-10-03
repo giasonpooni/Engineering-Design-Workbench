@@ -1,0 +1,181 @@
+{
+  "schema": "ciw.leakage-installed-package-check.v1",
+  "status": "PASS",
+  "scope": "finite_installed_native_workflows_and_mcp_not_physical_validation",
+  "checks": [
+    {
+      "name": "installed_package_without_source_import",
+      "passed": true
+    },
+    {
+      "name": "pinned_tool_contracts",
+      "passed": true
+    },
+    {
+      "name": "volume:native_balance_and_independent_audit",
+      "passed": true
+    },
+    {
+      "name": "volume:unaccounted_loss_not_cause",
+      "passed": true
+    },
+    {
+      "name": "volume:retained_full_covariance",
+      "passed": true
+    },
+    {
+      "name": "volume:read_only_fresh_audit",
+      "passed": true
+    },
+    {
+      "name": "volume:replay_same_evidence_fresh_occurrences",
+      "passed": true
+    },
+    {
+      "name": "volume:export_preserves_covariance_workspace",
+      "passed": true
+    },
+    {
+      "name": "volume:typed_agent_native_graph",
+      "passed": true
+    },
+    {
+      "name": "volume:idempotent_agent_retry",
+      "passed": true
+    },
+    {
+      "name": "volume:fresh_agent_replay",
+      "passed": true
+    },
+    {
+      "name": "mass:native_balance_and_independent_audit",
+      "passed": true
+    },
+    {
+      "name": "mass:unaccounted_loss_not_cause",
+      "passed": true
+    },
+    {
+      "name": "mass:retained_full_covariance",
+      "passed": true
+    },
+    {
+      "name": "mass:read_only_fresh_audit",
+      "passed": true
+    },
+    {
+      "name": "mass:replay_same_evidence_fresh_occurrences",
+      "passed": true
+    },
+    {
+      "name": "mass:export_preserves_covariance_workspace",
+      "passed": true
+    },
+    {
+      "name": "mass:typed_agent_native_graph",
+      "passed": true
+    },
+    {
+      "name": "mass:idempotent_agent_retry",
+      "passed": true
+    },
+    {
+      "name": "mass:fresh_agent_replay",
+      "passed": true
+    },
+    {
+      "name": "installed_original_polymer_workflow",
+      "passed": true
+    },
+    {
+      "name": "volume:actual_polymer_occurrence_coupling",
+      "passed": true
+    },
+    {
+      "name": "volume:read_only_coupled_audit",
+      "passed": true
+    },
+    {
+      "name": "volume:coupled_replay_retains_binding",
+      "passed": true
+    },
+    {
+      "name": "volume:installed_mcp_framing",
+      "passed": true
+    },
+    {
+      "name": "volume:installed_mcp_native_graph",
+      "passed": true
+    },
+    {
+      "name": "volume:installed_mcp_idempotent_retry",
+      "passed": true
+    },
+    {
+      "name": "volume:installed_mcp_fresh_replay",
+      "passed": true
+    },
+    {
+      "name": "volume:installed_nested_cli_read_only",
+      "passed": true
+    },
+    {
+      "name": "mass:actual_polymer_occurrence_coupling",
+      "passed": true
+    },
+    {
+      "name": "mass:read_only_coupled_audit",
+      "passed": true
+    },
+    {
+      "name": "mass:coupled_replay_retains_binding",
+      "passed": true
+    },
+    {
+      "name": "mass:installed_mcp_framing",
+      "passed": true
+    },
+    {
+      "name": "mass:installed_mcp_native_graph",
+      "passed": true
+    },
+    {
+      "name": "mass:installed_mcp_idempotent_retry",
+      "passed": true
+    },
+    {
+      "name": "mass:installed_mcp_fresh_replay",
+      "passed": true
+    },
+    {
+      "name": "mass:installed_nested_cli_read_only",
+      "passed": true
+    }
+  ],
+  "wheel_sha256": "sha256:cb78174841be34290b1ffa447d7a5bf56f4a85113e27b21e810f18197a0175fa",
+  "native_runtime": {
+    "schema": "ciw.subprocess-runtime.v1",
+    "adapter_version": "ciw-pinned-subprocess-v1",
+    "repository_root": "/dev/shm/polymer-leakage-provider-c53383586a0d",
+    "revision": "09a756dd9cdd3a9bb6cb14b5cd498f6259937ac2",
+    "source_tree": "c79c44f90d5ff3920e58a53e9c277104e7e07bd3",
+    "module": "set_lcm.bridge.ciw",
+    "source_root": "src",
+    "python_executable": "/dev/shm/net-operator-env/bin/python",
+    "python_sha256": "fa67443527ed9647f760d807e2a38f26340757123e643c4639cf273ed15d5ea7",
+    "python_version": "3.12.14",
+    "dependencies": {
+      "numpy": "2.4.3",
+      "scipy": null
+    }
+  },
+  "qualification_ref": "sha256:99769f6a1d6699434d2a0cf025d35db91df4583044a93f2665ba2275d2fe8466",
+  "authority": {
+    "physical_validation": "not_established",
+    "calibration_traceability": "not_established",
+    "causal_leak_identification": "not_established",
+    "state_admission": "not_performed",
+    "hardware_actuation": "not_performed",
+    "llm_inference": "not_performed"
+  }
+}
