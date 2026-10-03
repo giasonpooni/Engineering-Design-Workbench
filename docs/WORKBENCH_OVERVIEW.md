@@ -7,6 +7,12 @@ experiments, designs, numerical operations, visualizations and evidence.
 Physics, chemistry and engineering are supported domains; the workbench does
 not replace the domain repository that owns a model or solver.
 
+NET is shared infrastructure for Notation Systems Inc.'s physical and virtual
+systems direction across Notations Laboratories, Notations Manufacturing and
+Notations Gaming. The existing Session, controller and registries remain the
+composition substrate; scientific providers and interactive applications retain
+their own numerical and live-state responsibilities.
+
 The product is an instrument for its operator. The engineer defines the
 question, assumptions, objectives, constraints and standard of evidence. Python
 provides the current workbench shell and session services; Julia, GPU runtimes,

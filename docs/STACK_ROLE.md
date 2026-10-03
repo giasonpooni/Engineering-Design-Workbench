@@ -3,7 +3,8 @@
 The public repository is [Notation-Systems-Workbench](https://github.com/giasonpooni/Notation-Systems-Workbench).
 Its distribution package is `computational-instrumentation-workbench`, its
 Python import is `ciw`, and its command-line entry point is `ciw`.
-Notation Systems develops computational instrumentation and evidence infrastructure for industrial and cyber-physical systems.
+Notation Systems Inc. is a scientific computing and systems engineering company developing computational instruments, software and interactive environments for understanding and building physical and virtual systems.
+The shared development direction connects measurement, state estimation and sensor fusion, scientific modelling, simulation and execution. This component contributes through the current boundary below; the expanded company scope does not imply new implemented capabilities.
 This component owns **operation, inspection and replay**. The [stack map](https://github.com/giasonpooni/Notation-Systems-Workbench/blob/main/docs/STACK.md) locates all public components and distinguishes implemented paths from specifications and scaffolds.
 
 ## Current boundary
