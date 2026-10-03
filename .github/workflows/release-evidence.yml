@@ -69,12 +69,7 @@ jobs:
         run: python scripts/check_release_evidence.py --sha "$CANDIDATE_SHA" --output results/release-evidence
       - name: Show the exact-candidate evidence report
         if: always()
-        run: |
-          python - <<'PY'
-          from pathlib import Path
-          report = Path('results/release-evidence/report.json')
-          print(report.read_text(encoding='utf-8') if report.is_file() else 'No evidence report was produced; inspect the collection failure.')
-          PY
+        run: python scripts/show_qualification_reports.py results/release-evidence/report.json
       - name: Retain passing or blocked evidence
         if: always()
         uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
