@@ -1,0 +1,91 @@
+name: Transfer verified public engineering history
+
+on:
+  push:
+    branches: [transfer/engineering-wave1-20261002]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: transfer-engineering-wave1
+  cancel-in-progress: false
+
+jobs:
+  verify-qualify-transfer:
+    if: github.repository == 'giasonpooni/Notations-Systems-Terminal'
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: write
+    env:
+      EXPECTED_HEAD: 2fa78a1f89ce1c2aec44cba7e49b144367693504
+      EXPECTED_TREE: c537717b26e1a726114395e537957fd6ca8b47bd
+      EXPECTED_BUNDLE_SHA256: 85939f5a5b6f06619936720f522a652383af23a6aec938d3c5004c7185e337d8
+      TARGET_BRANCH: feat/engineering-monorepo-wave1-audit-20261002
+      BASE_REVISION: 55d67d42beea95d7ce98af935b48bd84df5e9b4b
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Verify bundle and materialize exact migration commit
+        shell: bash
+        run: |
+          set -euo pipefail
+          bundle="$RUNNER_TEMP/engineering-wave1.bundle"
+          cp transfer/engineering-wave1.bundle "$bundle"
+          printf '%s  %s\n' "$EXPECTED_BUNDLE_SHA256" "$bundle" | sha256sum --check --strict
+          git bundle verify "$bundle"
+          seed_revision=$(git rev-parse HEAD)
+          seed_monorepo=$(git rev-parse "$seed_revision:.github/workflows/monorepo.yml")
+          seed_tests=$(git rev-parse "$seed_revision:.github/workflows/test.yml")
+          test "$(git bundle list-heads "$bundle")" = "$EXPECTED_HEAD refs/heads/$TARGET_BRANCH"
+          git fetch "$bundle" "refs/heads/$TARGET_BRANCH"
+          test "$(git rev-parse FETCH_HEAD)" = "$EXPECTED_HEAD"
+          git checkout --detach "$EXPECTED_HEAD"
+          test "$(git rev-parse HEAD^{tree})" = "$EXPECTED_TREE"
+          test "$(git rev-parse HEAD:.github/workflows/monorepo.yml)" = "$seed_monorepo"
+          test "$(git rev-parse HEAD:.github/workflows/test.yml)" = "$seed_tests"
+          git merge-base --is-ancestor "$BASE_REVISION" HEAD
+          git merge-base --is-ancestor e41f61cf5909e58a1a2e60612308ccffe0bfe7de HEAD
+          git merge-base --is-ancestor 13c5fe75c7e829c24bae12fcf8386d4831224d4e HEAD
+          python scripts/monorepo.py
+      - name: Run migration regression tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install 'numpy==2.4.3' 'websockets==16.0' 'pytest==9.0.2' 'PyYAML==6.0.3' 'setuptools>=77' wheel
+          python -m pytest -q tests/test_monorepo.py --junitxml="$RUNNER_TEMP/migration-tests.xml"
+      - name: Qualify independent wheels and declared composition
+        run: python scripts/check_monorepo.py --output-dir "$RUNNER_TEMP/monorepo-qualification"
+      - name: Transfer exact qualified history to review branch
+        shell: bash
+        env:
+          TRANSFER_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          authorization=$(printf 'x-access-token:%s' "$TRANSFER_TOKEN" | base64 -w0)
+          printf '::add-mask::%s\n' "$authorization"
+          target_ref="refs/heads/$TARGET_BRANCH"
+          remote=https://github.com/giasonpooni/Notations-Systems-Terminal.git
+          existing=$(git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $authorization" ls-remote "$remote" "$target_ref")
+          if [ -n "$existing" ]; then
+            test "$existing" = "$(printf '%s\t%s' "$EXPECTED_HEAD" "$target_ref")"
+          else
+            git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $authorization" push "$remote" "HEAD:$target_ref"
+          fi
+          printf 'Transferred %s with original source ancestors intact.\n' "$EXPECTED_HEAD"
+      - name: Retain qualification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: engineering-wave1-native-history-qualification
+          path: |
+            ${{ runner.temp }}/migration-tests.xml
+            ${{ runner.temp }}/monorepo-qualification/
+          if-no-files-found: warn
