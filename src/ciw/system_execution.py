@@ -241,7 +241,7 @@ def execute_worker(spec: dict[str, Any], *, engine: str = "subprocess",
                        "--cpus", str(resources["cpu"]), "--memory", f"{resources['memory_mb']}m",
                        "--user", f"{os.getuid()}:{os.getgid()}",
                        "--tmpfs", "/tmp:rw,noexec,nosuid,size=16m",
-                       "--mount", f"type=bind,source={folder},target=/work,rw",
+                       "--mount", f"type=bind,source={folder},target=/work",
                        "--workdir", "/work", "--entrypoint", "python", image, "-m", "ciw", "system", "worker",
                        "/work/spec.json", "--output", "/work/candidate.json"]
             runtime = {"engine": "container", "image_reference": image,

@@ -72,7 +72,10 @@ def test_container_argv_uses_one_task_mount_and_explicit_limits(monkeypatch):
     assert "--read-only" in command and "--privileged" not in command
     assert command.count("--mount") == 1 and "-v" not in command
     mount = command[command.index("--mount") + 1]
-    assert mount == f"type=bind,source={observed['cwd']},target=/work,rw"
+    # Docker --mount accepts key=value fields here; bind mounts are writable
+    # by default. The volume shorthand's bare `rw` is invalid --mount syntax.
+    assert mount == f"type=bind,source={observed['cwd']},target=/work"
+    assert all("=" in field for field in mount.split(","))
     assert str(observed["cwd"]).startswith("/tmp/net-system-worker-")
     assert not observed["cwd"].exists(), "task directory must be removed after return"
     assert "DO_NOT_INHERIT_SECRET" not in observed["env"]
