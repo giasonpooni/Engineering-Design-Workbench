@@ -13,7 +13,7 @@ from datetime import datetime, timezone
 from ..adapters.protocol import AdapterRefusal
 from ..core.records import finite_tree
 from .registry import OperationRegistry, valid_operation_id
-from .schemas import validate_payload, validate_role
+from .schemas import validate_payload, validate_role, validate_request_dependencies
 
 LOG = logging.getLogger(__name__)
 
@@ -37,7 +37,7 @@ def check_seal(record: dict) -> None:
 
 
 def execute(registry: OperationRegistry, run: dict, selection: dict, recording_file: str,
-            operation_id: str, parameters: dict) -> tuple[dict, dict | None]:
+            operation_id: str, parameters: dict, *, retained_results: dict | None = None) -> tuple[dict, dict | None]:
     parameters = copy.deepcopy(parameters)
     finite_tree(parameters, "operation parameters")
     execution = {
@@ -51,6 +51,7 @@ def execute(registry: OperationRegistry, run: dict, selection: dict, recording_f
     try:
         operation = registry.get(operation_id)
         validate_role(operation_id, operation.role)
+        validate_request_dependencies(operation_id, parameters, {} if retained_results is None else retained_results)
         if operation.role == "analysis":
             parameters.setdefault("channel", selection["channel"])
             parameters.setdefault("interval_s", copy.deepcopy(selection["interval_s"]))
