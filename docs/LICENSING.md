@@ -64,3 +64,15 @@ Blender/Godot/Bevy distribution. Those checks remain release-specific.
 The controlling grants are the full licenses and applicable component notices.
 For a particular combined release whose compatibility remains uncertain, obtain
 a qualified legal review before publishing that combination.
+
+## Original assets and permission requests
+
+The [asset permission policy](licensing/ORIGINAL_ASSETS.md) records the owner's
+originality declaration and Notation Systems Inc. as declared asset owner,
+separates authored assets from the reference corpus, and establishes exact-version
+enrollment and a request route. The [register](licensing/rights-register.json)
+contains no enrolled NET asset versions; no existing NET file is newly restricted.
+
+The [framework and audit](licensing/README.md) retain the unexecuted templates.
+AGPL-compliant use of covered NET code requires no separate outreach or permission.
+The AGPL grant, prior permissions and separately licensed components are preserved.
