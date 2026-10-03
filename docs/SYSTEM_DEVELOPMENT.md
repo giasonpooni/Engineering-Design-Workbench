@@ -43,6 +43,11 @@ records the clean hosted merge checkout
 hashes match that PR head. The retained artifact establishes local/subprocess/OCI
 candidate parity and the observed digest/resource policy for those runtime bytes.
 It does not qualify the newly integrated source or attest the complete environment.
+Artifact `11268349341` binds that receipt to worker repository digest
+`sha256:71b4e3265af61d260fbe8ddd2ad65f0f6eb10779c9530ec08bd94d11454cfd05`.
+When updating a historical run reference, verify its tested merge/tree and image
+digest together against retained build provenance; an older digest must not be
+carried into a newer run's receipt. This remains historical evidence only.
 
 Before publishing, run system suites, affected root regression, wheel-installed
 checks outside the source checkout, and import-tree audit. Record exact source

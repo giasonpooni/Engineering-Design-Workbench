@@ -167,9 +167,10 @@ records the tested hosted merge commit
 `ebeff80243e49e79cfc76cd51c44b45189b0ad2f`; all eight retained scientific-runtime
 source hashes match the PR head. Its `checks.json` reports exact
 local/subprocess/OCI candidate parity, separate numerical verification,
-restoration and an actual container-policy probe. The selected worker repository
-digest is `sha256:5a03bc52a24afdb041eb04ba8fe2e287a224d4f3286db8deb4be63f3f3080858`;
-the loopback image reference is a qualification fixture, not a public deployment.
+restoration and an actual container-policy probe. Artifact `11268349341`
+records the selected worker repository digest
+`sha256:71b4e3265af61d260fbe8ddd2ad65f0f6eb10779c9530ec08bd94d11454cfd05`.
+The loopback image reference is a qualification fixture, not a public deployment.
 Environment attestation and reproducible image bytes remain unestablished.
 
 These are historical, runtime-bound observations. Integrating composition with
