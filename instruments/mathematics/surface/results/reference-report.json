@@ -1,0 +1,111 @@
+{
+  "schema": "geodesic-sensitivity-report-v1",
+  "revision": 2,
+  "revision_note": "Same schema. Revision 2 evaluates the finite ray separation as sn_K(d/2) = sn_K(s) sin(delta/2) instead of through arccos/arccosh, which keeps full precision at small delta; the two max_finite_vs_first_order_error values move by about 2 per cent and are now free of the reference's own rounding.",
+  "claim_scope": "first-order-computational-analysis",
+  "units": {
+    "arclength": "declared length unit",
+    "curvature": "inverse declared length unit squared",
+    "heading": "radian"
+  },
+  "reference_grid": {
+    "start": 0.0,
+    "stop": 1.25,
+    "samples": 126
+  },
+  "numerical_validation": [
+    {
+      "model": "plane",
+      "curvature": 0.0,
+      "max_position_basis_error": 0.0,
+      "max_angle_basis_error": 0.0,
+      "max_finite_vs_first_order_error": 5.20833326554e-11
+    },
+    {
+      "model": "sphere",
+      "curvature": 1.0,
+      "max_position_basis_error": 9.85762582673e-11,
+      "max_angle_basis_error": 4.72096806092e-11,
+      "max_finite_vs_first_order_error": 1.60365258399e-11
+    },
+    {
+      "model": "hyperbolic-plane",
+      "curvature": -1.0,
+      "max_position_basis_error": 1.65234492755e-10,
+      "max_angle_basis_error": 1.9532819806e-10,
+      "max_finite_vs_first_order_error": 2.38028066224e-10
+    }
+  ],
+  "application_examples": {
+    "positive-curvature": {
+      "manufacturing": {
+        "claim_scope": "first-order-deterministic-bound",
+        "observation_mode": "intrinsic-surface-distance",
+        "domain": "constant-curvature",
+        "source_digest": "sha256:8620fb19792358384bbf6defc576a9fd",
+        "units": {
+          "length": "declared length unit",
+          "angle": "radian"
+        },
+        "first_order_validity_established": true,
+        "max_gap": 0.00201959801338,
+        "worst_gap_arclength": 0.02,
+        "max_overlap": 0.070996377724,
+        "worst_overlap_arclength": 1.25
+      },
+      "inspection": {
+        "claim_scope": "first-order-deterministic-bound",
+        "observation_mode": "intrinsic-surface-distance",
+        "domain": "constant-curvature",
+        "source_digest": "sha256:8620fb19792358384bbf6defc576a9fd",
+        "units": {
+          "length": "declared length unit",
+          "angle": "radian"
+        },
+        "first_order_validity_established": true,
+        "reliable": true,
+        "max_coverage_gap": 0.0,
+        "worst_cross_track_error": 0.00141419858807,
+        "minimum_coverage_margin": 0.0179804019866
+      }
+    },
+    "negative-curvature": {
+      "manufacturing": {
+        "claim_scope": "first-order-deterministic-bound",
+        "observation_mode": "intrinsic-surface-distance",
+        "domain": "constant-curvature",
+        "source_digest": "sha256:eb0cd0d4a87f9d9bc9538c29acc448ba",
+        "units": {
+          "length": "declared length unit",
+          "angle": "radian"
+        },
+        "first_order_validity_established": true,
+        "max_gap": 0.095823073631,
+        "worst_gap_arclength": 1.25,
+        "max_overlap": 0.00202040201338,
+        "worst_overlap_arclength": 0.02
+      },
+      "inspection": {
+        "claim_scope": "first-order-deterministic-bound",
+        "observation_mode": "intrinsic-surface-distance",
+        "domain": "constant-curvature",
+        "source_digest": "sha256:eb0cd0d4a87f9d9bc9538c29acc448ba",
+        "units": {
+          "length": "declared length unit",
+          "angle": "radian"
+        },
+        "first_order_validity_established": true,
+        "reliable": false,
+        "max_coverage_gap": 0.075823073631,
+        "worst_cross_track_error": 0.00349034295746,
+        "minimum_coverage_margin": -0.075823073631
+      }
+    }
+  },
+  "limitations": [
+    "Jacobi fields are first-order variations, not exact finite path distances.",
+    "Gap, overlap, and coverage outputs are deterministic bounds, not probabilities.",
+    "Machine tracking, material deformation, and sensor detection require separate models.",
+    "A geodesic segment is not thereby established as globally shortest."
+  ]
+}
