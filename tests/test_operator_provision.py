@@ -85,6 +85,28 @@ def test_catalog_projects_all_installed_workflows_without_provider_or_network(mo
     assert native["external_bindings"]["engine"]["binding_type"] == "executable_file"
 
 
+@pytest.mark.parametrize("kind,jspt_module", [
+    ("sensor-fusion-transport", "sensitivity.affine"),
+    ("sensor-fusion-ekf", "sensitivity.reference_models"),
+])
+def test_fusion_compositions_require_both_exact_original_provider_pins(kind, jspt_module, monkeypatch):
+    def forbidden(*args, **kwargs):
+        raise AssertionError("Provider declarations must not probe, bind or execute runtimes")
+    monkeypatch.setattr(subprocess, "run", forbidden)
+    from ciw.adapters.subprocess import PinnedSubprocessAdapter
+    monkeypatch.setattr(PinnedSubprocessAdapter, "__init__", forbidden)
+    requirements = op.workflow_requirements(kind)
+    assert requirements["providers"] == {
+        "gsie": {"revision": "5241eee6dab434533bdf0cf0e824bc43b4a79831",
+                 "module": "geometric_state_inference.contracts", "source_root": "src"},
+        "jspt": {"revision": "d910f5a1d7f6dd5f2dd87dfca66990f714f97b18",
+                 "module": jspt_module, "source_root": "src"},
+    }
+    assert requirements["external_bindings"] == {}
+    assert requirements["qualification"] == "not_performed"
+    assert requirements["authorizes_execution"] is False
+
+
 def test_plan_is_read_only_and_provision_retains_original_pin_and_dependencies(source, tmp_path, monkeypatch):
     root, requirements, imported = source
     (root / "untracked-source.py").write_text("must never be copied or run\n")

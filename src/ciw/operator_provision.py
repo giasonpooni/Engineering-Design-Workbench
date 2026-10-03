@@ -133,6 +133,13 @@ def workflow_requirements(kind: str) -> dict:
     elif kind == "instrument-exchange":
         from .exchange_adapter import PIN
         pins = {"set": PIN}
+    elif kind == "sensor-fusion-transport":
+        from .sensor_fusion_transport import PIN as JSPT_PIN
+        from .sensor_fusion_workflow import PIN as GSIE_PIN
+        pins = {"gsie": GSIE_PIN, "jspt": JSPT_PIN}
+    elif kind == "sensor-fusion-ekf":
+        from .sensor_fusion_ekf import PIN as GSIE_PIN, JSPT_PIN
+        pins = {"gsie": GSIE_PIN, "jspt": JSPT_PIN}
     elif kind == "acquired-dataset":
         from .acquired_dataset import PPDA_REVISION, SOURCE_TREES
         pins = {"ppda": {"revision": PPDA_REVISION, "source_tree": SOURCE_TREES[PPDA_REVISION]}}
