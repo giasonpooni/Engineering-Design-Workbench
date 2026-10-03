@@ -122,6 +122,9 @@ def main(argv: list[str] | None = None) -> int:
     if argv and argv[0] == "dsp":
         from .dsp_workflow import main as dsp_main
         return dsp_main(argv[1:])
+    if argv and argv[0] == "fluid":
+        from .fluid_cli import main as fluid_main
+        return fluid_main(argv[1:])
     if argv and argv[0] == "atmosphere":
         from .atmosphere_cli import main as atmosphere_main
         return atmosphere_main(argv[1:])
@@ -226,6 +229,7 @@ def main(argv: list[str] | None = None) -> int:
     commands.add_parser("lab", help="Run bounded shared-preservation experiments")
     commands.add_parser("foundry", help="Run explicit foundry workflows and childhood compilation")
     commands.add_parser("atmosphere", help="Compile and independently check a bounded dry atmospheric column")
+    commands.add_parser("fluid", help="Run and independently check bounded synthetic reservoir and surface-wave models")
     commands.add_parser("object", help="Inspect committed source, export bounded context, and compare retained observations")
     commands.add_parser("semantic", help="Compile stable semantic capabilities into existing NET experiments")
     commands.add_parser("instrument", help="Inspect portable instrument manifests and verification reports")

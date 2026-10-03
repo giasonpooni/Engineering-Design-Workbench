@@ -132,6 +132,18 @@ fresh verification. [Atmospheric engine](docs/ATMOSPHERIC_ENGINE.md) documents
 the validity domain and expansion routes. Weather forecasting, measured physical
 validation and receiving-provider dynamics remain unestablished.
 
+## Bounded dynamic fluid models
+
+`net fluid` retains a time-dependent two-reservoir exchange model with a
+bidirectionally coupled compliant boundary, and a separate periodic linear
+surface-wave profile. Independent references, mass/energy/interface-work
+checks, and temporal/spatial refinement qualify their declared numerical
+domains. The [fluid guide](docs/FLUID_DYNAMICS.md) includes runnable commands,
+model equations, a qualified scalar-state handoff, and explicit expansion
+routes. The existing FlowState snapshot estimator and runtime pin remain
+unchanged; experimental validation and general molecular/CFD coupling remain
+unestablished.
+
 ## Quickstart
 
 Use the [existing quickstart](TECHNICAL_REFERENCE.md#quickstart) for the exact

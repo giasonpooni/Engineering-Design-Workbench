@@ -162,6 +162,9 @@ def _validate_evidence(run: dict) -> None:
     elif run["instrument"] == "org.notationsystems.gte":
         from .geodesic import validate_source
         validate_source(run)
+    elif run["instrument"] in {"fluid-reservoir-configuration-declaration.v1", "fluid-wave-configuration-declaration.v1"}:
+        from .fluid_workflow import source_request
+        source_request(run)
 
 
 def _recording_file(run: dict) -> str:
@@ -692,6 +695,8 @@ class Session:
         validate_impact_dependencies(result_map)
         from .atmosphere_workflow import validate_result_dependencies as validate_atmosphere_dependencies
         validate_atmosphere_dependencies(result_map)
+        from .fluid_workflow import validate_result_dependencies as validate_fluid_dependencies
+        validate_fluid_dependencies(result_map)
         executions = workspace.get("executions", [])
         if not isinstance(executions, list) or len(executions) > 1024:
             raise ValueError("Invalid saved executions")
