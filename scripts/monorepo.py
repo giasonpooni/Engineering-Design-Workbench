@@ -10,6 +10,7 @@ import argparse
 import ast
 from contextlib import contextmanager
 from hashlib import sha1
+from importlib.util import source_from_cache
 import json
 import os
 from pathlib import Path
@@ -86,7 +87,58 @@ _PYTHON_PINS = {
     "csg": ("geodesic_reference.py", "PINS", "curved-path-transfer"),
     "tsde": ("geometry_research.py", "PINS", "translation-flow"),
 }
-_CACHES = {".venv", "venv", "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache"}
+_ENVIRONMENTS = {".venv", "venv"}
+_ENVIRONMENT_CONTENTS = {"bin", "Scripts", "lib", "lib64", "Lib", "include", "Include", "share"}
+_TOOL_CACHES = {".pytest_cache", ".mypy_cache", ".ruff_cache"}
+_SOURCE_SUFFIXES = {".py", ".pyw", ".pyc", ".pyo", ".so", ".pyd", ".dll", ".dylib",
+                    ".sh", ".bat", ".cmd", ".ps1", ".js", ".cjs", ".mjs", ".ts", ".tsx", ".jsx"}
+_PACKAGE_METADATA = {"PKG-INFO", "SOURCES.txt", "dependency_links.txt", "entry_points.txt",
+                     "requires.txt", "top_level.txt", "not-zip-safe"}
+_IMPORT_STATUSES = {
+    **{role: "first-wave-import; independent package; source repository retained"
+       for role in ("mcur", "tbrt")},
+    **{role: "second-wave-import; independent package; source repository retained"
+       for role in ("oit", "gsie", "cbsr", "fdir", "set")},
+    **{role: "superrepo import; independent build and release boundary; source repository retained"
+       for role in _PATHS if role not in {"mcur", "tbrt", "oit", "gsie", "cbsr", "fdir", "set"}},
+}
+
+
+def _generated_file(path, boundary, *, environments=False, package_metadata=False):
+    """Permit known generated files without exempting source by directory name.
+
+    Environments belong at a module's root and must have a pyvenv marker. Tool
+    caches belong at the audited boundary's root; Python bytecode belongs
+    directly inside __pycache__. Nested venv packages remain executable source.
+    """
+    path, boundary = Path(path), Path(boundary)
+    relative = path.relative_to(boundary)
+    parts = relative.parts
+    if len(parts) < 2:
+        return False
+    if any((boundary / Path(*parts[:index])).is_symlink() for index in range(1, len(parts))):
+        return False
+    if environments and parts[0] in _ENVIRONMENTS:
+        marker = boundary / parts[0] / "pyvenv.cfg"
+        if not marker.is_file() or marker.is_symlink():
+            return False
+        # A marker cannot turn the environment root into an importable package.
+        if parts[1] in _ENVIRONMENT_CONTENTS:
+            return len(parts) > 2 or path.is_dir()
+        return len(parts) == 2 and parts[1] in {"pyvenv.cfg", ".gitignore", "CACHEDIR.TAG"}
+    if path.is_symlink() or not path.is_file() or path.stat().st_mode & 0o111:
+        return False
+    if parts[-2] == "__pycache__":
+        try:
+            source = Path(source_from_cache(str(path)))
+        except ValueError:
+            return False
+        return source.is_file() and not source.is_symlink()
+    if parts[0] in _TOOL_CACHES:
+        return path.suffix.lower() not in _SOURCE_SUFFIXES
+    if package_metadata and len(parts) == 2 and parts[0].endswith(".egg-info"):
+        return parts[1] in _PACKAGE_METADATA
+    return False
 
 
 def git(root, *arguments):
@@ -162,14 +214,35 @@ def load_manifest(root=ROOT):
     modules = manifest["modules"]
     if not isinstance(modules, list) or len(modules) != len(_PATHS):
         raise ValueError("Import manifest must name exactly the registered modules")
-    roles = set()
+    roles, identifiers = set(), set()
     for module in modules:
         if not isinstance(module, dict):
             raise ValueError("Each module must be an object")
         role = module.get("role")
-        if role not in _PATHS or role in roles or module.get("path") != _PATHS[role]:
+        if not isinstance(role, str) or role not in _PATHS or role in roles or module.get("path") != _PATHS[role]:
             raise ValueError("Duplicate or unsupported module role/path")
         roles.add(role)
+        # These are required source declarations, not authenticated ownership
+        # or legal provenance. Historical source labels remain unchanged.
+        identifier = module.get("id")
+        if (not isinstance(identifier, str) or not re.fullmatch(r"[a-z0-9]+(?:-[a-z0-9]+)*", identifier)
+                or identifier in identifiers):
+            raise ValueError("A unique formatted module provenance id is required")
+        identifiers.add(identifier)
+        repository = module.get("repository")
+        if (not isinstance(repository, str)
+                or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9-]*/[A-Za-z0-9_.-]+", repository)
+                or repository.rsplit("/", 1)[-1] in {".", ".."}):
+            raise ValueError("A formatted owner/repository provenance declaration is required")
+        repository_id = module.get("repository_id")
+        if type(repository_id) is not int or repository_id <= 0:
+            raise ValueError("A positive integer repository provenance id is required")
+        ownership = module.get("ownership")
+        if (not isinstance(ownership, str) or not ownership or ownership != ownership.strip()
+                or any(ord(character) < 32 or ord(character) == 127 for character in ownership)):
+            raise ValueError("A nonempty ownership provenance declaration is required")
+        if module.get("status") != _IMPORT_STATUSES[role]:
+            raise ValueError("Module provenance status must retain its declared import boundary")
         python_import, source_root, license_name, project_license, notice = _CONTRACTS[role]
         if module.get("visibility") != "public" or module.get("license") != license_name:
             raise ValueError("Imports require declared public source and their original per-module license")
@@ -235,7 +308,7 @@ def verify_imports(root=ROOT):
                 raise ValueError("Imported working file differs from the preserved source")
         git(root, "diff", "--cached", "--quiet", "--no-ext-diff", "--no-textconv", "HEAD", "--", prefix)
         for raw_name in git(root, "ls-files", "--others", "-z", "--", prefix).split(b"\0"):
-            if raw_name and not set(Path(os.fsdecode(raw_name)).relative_to(prefix).parts) & _CACHES:
+            if raw_name and not _generated_file(root / os.fsdecode(raw_name), root / prefix, environments=True):
                 raise ValueError("Unexpected untracked file inside an imported module")
         result[module["role"]] = tree
     return result
@@ -287,9 +360,9 @@ def verify_terminal_source(root=ROOT):
     for raw_name in git(root, "ls-files", "--others", "-z", "--", "src", "scripts", "tests").split(b"\0"):
         if not raw_name:
             continue
-        parts = Path(os.fsdecode(raw_name)).parts
-        if any(part in _CACHES or part.startswith(".venv") or part.endswith(".egg-info")
-               for part in parts[1:-1]):
+        relative = Path(os.fsdecode(raw_name))
+        boundary = root / relative.parts[0]
+        if _generated_file(root / relative, boundary, package_metadata=relative.parts[0] == "src"):
             continue
         raise ValueError("Terminal executable source contains an untracked file: " + os.fsdecode(raw_name))
     if git(root, "rev-parse", "HEAD").decode().strip() != revision:

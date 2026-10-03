@@ -3,7 +3,7 @@
 NET now compiles one versioned scientific object into synchronized human,
 reasoning and vision records. A separate Ed25519 envelope binds their manifest
 to a signing key. The instrument belongs to Notation Systems Inc. and can serve
-Notations Laboratories, Notations Manufacturing and Notations Gaming.
+Notations Laboratories, Notation Manufacturing and Notations Gaming.
 
 This is an additive root `ciw` instrument in the engineering superrepo. Existing
 imported package trees, licences, historical execution pins and scientific
@@ -107,6 +107,13 @@ report status without importing or executing physics engines. Numerical report
 status is an imported declaration; physical validation is not assessed and no
 fresh numerical verification is claimed. Other native receipt identity forms
 can remain evidence references rather than being coerced into UUID event IDs.
+
+The impact adapter currently rejects other workspace versions, including v4
+workspaces carrying retained correction journals. Their dependency eligibility
+requires an explicit adapter extension. Within a current Session, a compiled
+representation's declared result and execution dependencies participate in
+correction propagation. The sealed representation bytes remain historical;
+signature integrity does not establish that its dependencies are current.
 
 ## Supply a real source and signing key
 

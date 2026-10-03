@@ -27,12 +27,12 @@ if __package__:
     from .check_monorepo import DEPENDENCIES, _copy_source, _environment, _git, _IMPORT_PROBE, _junit, _run, _wheel
     from .check_monorepo_inference import FLOWSTATE_REVISION, _flowstate, _worktree
     from .check_monorepo_budget import qualify_budget
-    from .monorepo import ROOT, load_manifest, provider_worktrees, verify_imports
+    from .monorepo import ROOT, load_manifest, provider_worktrees, verify_imports, verify_terminal_source
 else:
     from check_monorepo import DEPENDENCIES, _copy_source, _environment, _git, _IMPORT_PROBE, _junit, _run, _wheel
     from check_monorepo_inference import FLOWSTATE_REVISION, _flowstate, _worktree
     from check_monorepo_budget import qualify_budget
-    from monorepo import ROOT, load_manifest, provider_worktrees, verify_imports
+    from monorepo import ROOT, load_manifest, provider_worktrees, verify_imports, verify_terminal_source
 
 PACKAGE_ROLES = frozenset({"sra", "ywir", "cse"})
 IDENTIFIED_ROLES = frozenset({"mcur", "tbrt", "oit", "gsie", "cbsr", "fdir", "set", "sidt", "edspt", "ywir"})
@@ -402,7 +402,12 @@ def main(argv=None) -> int:
               "minimum_python":"3.12","claim_scope":SCOPE,"independent_verification":False,
               "admission":"not_performed","dependencies":DEPENDENCIES,"log":str(log)}
     try:
+        report["terminal_source"] = verify_terminal_source(root=ROOT)
+        if report["terminal_source"]["revision"] != report["terminal_revision"]:
+            raise ValueError("Terminal revision changed before qualification")
         _qualify(args,report,output,log)
+        if verify_terminal_source(root=ROOT) != report["terminal_source"]:
+            raise ValueError("Terminal source identity changed during qualification")
     except Exception as error:
         report.update(status="failed",error={"type":type(error).__name__,"message":str(error)})
         print("Public operations gate failed:",error,file=sys.stderr)
