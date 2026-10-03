@@ -1,0 +1,56 @@
+{
+  "schema": "ciw.atmosphere-request.v1",
+  "scope": "dry_hydrostatic_constant_gravity_column",
+  "reference": {
+    "temperature_k": 288.15,
+    "pressure_pa": 101325.0,
+    "height_origin_m": 0.0,
+    "frame": "atmosphere.local_enu.v1",
+    "context": {
+      "source_kind": "declared_environment",
+      "source_ref": "illustrative configuration; no acquired environment",
+      "valid_time_utc": "2026-10-03T12:00:00Z"
+    }
+  },
+  "profile": {
+    "lapse_rate_k_per_m": 0.0065,
+    "wind_enu_m_per_s": [
+      0.0,
+      0.0,
+      0.0
+    ],
+    "composition": "dry_air",
+    "gravity_m_per_s2": 9.80665
+  },
+  "sampling": {
+    "height_m": [
+      0.0,
+      1000.0,
+      2000.0,
+      3000.0,
+      4000.0,
+      5000.0,
+      6000.0,
+      7000.0,
+      8000.0,
+      9000.0,
+      10000.0
+    ],
+    "interpretation": "height_above_reference"
+  },
+  "desired_observables": [
+    "temperature",
+    "pressure",
+    "density",
+    "sound_speed",
+    "viscosity",
+    "wind",
+    "potential_temperature",
+    "hydrostatic_profile"
+  ],
+  "tolerances": {
+    "constitutive_relative": 1e-10,
+    "hydrostatic_relative": 1e-08,
+    "quadrature_relative": 1e-08
+  }
+}

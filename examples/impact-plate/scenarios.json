@@ -1,0 +1,77 @@
+{
+  "schema": "ciw.impact-sweep-request.v1",
+  "base_request": {
+    "schema": "ciw.impact-plate-request.v1",
+    "scope": "simply_supported_kirchhoff_love_plate_patch_contact",
+    "model": {
+      "mass_kg": 1.0,
+      "stiffness_n_per_m": 10000.0,
+      "initial_speed_m_per_s": 0.03,
+      "initial_compression_m": 0.0,
+      "damping_n_s_per_m": 0.0,
+      "gravity_during_contact_m_per_s2": 0.0,
+      "contact_law": "compression_only_linear_patch_spring",
+      "support": "simply_supported_rectangular_plate",
+      "length_x_m": 0.2,
+      "length_y_m": 0.2,
+      "thickness_m": 0.003,
+      "young_modulus_pa": 2000000000.0,
+      "poissons_ratio": 0.35,
+      "density_kg_per_m3": 1200.0,
+      "patch_center_x_m": 0.1,
+      "patch_center_y_m": 0.1,
+      "patch_width_x_m": 0.02,
+      "patch_width_y_m": 0.02
+    },
+    "integration": {
+      "method": "velocity_verlet",
+      "modes_per_axis": 3,
+      "spatial_refinement_increment": 2,
+      "steps_per_contact": 1024,
+      "duration_factor": 2.0
+    },
+    "desired_observables": [
+      "force_time",
+      "impulse",
+      "restitution",
+      "energy_accounting",
+      "separation_time",
+      "plate_deformation",
+      "plate_modes"
+    ],
+    "tolerances": {
+      "analytic_normalized": 0.001,
+      "impulse_relative": 0.001,
+      "momentum_relative": 1e-10,
+      "energy_relative": 0.001,
+      "restitution_absolute": 0.001,
+      "separation_relative": 0.001,
+      "refinement_normalized": 0.001,
+      "spatial_refinement_normalized": 0.02
+    }
+  },
+  "axes": {
+    "thickness_m": [
+      0.0028,
+      0.003
+    ],
+    "initial_speed_m_per_s": [
+      0.01,
+      0.02
+    ]
+  },
+  "requirements": [
+    {
+      "quantity": "peak_force_n",
+      "unit": "N",
+      "operator": "<=",
+      "limit": 10.0
+    },
+    {
+      "quantity": "plate_peak_deflection_m",
+      "unit": "m",
+      "operator": "<=",
+      "limit": 0.0003
+    }
+  ]
+}

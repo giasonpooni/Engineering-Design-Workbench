@@ -116,6 +116,12 @@ def _node(name: str, operation: str, dependencies: list[str] | None = None) -> d
 
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
+    if argv and argv[0] == "atmosphere":
+        from .atmosphere_cli import main as atmosphere_main
+        return atmosphere_main(argv[1:])
+    if argv and argv[0] == "impact":
+        from .impact_cli import main as impact_main
+        return impact_main(argv[1:])
     if argv and argv[0] == "foundry":
         from .foundry_workflow import main as foundry_main
         return foundry_main(argv[1:])
@@ -175,6 +181,8 @@ def main(argv: list[str] | None = None) -> int:
         return science_main(argv[1:])
     parser = argparse.ArgumentParser(prog="net", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
+    commands.add_parser("impact", help="Run the bounded elastic contact benchmark with independent verification")
+    commands.add_parser("atmosphere", help="Compile bounded dry/moist columns and independently compare declared references")
     commands.add_parser("object", help="Inspect committed source, export bounded context, and compare retained observations")
     commands.add_parser("semantic", help="Compile stable semantic capabilities into existing NET experiments")
     commands.add_parser("instrument", help="Inspect portable instrument manifests and verification reports")
