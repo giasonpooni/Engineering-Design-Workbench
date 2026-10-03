@@ -15,11 +15,14 @@ the legal asset owner on 2 October 2026. This is an owner-supplied declaration,
 not an independently verified assignment, corporate-status check or worldwide
 legal clearance. It does not itself transfer rights.
 
-The current organization is Notation Systems Inc. as parent, with Notations
-Gaming, Notations Manufacturing and Notations Laboratories as operating
-division labels. Notations Gaming replaces the Cartesian Graphics studio label.
-Division labels alone do not make them separate legal entities, owners,
-co-licensors or contracting parties. Existing creator credits and third-party
+The owner identified the current group on 3 October 2026 as Notation Systems
+Inc. as parent, with Notations Gaming, Notation Manufacturing and Notations
+Laboratories as child companies. Notation Systems Inc. remains the declared
+rights holder for project-owned original material. Each notice and signed grant
+must identify the actual legal licensor, its rights and its authorized signatory.
+A child-company name or group relationship alone does not confer licensing
+authority or transfer rights. This records the owner's declaration without
+certifying incorporation or title. Existing creator credits and third-party
 rights are preserved.
 
 Reference images, recordings, publications, scans, source prose and other

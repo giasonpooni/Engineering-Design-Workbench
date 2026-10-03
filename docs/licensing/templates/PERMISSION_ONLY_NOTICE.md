@@ -19,15 +19,21 @@ separate outreach.
 
 ```text
 PERMISSION ONLY RIGHTS NOTICE
-Version 1.0 | 2 October 2026
+Version 1.1 | 3 October 2026
 
 Parent organization
 Notation Systems Inc.
 
-Operating division labels
+Child companies
 Notations Gaming
-Notations Manufacturing
+Notation Manufacturing
 Notations Laboratories
+
+Notation Systems Inc. is the declared parent and rights holder for
+project-owned original material. Each notice and signed grant must identify
+the actual legal licensor, its rights and its authorized signatory. A
+child-company name or group relationship alone does not confer licensing
+authority or transfer rights.
 
 Copyright (c) [YEAR OR YEARS] [ACTUAL LEGAL RIGHTS HOLDER].
 All rights reserved except rights expressly granted in writing or otherwise

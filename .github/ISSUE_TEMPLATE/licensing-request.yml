@@ -1,10 +1,13 @@
 name: Licensing permission request
-description: Request a written grant for identified Notation Systems material.
+description: Request a written grant for identified Notation Systems Inc. group material.
 title: "[Licensing] "
 body:
   - type: markdown
     attributes:
       value: |
+        The declared parent is Notation Systems Inc.; its child companies are
+        Notations Gaming, Notation Manufacturing and Notations Laboratories.
+        A signed grant identifies the legal licensor, its rights and authorized signer.
         A request is not permission. No use requiring the rights holder's authorization
         may begin until an authorized signatory issues an express signed written grant.
         This is a public issue. Do not upload assets, confidential proposals, private
