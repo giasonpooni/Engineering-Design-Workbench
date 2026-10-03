@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import ast
 from contextlib import contextmanager
+import errno
 from hashlib import sha1
 from importlib.util import source_from_cache
 import json
@@ -18,6 +19,7 @@ import re
 import subprocess
 import sys
 import tempfile
+import time
 import tomllib
 
 ROOT = Path(__file__).resolve().parents[1]
@@ -157,7 +159,7 @@ def _generated_file(path, boundary, *, environments=False, package_metadata=Fals
 def git(root, *arguments):
     environment = dict(os.environ)
     # Repository selection is explicit; caller environment cannot replace it.
-    for name in ("GIT_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_OBJECT_DIRECTORY",
+    for name in ("GIT_DIR", "GIT_COMMON_DIR", "GIT_WORK_TREE", "GIT_INDEX_FILE", "GIT_OBJECT_DIRECTORY",
                  "GIT_ALTERNATE_OBJECT_DIRECTORIES"):
         environment.pop(name, None)
     return subprocess.run(
@@ -165,6 +167,53 @@ def git(root, *arguments):
          "core.autocrlf=false", "-C", str(root), *arguments],
         env=environment, check=True, capture_output=True, timeout=30,
     ).stdout
+
+
+@contextmanager
+def worktree_mutation_lock(root):
+    """Serialize managed worktree add/remove operations across processes.
+
+    Git scans sibling worktree metadata during these mutations, so distinct
+    destination names do not isolate simultaneous adds and removals. Linked
+    worktrees share this lock in their actual Git common directory. Keep the
+    lock file after release: removing it would permit a second lock inode.
+    """
+    root = Path(root).resolve()
+    common = Path(os.fsdecode(git(root, "rev-parse", "--git-common-dir")).strip())
+    if not common.is_absolute():
+        common = root / common
+    lock_path = common.resolve() / "notations-worktree-mutation.lock"
+    with lock_path.open("a+b") as lock:
+        if os.name == "nt":
+            import msvcrt
+
+            # Windows byte-range locks require a byte to exist in the file.
+            lock.seek(0, os.SEEK_END)
+            if lock.tell() == 0:
+                lock.write(b"\0")
+                lock.flush()
+            lock.seek(0)
+            while True:
+                try:
+                    msvcrt.locking(lock.fileno(), msvcrt.LK_NBLCK, 1)
+                    break
+                except OSError as error:
+                    if error.errno not in {errno.EACCES, errno.EAGAIN, errno.EDEADLK}:
+                        raise
+                    time.sleep(0.05)
+            try:
+                yield
+            finally:
+                lock.seek(0)
+                msvcrt.locking(lock.fileno(), msvcrt.LK_UNLCK, 1)
+        else:
+            import fcntl
+
+            fcntl.flock(lock.fileno(), fcntl.LOCK_EX)
+            try:
+                yield
+            finally:
+                fcntl.flock(lock.fileno(), fcntl.LOCK_UN)
 
 
 def _constant(path, name):
@@ -413,13 +462,15 @@ def provider_worktrees(root=ROOT, revisions="runtime", roles=None, overrides=Non
             for module in modules:
                 path = Path(temporary) / module["role"]
                 revision = overrides.get(module["role"], module[revisions + "_revision"])
-                git(root, "worktree", "add", "--detach", str(path), revision)
+                with worktree_mutation_lock(root):
+                    git(root, "worktree", "add", "--detach", str(path), revision)
                 created.append(path)
                 providers[module["role"]] = path
             yield providers
         finally:
             for path in reversed(created):
-                git(root, "worktree", "remove", "--force", str(path))
+                with worktree_mutation_lock(root):
+                    git(root, "worktree", "remove", "--force", str(path))
 
 
 def main():
