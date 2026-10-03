@@ -159,6 +159,11 @@ dependencies.
 
 ## Development and qualification
 
+The [geomatics toolset](docs/GEOMATICS.md) provides bounded GIS, Earth observation,
+radiometry and aggregate urban-analysis operations through `net geomatics`.
+Each operation includes a synthetic example and uses NET's retained Session and
+reproduction workflow.
+
 NET is in active development. Merged implementations, development branches and
 planned capabilities are tracked separately. Broader fluid dynamics, configurable
 sensor fusion, atom-trapping simulation and implicit geometry are extension
