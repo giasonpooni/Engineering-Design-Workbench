@@ -28,6 +28,7 @@ replay creates a new execution.
 | --- | --- |
 | Investigation and execution | Sessions, operation and capability registries, retained runs, save/reopen, explicit replay and runtime preflight. [Instrument catalogue](docs/INSTRUMENTS.md). |
 | Typed composition and design | Workflow composition, parameterized Boards and declared input/output contracts. [Workflow algebra](docs/WORKFLOW_ALGEBRA.md) · [Scientific workflows](docs/NET_SCIENTIFIC_WORKFLOWS.md). |
+| Evolving workflow structure | Bounded typed hypergraph rewriting, invariant checks, retained transformation dependencies, alternative paths and explicit schedule comparisons. [Hypergraph rewriting](docs/HYPERGRAPH_REWRITE.md). |
 | Measurement and estimation | Calibration, time reconciliation, telemetry, covariance propagation, state estimation and bounded observation-design workflows. [Integration coverage](docs/INTEGRATION_COVERAGE.md). |
 | Scientific models and testbeds | Bounded impact and atmospheric models, thermal observers, geometric calculations and domain-specific numerical checks. [Atmospheric engine](docs/ATMOSPHERIC_ENGINE.md). |
 | Polymer processing | Cycle metrology, scoped cooling and pressure-arrival estimates, evidence-linked copilot context, and bounded control simulations for injection and extrusion blow molding. [Polymer processing](docs/POLYMER_PROCESSING.md). |
@@ -87,20 +88,51 @@ routes. The existing FlowState snapshot estimator and runtime pin remain
 unchanged; experimental validation and general molecular/CFD coupling remain
 unestablished.
 
-## Quickstart
+## Evolving workflow structures
 
-Start with [Run NET with the installed public tools](docs/RUN_NET.md) for
-installation, dependency preflight and one checked path through analysis,
-impact, Legibility and atmospheric handoffs.
-
-Python **3.11 or newer** is required. From a checkout:
+`net rewrite` adds an optional, bounded hypergraph computation model for ensemble
+construction and workflow auditing. Fixed rules replicate nodes, vary declared
+parameters, add typed couplings and split a thermal zone while preserving its
+declared heat capacity. Retained histories distinguish content identities from
+rewrite execution, result and verification occurrences. Bounded exploration
+keeps branch identities; explicit schedule checks compare exact terminal graphs.
 
 ```sh
-python -m pip install -e .
-net demo --output-dir results/net-demo
-net providers --json
-net capabilities --json
-net science catalog
+net rewrite example --profile thermal --output results/thermal-request.json
+net rewrite run results/thermal-request.json --output results/thermal-rewrite.json
+net rewrite verify results/thermal-rewrite.json --output results/thermal-verification.json
+```
+
+The [rewrite guide](docs/HYPERGRAPH_REWRITE.md) covers types, limits, replay and
+qualification. These transformations describe structure; numerical models still
+calculate behavior, and existing operation contracts govern execution. Preserved
+declarations do not establish predictive accuracy or validate a proposed mapping
+from hypergraph evolution to fundamental physics.
+
+## Quickstart
+
+Follow the [operator quickstart](docs/quickstart.md) to install, check and use the
+instrument. `net catalog` shows its command surfaces and scientific provider
+requirements; `net start --output-dir results/first-use-001` runs the bounded
+synthetic first-use check and retains its completion receipt. Start or resume
+one local investigation with `net workbench --output-dir results/workbench`.
+
+The [operator readiness guide](docs/OPERATOR_READINESS.md) explains exact public
+provider provisioning and specialist qualification. Scientific provider and
+engine dependencies remain optional and explicitly bound. Reading retained
+results must not silently launch a runtime or rerun an experiment.
+
+The [installed public-tool guide](docs/RUN_NET.md) adds checked paths through
+impact, signed Legibility and atmospheric handoffs. Python 3.11 or newer is
+required.
+
+
+```sh
+python -m pip install .
+net doctor --profile core
+net catalog
+net start --output-dir results/first-use-001
+net workbench --output-dir results/workbench
 ```
 
 For the signed legibility demonstration:
