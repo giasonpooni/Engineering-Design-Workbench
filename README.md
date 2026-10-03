@@ -15,14 +15,27 @@ author → run → observe → compare → modify → check
                 └──────── retained investigation ────────┘
 ```
 
-## Notation Systems
+## Organization
 
-[notation.systems](https://notation.systems) is the portfolio umbrella for
-independent computational systems, simulation and interactive-software projects
-by **[Giason Pooni](https://github.com/giasonpooni)**. The website presents the
-work; each repository retains its own implementation, status and licence.
+**Notation Systems Inc.** is the parent organization.
 
-Portfolio areas: **Games & Interactive · Simulation · Tools · Research · About**.
+| Operating division | Focus |
+| --- | --- |
+| **Notations Gaming** | Games, graphics and interactive worlds; replaces the Cartesian Graphics studio label. |
+| **Notations Manufacturing** | Industrial design, materials, manufacturing and production systems. |
+| **Notations Laboratories** | Research, scientific computing, simulation and experimental validation. |
+
+NET is shared scientific and engineering infrastructure across these divisions.
+It composes investigations and declared operations while specialist providers
+retain their implementations and applications retain their live state.
+
+Evidence, operation, execution and verification identities remain separate.
+Game and simulation state do not acquire industrial evidence or canonical-state
+authority through shared tooling. Cross-division handoffs use explicit contracts
+and the existing admission, execution and release boundaries.
+
+[notation.systems](https://notation.systems) presents the organization's work.
+Each repository retains its implementation, status and applicable licence.
 Website publication and repository availability are separate; a project link
 does not imply that a hosted demo or released game exists.
 
@@ -83,9 +96,10 @@ promote planned integrations into implemented capabilities.
 
 ## Copyright and attribution
 
-**© 2026 Giason Pooni, for original contributions.** Notation Systems is the
-independent project umbrella, not a claim of ownership over third-party tools
-or inherited code. Contributor and upstream copyright notices remain in force.
+**© 2026 Giason Pooni, for original contributions.** Notation Systems Inc. is
+the parent organization. Existing creator attribution does not claim ownership
+of third-party tools or inherited code. Contributor and upstream copyright
+notices remain in force.
 
 The existing [LICENSE](LICENSE), source notices and third-party terms continue
 to govern the code and included materials. This documentation update does not

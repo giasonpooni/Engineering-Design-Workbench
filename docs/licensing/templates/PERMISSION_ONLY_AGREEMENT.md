@@ -17,9 +17,8 @@ separate outreach.
 
 ## Permission Only Licensing Framework
 
-Notation Systems Inc.  
-Cartesian Graphics Ltd.  
-Giason Pooni Studios
+**Notation Systems Inc. — parent organization**  
+Notations Gaming · Notations Manufacturing · Notations Laboratories — operating division labels
 
 Version 1.0 | 2 October 2026
 
@@ -122,8 +121,9 @@ Complete this register for each release before applying a proprietary notice. Li
 | Issuing name | Legal identity to establish |
 | --- | --- |
 | Notation Systems Inc. | Full legal name, jurisdiction, registered address and authority of signatory. |
-| Cartesian Graphics Ltd. | Full legal name, jurisdiction, registered address and authority of signatory. |
-| Giason Pooni Studios | Identify whether a legal entity or trade name; state the actual legal person owning or licensing the work. |
+| Notations Gaming | Operating division label; identify the actual legal Rights Holder and its licensing authority. |
+| Notations Manufacturing | Operating division label; identify the actual legal Rights Holder and its licensing authority. |
+| Notations Laboratories | Operating division label; identify the actual legal Rights Holder and its licensing authority. |
 
 ### Asset record
 

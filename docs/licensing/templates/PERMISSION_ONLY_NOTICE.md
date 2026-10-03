@@ -21,10 +21,13 @@ separate outreach.
 PERMISSION ONLY RIGHTS NOTICE
 Version 1.0 | 2 October 2026
 
-Issuing names
+Parent organization
 Notation Systems Inc.
-Cartesian Graphics Ltd.
-Giason Pooni Studios
+
+Operating division labels
+Notations Gaming
+Notations Manufacturing
+Notations Laboratories
 
 Copyright (c) [YEAR OR YEARS] [ACTUAL LEGAL RIGHTS HOLDER].
 All rights reserved except rights expressly granted in writing or otherwise
