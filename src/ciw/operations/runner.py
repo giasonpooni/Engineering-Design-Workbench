@@ -86,6 +86,9 @@ def execute(registry: OperationRegistry, run: dict, selection: dict, recording_f
         if not isinstance(data, dict):
             raise AdapterRefusal("invalid_adapter_output", "Operation data must be an object")
         validate_payload(operation_id, data, run, parameters, selection)
+        if (operation_id == "system.simulate.v1" and parameters.get("engine", "local") == "local"
+                and data["execution_runtime"]["runtime"] != runtime):
+            raise ValueError("Local deployment receipt differs from retained execution runtime")
         if operation_id == "system.study.v1" and data["report"]["runtime"] != runtime:
             raise ValueError("Temporal study runtime differs from retained execution runtime")
         json.dumps(data, allow_nan=False)
