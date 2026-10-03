@@ -17,7 +17,7 @@ author → run → observe → compare → modify → check
 
 ## Organization
 
-**Notation Systems Inc.** is the parent organization in the owner-declared
+**Notation Systems Inc.** is the parent company in the owner-declared
 parent/child company hierarchy. It is a scientific computing and systems
 engineering company developing computational instruments, software and
 interactive environments for understanding and building physical and virtual
@@ -28,10 +28,12 @@ fusion, scientific modelling, simulation and execution, from materials and
 machines to interactive worlds. Each repository's implemented capabilities and
 qualification limits remain those documented for that component.
 
-| Activity area | Focus |
+The owner identifies the following child companies:
+
+| Child company | Focus |
 | --- | --- |
 | **Notations Gaming** | Games, graphics, world building, interactive environments and gameplay simulation; replaces the Cartesian Graphics studio label. |
-| **Notations Manufacturing** | Design, machinery integration, process development, fabrication and production systems. |
+| **Notation Manufacturing** | Design, machinery integration, process development, fabrication and production systems. |
 | **Notations Laboratories** | Research and experimental validation in scientific computing, measurement, physics and chemistry modelling, materials and simulation. |
 
 NET is shared scientific and engineering infrastructure across these companies.
