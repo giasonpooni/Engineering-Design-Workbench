@@ -1,0 +1,39 @@
+{
+  "schema": "notation.original-asset-rights-register.v1",
+  "policy_version": "1.1",
+  "recorded_local_date": "2026-10-02",
+  "timezone": "America/Toronto",
+  "repository": "giasonpooni/Notations-Systems-Terminal",
+  "inspected_source_commit": "55d67d42beea95d7ce98af935b48bd84df5e9b4b",
+  "owner_declaration": {
+    "declared_owner": "Notation Systems Inc.",
+    "statement": "Project assets are original; the corpus serves as reference material.",
+    "evidence_type": "owner-supplied conversation declaration",
+    "independent_title_verification": false,
+    "assignment_created_by_this_record": false
+  },
+  "licensing_contact": "https://github.com/giasonpooni/Notations-Systems-Terminal/issues/new?template=licensing-request.yml&title=Licensing%20request",
+  "covered_asset_versions": [],
+  "preserved_grants": [
+    "NET AGPL-3.0-or-later",
+    "per-file/component and valid earlier grants",
+    "platform permissions"
+  ],
+  "enrollment_fields": [
+    "asset_id",
+    "paths",
+    "source_revision",
+    "content_sha256",
+    "creator_and_creation_evidence",
+    "actual_rights_holder",
+    "authority_or_title_evidence",
+    "prior_grants",
+    "incorporated_third_party_material",
+    "applicable_notice",
+    "distribution_channel",
+    "licensing_contact",
+    "status"
+  ],
+  "reference_sources_claimed_owned": false,
+  "global_legal_clearance": false
+}

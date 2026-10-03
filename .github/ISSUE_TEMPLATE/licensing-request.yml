@@ -1,0 +1,58 @@
+name: Licensing permission request
+description: Request a written grant for identified Notation Systems material.
+title: "[Licensing] "
+body:
+  - type: markdown
+    attributes:
+      value: |
+        A request is not permission. No use requiring the rights holder's authorization
+        may begin until an authorized signatory issues an express signed written grant.
+        This is a public issue. Do not upload assets, confidential proposals, private
+        agreements, personal addresses, payment details, or third-party material.
+        Request a private discussion first if needed; the maintainer will arrange a channel.
+        Existing licences, statutory rights and platform permissions remain applicable.
+  - type: input
+    id: recipient
+    attributes:
+      label: Proposed recipient
+      description: Business/project name or GitHub handle for preliminary discussion.
+    validations:
+      required: true
+  - type: textarea
+    id: materials
+    attributes:
+      label: Material and version
+      description: Identify paths, asset IDs, release revision or hashes. Link rather than upload.
+    validations:
+      required: true
+  - type: textarea
+    id: scope
+    attributes:
+      label: Requested acts and purpose
+      description: Specify evaluation, execution, copying, changes, distribution, deployment or other acts.
+    validations:
+      required: true
+  - type: textarea
+    id: boundaries
+    attributes:
+      label: Users, systems, territory and term
+      description: Provide a non-confidential outline; exact terms will be agreed privately.
+    validations:
+      required: true
+  - type: dropdown
+    id: processing
+    attributes:
+      label: AI or external processing
+      options:
+        - No AI or external processing requested
+        - AI or external processing requested; details to be agreed
+        - Private discussion needed before describing the request
+    validations:
+      required: true
+  - type: checkboxes
+    id: acknowledgement
+    attributes:
+      label: Request acknowledgement
+      options:
+        - label: I understand this request, acknowledgement, negotiation or payment alone grants no permission.
+          required: true
