@@ -97,6 +97,7 @@ establish attached-browser interoperability.
 Use Python 3.12 or later for the complete public qualification. The web lane
 requires Node 24 or later, the Surface locked lane requires `uv`, and the bounded
 Compute Runtime lane requires Cargo; the configured Linux CI uses Rust 1.90.0.
+Cargo, its compiler and Rustdoc must all be available in a consistent toolchain.
 Package dependencies are installed into
 temporary environments. Dependency downloads require public registry access;
 the view tests and builds subsequently use their original locks offline.
@@ -106,8 +107,31 @@ From the repository root:
 ```sh
 python scripts/superrepo.py list
 python scripts/superrepo.py audit
+python scripts/superrepo.py doctor
 python scripts/superrepo.py check --output-dir results/superrepo
 ```
+
+`doctor` observes source/history and the selected tools without installing
+dependencies or running scientific qualification. Its fresh preflight identity
+is separate from source revisions and verification receipts. `available` means
+the observed prerequisites are present; registry access, package builds and
+composed workflows still require `check`. Use `--group` to inspect selected lanes,
+and `--json` for the complete observations and configured CI matrices.
+
+Both commands accept `--cargo`, `--node-bin` and `--uv` for trusted tools outside
+the default `PATH`. Cargo's directory is forwarded to the child environment so
+its sibling compiler and Rustdoc can run; explicit `RUSTC` and `RUSTDOC` settings
+remain authoritative. Node's directory supplies both Node and npm. `--uv` selects
+Surface's locked-environment builder.
+Doctor disables Rustup's automatic toolchain installation during version probes.
+The web lane is qualified on Linux. Doctor recognizes npm launchers with an
+explicit Node shebang; opaque Windows launchers are reported as refused until
+their binding is supported and separately qualified.
+
+For module development, use the [controlled source-update workflow](MODULE_UPDATES.md).
+It records a clean committed module draft as a native source commit, audits the
+candidate and creates a new review branch. Package/composition qualification and
+any runtime-pin changes remain explicit subsequent work.
 
 For temporary worktrees, builds and runtime files outside synchronized storage,
 choose an existing private directory with `--temp-root`:
