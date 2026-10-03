@@ -1,0 +1,22 @@
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
+.eggs/
+dist/
+build/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.venv/
+venv/
+work/
+*.skp
+.DS_Store
+uv.lock
+
+# Local coordination notes
+/AGENTS.md
+/HANDOFF.md
