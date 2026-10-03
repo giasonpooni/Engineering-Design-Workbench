@@ -1,169 +1,141 @@
-# Notations Engineering Terminal
+# Notations Systems Terminal
 
-**A programmable workbench for scientific computing and game/simulation development.**
+**A programmable scientific and engineering workbench for measurement, state estimation, simulation and interactive worlds.**
 
-[Portfolio](https://notation.systems) · [Quickstart](#quickstart) ·
-[Technical reference](TECHNICAL_REFERENCE.md) · [Documentation](docs) ·
-[Copyright and licence](#copyright-and-attribution)
+[Notation Systems](https://notation.systems) · [Quickstart](#quickstart) ·
+[Instruments](docs/INSTRUMENTS.md) · [Integration coverage](docs/INTEGRATION_COVERAGE.md) ·
+[Technical reference](TECHNICAL_REFERENCE.md) · [Documentation](docs)
 
-NET connects models, declared runs, observations and comparisons in a retained
-investigation. It supports the development loop around a system without
-replacing the application that owns that system's live state.
+**NET** brings modular computational instruments into one engineering monorepo.
+It connects observations, models, parameters, geometry, execution and verification
+in retained investigations. The same substrate supports materials and process
+development, machinery instrumentation, scientific experiments, and game and
+simulation production.
 
-```text
-author → run → observe → compare → modify → check
-                └──────── retained investigation ────────┘
-```
+The working loop is **author → run → observe → compare → modify → check**.
+Inputs, assumptions, results, failed attempts and explicit checks remain
+inspectable. Reopening an investigation reads its retained state; an explicit
+replay creates a new execution.
 
-## Organization
+## What NET contains
 
-**Notation Systems Inc.** is the parent company in the owner-declared
-parent/child company hierarchy. It is a scientific computing and systems
-engineering company developing computational instruments, software and
-interactive environments for understanding and building physical and virtual
-systems.
-
-Its development direction connects measurement, state estimation and sensor
-fusion, scientific modelling, simulation and execution, from materials and
-machines to interactive worlds. Each repository's implemented capabilities and
-qualification limits remain those documented for that component.
-
-The owner identifies the following child companies:
-
-| Child company | Focus |
+| Area | Implemented surfaces and guides |
 | --- | --- |
-| **Notations Gaming** | Games, graphics, world building, interactive environments and gameplay simulation. |
-| **Notation Manufacturing** | Design, machinery integration, process development, fabrication and production systems. |
-| **Notations Laboratories** | Research and experimental validation in scientific computing, measurement, physics and chemistry modelling, materials and simulation. |
+| Investigation and execution | Sessions, operation and capability registries, retained runs, save/reopen, explicit replay and runtime preflight. [Instrument catalogue](docs/INSTRUMENTS.md). |
+| Typed composition and design | Workflow composition, parameterized Boards and declared input/output contracts. [Workflow algebra](docs/WORKFLOW_ALGEBRA.md) · [Scientific workflows](docs/NET_SCIENTIFIC_WORKFLOWS.md). |
+| Measurement and estimation | Calibration, time reconciliation, telemetry, covariance propagation, state estimation and bounded observation-design workflows. [Integration coverage](docs/INTEGRATION_COVERAGE.md). |
+| Scientific models and testbeds | Bounded impact and atmospheric models, thermal observers, geometric calculations and domain-specific numerical checks. [Atmospheric engine](docs/ATMOSPHERIC_ENGINE.md). |
+| Polymer processing | Cycle metrology, scoped cooling and pressure-arrival estimates, evidence-linked copilot context, and bounded control simulations for injection and extrusion blow molding. [Polymer processing](docs/POLYMER_PROCESSING.md). |
+| Evidence and representation | Typed contracts, identity-bound representations, source correction and dependency status, and signed human/reasoning/vision bundles. [Correction loop](docs/CORRECTION_LOOP.md) · [Legibility instrument](docs/LEGIBILITY.md). |
+| Interactive worlds | Supported BIM, spatial and geometric interfaces; native computation and bounded Blender/Godot/Bevy development workflows. [Technical reference](TECHNICAL_REFERENCE.md). |
 
-NET is shared scientific and engineering infrastructure across these companies.
-Its existing Session, controller and operation registries compose investigations,
-dispatch declared operations and retain execution history. Specialist providers
-retain their implementations, and applications retain their live state.
+Support is specific to each profile. The coverage matrix identifies callable
+operations, provider requirements, recorded checks and remaining qualification.
+Runtime availability, numerical agreement and experimental physical validation
+are separate conditions.
 
+## One repository, modular instruments
+
+The [engineering monorepo](docs/MONOREPO.md) co-locates 21 imported public modules
+under [instruments/](instruments), alongside the root Terminal package. Modules
+retain their mathematics, package identities, original source history, tests and
+licences. Shared contracts connect them through declared interfaces.
+
+| Boundary | Responsibility |
+| --- | --- |
+| Terminal and composition | Investigation state, configuration, operation selection and dispatch. |
+| Measurement and inference | Observations, timing, uncertainty, estimation and diagnostics. |
+| Domain engines | Physical models, numerical implementations and their validity domains. |
+| Evidence and verification | Provenance, reference checks, correction dependencies and explicit admission boundaries. |
+| Representations and clients | Human, reasoning, spatial and visual projections of retained state. |
+
+The Python package remains **`ciw`**; **`net`** is the composition and control CLI.
+Both extend the existing Computational Instrumentation Workbench runtime.
 Evidence, operation, execution and verification identities remain separate.
-Game and simulation state do not acquire industrial evidence or canonical-state
-authority through shared tooling. Cross-company handoffs use explicit contracts
-and the existing admission, execution and release boundaries.
+NET retains investigation records; canonical evidence/state authority stays at
+its declared evidence and admission interfaces.
 
-Scientific and industrial applications require calibration, uncertainty,
-repeatability, validation and documented operating envelopes appropriate to the
-application. Simulation alone does not validate a physical model or authorize
-machinery control. Gaming prioritizes interaction, visual quality and play;
-reusable simulations do not make gameplay state scientific evidence.
+Blender remains an authoring application. Godot and Bevy retain their own live
+worlds. Scientific engines retain their numerical responsibilities. Game state
+and industrial evidence keep separate authority even when they share tooling.
 
-Notation Systems Inc. remains the declared rights holder for project-owned
-original material. A company name or group relationship alone does not transfer
-rights or confer signing authority. Each signed grant identifies its actual
-legal licensor, rights and authorized signer; see the
-[asset permission policy](docs/licensing/ORIGINAL_ASSETS.md).
-
-[notation.systems](https://notation.systems) presents the organization's work.
-Each repository retains its implementation, status and applicable licence.
-Website publication and repository availability are separate; a project link
-does not imply that a hosted demo or released game exists.
-
-## Role, contribution and status
-
-| Field | This project |
-| --- | --- |
-| Role | Scientific and simulation-development workbench; portfolio category: **Tools**. |
-| Author's work | Architecture, implementation, runtime interfaces, investigation workflows, instrumentation and tests. |
-| Core identity | Python package and CLI **`ciw`**; existing session and record contracts remain unchanged. |
-| Status | Active development with bounded scientific workflows and separately tracked native/interactive prototypes. |
-
-Use the [integration coverage matrix](docs/INTEGRATION_COVERAGE.md) to distinguish
-callable operations, required provider bindings and remaining qualification.
-The [polymer processing instrument](docs/POLYMER_PROCESSING.md) adds retained
-cycle metrology, scoped cooling and pressure-arrival estimates, evidence-linked
-copilot context, and bounded control simulations for injection and extrusion
-blow molding. Its numerical checks do not establish production metrology or
-machine-control qualification.
-The [2026-10-03 concerns audit](docs/CONCERNS_AUDIT_2026-10-03.md) checks the broader
-platform narrative against merged source. The [retained correction loop](docs/CORRECTION_LOOP.md)
-demonstrates local dependency review with preserved history and fresh results;
-its synthetic reference establishes workflow behavior, not physical calibration.
-
-## Architecture
-
-NET owns investigation state, operation selection and retained execution
-history. Specialist modules retain their mathematics and implementations.
-SCR remains the shared native-execution foundation where registered; evidence
-handoff and verification retain their separate authority.
-
-**Blender** authors assets. **Godot** and **Bevy** own their respective application
-worlds. NET requests supported operations and inspects explicit observations;
-it does not impose one universal scene tree or ECS model on those applications.
-A project does not have to use every tool.
-
-The [engineering superrepo](docs/MONOREPO.md) co-locates 21 public modules
-across composition, execution, measurement, inference, mathematics, domain
-tools, representations and resources. Each keeps its package, original source
-history, tests, licence and release boundary. The root Terminal package retains
-its existing interfaces; declared provider revisions remain explicit.
-
-The [Geospatial Systems Compiler](https://github.com/atomtrapping/Notations-FrameMapper-RunTime),
-[Curved Surface Runtime](https://github.com/atomtrapping/Notations-Surface-RunTime), and
-[State Estimator for BIM](https://github.com/atomtrapping/Notations-Estimator-for-BIM)
-retain their scientific and representation responsibilities within the shared
-repository. NET composes their declared interfaces.
-
-Use `python scripts/superrepo.py list` to inspect the module registry,
-`python scripts/superrepo.py audit` to verify source preservation, and
-`python scripts/superrepo.py check --output-dir results/superrepo` to run the
-independent public qualification lanes. The migration guide records exact
-commands, selected snapshots, dependency requirements and qualification limits.
-
-## Explore the work
-
-| Case study | Implementation and evidence |
-| --- | --- |
-| Blender-authored Godot / Bevy experiment | [PR #45](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/45): bounded, headless projectile work; not a released game. |
-| Julia-authored native oscillator | [PR #47](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/47): checked C export with Python/Rust consumers. |
-| C++ and Godot native consumers | [PR #50](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/50): native-interface and headless numerical qualification. |
-
-These links identify separate development increments. Consult each PR's current
-branch and status rather than assuming its implementation has been merged into
-this checkout. Recorded qualification is scoped to its exact configuration;
-visual agreement, numerical agreement and physical validation are different claims.
-
-## Bounded atmospheric model
-
-`net atmosphere` retains a declared dry hydrostatic column with temperature,
-pressure, density, sound speed, viscosity and constant local ENU wind.
-Independent hydrostatic quadrature and typed preservation receipts qualify the
-numerical profile; exact-sample handoffs retain evidence identities and require
-fresh verification. [Atmospheric engine](docs/ATMOSPHERIC_ENGINE.md) documents
-the validity domain and expansion routes. Weather forecasting, measured physical
-validation and receiving-provider dynamics remain unestablished.
+The repository consolidates source, but some provider bindings still require
+explicit runtime checkouts, executables or credentials. Consolidation alone does
+not establish that every workflow can run after an upstream repository is removed.
+The migration and qualification guides record the current dependency closure.
 
 ## Quickstart
 
 Start with [Run NET with the installed public tools](docs/RUN_NET.md) for
 installation, dependency preflight and one checked path through analysis,
-impact, Legibility and atmospheric handoffs. The
-[existing quickstart](TECHNICAL_REFERENCE.md#quickstart) covers the shared
-session, demonstration, analysis and replay commands. Scientific provider
-and engine dependencies remain optional and explicitly bound. Reading retained
-results must not silently launch a runtime or rerun an experiment.
+impact, Legibility and atmospheric handoffs.
 
-## Technical reference
+Python **3.11 or newer** is required. From a checkout:
 
-The complete previous README is preserved **verbatim** in
-[TECHNICAL_REFERENCE.md](TECHNICAL_REFERENCE.md), including setup, available
-workflows, assumptions, limits, compatibility notes and development gates.
-It remains in the repository root so its relative documentation and asset links
-keep the same base. This overview updates portfolio positioning; it does not
-promote planned integrations into implemented capabilities.
+```sh
+python -m pip install -e .
+net demo --output-dir results/net-demo
+net providers --json
+net capabilities --json
+net science catalog
+```
 
-## Copyright and attribution
+For the signed legibility demonstration:
 
-**© 2026 Giason Pooni, for original contributions.** Notation Systems Inc. is
-the parent organization. Existing creator attribution does not claim ownership
-of third-party tools or inherited code. Contributor and upstream copyright
-notices remain in force.
+```sh
+python -m pip install -e ".[legibility]"
+ciw legibility demo --output-dir results/legibility-demo
+ciw legibility verify results/legibility-demo \
+  --trust results/legibility-demo/demo-trust.json --expected-version 1
+```
 
-The existing [LICENSE](LICENSE), source notices and third-party terms continue
-to govern the code and included materials. This documentation update does not
-relicense the project, add a blanket “all rights reserved” restriction, or
-change the rights already granted by those terms.
+Open `results/legibility-demo/review.html` to inspect the synthetic specimen.
+The demo trust anchor exercises key matching; it is not an organizational
+identity certificate. See [LEGIBILITY.md](docs/LEGIBILITY.md) for operator keys,
+artifact commitments and verification boundaries.
+
+Inspect and audit the imported module registry:
+
+```sh
+python scripts/superrepo.py list
+python scripts/superrepo.py audit
+```
+
+Use a full-history checkout for the source-preservation audit. The
+[technical reference](TECHNICAL_REFERENCE.md#quickstart) and module guides provide
+the remaining installation, analysis, provider-binding and replay commands.
+Graphical clients and scientific providers are optional, explicitly configured
+dependencies.
+
+## Development and qualification
+
+NET is in active development. Merged implementations, development branches and
+planned capabilities are tracked separately. Broader fluid dynamics, configurable
+sensor fusion, atom-trapping simulation and implicit geometry are extension
+workstreams; their individual source and qualification records determine availability.
+The expanded legibility operator workflow is tracked in
+[PR #128](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/128).
+
+Numerical checks are scoped to a declared model and configuration. Production
+metrology requires calibrated observations and experimental evidence. Machinery
+control requires its own commissioning and authorization. Cryptographic integrity
+does not establish physical truth or current source dependencies.
+
+[Integration coverage](docs/INTEGRATION_COVERAGE.md), the
+[concerns audit](docs/CONCERNS_AUDIT_2026-10-03.md), and each instrument's operating
+guide provide the detailed status. [TECHNICAL_REFERENCE.md](TECHNICAL_REFERENCE.md)
+preserves the earlier detailed reference and its historical terminology; current
+module guides take precedence for later additions.
+
+## Organization and licence
+
+NET is shared infrastructure developed by **Notation Systems Inc.** across
+**Notations Gaming**, **Notation Manufacturing** and **Notations Laboratories**:
+interactive worlds, design and manufacturing systems, and scientific research
+and validation.
+
+**© 2026 Giason Pooni, for original contributions.** The root code is governed by
+the existing [LICENSE](LICENSE). Imported modules retain their own licences and
+upstream notices. Project-owned original assets use the
+[asset permission policy](docs/licensing/ORIGINAL_ASSETS.md). Repository publication
+does not change those terms or confer evidence, signing or execution authority.
