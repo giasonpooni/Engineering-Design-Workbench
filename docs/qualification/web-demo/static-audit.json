@@ -1,0 +1,14 @@
+{
+  "schema": "ciw.web-demo-static-audit.v1",
+  "application_revision": "4408389e88223f22b424be4ae307fd1720ab8bd1",
+  "unique_html_ids": 36,
+  "static_buttons": 7,
+  "resolved_static_dom_references": 30,
+  "javascript_syntax": "passed",
+  "rendered_browser_checks": "not_performed; managed browser URL policy refused preview",
+  "assets": {
+    "demo.html": "1a2adc8d82037fba53acddd8372c347976150baa76190ab5d029a35f16692277",
+    "demo.css": "6cdaf6ecb6400a37b6d565d1194cc88c470975b7f49eafda122f0a2dbd7d6934",
+    "demo.js": "cb25aeba635c1e580e8d58fe36cd3315742eba5188487296fef6bc03466de0bd"
+  }
+}

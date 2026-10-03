@@ -1,0 +1,63 @@
+{
+  "revision": "4408389e88223f22b424be4ae307fd1720ab8bd1",
+  "tree": "70a6c40fdd397f04fcc106a5eef5d640efc6ffa9",
+  "status": "",
+  "source": "/dev/shm/net-source-freeze-7fb15582b28e",
+  "reports": {
+    "final-fusion.xml": {
+      "path": "/workspace/scratch/7fb15582b28e/qualification/final-fusion.xml",
+      "bytes": 33083,
+      "sha256": "0fa921165fb49052a0751a0ae03ea112a60b2db70808ea7c55867c614a1c040d",
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "214",
+          "time": "313.522",
+          "timestamp": "2026-10-04T02:34:09.254860+08:00",
+          "hostname": "054bfe599538"
+        }
+      ],
+      "cases": 214,
+      "groups": {
+        "tests.test_sensor_fusion_contract": 51,
+        "tests.test_sensor_fusion_ekf": 89,
+        "tests.test_sensor_fusion_transport": 43,
+        "tests.test_sensor_fusion_workflow": 31
+      }
+    },
+    "final-operator.xml": {
+      "path": "/workspace/scratch/7fb15582b28e/qualification/final-operator.xml",
+      "bytes": 108592,
+      "sha256": "9e3364983e9a2f2ed3f95e6540f9760fe8f2c31f59477b9291a49b7c56732e80",
+      "suites": [
+        {
+          "name": "pytest",
+          "errors": "0",
+          "failures": "0",
+          "skipped": "0",
+          "tests": "308",
+          "time": "32.517",
+          "timestamp": "2026-10-04T02:41:10.054477+08:00",
+          "hostname": "054bfe599538"
+        }
+      ],
+      "cases": 308,
+      "groups": {
+        "tests.test_hypergraph_rewrite": 82,
+        "tests.test_local_provider_sources": 33,
+        "tests.test_operator_catalog": 2,
+        "tests.test_operator_doctor": 8,
+        "tests.test_operator_provision": 27,
+        "tests.test_operator_start": 8,
+        "tests.test_operator_workbench": 15,
+        "tests.test_polymer_operator": 12,
+        "tests.test_provider_provisioning": 34,
+        "tests.test_scientific": 46,
+        "tests.test_scientific_observations": 41
+      }
+    }
+  }
+}

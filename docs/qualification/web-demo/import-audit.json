@@ -1,0 +1,26 @@
+{
+  "schema": "notations.monorepo-audit.v1",
+  "imports": {
+    "mcur": "07d51585dee49b2d9ad2f3a4d9a01e708d1411cf",
+    "tbrt": "7d833657e7f838ac1b6ad6d0c3fb783151d1e85e",
+    "oit": "e3dc03481e2e380c7d9e4b978c3f9dc7f7359b52",
+    "gsie": "33921b5f1ed0f5d03ba3fef6aa759becdde1e5ac",
+    "cbsr": "f7582f6fd1b0c965ef7dc0690628f49d57a67e80",
+    "fdir": "de83e5df6448866a29e50f0e9d29cab019bba2d5",
+    "set": "04d48ef9cf84a73a0cd029187263dca89d7c7e56",
+    "edspt": "7aea75468e6bee6d1421b300627c058305cb9c5d",
+    "sidt": "8c18ebad8a998991fce6d460492ba65731b3694e",
+    "jspt": "e1e72a0dbf0492c8cf7a03837a25f9ea83e02da8",
+    "rci": "ea6f143188dd81aa8bff36973eb94d6e3693c7a2",
+    "stfe": "eaa9f5f5be58b0cbac95002f6bdd0e826428fb44",
+    "tsde": "2ce81327e6cd7beefd89c60d68d9bbf9b1cfba51",
+    "csg": "b715b302e698a4ae07a48de0a144f0aa73aa0639",
+    "sra": "906aec5440d412490550b8c16e7260591a1a4a57",
+    "ywir": "db5eebf6edd6909e50f4e106c955d2796966b384",
+    "cse": "641c48a94afb171119fa1fbd02b5415805a1dd75",
+    "gsv": "896ef8521dfb26a288b10e00ca46d606e77f6723",
+    "framemapper": "4facb96d2727d7e250790456e31bb07dc7b55703",
+    "scr": "00f19f7ee02d9e65735b5071382d8fb21a727e25",
+    "fsrt": "5a76aefab8974d46e4e8eac79371c553461bf491"
+  }
+}
