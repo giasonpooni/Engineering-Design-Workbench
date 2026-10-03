@@ -256,6 +256,10 @@
     {
       "component": "local_system_runtime_publication_contract",
       "reconciled_commit": "e58ae08bf43bc96c408b2795ac7dab47b075218e"
+    },
+    {
+      "component": "native_workflow_reconciliation",
+      "reconciled_commit": "ebf9a1a6fd9f5792a39d453856eb1a66ead67e12"
     }
   ],
   "software_scope": [
