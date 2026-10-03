@@ -18,6 +18,7 @@ jobs:
           python-version: '3.12'
       - run: python -m pip install -e '.[dev]' build
       - name: Provision unchanged public FSRT pin and Godot 4.5.2
+        id: provision-fsrt
         shell: bash
         run: |
           python - <<'PY'
@@ -57,7 +58,7 @@ jobs:
           PY
       - run: python -m build --wheel
       - name: Verify retained FSRT source and remove its temporary worktree
-        if: always()
+        if: ${{ always() && steps.provision-fsrt.outcome == 'success' }}
         shell: bash
         run: |
           python - <<'PY'
@@ -67,12 +68,11 @@ jobs:
           from scripts.provider_checkouts import validate_checkout
           root = Path.cwd()
           target = Path(os.environ['RUNNER_TEMP']) / 'fsrt'
-          if (target / '.git').is_file():
-              try:
-                  validate_checkout(target, '09a756dd9cdd3a9bb6cb14b5cd498f6259937ac2')
-              finally:
-                  with worktree_mutation_lock(root):
-                      git(root, 'worktree', 'remove', '--force', str(target))
+          try:
+              validate_checkout(target, '09a756dd9cdd3a9bb6cb14b5cd498f6259937ac2')
+          finally:
+              with worktree_mutation_lock(root):
+                  git(root, 'worktree', 'remove', '--force', str(target))
           PY
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
         if: always()
