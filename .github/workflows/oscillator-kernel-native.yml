@@ -1,0 +1,192 @@
+name: Julia oscillator native kernel
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/oscillator-kernel-native.yml'
+      - 'runtimes/julia-oscillator-kernel/**'
+      - 'runtimes/julia-oscillator/**'
+      - 'src/ciw/**'
+      - 'scripts/check_oscillator_kernel.py'
+      - 'tests/test_oscillator_kernel.py'
+      - 'tests/test_julia_oscillator.py'
+      - 'pyproject.toml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oscillator-kernel-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  native:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      JULIA_NUM_THREADS: '1'
+      JULIA_NUM_PRECOMPILE_TASKS: '2'
+      OPENBLAS_NUM_THREADS: '1'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: '3.12'
+      - uses: julia-actions/setup-julia@fa02766e078afaaf09b14210362cee14137e6a32 # v3.0.2
+        with:
+          version: '1.10.12'
+          arch: 'x64'
+      - name: Provision explicit Rust toolchain and evidence directory
+        shell: bash
+        run: |
+          set -euo pipefail
+          rustup toolchain install 1.90.0 --profile minimal
+          echo "KERNEL_RUSTC=$(rustup which --toolchain 1.90.0 rustc)" >> "$GITHUB_ENV"
+          echo "KERNEL_JULIA=$(command -v julia)" >> "$GITHUB_ENV"
+          echo "KERNEL_CC=$(command -v gcc)" >> "$GITHUB_ENV"
+          echo "KERNEL_EVIDENCE=$RUNNER_TEMP/oscillator-kernel-evidence" >> "$GITHUB_ENV"
+          mkdir "$RUNNER_TEMP/oscillator-kernel-evidence"
+          git rev-parse HEAD > "$RUNNER_TEMP/oscillator-kernel-evidence/candidate-commit.txt"
+      - name: Install candidate wheel and run kernel fixture tests against it
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip wheel . --no-deps --wheel-dir "$RUNNER_TEMP/kernel-wheels"
+          python -m pip install "$RUNNER_TEMP/kernel-wheels/"*.whl 'pytest==9.0.2'
+          cp "$RUNNER_TEMP/kernel-wheels/"*.whl "$KERNEL_EVIDENCE/"
+          cd "$RUNNER_TEMP"
+          python - <<'PY'
+          import ciw, json, os
+          from pathlib import Path
+          location = Path(ciw.__file__).resolve()
+          assert not location.is_relative_to(Path(os.environ['GITHUB_WORKSPACE']).resolve()), location
+          Path(os.environ['KERNEL_EVIDENCE'], 'installed-package.json').write_text(json.dumps({'ciw_file': str(location)}))
+          print('Installed package:', location)
+          PY
+          python -m pytest -o pythonpath= -q \
+            "$GITHUB_WORKSPACE/tests/test_oscillator_kernel.py" \
+            --junitxml="$KERNEL_EVIDENCE/kernel-fixture-tests.xml"
+      - name: Exercise real native stages before provisioning Tsit5
+        shell: bash
+        run: |
+          set -euo pipefail
+          set +e
+          python scripts/check_oscillator_kernel.py \
+            --julia "$KERNEL_JULIA" --cc "$KERNEL_CC" --rustc "$KERNEL_RUSTC" \
+            --output-dir "$KERNEL_EVIDENCE/native-only"
+          code=$?
+          set -e
+          export NATIVE_ONLY_EXIT="$code"
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          r = json.loads(Path(os.environ['KERNEL_EVIDENCE'], 'native-only/gate-report.json').read_text())
+          assert int(os.environ['NATIVE_ONLY_EXIT']) == 1, r
+          assert r['status'] == 'incomplete', r
+          required = ('julia_export', 'python_vs_julia', 'rust_vs_julia', 'existing_analytic_oracle', 'ciw_retention')
+          assert all(r['gates'][k]['outcome'] == 'passed' for k in required), r
+          assert r['gates']['retained_tsit5']['outcome'] == 'not_run', r
+          print('Native stages passed; full qualification remains incomplete until the retained-Tsit5 step.')
+          PY
+      - name: Provision a clean isolated original Tsit5 runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          runtime="$RUNNER_TEMP/oscillator-tsit5-runtime"
+          git worktree add --detach "$runtime" HEAD
+          "$KERNEL_JULIA" --startup-file=no --threads=1 \
+            --project="$runtime/runtimes/julia-oscillator" \
+            -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
+          git -C "$runtime" add runtimes/julia-oscillator/Manifest.toml
+          git -C "$runtime" -c user.name='Kernel qualification' \
+            -c user.email='kernel-qualification@invalid.example' \
+            commit --allow-empty -m 'Local qualification-only generated Tsit5 manifest'
+          test -z "$(git -C "$runtime" status --porcelain --untracked-files=all)"
+          git -C "$runtime" rev-parse HEAD > "$KERNEL_EVIDENCE/tsit5-runtime-commit.txt"
+          git -C "$runtime" show --format=fuller HEAD > "$KERNEL_EVIDENCE/tsit5-runtime-commit.patch"
+          cp "$runtime/runtimes/julia-oscillator/Manifest.toml" "$KERNEL_EVIDENCE/Tsit5.Manifest.toml"
+          cp "$runtime/runtimes/julia-oscillator/Project.toml" "$KERNEL_EVIDENCE/Tsit5.Project.toml"
+          echo "TSIT5_RUNTIME=$runtime" >> "$GITHUB_ENV"
+      - name: Run installed-wheel tests with the genuine Julia provider enabled
+        shell: bash
+        run: |
+          set -euo pipefail
+          export CIW_TEST_JULIA="$KERNEL_JULIA"
+          export CIW_TEST_JULIA_DEPOT="$HOME/.julia"
+          cd "$RUNNER_TEMP"
+          python -m pytest -o pythonpath= -o "cache_dir=$RUNNER_TEMP/kernel-pytest-cache" -q \
+            "$TSIT5_RUNTIME/tests/test_oscillator_kernel.py" \
+            "$TSIT5_RUNTIME/tests/test_julia_oscillator.py" \
+            --junitxml="$KERNEL_EVIDENCE/focused-tests.xml"
+          python - <<'PY'
+          import os, xml.etree.ElementTree as ET
+          from pathlib import Path
+          root = ET.parse(Path(os.environ['KERNEL_EVIDENCE'], 'focused-tests.xml')).getroot()
+          suites = list(root.iter('testsuite'))
+          assert suites and sum(int(s.get('tests', '0')) for s in suites) > 0
+          assert all(int(s.get(k, '0')) == 0 for s in suites for k in ('failures', 'errors', 'skipped'))
+          print('Genuine-provider suite: no failures, errors or skips.')
+          PY
+      - name: Execute and retain genuine original Julia sessions
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          from ciw import julia_oscillator as j
+          from ciw.telemetry import canonical
+          root = Path(os.environ['GITHUB_WORKSPACE'])
+          out = Path(os.environ['KERNEL_EVIDENCE'])
+          raw = canonical(json.loads((root / 'examples/julia/oscillator.json').read_bytes()))
+          bindings = {j.ROLE: os.environ['KERNEL_JULIA'], j.RUNTIME_ROLE: os.environ['TSIT5_RUNTIME']}
+          original = j.workflow.create_session(raw, bindings)
+          (out / 'tsit5-session.json').write_bytes(canonical(original))
+          replay = j.workflow.replay_session(original, bindings)
+          (out / 'tsit5-replay.json').write_bytes(canonical(replay))
+          print('Original execution:', original['steps'][0]['execution_id'])
+          print('Replay execution:', replay['session']['steps'][0]['execution_id'])
+          print('Oracle outcome:', original['verification']['outcome'])
+          PY
+      - name: Run complete native qualification with retained Tsit5 reference
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/check_oscillator_kernel.py \
+            --julia "$KERNEL_JULIA" --cc "$KERNEL_CC" --rustc "$KERNEL_RUSTC" \
+            --julia-session "$KERNEL_EVIDENCE/tsit5-session.json" \
+            --output-dir "$KERNEL_EVIDENCE/complete"
+      - name: Publish scoped job summary
+        if: always()
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ.get('KERNEL_EVIDENCE', os.environ['RUNNER_TEMP'] + '/oscillator-kernel-evidence'))
+          lines = ['## Oscillator kernel qualification', '', 'Linux x86-64 only; no physical-validation, proof, C++ or Godot claim.', '']
+          for name in ('native-only', 'complete'):
+              path = root / name / 'gate-report.json'
+              if not path.exists():
+                  lines.append(f'- {name}: **not run / no report**')
+                  continue
+              report = json.loads(path.read_text())
+              lines.append(f"### {name}: {report['status']}")
+              lines += [f"- {key}: {value['outcome']}" for key, value in report['gates'].items()]
+              if 'failure' in report:
+                  lines.append('Failure: `' + report['failure']['message'].replace('`', '') + '`')
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as stream:
+              stream.write('\n'.join(lines) + '\n')
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+        if: always()
+        with:
+          name: oscillator-kernel-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/oscillator-kernel-evidence/
+          if-no-files-found: error
+          retention-days: 30

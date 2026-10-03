@@ -1,0 +1,92 @@
+name: ClockSync portable instrument integration
+on:
+  pull_request:
+    paths:
+      - 'src/ciw/instrument_*.py'
+      - 'src/ciw/semantic_*.py'
+      - 'src/ciw/control_plane.py'
+      - '.github/workflows/clocksync-instrument.yml'
+      - 'pyproject.toml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+jobs:
+  clocksync:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    env:
+      CLOCKSYNC_REVISION: edb4e5b99ec0ce384437e1c0f1c820ef04598e33
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          repository: giasonpooni/Notations-ClockSync
+          ref: edb4e5b99ec0ce384437e1c0f1c820ef04598e33
+          path: external/clocksync
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - name: Install NET and exact ClockSync source
+        run: |
+          python -m pip install -e '.[dev]' build
+          python -m pip install ./external/clocksync
+      - name: Re-run ClockSync core instrument verification at pinned source
+        shell: bash
+        run: |
+          cd external/clocksync
+          python -m pytest -q -o pythonpath=             tests/test_clock.py tests/test_cli.py tests/test_cli_hardening.py             tests/test_release_guard.py tests/test_instrument_surface.py             --junitxml="$GITHUB_WORKSPACE/clocksync-core-tests.xml"
+          cd "$GITHUB_WORKSPACE"
+          GITHUB_SHA="$CLOCKSYNC_REVISION" python external/clocksync/scripts/build_instrument_surface.py             --junit clocksync-core-tests.xml --output-dir clocksync-surface
+      - name: Installed NET ingests the real provider as verified but unbound
+        shell: bash
+        run: |
+          python -m build --wheel
+          python -m pip install --force-reinstall --no-deps dist/*.whl
+          python - <<'PY'
+          import json,os,pathlib,subprocess,sys,tempfile
+          root=pathlib.Path.cwd()
+          with tempfile.TemporaryDirectory() as tmp:
+              env={k:v for k,v in os.environ.items() if k!='PYTHONPATH'}
+              out=subprocess.check_output([
+                  sys.executable,'-m','ciw.net','instrument','inspect',
+                  str(root/'external/clocksync/instrument.json'),
+                  '--verification',str(root/'clocksync-surface/verification.json')
+              ],cwd=tmp,env=env,text=True)
+          value=json.loads(out)
+          d=value['descriptor']
+          assert d['instrument']['name']=='ClockSync'
+          assert d['semantic_capability']=='time.sync.v1'
+          assert d['operation_id']=='tbrt.affine-clock-reconcile.v1'
+          assert d['source_revision']==os.environ['CLOCKSYNC_REVISION']
+          assert d['provider_status']=='advertised_unbound'
+          assert d['authorizes_execution'] is False
+          row=value['provider_catalog']['operations']['tbrt.affine-clock-reconcile.v1']
+          assert row['bound'] is False
+          lower=value['semantic_catalog']['lowerings']['time.sync.v1'][0]
+          assert lower['engine_id']=='org.notationsystems.clocksync'
+          assert lower['runtime_family']=='python'
+          assert lower['execution_profile']=='scientific'
+          assert lower['execution_mode']=='headless'
+          assert lower['bound'] is False
+          (root/'clocksync-ingest.json').write_text(json.dumps(value,indent=2)+'\n')
+          PY
+      - name: Retain real cross-repository evidence
+        if: always()
+        run: |
+          printf '%s\n' "$CLOCKSYNC_REVISION" > clocksync-pinned-revision.txt
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: clocksync-portable-instrument-evidence
+          if-no-files-found: error
+          path: |
+            clocksync-core-tests.xml
+            clocksync-surface
+            clocksync-ingest.json
+            clocksync-pinned-revision.txt

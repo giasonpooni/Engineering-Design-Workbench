@@ -1,0 +1,19 @@
+{
+  "run_id": "experiment.ifc-room.v1",
+  "canonical_entity_id": "candidate:ifc-room",
+  "required_admission_authority": "authority.external-review.v1",
+  "target": {
+    "ifc_class": "IfcBuildingStorey",
+    "global_id": "CIWSTOREY00000000000015",
+    "quantity": "ClearHeight"
+  },
+  "model_frame": "synthetic-declared-model-frame",
+  "source_provenance": {
+    "kind": "SYNTHETIC_FIXTURE",
+    "source_uri": "repository:examples/bim-quantity/room.ifc",
+    "revision": "ciw.bim-quantity-source.v1",
+    "source_path": "examples/bim-quantity/room.ifc",
+    "license": "AGPL-3.0-or-later",
+    "sha256": "sha256:7407d51c47daded8ac49e1ad0e26137b154aaacd0244134e17c57a5d77c49890"
+  }
+}

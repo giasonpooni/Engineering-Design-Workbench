@@ -37,6 +37,15 @@ def validate_payload(operation_id, data, run, parameters, selection):
     from ..investigation import _fsrt_inputs
 
     expected = _fsrt_inputs(run, parameters)
+    validate_snapshot_payload(data, expected)
+
+
+def validate_snapshot_payload(data, expected):
+    """Validate native snapshot output against explicitly bound native inputs.
+
+    This is source-independent read-only validation, never a filter execution.
+    Callers must validate their source and preserve its actual evidence class.
+    """
     required = {"model", "calibrated_observation", "estimate", "unprojected_estimate",
                 "residuals", "diagnostics", "assumptions", "observation_evidence_ids"}
     if set(data) != required:

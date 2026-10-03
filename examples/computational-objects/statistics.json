@@ -1,0 +1,20 @@
+{
+  "object_id": "net.selected-statistics.v1",
+  "operation_id": "statistics.v1",
+  "mathematics": {
+    "domain": "Nonempty finite selected scalar samples x_1,...,x_N from a validated run",
+    "codomain": "Sample count, mean, minimum, maximum, RMS and retained channel unit",
+    "expression": "mean = sum(x_i)/N; rms = sqrt(sum(x_i^2)/N)",
+    "units": {"mean": "selected channel unit", "rms": "selected channel unit", "sample_count": "1"},
+    "assumptions": ["Selection is the half-open interval [start, end)", "Runtime binding remains the existing provider registry"]
+  },
+  "relations": {
+    "dependencies": ["src/ciw/adapters/oscillator.py::_selected"],
+    "consumers": ["src/ciw/adapters/oscillator.py::OscillatorAdapter"],
+    "equivalent_implementations": [],
+    "compositions": []
+  },
+  "invariants": ["Analyze scientific channel arrays, not render-scaled geometry", "Inspection does not execute this operation"],
+  "evidence": [],
+  "experiments": []
+}

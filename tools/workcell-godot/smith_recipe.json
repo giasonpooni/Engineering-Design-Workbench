@@ -1,0 +1,30 @@
+{
+  "recipe": "1792.smith.v1",
+  "sources": [
+    "characters/character_names.gd",
+    "childhood/childhood_state.gd",
+    "mounts/riding_rules.gd",
+    "presentation/canopy.gdshader",
+    "presentation/handmade_surface.gdshader",
+    "presentation/workshop_kit.gd",
+    "territory/misl_rules.gd",
+    "workshops/workshop_rules.gd",
+    "workshops/workshop_world.gd",
+    "workcells/baked_smith.gd",
+    "workcells/smith_scene.gd",
+    "workcells/smith_probe.gd",
+    "workcells/NOTICE.txt"
+  ],
+  "outputs": {
+    "build": [
+      "smith.scn"
+    ],
+    "test": [
+      "daylight.png",
+      "evening.png"
+    ],
+    "package": [
+      "smith.pck"
+    ]
+  }
+}

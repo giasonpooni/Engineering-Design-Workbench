@@ -1,0 +1,17 @@
+{
+  "schema": "ciw.ifc-transition-verification-summary.v1",
+  "run_ref": "sha256:6d33f3022393a1bcc19b22b4f0a8f7424cf33dd65784c6e125df6a5b838f11d7",
+  "source_kind": "PUBLIC_REFERENCE",
+  "input_ref": "sha256:73b0e45d931d5dc13bfee5fdc7bd80f796526445458b2de74c4168d209097832",
+  "native_status": "refused",
+  "reason": "source_target_quantity_missing",
+  "qualification": "REFUSED",
+  "transition_readiness": "REFUSED",
+  "independent_verification_scope": "one explicit declared IFC length quantity; logical source-object identity only",
+  "verified_raw_posterior_entries": 0,
+  "current_runtime_checked": true,
+  "standard_conformance_certified": false,
+  "physical_validity_established": false,
+  "state_admission_performed": false,
+  "canonical_state_mutated": false
+}
