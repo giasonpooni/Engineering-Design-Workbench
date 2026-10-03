@@ -23,6 +23,7 @@ replay creates a new execution.
 | --- | --- |
 | Investigation and execution | Sessions, operation and capability registries, retained runs, save/reopen, explicit replay and runtime preflight. [Instrument catalogue](docs/INSTRUMENTS.md). |
 | Typed composition and design | Workflow composition, parameterized Boards and declared input/output contracts. [Workflow algebra](docs/WORKFLOW_ALGEBRA.md) · [Scientific workflows](docs/NET_SCIENTIFIC_WORKFLOWS.md). |
+| Evolving workflow structure | Bounded typed hypergraph rewriting, invariant checks, retained transformation dependencies, alternative paths and explicit schedule comparisons. [Hypergraph rewriting](docs/HYPERGRAPH_REWRITE.md). |
 | Measurement and estimation | Calibration, time reconciliation, telemetry, covariance propagation, state estimation and bounded observation-design workflows. [Integration coverage](docs/INTEGRATION_COVERAGE.md). |
 | Scientific models and testbeds | Bounded impact and atmospheric models, thermal observers, geometric calculations and domain-specific numerical checks. [Atmospheric engine](docs/ATMOSPHERIC_ENGINE.md). |
 | Polymer processing | Cycle metrology, scoped cooling and pressure-arrival estimates, evidence-linked copilot context, and bounded control simulations for injection and extrusion blow molding. [Polymer processing](docs/POLYMER_PROCESSING.md). |
@@ -81,6 +82,27 @@ model equations, a qualified scalar-state handoff, and explicit expansion
 routes. The existing FlowState snapshot estimator and runtime pin remain
 unchanged; experimental validation and general molecular/CFD coupling remain
 unestablished.
+
+## Evolving workflow structures
+
+`net rewrite` adds an optional, bounded hypergraph computation model for ensemble
+construction and workflow auditing. Fixed rules replicate nodes, vary declared
+parameters, add typed couplings and split a thermal zone while preserving its
+declared heat capacity. Retained histories distinguish content identities from
+rewrite execution, result and verification occurrences. Bounded exploration
+keeps branch identities; explicit schedule checks compare exact terminal graphs.
+
+```sh
+net rewrite example --profile thermal --output results/thermal-request.json
+net rewrite run results/thermal-request.json --output results/thermal-rewrite.json
+net rewrite verify results/thermal-rewrite.json --output results/thermal-verification.json
+```
+
+The [rewrite guide](docs/HYPERGRAPH_REWRITE.md) covers types, limits, replay and
+qualification. These transformations describe structure; numerical models still
+calculate behavior, and existing operation contracts govern execution. Preserved
+declarations do not establish predictive accuracy or validate a proposed mapping
+from hypergraph evolution to fundamental physics.
 
 ## Quickstart
 
