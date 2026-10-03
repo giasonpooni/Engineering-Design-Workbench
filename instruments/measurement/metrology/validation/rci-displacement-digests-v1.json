@@ -1,0 +1,27 @@
+{
+  "schema": "rci-validation-bundle-v1",
+  "status": "in-development",
+  "claim_scope": "record-integrity-only",
+  "not_field_evidence": true,
+  "note": "Host stand-in counts. Not a physical displacement measurement.",
+  "assembly_id": "bench-displacement-01",
+  "calibration_id": "linear-v1",
+  "observation_ids": [
+    "validation-bench-v1:1",
+    "validation-bench-v1:2",
+    "validation-bench-v1:3",
+    "validation-bench-v1:4",
+    "validation-bench-v1:5",
+    "validation-bench-v1:6",
+    "validation-bench-v1:7"
+  ],
+  "digests": [
+    "74f175d2d81dc306b357321d547de14c2e7db9036c36138fb44f71553f61bd8a",
+    "0610ca6c406a56d0575551623026855f75c180021ca44334f83e6cfe81afb58e",
+    "39fbbec9219bc0b2e327253f69fd811244a1155856839c392a46e4044ce8a281",
+    "86ac8b46df7f39cbe3ec55c4204908b14bd8d64ddcf8bf5d43634cbcf50ae8a0",
+    "1f1f42d29b5515985633d473c5f01d09efaa06c1fd4db495e713959b04852b17",
+    "0e093ea3928e5070e586ab676c57500ad40f423fd708422688e9884d966d3b25",
+    "1583898aebfd9d9d09f48865223dc3c3eddb611425c3014be60371ba1b72fcc2"
+  ]
+}
