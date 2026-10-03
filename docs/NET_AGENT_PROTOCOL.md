@@ -36,6 +36,39 @@ requires a new output directory; reconnecting to an already-used output director
 refuses rather than silently continuing or overwriting it. Rebind retained files
 as explicit inputs to a new read-only profile when inspecting prior work.
 
+### Polymer cycle profile
+
+Create an explicitly synthetic injection-molding profile with all four polymer
+operations wired through the existing typed experiment graph:
+
+```sh
+python -m ciw.agent_mcp polymer-config --output-dir polymer-agent
+python -m ciw.agent_mcp serve --instrument polymer --profile /absolute/path/polymer-agent/profile.json
+```
+
+For extrusion blow molding, add `--process extrusion_blow_molding` to
+`polymer-config`. Profile creation writes the quantitative request, retained
+source declaration, experiment and operator profile. It executes no operation.
+The operator's fixed `--instrument polymer` launch selector advertises the
+existing polymer capability registry; the default launch still uses the builtin
+registry. Profile JSON cannot select an import or executable. The profile's
+`allow_operations` remains a separate execution grant; an empty list permits
+inspection and advertisement only.
+
+After discovery, call `net_execute` with source `source`, graph `baseline` and a
+fresh attempt name. The graph passes the actual retained assessment result to
+copilot and verification through typed result ports. The Session requires that
+exact occurrence before dispatching either dependent operation. Simulation also
+depends on successful assessment. `net_replay` retains fresh execution, result
+and verification identities; a transport retry with the same attempt returns the
+prior response.
+
+The profile supplies numerical reference operations, documentation context and
+toy control simulation. It grants no LLM inference, camera acquisition, PLC
+transport or physical acceptance. A completed graph and a numerical audit PASS
+remain separate from the part's conformity decision. See the
+[polymer operating guide](POLYMER_PROCESSING.md) for their scientific scope.
+
 ### Grok Build
 
 The official Grok Build CLI documents local stdio MCP server registration:
@@ -131,8 +164,10 @@ session ID is omitted from the agent response rather than mislabelled as the
 original session. Retained execution/result IDs stay unchanged; graph-run records
 retain their original Session binding where supplied by the existing format.
 
-Records remain ordinary computed results/checks, `not_verified`, with no
-verification occurrence, state admission, physical approval or baseline acceptance.
+Ordinary result envelopes remain `not_verified`, with no state admission,
+physical approval or baseline acceptance. Explicit polymer verification retains
+its own verification occurrence inside its payload, scoped to finite numerical
+consistency. Its status does not promote the ordinary envelope's authority.
 
 ## Additional registered instruments
 
@@ -142,8 +177,10 @@ through the existing registry and payload validator, then explicitly grant those
 operation IDs to the agent. The stdio serving function is `serve(host, reader,
 writer)`. The launch configuration never imports a provider named in JSON.
 
-The stock CLI intentionally binds only the two existing builtin operations and
-executes only the explicitly allowed subset. Other scientific routes, the native
+The stock CLI defaults to the two existing builtin operations and executes only
+the explicitly allowed subset. Its fixed `--instrument polymer` opt-in selects
+the four existing polymer operations; profile data never loads a provider by
+name. Other scientific routes, the native
 oscillator branches, Godot/Bevy runtimes and Blender authoring are **not** silently
 merged, automatically installed or universally qualified by this interface.
 The operator must provision and qualify each adapter on the relevant integration

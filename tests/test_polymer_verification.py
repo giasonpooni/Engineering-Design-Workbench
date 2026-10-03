@@ -216,6 +216,35 @@ def test_conservative_interval_union_retains_disagreement_without_precision_gain
     assert audit.verify(request, assessment)["status"] == "PASS"
 
 
+@pytest.mark.parametrize("fault,reason", [
+    ("condition", "RESPONSE_MEASUREMENT_CONDITION_MISMATCH"),
+    ("overlap", "UNQUALIFIED_RESPONSE_METROLOGY"),
+    ("missing_specification", "MISSING_OR_AMBIGUOUS_RESPONSE_SPECIFICATION"),
+])
+def test_independent_audit_checks_response_specific_abstention_despite_other_failure(fault, reason):
+    request = example_request()
+    if fault == "condition":
+        request["tolerances"][0]["condition"] = "conditioned"
+    elif fault == "overlap":
+        next(s for s in request["sensors"] if s["sensor_id"] == "dimension-1")["samples"][-1]["value"] = 0.0201
+    else:
+        request["tolerances"] = []
+    request["tolerances"].append({"quantity": "wall_thickness", "unit": "m", "lower": 0.0012,
+                                  "upper": 0.0013, "coverage_factor": 2.0, "condition": "ejection",
+                                  "specification_ref": digest({"unrelated_wall_specification": 1})})
+    request, assessment = _case(request)
+    assert assessment["metrology"]["status"] == "NONCONFORMING"
+    assert assessment["control"]["status"] == "ABSTAINED"
+    assert assessment["control"]["reason"] == reason
+    with patch("ciw.polymer_models.control_proposal", side_effect=AssertionError("provider control")):
+        assert audit.verify(request, assessment)["status"] == "PASS"
+    forged = deepcopy(assessment)
+    forged["control"] = _case()[1]["control"]
+    with pytest.raises(ValueError):
+        audit.validate_assessment(request, forged)
+    assert audit.verify(request, forged)["status"] == "FAIL"
+
+
 @pytest.mark.parametrize("mutation", ["authority", "index", "bounds", "rate", "plant", "interlock", "omit", "final", "dwell_move"])
 def test_simulation_reader_rejects_tampered_bounds_state_interlocks_and_dwell(mutation):
     control = example_request()["control"]

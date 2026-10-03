@@ -25,8 +25,8 @@ MAX_WORKSPACE_BYTES = 24 * 1024 * 1024
 
 
 def runtime_identity(kind: str) -> dict:
-    from . import polymer_contract, polymer_metrology, polymer_models, polymer_copilot, polymer_verification
-    modules = [polymer_contract, polymer_metrology, polymer_models, polymer_copilot, polymer_verification,
+    from . import polymer_contract, polymer_metrology, polymer_models, polymer_copilot, polymer_verification, polymer_ingress
+    modules = [polymer_contract, polymer_metrology, polymer_models, polymer_copilot, polymer_verification, polymer_ingress,
                __import__(__name__, fromlist=["*"])]
     raw = b"\0".join(Path(m.__file__).name.encode() + b"\0" +
                      Path(m.__file__).read_text(encoding="utf-8").replace("\r\n", "\n").encode()
@@ -36,8 +36,13 @@ def runtime_identity(kind: str) -> dict:
             "environment": {"python": platform.python_version(), "floating_point": "binary64"}}
 
 
-def make_source(request: dict) -> dict:
+def make_source(request: dict, *, ingress: dict | None = None) -> dict:
     request = validate_request(request)
+    if ingress is not None:
+        from . import polymer_ingress
+        ingress = polymer_ingress.validate(ingress)
+        if digest(polymer_ingress.derive(ingress)) != digest(request):
+            raise ValueError("Polymer request differs from retained native ingress derivation")
     # A transport selection contains one declaration. Original nonuniform sensor
     # histories and their acquisition timestamps remain exact in metadata.
     manifest = InstrumentManifest(instrument_id="polymer-cycle-evidence.v1", role="retained_cycle_features",
@@ -53,6 +58,8 @@ def make_source(request: dict) -> dict:
                            "provenance": {"source": request["source_kind"],
                                           "generator": "ciw.polymer_workflow.make_source", "generator_version": 1}},
               "time_s": [0.0], "channels": {"cycle_declaration": {"unit": "1", "values": [1.0]}}, "render": {}}
+    if ingress is not None:
+        source["metadata"]["polymer_ingress"] = ingress
     source["evidence_id"] = evidence_id(source)
     return source
 
@@ -61,7 +68,7 @@ def source_request(source: dict) -> dict:
     validate_run_structure(source)
     validate_evidence_identity(source)
     request = validate_request(source["metadata"]["polymer_request"])
-    if source != make_source(request):
+    if source != make_source(request, ingress=source["metadata"].get("polymer_ingress")):
         raise ValueError("Polymer source differs from its exact retained cycle declaration")
     return request
 
@@ -135,7 +142,7 @@ def registry():
 
 def capability_registry(*, bind: bool = False):
     """Explicit operator-owned advertisement for the existing AgentHost."""
-    from .control_plane import CapabilityRegistry
+    from .control_plane import CapabilityRegistry, Port
     value = CapabilityRegistry()
     names = {ASSESS: ["polymer.cycle.assess"], COPILOT: ["polymer.copilot.context"],
              SIMULATE: ["polymer.control.simulate"], VERIFY: ["polymer.cycle.verify"]}
@@ -145,7 +152,8 @@ def capability_registry(*, bind: bool = False):
             calibration_requirements={"authority": "no machine actuation"})
         value.advertise(manifest, runtime=operation.runtime_identity(),
             capabilities={operation.operation_id: names[operation.operation_id]},
-            inputs={operation.operation_id: {}})
+            inputs={operation.operation_id: {"assessment": Port("ciw.operation-result.v1").to_dict()}
+                    if operation.operation_id in {COPILOT, VERIFY} else {}})
         if bind:
             value.bind(operation)
     return value
@@ -235,12 +243,15 @@ def _execute(session, operation, parameters):
     return reply["payload"]
 
 
-def run(request: dict, destination: Path) -> dict:
+def run(request: dict, destination: Path, *, ingress: dict | None = None) -> dict:
     from .session import Session
-    source = make_source(request)
+    source = make_source(request, ingress=ingress)
     destination = Path(destination)
     destination.mkdir(parents=True, exist_ok=False)
     save_new(destination / "request.json", source_request(source))
+    if ingress is not None:
+        from .polymer_ingress import save_file
+        save_file(destination / "ingress.json", source["metadata"]["polymer_ingress"])
     session = Session(source, destination, operations=registry())
     assessment = _execute(session, ASSESS, {})
     if assessment["status"] == "completed":
@@ -264,6 +275,16 @@ def _read(destination: Path):
     request = source_request(session.run)
     if digest(validate_request(load(destination / "request.json"))) != digest(request):
         raise ValueError("Retained request differs from source evidence")
+    ingress = session.run["metadata"].get("polymer_ingress")
+    ingress_path = destination / "ingress.json"
+    if ingress is not None:
+        from . import polymer_ingress
+        if (ingress_path.is_symlink() or not ingress_path.is_file()
+                or ingress_path.stat().st_size > polymer_ingress.MAX_BYTES
+                or digest(polymer_ingress.load_file(ingress_path)) != digest(ingress)):
+            raise ValueError("Retained native ingress sidecar differs from source evidence")
+    elif ingress_path.exists() or ingress_path.is_symlink():
+        raise ValueError("Unexpected native ingress sidecar without source binding")
     executions = list(session.executions.values())
     if not executions or any(e["operation_id"] not in OPERATIONS for e in executions):
         raise ValueError("Polymer bundle contains missing or unrelated executions")
@@ -286,6 +307,7 @@ def inspect(destination: Path) -> dict:
     return {"schema": "ciw.polymer-inspection.v1", "status": "PASS" if completed and verified else "REFUSE",
             "evidence_id": session.run["evidence_id"], "identity": deepcopy(request["identity"]),
             "source_kind": request["source_kind"], "assessment": deepcopy(results.get(ASSESS, {}).get("data")),
+            "ingress_ref": digest(session.run["metadata"]["polymer_ingress"]) if "polymer_ingress" in session.run["metadata"] else None,
             "copilot": deepcopy(results.get(COPILOT, {}).get("data")),
             "simulation": deepcopy(results.get(SIMULATE, {}).get("data")),
             "verification": deepcopy(results.get(VERIFY, {}).get("data")),
@@ -313,6 +335,6 @@ def verify_retained(destination: Path) -> dict:
 
 def replay(destination: Path, output: Path) -> dict:
     session, request = _read(destination)
-    result = run(request, output)
+    result = run(request, output, ingress=session.run["metadata"].get("polymer_ingress"))
     result["replay_source_evidence_id"] = session.run["evidence_id"]
     return result

@@ -20,6 +20,7 @@ from .session import loads_json
 from .control_plane import builtin_registry, experiment, ParameterSpace, Choice
 
 VERSIONS = ("2025-11-25", "2025-06-18")
+INSTRUMENTS = ("builtin", "polymer")
 MAX_MESSAGE = 1024 * 1024
 MAX_REQUESTS = 4096
 INSTRUCTIONS = (
@@ -28,7 +29,8 @@ INSTRUCTIONS = (
     "isolated worktree for source edits; net_check_edit only checks scope. Discovering a "
     "capability does not authorize execution. Retry an ambiguous execution using the SAME "
     "attempt; use net_replay and a NEW attempt only for intentional re-execution. PASS "
-    "does not accept a baseline, merge, publish, or create a verification occurrence."
+    "does not accept a baseline, merge, or publish. Only an explicitly executed "
+    "verification operation creates its own scoped verification occurrence."
 )
 
 
@@ -142,8 +144,10 @@ def _read(path: Path) -> bytes:
     return raw
 
 
-def from_profile(path: Path) -> AgentHost:
+def from_profile(path: Path, *, instrument: str = "builtin") -> AgentHost:
     """Only the operator's launch command selects this file; not an MCP tool."""
+    if type(instrument) is not str or instrument not in INSTRUMENTS:
+        raise ValueError("Require a fixed operator-selected instrument")
     path = path.expanduser().resolve(strict=True)
     value = parse(_read(path))
     keys(value, {"schema", "inputs", "output_dir", "allow_operations", "candidate_domains",
@@ -160,7 +164,12 @@ def from_profile(path: Path) -> AgentHost:
     output = value["output_dir"]
     if output is not None and (type(output) is not str or not output):
         raise ValueError("Invalid operator output directory")
-    return AgentHost(registry=builtin_registry(bind=bool(value["allow_operations"])), inputs=inputs,
+    if instrument == "polymer":
+        from .polymer_workflow import capability_registry
+        registry = capability_registry(bind=bool(value["allow_operations"]))
+    else:
+        registry = builtin_registry(bind=bool(value["allow_operations"]))
+    return AgentHost(registry=registry, inputs=inputs,
         output_dir=None if output is None else path.parent / output,
         allow_operations=tuple(value["allow_operations"]), candidate_domains=value["candidate_domains"],
         comparisons=value["comparisons"], check_suites=value["check_suites"],
@@ -197,23 +206,60 @@ def demo_config(destination: Path) -> Path:
     return destination / "profile.json"
 
 
+def polymer_config(destination: Path, process: str = "injection_molding") -> Path:
+    """Create synthetic input and wiring; no operation or inference is executed."""
+    from .polymer_contract import example_request
+    from .polymer_workflow import ASSESS, COPILOT, SIMULATE, VERIFY, make_source
+    request = example_request(process)
+    source = make_source(request)
+    graph = experiment("agent-polymer-cycle", model_id=request["model"]["model_id"], nodes=[
+        {"node_id": "assessment", "operation_id": ASSESS, "parameters": {}, "inputs": {}, "depends_on": []},
+        {"node_id": "copilot", "operation_id": COPILOT, "parameters": {},
+         "inputs": {"assessment": {"node_id": "assessment", "port": "result"}}, "depends_on": []},
+        {"node_id": "simulation", "operation_id": SIMULATE, "parameters": {}, "inputs": {},
+         "depends_on": ["assessment"]},
+        {"node_id": "verification", "operation_id": VERIFY, "parameters": {},
+         "inputs": {"assessment": {"node_id": "assessment", "port": "result"}}, "depends_on": []},
+    ])
+    destination = destination.expanduser().absolute()
+    destination.mkdir(parents=False, exist_ok=False)
+    save_new(destination / "request.json", request)
+    save_new(destination / "source.json", source)
+    save_new(destination / "experiment.json", graph)
+    profile = {"schema": "ciw.agent-host-profile.v1", "inputs": {
+        "source": "source.json", "baseline": "experiment.json"}, "output_dir": "agent-output",
+        "allow_operations": [ASSESS, COPILOT, SIMULATE, VERIFY], "candidate_domains": {},
+        "comparisons": {}, "check_suites": {}, "max_executions": 8, "max_nodes": 4}
+    save_new(destination / "profile.json", profile)
+    return destination / "profile.json"
+
+
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description=__doc__)
     subs = parser.add_subparsers(dest="command", required=True)
     command = subs.add_parser("serve", help="Serve operator-bound NET tools over local MCP stdio")
     command.add_argument("--profile", type=Path, required=True)
+    command.add_argument("--instrument", choices=INSTRUMENTS, default="builtin",
+                         help="Explicit trusted instrument binding; profile data cannot select providers")
     command = subs.add_parser("demo-config", help="Create an explicitly synthetic builtin-only operator profile")
     command.add_argument("--output-dir", type=Path, required=True)
+    command = subs.add_parser("polymer-config", help="Create a synthetic four-operation polymer profile and typed graph")
+    command.add_argument("--output-dir", type=Path, required=True)
+    command.add_argument("--process", choices=("injection_molding", "extrusion_blow_molding"),
+                         default="injection_molding")
     args = parser.parse_args(argv)
     try:
         if args.command == "demo-config":
             print(demo_config(args.output_dir))
             return 0
+        if args.command == "polymer-config":
+            print(polymer_config(args.output_dir, args.process))
+            return 0
         # Reserve the original stdout solely for protocol; redirect even C/native stdout
         # diagnostics to stderr. This protects framing, not provider sandboxing.
         with os.fdopen(os.dup(sys.stdout.fileno()), "wb", buffering=0) as wire:
             os.dup2(sys.stderr.fileno(), sys.stdout.fileno())
-            host = from_profile(args.profile)
+            host = from_profile(args.profile, instrument=args.instrument)
             return serve(host, sys.stdin.buffer, wire)
     except (OSError, ValueError, TypeError, KeyError) as exc:
         print(f"NET agent startup refused: {type(exc).__name__}: {exc}", file=sys.stderr)

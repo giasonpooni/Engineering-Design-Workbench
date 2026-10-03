@@ -12,6 +12,7 @@ from ciw.polymer_contract import example_request, validate_request
 from ciw.polymer_metrology import assess_metrology
 from ciw.polymer_models import (control_proposal, engineering_estimate, example_control,
                                example_model, simulate_control, validate_control, validate_model)
+from ciw.operations.runner import digest
 
 
 def request():
@@ -235,6 +236,43 @@ def test_control_abstains_when_quality_does_not_qualify_local_trial(fault):
     else:
         dim["value"] = 0.04
     assert control_proposal(req, report)["status"] == "ABSTAINED"
+
+
+@pytest.mark.parametrize("fault,reason", [
+    ("condition", "RESPONSE_MEASUREMENT_CONDITION_MISMATCH"),
+    ("overlap", "UNQUALIFIED_RESPONSE_METROLOGY"),
+    ("missing_specification", "MISSING_OR_AMBIGUOUS_RESPONSE_SPECIFICATION"),
+])
+def test_unrelated_nonconformance_cannot_qualify_unavailable_response(fault, reason):
+    req = request()
+    wall_spec = {"quantity": "wall_thickness", "unit": "m", "lower": 0.0012,
+                 "upper": 0.0013, "coverage_factor": 2.0, "condition": "ejection",
+                 "specification_ref": digest({"wall_specification": "outside_measured_wall"})}
+    if fault == "condition":
+        req["tolerances"][0]["condition"] = "conditioned"
+    elif fault == "overlap":
+        sensor(req, "dimension-1")["samples"][-1]["value"] = 0.0201
+    else:
+        req["tolerances"] = []
+    req["tolerances"].append(wall_spec)
+    req = validate_request(req)
+    metrology = assess_metrology(req)
+    assert metrology["status"] == "NONCONFORMING"
+    assert next(q for q in metrology["quantities"] if q["quantity"] == "wall_thickness")["status"] == "NONCONFORMING"
+    proposal = control_proposal(req, metrology)
+    assert proposal["status"] == "ABSTAINED"
+    assert proposal["reason"] == reason
+    assert "proposed" not in proposal
+
+
+def test_determinate_response_keeps_local_trial_despite_unrelated_nonconformance():
+    req = request()
+    req["tolerances"].append({"quantity": "wall_thickness", "unit": "m", "lower": 0.0012,
+                            "upper": 0.0013, "coverage_factor": 2.0, "condition": "ejection",
+                            "specification_ref": digest({"unrelated_wall_specification": 1})})
+    metrology = assess_metrology(validate_request(req))
+    assert all(q["status"] == "NONCONFORMING" for q in metrology["quantities"])
+    assert control_proposal(req, metrology)["status"] == "PROPOSED"
 
 
 @pytest.mark.parametrize("guard_change,reason", [

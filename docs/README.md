@@ -70,6 +70,7 @@ or inspecting a record does not establish provider availability.
 | Preservation contracts, finite morphisms and evidence-bound expansion | [Preservation](PRESERVATION_CONTRACTS.md) · [Finite morphisms](FINITE_REPRESENTATION_PRESERVATION.md) · [Expansion](EVIDENCE_BOUND_EXPANSION.md) |
 | Visual gates and identity-preserving evidence projections | [Representation gates](VISUAL_REPRESENTATION_GATES.md) · [Evidence projection](VISUAL_EVIDENCE_PROJECTION.md) |
 | Dry hydrostatic atmospheric state, independent quadrature and typed provider handoffs | [Atmospheric engine](ATMOSPHERIC_ENGINE.md) |
+| Retained molding-cycle metrology, reference estimates, numerical audits and explicit agent profiles | [Polymer processing](POLYMER_PROCESSING.md) · [Agent protocol](NET_AGENT_PROTOCOL.md#polymer-cycle-profile) |
 | Bounded impact models, independent verification and finite scenarios | [Elastic contact](IMPACT_CONTACT_BENCHMARK.md) · [Crush](IMPACT_CRUSH_BENCHMARK.md) · [Plate](IMPACT_PLATE_BENCHMARK.md) · [Scenario envelope](IMPACT_SCENARIO_ENVELOPE.md) |
 | Cross-system transitions, interoperability and artifact provenance | [Transitions](INDUSTRIAL_SEMANTIC_TRANSITIONS.md) · [Interoperability](EXECUTABLE_INTEROPERABILITY.md) · [Provenance](ARTIFACT_PROVENANCE.md) |
 | Explicit workcells and agent transport boundaries | [Workcells](EXECUTABLE_WORKCELLS.md) · [Agent protocol](NET_AGENT_PROTOCOL.md) |
