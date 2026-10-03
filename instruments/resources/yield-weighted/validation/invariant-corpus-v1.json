@@ -1,0 +1,26 @@
+{
+  "corpus": "ywir-invariant-v1",
+  "package_version": "0.1.0",
+  "departments": ["ledger", "evidence", "exploration", "gauge"],
+  "letters": ["ADMIT", "COMPOSE", "REQUEST_EVIDENCE", "REINDEX", "CLOSE_BUDGET", "REFUSE_SPILL"],
+  "refuse_codes": [
+    "GAUGE_SPILL",
+    "RANK_FLAT",
+    "H1_NO_GLUE",
+    "COMPOSE_INSTEAD",
+    "DEPARTMENT_STARVED",
+    "BUDGET_CLOSED",
+    "META_PRECISION_UNSTABLE",
+    "YIELD_BELOW_THRESHOLD",
+    "REQUEST_EVIDENCE"
+  ],
+  "does_not_claim": [
+    "building_safe",
+    "lyapunov_certified",
+    "jacobian_accuracy",
+    "answer_true",
+    "publisher_identity",
+    "observations_truthful",
+    "model_quality"
+  ]
+}

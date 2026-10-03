@@ -1,0 +1,23 @@
+[project]
+name = "yield-weighted-inference-runtime"
+version = "0.2.0"
+description = "Admission runtime for token bursts on a declared department budget. Spend buys structure; horizontal spill is refused."
+readme = "README.md"
+license = "MIT"
+license-files = ["LICENSE"]
+requires-python = ">=3.12"
+dependencies = []
+
+[dependency-groups]
+dev = ["pytest>=8"]
+
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/ywir"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q"
