@@ -19,6 +19,7 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 | Python, Julia, native execution and proof responsibilities | [Execution responsibilities](EXECUTION_RESPONSIBILITIES.md) |
 | Bounded Rust/C++, JuliaControl and JuMP execution | [Native interoperability](NATIVE_INTEROP.md) |
 | Fixed-model chemical kinetics and cross-engine references | [Reaction benchmark](REACTION_BENCHMARK.md) |
+| Dry hydrostatic atmospheric state, independent quadrature and typed provider handoffs | [Atmospheric engine](ATMOSPHERIC_ENGINE.md) (research branch increment) |
 | Elastic contact, independent impulse/energy checks and typed preservation | [Impact contact benchmark](IMPACT_CONTACT_BENCHMARK.md) (research branch increment) |
 | Irreversible crush state, plastic work and independent energy accounting | [Impact crush benchmark](IMPACT_CRUSH_BENCHMARK.md) (research branch increment) |
 | Finite parameter cases and separate numerical/design qualification | [Impact scenario envelope](IMPACT_SCENARIO_ENVELOPE.md) (research branch increment) |

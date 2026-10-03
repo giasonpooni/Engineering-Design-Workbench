@@ -24,7 +24,9 @@ def validate_role(operation_id: str, role: str) -> None:
                 "impact.crush-contact.v1": "backend",
                 "impact.crush-contact-verify.v1": "verification",
                 "impact.plate-contact.v1": "backend",
-                "impact.plate-contact-verify.v1": "verification"}.get(operation_id)
+                "impact.plate-contact-verify.v1": "verification",
+                "atmosphere.compile.v1": "backend",
+                "atmosphere.verify.v1": "verification"}.get(operation_id)
     if expected is not None and role != expected:
         raise ValueError("Operation role contradicts the declared payload contract")
 
@@ -58,6 +60,8 @@ def validate_payload(operation_id: str, data: dict, run: dict, parameters: dict,
                           "impact.crush-contact.v1", "impact.crush-contact-verify.v1",
                           "impact.plate-contact.v1", "impact.plate-contact-verify.v1"}:
         from ..impact_workflow import validate_payload as validator
+    elif operation_id in {"atmosphere.compile.v1", "atmosphere.verify.v1"}:
+        from ..atmosphere_workflow import validate_payload as validator
     else:
         validator = _VALIDATORS.get(operation_id)
         if validator is None:
