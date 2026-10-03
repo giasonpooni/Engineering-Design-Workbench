@@ -6,10 +6,9 @@ packages and explicit provider bindings. Repository location becomes a shared
 development boundary; it does not combine evidence, operation, execution,
 result, verification, admission or device-control authority.
 
-The implementation is on the local branch
-`feat/engineering-monorepo-wave1-20261002`, awaiting native Git transfer. It
-has not been published as a GitHub pull request or merged into the default
-branch.
+The first wave and its audit corrections are developed on
+`feat/engineering-monorepo-wave1-audit-20261002`. Review and scoped qualification
+remain separate from a default-branch merge.
 
 The existing [cross-system architecture](CONSOLIDATION.md),
 [execution responsibilities](EXECUTION_RESPONSIBILITIES.md) and
@@ -94,6 +93,13 @@ NET provider worktrees from retained history and exercises a clock-to-calibratio
 composition through the existing pinned adapter. Source-tree tests and the
 qualified historical execution therefore have separate source identities.
 Use `--output-dir /path/to/results` to select the retained gate output location.
+
+The gate binds NET's tracked source bytes and index to the reported commit
+before building, and rechecks them after execution. Ignored or untracked
+executable sources are refused. The first wave deliberately freezes imported
+subtrees at their original import trees; subsequent module development must
+add a separately identified current-source qualification while retaining the
+original import commit and qualified historical runtime pins.
 
 The optional SET exchange-contract dependency remains external. Its public source
 is available through the
