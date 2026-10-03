@@ -64,7 +64,7 @@ jobs:
         run: |
           python - <<'PY'
           import json, xml.etree.ElementTree as E
-          for file, count in [('microtools-contracts.xml',41), ('microtools-installed.xml',41), ('microtools-regressions.xml',338)]:
+          for file, count in [('microtools-contracts.xml',41), ('microtools-installed.xml',41), ('microtools-regressions.xml',339)]:
               suites = list(E.parse(file).getroot().iter('testsuite'))
               assert sum(int(s.attrib['tests']) for s in suites) == count
               assert all(int(s.attrib[k]) == 0 for s in suites for k in ['errors','failures','skipped'])
