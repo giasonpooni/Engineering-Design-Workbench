@@ -19,7 +19,7 @@ def dependency_result_ids(operation_id: str, parameters: dict) -> list[str]:
         candidate = parameters.get("candidate")
         identity = candidate.get("result_id") if type(candidate) is dict else None
         return [identity] if type(identity) is str else []
-    if operation_id in {"polymer.copilot-context.v1", "polymer.verify-cycle.v1"}:
+    if operation_id in {"polymer.copilot-context.v1", "polymer.verify-cycle.v1", "leakage.verify-balance.v1"}:
         candidate = parameters.get("assessment")
         identity = candidate.get("result_id") if type(candidate) is dict else None
         return [identity] if type(identity) is str else []
@@ -29,6 +29,9 @@ def dependency_result_ids(operation_id: str, parameters: dict) -> list[str]:
 def validate_request_dependencies(operation_id: str, parameters: dict, retained: dict) -> None:
     if operation_id == "irrigation.verify.v1":
         from ..irrigation_workflow import validate_live_dependency
+        validate_live_dependency(parameters, retained)
+    if operation_id == "leakage.verify-balance.v1":
+        from ..leakage_workflow import validate_live_dependency
         validate_live_dependency(parameters, retained)
     if operation_id in {"polymer.copilot-context.v1", "polymer.verify-cycle.v1"}:
         from ..polymer_workflow import validate_live_dependency
@@ -63,7 +66,9 @@ def validate_role(operation_id: str, role: str) -> None:
                 "polymer.assess-cycle.v1": "backend",
                 "polymer.copilot-context.v1": "backend",
                 "polymer.control-simulate.v1": "backend",
-                "polymer.verify-cycle.v1": "verification"}.get(operation_id)
+                "polymer.verify-cycle.v1": "verification",
+                "leakage.assess-balance.v1": "backend",
+                "leakage.verify-balance.v1": "verification"}.get(operation_id)
     if expected is not None and role != expected:
         raise ValueError("Operation role contradicts the declared payload contract")
 
@@ -119,6 +124,8 @@ def validate_payload(operation_id: str, data: dict, run: dict, parameters: dict,
     elif operation_id in {"polymer.assess-cycle.v1", "polymer.copilot-context.v1",
                           "polymer.control-simulate.v1", "polymer.verify-cycle.v1"}:
         from ..polymer_workflow import validate_payload as validator
+    elif operation_id in {"leakage.assess-balance.v1", "leakage.verify-balance.v1"}:
+        from ..leakage_workflow import validate_payload as validator
     else:
         validator = _VALIDATORS.get(operation_id)
         if validator is None:

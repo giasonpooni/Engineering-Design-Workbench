@@ -41,6 +41,11 @@ process profiles and the complete agent workflow. Retained native calibration
 import and the finite qualification evidence are described in the
 [operator guide](docs/POLYMER_PROCESSING.md).
 
+`net polymer leakage` adds retained coolant-volume and material-mass accounting
+through the existing pinned FlowState kernels, with full covariance, replay and
+independent numerical audits. The [leakage guide](docs/leakage.md) includes provider
+setup and runnable examples; an unaccounted deficit does not establish its cause.
+
 ## One repository, modular instruments
 
 The [engineering monorepo](docs/MONOREPO.md) co-locates 21 imported public modules
