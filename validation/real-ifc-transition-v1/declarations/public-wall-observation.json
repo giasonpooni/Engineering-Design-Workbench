@@ -1,0 +1,12 @@
+{
+  "schema": "ciw.bim-scalar-observation.v1",
+  "value": 2.99,
+  "variance": 2.5e-05,
+  "unit": "m",
+  "frame": "synthetic-declared-model-frame",
+  "ifc_sha256": "sha256:73b0e45d931d5dc13bfee5fdc7bd80f796526445458b2de74c4168d209097832",
+  "cross_covariance_policy": "independent",
+  "ifc_class": "IfcBuildingStorey",
+  "global_id": "2GNgSHJ5j9BRUjqT$7tE8w",
+  "quantity": "ClearHeight"
+}

@@ -1,0 +1,167 @@
+name: Native oscillator C++ and Godot consumers
+
+on:
+  pull_request:
+    paths:
+      - '.github/workflows/oscillator-consumers-native.yml'
+      - 'runtimes/godot-oscillator-kernel/**'
+      - 'runtimes/julia-oscillator-kernel/**'
+      - 'runtimes/julia-oscillator/**'
+      - 'src/ciw/**'
+      - 'scripts/check_oscillator_kernel.py'
+      - 'scripts/check_oscillator_consumers.py'
+      - 'tests/test_oscillator*.py'
+      - 'tests/test_julia_oscillator.py'
+      - 'pyproject.toml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: oscillator-consumers-${{ github.event_name }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+jobs:
+  native:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    env:
+      JULIA_NUM_THREADS: '1'
+      JULIA_NUM_PRECOMPILE_TASKS: '2'
+      OPENBLAS_NUM_THREADS: '1'
+      PYTHONUNBUFFERED: '1'
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - uses: julia-actions/setup-julia@fa02766e078afaaf09b14210362cee14137e6a32
+        with:
+          version: '1.10.12'
+          arch: 'x64'
+      - name: Provision pinned toolchain and isolated runtime
+        shell: bash
+        run: |
+          set -euo pipefail
+          rustup toolchain install 1.90.0 --profile minimal
+          echo "KERNEL_RUSTC=$(rustup which --toolchain 1.90.0 rustc)" >> "$GITHUB_ENV"
+          echo "KERNEL_JULIA=$(command -v julia)" >> "$GITHUB_ENV"
+          echo "KERNEL_EVIDENCE=$RUNNER_TEMP/oscillator-consumers-evidence" >> "$GITHUB_ENV"
+          mkdir "$RUNNER_TEMP/oscillator-consumers-evidence"
+          git rev-parse HEAD > "$RUNNER_TEMP/oscillator-consumers-evidence/candidate-commit.txt"
+          runtime="$RUNNER_TEMP/consumer-tsit5-runtime"
+          git worktree add --detach "$runtime" HEAD
+          julia --startup-file=no --threads=1 --project="$runtime/runtimes/julia-oscillator" \
+            -e 'using Pkg; Pkg.instantiate(); Pkg.precompile()'
+          git -C "$runtime" add runtimes/julia-oscillator/Manifest.toml
+          git -C "$runtime" -c user.name='Kernel qualification' -c user.email='kernel-qualification@invalid.example' \
+            commit --allow-empty -m 'Local qualification-only Tsit5 environment'
+          test -z "$(git -C "$runtime" status --porcelain --untracked-files=all)"
+          echo "TSIT5_RUNTIME=$runtime" >> "$GITHUB_ENV"
+      - name: Install candidate wheel and require all focused tests
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip wheel . --no-deps --wheel-dir "$RUNNER_TEMP/consumer-wheels"
+          python -m pip install "$RUNNER_TEMP/consumer-wheels/"*.whl 'pytest==9.0.2'
+          cp "$RUNNER_TEMP/consumer-wheels/"*.whl "$KERNEL_EVIDENCE/"
+          export CIW_TEST_JULIA="$KERNEL_JULIA"
+          export CIW_TEST_JULIA_DEPOT="$HOME/.julia"
+          cd "$RUNNER_TEMP"
+          python - <<'PY'
+          import ciw, os
+          from pathlib import Path
+          assert not Path(ciw.__file__).resolve().is_relative_to(Path(os.environ['GITHUB_WORKSPACE']).resolve())
+          print('Installed wheel:', ciw.__file__)
+          PY
+          python -m pytest -o pythonpath= -o "cache_dir=$RUNNER_TEMP/consumer-pytest-cache" -q \
+            "$TSIT5_RUNTIME/tests/test_oscillator_kernel.py" \
+            "$TSIT5_RUNTIME/tests/test_oscillator_consumers.py" \
+            "$TSIT5_RUNTIME/tests/test_julia_oscillator.py" \
+            --junitxml="$KERNEL_EVIDENCE/focused-tests.xml"
+          python - <<'PY'
+          import os, xml.etree.ElementTree as ET
+          from pathlib import Path
+          suites = list(ET.parse(Path(os.environ['KERNEL_EVIDENCE'], 'focused-tests.xml')).getroot().iter('testsuite'))
+          assert suites and sum(int(s.get('tests', '0')) for s in suites) > 0
+          assert all(int(s.get(k, '0')) == 0 for s in suites for k in ('failures', 'errors', 'skipped'))
+          PY
+      - name: Execute original Julia and unchanged parent acceptance gate
+        shell: bash
+        run: |
+          set -euo pipefail
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          from ciw import julia_oscillator as j
+          from ciw.telemetry import canonical
+          out = Path(os.environ['KERNEL_EVIDENCE'])
+          root = Path(os.environ['GITHUB_WORKSPACE'])
+          source = canonical(json.loads((root / 'examples/julia/oscillator.json').read_bytes()))
+          bindings = {j.ROLE: os.environ['KERNEL_JULIA'], j.RUNTIME_ROLE: os.environ['TSIT5_RUNTIME']}
+          original = j.workflow.create_session(source, bindings)
+          (out / 'tsit5-session.json').write_bytes(canonical(original))
+          (out / 'tsit5-replay.json').write_bytes(canonical(j.workflow.replay_session(original, bindings)))
+          PY
+          python scripts/check_oscillator_kernel.py \
+            --julia "$KERNEL_JULIA" --cc "$(command -v gcc)" --rustc "$KERNEL_RUSTC" \
+            --julia-session "$KERNEL_EVIDENCE/tsit5-session.json" --output-dir "$KERNEL_EVIDENCE/parent"
+      - name: Provision exact Godot and godot-cpp
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir "$RUNNER_TEMP/consumer-tools"
+          cd "$RUNNER_TEMP/consumer-tools"
+          curl --fail --location --retry 2 -o godot.zip https://github.com/godotengine/godot-builds/releases/download/4.5.2-stable/Godot_v4.5.2-stable_linux.x86_64.zip
+          echo '87f6e6be292929e363d15ed9052f277b2ba4e95ed994e1e099048097be2dfd03  godot.zip' | sha256sum --check
+          unzip -q godot.zip
+          chmod +x Godot_v4.5.2-stable_linux.x86_64
+          git clone --no-checkout https://github.com/godotengine/godot-cpp.git godot-cpp
+          git -C godot-cpp checkout --detach e83fd0904c13356ed1d4c3d09f8bb9132bdc6b77
+          git -C godot-cpp submodule update --init --recursive
+          echo '87f6e6be292929e363d15ed9052f277b2ba4e95ed994e1e099048097be2dfd03  godot.zip' > "$KERNEL_EVIDENCE/godot-download.sha256"
+      - name: Qualify C++ and relocated Godot GDExtension
+        shell: bash
+        run: |
+          set -euo pipefail
+          python scripts/check_oscillator_consumers.py \
+            --qualified-dir "$KERNEL_EVIDENCE/parent" \
+            --cxx "$(command -v g++)" --cmake "$(command -v cmake)" --readelf "$(command -v readelf)" \
+            --godot "$RUNNER_TEMP/consumer-tools/Godot_v4.5.2-stable_linux.x86_64" \
+            --godot-cpp "$RUNNER_TEMP/consumer-tools/godot-cpp" \
+            --output-dir "$KERNEL_EVIDENCE/consumers"
+      - name: Publish scoped summary
+        if: always()
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json, os
+          from pathlib import Path
+          root = Path(os.environ.get('KERNEL_EVIDENCE', os.environ['RUNNER_TEMP'] + '/oscillator-consumers-evidence'))
+          lines = ['## Native oscillator consumers', '', 'Linux x86-64 headless numerical/ABI checks, not a finished game or graphical qualification.']
+          for name in ('parent/gate-report.json', 'consumers/consumer-report.json'):
+              path = root / name
+              if not path.exists():
+                  lines.append(f'- {name}: not run / no report')
+                  continue
+              r = json.loads(path.read_text())
+              lines.append(f"### {name}: {r['status']}")
+              lines += [f"- {k}: {v['outcome']}" for k, v in r['gates'].items()]
+              if 'failure' in r:
+                  lines.append(r['failure']['message'])
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as stream:
+              stream.write('\n'.join(lines) + '\n')
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: oscillator-consumers-${{ github.run_id }}-${{ github.run_attempt }}
+          path: |
+            ${{ runner.temp }}/oscillator-consumers-evidence/
+            !${{ runner.temp }}/oscillator-consumers-evidence/consumers/build/**
+          if-no-files-found: error
+          retention-days: 30

@@ -1,0 +1,27 @@
+{
+  "model": {
+    "kind": "reservoir2-linear-v1",
+    "prior_mean": [
+      50.0,
+      50.0
+    ],
+    "prior_std": 5.0,
+    "total_mass_kg": 100.0,
+    "total_mass_variance_kg2": 0.25
+  },
+  "independence": {
+    "prior_independent_of_observations": true,
+    "declared_total_independent_of_observations": true,
+    "prior_independent_of_declared_total": true
+  },
+  "state_bindings": [
+    {
+      "entity_id": "reservoir-A",
+      "state_quantity": "tank-1.mass"
+    },
+    {
+      "entity_id": "reservoir-B",
+      "state_quantity": "tank-2.mass"
+    }
+  ]
+}

@@ -1,0 +1,14 @@
+; Detached NET inspection client; no autoload, service, or simulation runtime.
+config_version=5
+[application]
+config/name="NET | Retained Spatial Inspector"
+run/main_scene="res://main.tscn"
+config/features=PackedStringArray("4.5", "GL Compatibility")
+[display]
+window/size/viewport_width=1280
+window/size/viewport_height=800
+window/stretch/mode="canvas_items"
+[rendering]
+renderer/rendering_method="gl_compatibility"
+renderer/rendering_method.mobile="gl_compatibility"
+environment/defaults/default_clear_color=Color(0.035, 0.055, 0.08, 1)

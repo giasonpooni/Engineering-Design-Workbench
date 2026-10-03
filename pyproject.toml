@@ -13,6 +13,7 @@ dependencies = ["numpy==2.4.3", "websockets==16.0"]
 
 [project.optional-dependencies]
 dev = ["pytest==9.0.2", "PyYAML==6.0.3"]
+columnar = ["pyarrow==25.0.1"]
 bench-models = ["jsonschema==4.26.0"]
 legibility = ["cryptography==46.0.0"]
 openusd = ["usd-core==25.11"]
@@ -20,12 +21,13 @@ plsr = ["parameterized-lyapunov-stability-runtime @ git+https://github.com/atomt
 
 [project.scripts]
 ciw = "ciw.cli:main"
+net = "ciw.net:main"
 
 [tool.setuptools.packages.find]
 where = ["src"]
 
 [tool.setuptools.package-data]
-ciw = ["native-interop-runtimes.json", "plsr-runtime.json", "adapter-runtimes.json", "exchange-runtime.json", "telemetry-runtimes.json", "calibrated-observable-runtimes.json", "identified-design-runtimes.json", "esm-runtime.json", "calibrated-window-runtimes.json"]
+ciw = ["engine_assets/godot_motion/*", "godot_runtime/*.gd", "viewer_assets/spatial/*", "web/*.html", "web/*.css", "web/*.js", "native-interop-runtimes.json", "plsr-runtime.json", "adapter-runtimes.json", "exchange-runtime.json", "telemetry-runtimes.json", "calibrated-observable-runtimes.json", "identified-design-runtimes.json", "esm-runtime.json", "calibrated-window-runtimes.json"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]

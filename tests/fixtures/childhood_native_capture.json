@@ -1,0 +1,2664 @@
+{
+  "assertions": 50,
+  "capture_class": "actual_input_driven_journey",
+  "engine_version": "4.5.1-stable (official)",
+  "failures": 0,
+  "historical_authentication": false,
+  "human_playability_review": false,
+  "nonce": "000a98b575c54825a1a60387e91ffac1",
+  "samples": [
+    {
+      "memories": [],
+      "milestone": "walk and view practice precede reading",
+      "perspective": {
+        "calibrated_probability": false,
+        "canonical_state_mutated": false,
+        "cause_identity": null,
+        "clock_id": "1792.childhood.tick",
+        "conditional_independence_assumed": true,
+        "hypotheses": [
+          "trail_clear",
+          "riders_nearby"
+        ],
+        "likelihood_class": "authored_gameplay_tuning",
+        "received_evidence": [],
+        "report_age_behavior": "retained_without_decay",
+        "schema": "1792.perspective-view.v1",
+        "status": "PROJECTED",
+        "tick": 111,
+        "weights": [
+          0.5,
+          0.5
+        ]
+      },
+      "state": {
+        "actors": {
+          "ranjit_singh": {
+            "position": [
+              0.0,
+              0.10023002326488495,
+              -6.8949971199035645
+            ]
+          }
+        },
+        "aftermath": {
+          "clue_tick": -1,
+          "decision": "",
+          "decision_tick": -1,
+          "escort": {
+            "active": false,
+            "id": "fictional_household_guard",
+            "instruction": "hold",
+            "position": [
+              -9.0,
+              0.14000000059604645,
+              8.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "yaw": 0.0
+          },
+          "heard": [],
+          "memories": [],
+          "offer_heard": false,
+          "reported_tick": -1,
+          "schema_version": "aftermath.v1"
+        },
+        "childhood": {
+          "ambush": {
+            "deflected": false,
+            "end_tick": -1,
+            "hits": 0,
+            "position": [
+              16.0,
+              0.14,
+              -13.0
+            ],
+            "seen": false,
+            "start_tick": -1,
+            "status": "locked",
+            "stun_until": -1
+          },
+          "counters": 0,
+          "heard": [],
+          "letter_seen": false,
+          "looked": 0.8999999999999999,
+          "memories": [],
+          "parries": 0,
+          "quarry_seen": false,
+          "reflected": false,
+          "ride_gate": 0,
+          "tick": 111,
+          "tracks": 0,
+          "walked": 6.0
+        },
+        "game_time": {
+          "day": 1,
+          "hour": 7.0005138888888885,
+          "year": 1792
+        },
+        "historical_class": "authored_source_informed_prototype",
+        "places": [
+          {
+            "disposition": "friendly",
+            "id": "sukerchakia_home"
+          }
+        ],
+        "player": {
+          "character_id": "ranjit_singh",
+          "known_places": [
+            "sukerchakia_home"
+          ],
+          "position": [
+            0.0,
+            0.10023002326488495,
+            -6.8949971199035645
+          ]
+        },
+        "profile": "childhood.v1",
+        "relationships": [],
+        "riding": {
+          "horse": {
+            "grounded": true,
+            "id": "household_horse_01",
+            "position": [
+              8.0,
+              0.14,
+              -5.0
+            ],
+            "rider_id": "",
+            "speed": 0.0,
+            "vertical_speed": 0.0,
+            "yaw": 0.0
+          },
+          "schema_version": "riding.v1"
+        },
+        "scenario_id": "home_childhood_reconstruction",
+        "schema_version": "world-state.v1"
+      }
+    },
+    {
+      "memories": [
+        {
+          "channel": "observed",
+          "id": "letter",
+          "received_tick": 261,
+          "source_id": "self",
+          "text": "I have a sealed written message. Its words have not been read to me."
+        }
+      ],
+      "milestone": "E acquires letter physically",
+      "perspective": {
+        "calibrated_probability": false,
+        "canonical_state_mutated": false,
+        "cause_identity": null,
+        "clock_id": "1792.childhood.tick",
+        "conditional_independence_assumed": true,
+        "hypotheses": [
+          "trail_clear",
+          "riders_nearby"
+        ],
+        "likelihood_class": "authored_gameplay_tuning",
+        "received_evidence": [],
+        "report_age_behavior": "retained_without_decay",
+        "schema": "1792.perspective-view.v1",
+        "status": "PROJECTED",
+        "tick": 262,
+        "weights": [
+          0.5,
+          0.5
+        ]
+      },
+      "state": {
+        "actors": {
+          "ranjit_singh": {
+            "position": [
+              -2.3738317489624023,
+              0.10023002326488495,
+              2.8748984336853027
+            ]
+          }
+        },
+        "aftermath": {
+          "clue_tick": -1,
+          "decision": "",
+          "decision_tick": -1,
+          "escort": {
+            "active": false,
+            "id": "fictional_household_guard",
+            "instruction": "hold",
+            "position": [
+              -9.0,
+              0.14000000059604645,
+              8.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "yaw": 0.0
+          },
+          "heard": [],
+          "memories": [],
+          "offer_heard": false,
+          "reported_tick": -1,
+          "schema_version": "aftermath.v1"
+        },
+        "childhood": {
+          "ambush": {
+            "deflected": false,
+            "end_tick": -1,
+            "hits": 0,
+            "position": [
+              16.0,
+              0.14,
+              -13.0
+            ],
+            "seen": false,
+            "start_tick": -1,
+            "status": "locked",
+            "stun_until": -1
+          },
+          "counters": 0,
+          "heard": [],
+          "letter_seen": true,
+          "looked": 0.8999999999999999,
+          "memories": [
+            {
+              "channel": "observed",
+              "id": "letter",
+              "received_tick": 261,
+              "source_id": "self",
+              "text": "I have a sealed written message. Its words have not been read to me."
+            }
+          ],
+          "parries": 0,
+          "quarry_seen": false,
+          "reflected": false,
+          "ride_gate": 0,
+          "tick": 262,
+          "tracks": 0,
+          "walked": 6.0
+        },
+        "game_time": {
+          "day": 1,
+          "hour": 7.001212962962963,
+          "year": 1792
+        },
+        "historical_class": "authored_source_informed_prototype",
+        "places": [
+          {
+            "disposition": "friendly",
+            "id": "sukerchakia_home"
+          }
+        ],
+        "player": {
+          "character_id": "ranjit_singh",
+          "known_places": [
+            "sukerchakia_home"
+          ],
+          "position": [
+            -2.3738317489624023,
+            0.10023002326488495,
+            2.8748984336853027
+          ]
+        },
+        "profile": "childhood.v1",
+        "relationships": [],
+        "riding": {
+          "horse": {
+            "grounded": true,
+            "id": "household_horse_01",
+            "position": [
+              8.0,
+              0.14,
+              -5.0
+            ],
+            "rider_id": "",
+            "speed": 0.0,
+            "vertical_speed": 0.0,
+            "yaw": 0.0
+          },
+          "schema_version": "riding.v1"
+        },
+        "scenario_id": "home_childhood_reconstruction",
+        "schema_version": "world-state.v1"
+      }
+    },
+    {
+      "memories": [
+        {
+          "channel": "observed",
+          "id": "letter",
+          "received_tick": 261,
+          "source_id": "self",
+          "text": "I have a sealed written message. Its words have not been read to me."
+        },
+        {
+          "channel": "testimony",
+          "id": "courier",
+          "received_tick": 263,
+          "source_id": "fictional_courier",
+          "text": "I carried that note; I did not scout the trail. I heard riders beyond the grove later."
+        }
+      ],
+      "milestone": "courier account attributed",
+      "perspective": {
+        "calibrated_probability": false,
+        "canonical_state_mutated": false,
+        "cause_identity": null,
+        "clock_id": "1792.childhood.tick",
+        "conditional_independence_assumed": true,
+        "hypotheses": [
+          "trail_clear",
+          "riders_nearby"
+        ],
+        "likelihood_class": "authored_gameplay_tuning",
+        "received_evidence": [
+          {
+            "age_ticks": 1,
+            "memory_id": "courier",
+            "received_tick": 263,
+            "source_id": "fictional_courier"
+          }
+        ],
+        "report_age_behavior": "retained_without_decay",
+        "schema": "1792.perspective-view.v1",
+        "status": "PROJECTED",
+        "tick": 264,
+        "weights": [
+          0.3,
+          0.7
+        ]
+      },
+      "state": {
+        "actors": {
+          "ranjit_singh": {
+            "position": [
+              -2.3738317489624023,
+              0.10023002326488495,
+              2.8748984336853027
+            ]
+          }
+        },
+        "aftermath": {
+          "clue_tick": -1,
+          "decision": "",
+          "decision_tick": -1,
+          "escort": {
+            "active": false,
+            "id": "fictional_household_guard",
+            "instruction": "hold",
+            "position": [
+              -9.0,
+              0.14000000059604645,
+              8.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "yaw": 0.0
+          },
+          "heard": [],
+          "memories": [],
+          "offer_heard": false,
+          "reported_tick": -1,
+          "schema_version": "aftermath.v1"
+        },
+        "childhood": {
+          "ambush": {
+            "deflected": false,
+            "end_tick": -1,
+            "hits": 0,
+            "position": [
+              16.0,
+              0.14,
+              -13.0
+            ],
+            "seen": false,
+            "start_tick": -1,
+            "status": "locked",
+            "stun_until": -1
+          },
+          "counters": 0,
+          "heard": [
+            "courier"
+          ],
+          "letter_seen": true,
+          "looked": 0.8999999999999999,
+          "memories": [
+            {
+              "channel": "observed",
+              "id": "letter",
+              "received_tick": 261,
+              "source_id": "self",
+              "text": "I have a sealed written message. Its words have not been read to me."
+            },
+            {
+              "channel": "testimony",
+              "id": "courier",
+              "received_tick": 263,
+              "source_id": "fictional_courier",
+              "text": "I carried that note; I did not scout the trail. I heard riders beyond the grove later."
+            }
+          ],
+          "parries": 0,
+          "quarry_seen": false,
+          "reflected": false,
+          "ride_gate": 0,
+          "tick": 264,
+          "tracks": 0,
+          "walked": 6.0
+        },
+        "game_time": {
+          "day": 1,
+          "hour": 7.001222222222222,
+          "year": 1792
+        },
+        "historical_class": "authored_source_informed_prototype",
+        "places": [
+          {
+            "disposition": "friendly",
+            "id": "sukerchakia_home"
+          }
+        ],
+        "player": {
+          "character_id": "ranjit_singh",
+          "known_places": [
+            "sukerchakia_home"
+          ],
+          "position": [
+            -2.3738317489624023,
+            0.10023002326488495,
+            2.8748984336853027
+          ]
+        },
+        "profile": "childhood.v1",
+        "relationships": [],
+        "riding": {
+          "horse": {
+            "grounded": true,
+            "id": "household_horse_01",
+            "position": [
+              8.0,
+              0.14,
+              -5.0
+            ],
+            "rider_id": "",
+            "speed": 0.0,
+            "vertical_speed": 0.0,
+            "yaw": 0.0
+          },
+          "schema_version": "riding.v1"
+        },
+        "scenario_id": "home_childhood_reconstruction",
+        "schema_version": "world-state.v1"
+      }
+    },
+    {
+      "memories": [
+        {
+          "channel": "observed",
+          "id": "letter",
+          "received_tick": 261,
+          "source_id": "self",
+          "text": "I have a sealed written message. Its words have not been read to me."
+        },
+        {
+          "channel": "testimony",
+          "id": "courier",
+          "received_tick": 263,
+          "source_id": "fictional_courier",
+          "text": "I carried that note; I did not scout the trail. I heard riders beyond the grove later."
+        },
+        {
+          "channel": "read_aloud",
+          "id": "steward",
+          "received_tick": 512,
+          "source_id": "fictional_steward",
+          "text": "The north trail was clear at dawn. The note says nothing about now."
+        }
+      ],
+      "milestone": "two oral accounts open riding",
+      "perspective": {
+        "calibrated_probability": false,
+        "canonical_state_mutated": false,
+        "cause_identity": null,
+        "clock_id": "1792.childhood.tick",
+        "conditional_independence_assumed": true,
+        "hypotheses": [
+          "trail_clear",
+          "riders_nearby"
+        ],
+        "likelihood_class": "authored_gameplay_tuning",
+        "received_evidence": [
+          {
+            "age_ticks": 250,
+            "memory_id": "courier",
+            "received_tick": 263,
+            "source_id": "fictional_courier"
+          },
+          {
+            "age_ticks": 1,
+            "memory_id": "steward",
+            "received_tick": 512,
+            "source_id": "fictional_steward"
+          }
+        ],
+        "report_age_behavior": "retained_without_decay",
+        "schema": "1792.perspective-view.v1",
+        "status": "PROJECTED",
+        "tick": 513,
+        "weights": [
+          0.5625,
+          0.4375
+        ]
+      },
+      "state": {
+        "actors": {
+          "ranjit_singh": {
+            "position": [
+              -10.442930221557617,
+              0.10023002326488495,
+              4.932711124420166
+            ]
+          }
+        },
+        "aftermath": {
+          "clue_tick": -1,
+          "decision": "",
+          "decision_tick": -1,
+          "escort": {
+            "active": false,
+            "id": "fictional_household_guard",
+            "instruction": "hold",
+            "position": [
+              -9.0,
+              0.14000000059604645,
+              8.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "yaw": 0.0
+          },
+          "heard": [],
+          "memories": [],
+          "offer_heard": false,
+          "reported_tick": -1,
+          "schema_version": "aftermath.v1"
+        },
+        "childhood": {
+          "ambush": {
+            "deflected": false,
+            "end_tick": -1,
+            "hits": 0,
+            "position": [
+              16.0,
+              0.14,
+              -13.0
+            ],
+            "seen": false,
+            "start_tick": -1,
+            "status": "locked",
+            "stun_until": -1
+          },
+          "counters": 0,
+          "heard": [
+            "courier",
+            "steward"
+          ],
+          "letter_seen": true,
+          "looked": 0.8999999999999999,
+          "memories": [
+            {
+              "channel": "observed",
+              "id": "letter",
+              "received_tick": 261,
+              "source_id": "self",
+              "text": "I have a sealed written message. Its words have not been read to me."
+            },
+            {
+              "channel": "testimony",
+              "id": "courier",
+              "received_tick": 263,
+              "source_id": "fictional_courier",
+              "text": "I carried that note; I did not scout the trail. I heard riders beyond the grove later."
+            },
+            {
+              "channel": "read_aloud",
+              "id": "steward",
+              "received_tick": 512,
+              "source_id": "fictional_steward",
+              "text": "The north trail was clear at dawn. The note says nothing about now."
+            }
+          ],
+          "parries": 0,
+          "quarry_seen": false,
+          "reflected": false,
+          "ride_gate": 0,
+          "tick": 513,
+          "tracks": 0,
+          "walked": 6.0
+        },
+        "game_time": {
+          "day": 1,
+          "hour": 7.002375,
+          "year": 1792
+        },
+        "historical_class": "authored_source_informed_prototype",
+        "places": [
+          {
+            "disposition": "friendly",
+            "id": "sukerchakia_home"
+          }
+        ],
+        "player": {
+          "character_id": "ranjit_singh",
+          "known_places": [
+            "sukerchakia_home"
+          ],
+          "position": [
+            -10.442930221557617,
+            0.10023002326488495,
+            4.932711124420166
+          ]
+        },
+        "profile": "childhood.v1",
+        "relationships": [],
+        "riding": {
+          "horse": {
+            "grounded": true,
+            "id": "household_horse_01",
+            "position": [
+              8.0,
+              0.14,
+              -5.0
+            ],
+            "rider_id": "",
+            "speed": 0.0,
+            "vertical_speed": 0.0,
+            "yaw": 0.0
+          },
+          "schema_version": "riding.v1"
+        },
+        "scenario_id": "home_childhood_reconstruction",
+        "schema_version": "world-state.v1"
+      }
+    },
+    {
+      "memories": [
+        {
+          "channel": "observed",
+          "id": "letter",
+          "received_tick": 261,
+          "source_id": "self",
+          "text": "I have a sealed written message. Its words have not been read to me."
+        },
+        {
+          "channel": "testimony",
+          "id": "courier",
+          "received_tick": 263,
+          "source_id": "fictional_courier",
+          "text": "I carried that note; I did not scout the trail. I heard riders beyond the grove later."
+        },
+        {
+          "channel": "read_aloud",
+          "id": "steward",
+          "received_tick": 512,
+          "source_id": "fictional_steward",
+          "text": "The north trail was clear at dawn. The note says nothing about now."
+        }
+      ],
+      "milestone": "all three physical gates",
+      "perspective": {
+        "calibrated_probability": false,
+        "canonical_state_mutated": false,
+        "cause_identity": null,
+        "clock_id": "1792.childhood.tick",
+        "conditional_independence_assumed": true,
+        "hypotheses": [
+          "trail_clear",
+          "riders_nearby"
+        ],
+        "likelihood_class": "authored_gameplay_tuning",
+        "received_evidence": [
+          {
+            "age_ticks": 1271,
+            "memory_id": "courier",
+            "received_tick": 263,
+            "source_id": "fictional_courier"
+          },
+          {
+            "age_ticks": 1022,
+            "memory_id": "steward",
+            "received_tick": 512,
+            "source_id": "fictional_steward"
+          }
+        ],
+        "report_age_behavior": "retained_without_decay",
+        "schema": "1792.perspective-view.v1",
+        "status": "PROJECTED",
+        "tick": 1534,
+        "weights": [
+          0.5625,
+          0.4375
+        ]
+      },
+      "state": {
+        "actors": {
+          "ranjit_singh": {
+            "position": [
+              -8.029512405395508,
+              0.10094096511602402,
+              -4.700466156005859
+            ]
+          }
+        },
+        "aftermath": {
+          "clue_tick": -1,
+          "decision": "",
+          "decision_tick": -1,
+          "escort": {
+            "active": false,
+            "id": "fictional_household_guard",
+            "instruction": "hold",
+            "position": [
+              -9.0,
+              0.14000000059604645,
+              8.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "yaw": 0.0
+          },
+          "heard": [],
+          "memories": [],
+          "offer_heard": false,
+          "reported_tick": -1,
+          "schema_version": "aftermath.v1"
+        },
+        "childhood": {
+          "ambush": {
+            "deflected": false,
+            "end_tick": -1,
+            "hits": 0,
+            "position": [
+              16.0,
+              0.14,
+              -13.0
+            ],
+            "seen": false,
+            "start_tick": -1,
+            "status": "locked",
+            "stun_until": -1
+          },
+          "counters": 0,
+          "heard": [
+            "courier",
+            "steward"
+          ],
+          "letter_seen": true,
+          "looked": 0.8999999999999999,
+          "memories": [
+            {
+              "channel": "observed",
+              "id": "letter",
+              "received_tick": 261,
+              "source_id": "self",
+              "text": "I have a sealed written message. Its words have not been read to me."
+            },
+            {
+              "channel": "testimony",
+              "id": "courier",
+              "received_tick": 263,
+              "source_id": "fictional_courier",
+              "text": "I carried that note; I did not scout the trail. I heard riders beyond the grove later."
+            },
+            {
+              "channel": "read_aloud",
+              "id": "steward",
+              "received_tick": 512,
+              "source_id": "fictional_steward",
+              "text": "The north trail was clear at dawn. The note says nothing about now."
+            }
+          ],
+          "parries": 0,
+          "quarry_seen": false,
+          "reflected": false,
+          "ride_gate": 3,
+          "tick": 1534,
+          "tracks": 0,
+          "walked": 6.0
+        },
+        "game_time": {
+          "day": 1,
+          "hour": 7.007101851851852,
+          "year": 1792
+        },
+        "historical_class": "authored_source_informed_prototype",
+        "places": [
+          {
+            "disposition": "friendly",
+            "id": "sukerchakia_home"
+          }
+        ],
+        "player": {
+          "character_id": "ranjit_singh",
+          "known_places": [
+            "sukerchakia_home"
+          ],
+          "position": [
+            -8.029512405395508,
+            0.10094096511602402,
+            -4.700466156005859
+          ]
+        },
+        "profile": "childhood.v1",
+        "relationships": [],
+        "riding": {
+          "horse": {
+            "grounded": true,
+            "id": "household_horse_01",
+            "position": [
+              -8.029512405395508,
+              0.10094096511602402,
+              -4.700466156005859
+            ],
+            "rider_id": "ranjit_singh",
+            "speed": 0.0,
+            "vertical_speed": 0.0,
+            "yaw": -3.128081798553467
+          },
+          "schema_version": "riding.v1"
+        },
+        "scenario_id": "home_childhood_reconstruction",
+        "schema_version": "world-state.v1"
+      }
+    },
+    {
+      "memories": [
+        {
+          "channel": "observed",
+          "id": "letter",
+          "received_tick": 261,
+          "source_id": "self",
+          "text": "I have a sealed written message. Its words have not been read to me."
+        },
+        {
+          "channel": "testimony",
+          "id": "courier",
+          "received_tick": 263,
+          "source_id": "fictional_courier",
+          "text": "I carried that note; I did not scout the trail. I heard riders beyond the grove later."
+        },
+        {
+          "channel": "read_aloud",
+          "id": "steward",
+          "received_tick": 512,
+          "source_id": "fictional_steward",
+          "text": "The north trail was clear at dawn. The note says nothing about now."
+        }
+      ],
+      "milestone": "actual guard input checks telegraphed practice strikes",
+      "perspective": {
+        "calibrated_probability": false,
+        "canonical_state_mutated": false,
+        "cause_identity": null,
+        "clock_id": "1792.childhood.tick",
+        "conditional_independence_assumed": true,
+        "hypotheses": [
+          "trail_clear",
+          "riders_nearby"
+        ],
+        "likelihood_class": "authored_gameplay_tuning",
+        "received_evidence": [
+          {
+            "age_ticks": 1664,
+            "memory_id": "courier",
+            "received_tick": 263,
+            "source_id": "fictional_courier"
+          },
+          {
+            "age_ticks": 1415,
+            "memory_id": "steward",
+            "received_tick": 512,
+            "source_id": "fictional_steward"
+          }
+        ],
+        "report_age_behavior": "retained_without_decay",
+        "schema": "1792.perspective-view.v1",
+        "status": "PROJECTED",
+        "tick": 1927,
+        "weights": [
+          0.5625,
+          0.4375
+        ]
+      },
+      "state": {
+        "actors": {
+          "ranjit_singh": {
+            "position": [
+              -13.90446662902832,
+              0.1001562625169754,
+              -3.150761365890503
+            ]
+          }
+        },
+        "aftermath": {
+          "clue_tick": -1,
+          "decision": "",
+          "decision_tick": -1,
+          "escort": {
+            "active": false,
+            "id": "fictional_household_guard",
+            "instruction": "hold",
+            "position": [
+              -9.0,
+              0.14000000059604645,
+              8.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "yaw": 0.0
+          },
+          "heard": [],
+          "memories": [],
+          "offer_heard": false,
+          "reported_tick": -1,
+          "schema_version": "aftermath.v1"
+        },
+        "childhood": {
+          "ambush": {
+            "deflected": false,
+            "end_tick": -1,
+            "hits": 0,
+            "position": [
+              16.0,
+              0.14,
+              -13.0
+            ],
+            "seen": false,
+            "start_tick": -1,
+            "status": "locked",
+            "stun_until": -1
+          },
+          "counters": 0,
+          "heard": [
+            "courier",
+            "steward"
+          ],
+          "letter_seen": true,
+          "looked": 0.8999999999999999,
+          "memories": [
+            {
+              "channel": "observed",
+              "id": "letter",
+              "received_tick": 261,
+              "source_id": "self",
+              "text": "I have a sealed written message. Its words have not been read to me."
+            },
+            {
+              "channel": "testimony",
+              "id": "courier",
+              "received_tick": 263,
+              "source_id": "fictional_courier",
+              "text": "I carried that note; I did not scout the trail. I heard riders beyond the grove later."
+            },
+            {
+              "channel": "read_aloud",
+              "id": "steward",
+              "received_tick": 512,
+              "source_id": "fictional_steward",
+              "text": "The north trail was clear at dawn. The note says nothing about now."
+            }
+          ],
+          "parries": 2,
+          "quarry_seen": false,
+          "reflected": false,
+          "ride_gate": 3,
+          "tick": 1927,
+          "tracks": 0,
+          "walked": 6.0
+        },
+        "game_time": {
+          "day": 1,
+          "hour": 7.008921296296296,
+          "year": 1792
+        },
+        "historical_class": "authored_source_informed_prototype",
+        "places": [
+          {
+            "disposition": "friendly",
+            "id": "sukerchakia_home"
+          }
+        ],
+        "player": {
+          "character_id": "ranjit_singh",
+          "known_places": [
+            "sukerchakia_home"
+          ],
+          "position": [
+            -13.90446662902832,
+            0.1001562625169754,
+            -3.150761365890503
+          ]
+        },
+        "profile": "childhood.v1",
+        "relationships": [],
+        "riding": {
+          "horse": {
+            "grounded": true,
+            "id": "household_horse_01",
+            "position": [
+              -8.029512405395508,
+              0.10094096511602402,
+              -4.700466156005859
+            ],
+            "rider_id": "",
+            "speed": 0.0,
+            "vertical_speed": 0.0,
+            "yaw": -3.128081798553467
+          },
+          "schema_version": "riding.v1"
+        },
+        "scenario_id": "home_childhood_reconstruction",
+        "schema_version": "world-state.v1"
+      }
+    },
+    {
+      "memories": [
+        {
+          "channel": "observed",
+          "id": "letter",
+          "received_tick": 261,
+          "source_id": "self",
+          "text": "I have a sealed written message. Its words have not been read to me."
+        },
+        {
+          "channel": "testimony",
+          "id": "courier",
+          "received_tick": 263,
+          "source_id": "fictional_courier",
+          "text": "I carried that note; I did not scout the trail. I heard riders beyond the grove later."
+        },
+        {
+          "channel": "read_aloud",
+          "id": "steward",
+          "received_tick": 512,
+          "source_id": "fictional_steward",
+          "text": "The north trail was clear at dawn. The note says nothing about now."
+        }
+      ],
+      "milestone": "counter opens hunting lesson",
+      "perspective": {
+        "calibrated_probability": false,
+        "canonical_state_mutated": false,
+        "cause_identity": null,
+        "clock_id": "1792.childhood.tick",
+        "conditional_independence_assumed": true,
+        "hypotheses": [
+          "trail_clear",
+          "riders_nearby"
+        ],
+        "likelihood_class": "authored_gameplay_tuning",
+        "received_evidence": [
+          {
+            "age_ticks": 1666,
+            "memory_id": "courier",
+            "received_tick": 263,
+            "source_id": "fictional_courier"
+          },
+          {
+            "age_ticks": 1417,
+            "memory_id": "steward",
+            "received_tick": 512,
+            "source_id": "fictional_steward"
+          }
+        ],
+        "report_age_behavior": "retained_without_decay",
+        "schema": "1792.perspective-view.v1",
+        "status": "PROJECTED",
+        "tick": 1929,
+        "weights": [
+          0.5625,
+          0.4375
+        ]
+      },
+      "state": {
+        "actors": {
+          "ranjit_singh": {
+            "position": [
+              -13.90446662902832,
+              0.1001562625169754,
+              -3.150761365890503
+            ]
+          }
+        },
+        "aftermath": {
+          "clue_tick": -1,
+          "decision": "",
+          "decision_tick": -1,
+          "escort": {
+            "active": false,
+            "id": "fictional_household_guard",
+            "instruction": "hold",
+            "position": [
+              -9.0,
+              0.14000000059604645,
+              8.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "yaw": 0.0
+          },
+          "heard": [],
+          "memories": [],
+          "offer_heard": false,
+          "reported_tick": -1,
+          "schema_version": "aftermath.v1"
+        },
+        "childhood": {
+          "ambush": {
+            "deflected": false,
+            "end_tick": -1,
+            "hits": 0,
+            "position": [
+              16.0,
+              0.14,
+              -13.0
+            ],
+            "seen": false,
+            "start_tick": -1,
+            "status": "locked",
+            "stun_until": -1
+          },
+          "counters": 1,
+          "heard": [
+            "courier",
+            "steward"
+          ],
+          "letter_seen": true,
+          "looked": 0.8999999999999999,
+          "memories": [
+            {
+              "channel": "observed",
+              "id": "letter",
+              "received_tick": 261,
+              "source_id": "self",
+              "text": "I have a sealed written message. Its words have not been read to me."
+            },
+            {
+              "channel": "testimony",
+              "id": "courier",
+              "received_tick": 263,
+              "source_id": "fictional_courier",
+              "text": "I carried that note; I did not scout the trail. I heard riders beyond the grove later."
+            },
+            {
+              "channel": "read_aloud",
+              "id": "steward",
+              "received_tick": 512,
+              "source_id": "fictional_steward",
+              "text": "The north trail was clear at dawn. The note says nothing about now."
+            }
+          ],
+          "parries": 2,
+          "quarry_seen": false,
+          "reflected": false,
+          "ride_gate": 3,
+          "tick": 1929,
+          "tracks": 0,
+          "walked": 6.0
+        },
+        "game_time": {
+          "day": 1,
+          "hour": 7.008930555555556,
+          "year": 1792
+        },
+        "historical_class": "authored_source_informed_prototype",
+        "places": [
+          {
+            "disposition": "friendly",
+            "id": "sukerchakia_home"
+          }
+        ],
+        "player": {
+          "character_id": "ranjit_singh",
+          "known_places": [
+            "sukerchakia_home"
+          ],
+          "position": [
+            -13.90446662902832,
+            0.1001562625169754,
+            -3.150761365890503
+          ]
+        },
+        "profile": "childhood.v1",
+        "relationships": [],
+        "riding": {
+          "horse": {
+            "grounded": true,
+            "id": "household_horse_01",
+            "position": [
+              -8.029512405395508,
+              0.10094096511602402,
+              -4.700466156005859
+            ],
+            "rider_id": "",
+            "speed": 0.0,
+            "vertical_speed": 0.0,
+            "yaw": -3.128081798553467
+          },
+          "schema_version": "riding.v1"
+        },
+        "scenario_id": "home_childhood_reconstruction",
+        "schema_version": "world-state.v1"
+      }
+    },
+    {
+      "memories": [
+        {
+          "channel": "observed",
+          "id": "letter",
+          "received_tick": 261,
+          "source_id": "self",
+          "text": "I have a sealed written message. Its words have not been read to me."
+        },
+        {
+          "channel": "testimony",
+          "id": "courier",
+          "received_tick": 263,
+          "source_id": "fictional_courier",
+          "text": "I carried that note; I did not scout the trail. I heard riders beyond the grove later."
+        },
+        {
+          "channel": "read_aloud",
+          "id": "steward",
+          "received_tick": 512,
+          "source_id": "fictional_steward",
+          "text": "The north trail was clear at dawn. The note says nothing about now."
+        },
+        {
+          "channel": "observed",
+          "id": "track_1",
+          "received_tick": 2060,
+          "source_id": "self",
+          "text": "I examined the next set of tracks; the trail continues toward the grove."
+        }
+      ],
+      "milestone": "physical sight and inspection of track 1",
+      "perspective": {
+        "calibrated_probability": false,
+        "canonical_state_mutated": false,
+        "cause_identity": null,
+        "clock_id": "1792.childhood.tick",
+        "conditional_independence_assumed": true,
+        "hypotheses": [
+          "trail_clear",
+          "riders_nearby"
+        ],
+        "likelihood_class": "authored_gameplay_tuning",
+        "received_evidence": [
+          {
+            "age_ticks": 1798,
+            "memory_id": "courier",
+            "received_tick": 263,
+            "source_id": "fictional_courier"
+          },
+          {
+            "age_ticks": 1549,
+            "memory_id": "steward",
+            "received_tick": 512,
+            "source_id": "fictional_steward"
+          }
+        ],
+        "report_age_behavior": "retained_without_decay",
+        "schema": "1792.perspective-view.v1",
+        "status": "PROJECTED",
+        "tick": 2061,
+        "weights": [
+          0.5625,
+          0.4375
+        ]
+      },
+      "state": {
+        "actors": {
+          "ranjit_singh": {
+            "position": [
+              -15.882572174072266,
+              0.1001562625169754,
+              -11.700456619262695
+            ]
+          }
+        },
+        "aftermath": {
+          "clue_tick": -1,
+          "decision": "",
+          "decision_tick": -1,
+          "escort": {
+            "active": false,
+            "id": "fictional_household_guard",
+            "instruction": "hold",
+            "position": [
+              -9.0,
+              0.14000000059604645,
+              8.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "yaw": 0.0
+          },
+          "heard": [],
+          "memories": [],
+          "offer_heard": false,
+          "reported_tick": -1,
+          "schema_version": "aftermath.v1"
+        },
+        "childhood": {
+          "ambush": {
+            "deflected": false,
+            "end_tick": -1,
+            "hits": 0,
+            "position": [
+              16.0,
+              0.14,
+              -13.0
+            ],
+            "seen": false,
+            "start_tick": -1,
+            "status": "locked",
+            "stun_until": -1
+          },
+          "counters": 1,
+          "heard": [
+            "courier",
+            "steward"
+          ],
+          "letter_seen": true,
+          "looked": 0.8999999999999999,
+          "memories": [
+            {
+              "channel": "observed",
+              "id": "letter",
+              "received_tick": 261,
+              "source_id": "self",
+              "text": "I have a sealed written message. Its words have not been read to me."
+            },
+            {
+              "channel": "testimony",
+              "id": "courier",
+              "received_tick": 263,
+              "source_id": "fictional_courier",
+              "text": "I carried that note; I did not scout the trail. I heard riders beyond the grove later."
+            },
+            {
+              "channel": "read_aloud",
+              "id": "steward",
+              "received_tick": 512,
+              "source_id": "fictional_steward",
+              "text": "The north trail was clear at dawn. The note says nothing about now."
+            },
+            {
+              "channel": "observed",
+              "id": "track_1",
+              "received_tick": 2060,
+              "source_id": "self",
+              "text": "I examined the next set of tracks; the trail continues toward the grove."
+            }
+          ],
+          "parries": 2,
+          "quarry_seen": false,
+          "reflected": false,
+          "ride_gate": 3,
+          "tick": 2061,
+          "tracks": 1,
+          "walked": 6.0
+        },
+        "game_time": {
+          "day": 1,
+          "hour": 7.009541666666666,
+          "year": 1792
+        },
+        "historical_class": "authored_source_informed_prototype",
+        "places": [
+          {
+            "disposition": "friendly",
+            "id": "sukerchakia_home"
+          }
+        ],
+        "player": {
+          "character_id": "ranjit_singh",
+          "known_places": [
+            "sukerchakia_home"
+          ],
+          "position": [
+            -15.882572174072266,
+            0.1001562625169754,
+            -11.700456619262695
+          ]
+        },
+        "profile": "childhood.v1",
+        "relationships": [],
+        "riding": {
+          "horse": {
+            "grounded": true,
+            "id": "household_horse_01",
+            "position": [
+              -8.029512405395508,
+              0.10094096511602402,
+              -4.700466156005859
+            ],
+            "rider_id": "",
+            "speed": 0.0,
+            "vertical_speed": 0.0,
+            "yaw": -3.128081798553467
+          },
+          "schema_version": "riding.v1"
+        },
+        "scenario_id": "home_childhood_reconstruction",
+        "schema_version": "world-state.v1"
+      }
+    },
+    {
+      "memories": [
+        {
+          "channel": "observed",
+          "id": "letter",
+          "received_tick": 261,
+          "source_id": "self",
+          "text": "I have a sealed written message. Its words have not been read to me."
+        },
+        {
+          "channel": "testimony",
+          "id": "courier",
+          "received_tick": 263,
+          "source_id": "fictional_courier",
+          "text": "I carried that note; I did not scout the trail. I heard riders beyond the grove later."
+        },
+        {
+          "channel": "read_aloud",
+          "id": "steward",
+          "received_tick": 512,
+          "source_id": "fictional_steward",
+          "text": "The north trail was clear at dawn. The note says nothing about now."
+        },
+        {
+          "channel": "observed",
+          "id": "track_1",
+          "received_tick": 2060,
+          "source_id": "self",
+          "text": "I examined the next set of tracks; the trail continues toward the grove."
+        },
+        {
+          "channel": "observed",
+          "id": "track_2",
+          "received_tick": 2222,
+          "source_id": "self",
+          "text": "I examined the next set of tracks; the trail continues toward the grove."
+        }
+      ],
+      "milestone": "physical sight and inspection of track 2",
+      "perspective": {
+        "calibrated_probability": false,
+        "canonical_state_mutated": false,
+        "cause_identity": null,
+        "clock_id": "1792.childhood.tick",
+        "conditional_independence_assumed": true,
+        "hypotheses": [
+          "trail_clear",
+          "riders_nearby"
+        ],
+        "likelihood_class": "authored_gameplay_tuning",
+        "received_evidence": [
+          {
+            "age_ticks": 1960,
+            "memory_id": "courier",
+            "received_tick": 263,
+            "source_id": "fictional_courier"
+          },
+          {
+            "age_ticks": 1711,
+            "memory_id": "steward",
+            "received_tick": 512,
+            "source_id": "fictional_steward"
+          }
+        ],
+        "report_age_behavior": "retained_without_decay",
+        "schema": "1792.perspective-view.v1",
+        "status": "PROJECTED",
+        "tick": 2223,
+        "weights": [
+          0.5625,
+          0.4375
+        ]
+      },
+      "state": {
+        "actors": {
+          "ranjit_singh": {
+            "position": [
+              -8.197063446044922,
+              0.1001562625169754,
+              -19.60515785217285
+            ]
+          }
+        },
+        "aftermath": {
+          "clue_tick": -1,
+          "decision": "",
+          "decision_tick": -1,
+          "escort": {
+            "active": false,
+            "id": "fictional_household_guard",
+            "instruction": "hold",
+            "position": [
+              -9.0,
+              0.14000000059604645,
+              8.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "yaw": 0.0
+          },
+          "heard": [],
+          "memories": [],
+          "offer_heard": false,
+          "reported_tick": -1,
+          "schema_version": "aftermath.v1"
+        },
+        "childhood": {
+          "ambush": {
+            "deflected": false,
+            "end_tick": -1,
+            "hits": 0,
+            "position": [
+              16.0,
+              0.14,
+              -13.0
+            ],
+            "seen": false,
+            "start_tick": -1,
+            "status": "locked",
+            "stun_until": -1
+          },
+          "counters": 1,
+          "heard": [
+            "courier",
+            "steward"
+          ],
+          "letter_seen": true,
+          "looked": 0.8999999999999999,
+          "memories": [
+            {
+              "channel": "observed",
+              "id": "letter",
+              "received_tick": 261,
+              "source_id": "self",
+              "text": "I have a sealed written message. Its words have not been read to me."
+            },
+            {
+              "channel": "testimony",
+              "id": "courier",
+              "received_tick": 263,
+              "source_id": "fictional_courier",
+              "text": "I carried that note; I did not scout the trail. I heard riders beyond the grove later."
+            },
+            {
+              "channel": "read_aloud",
+              "id": "steward",
+              "received_tick": 512,
+              "source_id": "fictional_steward",
+              "text": "The north trail was clear at dawn. The note says nothing about now."
+            },
+            {
+              "channel": "observed",
+              "id": "track_1",
+              "received_tick": 2060,
+              "source_id": "self",
+              "text": "I examined the next set of tracks; the trail continues toward the grove."
+            },
+            {
+              "channel": "observed",
+              "id": "track_2",
+              "received_tick": 2222,
+              "source_id": "self",
+              "text": "I examined the next set of tracks; the trail continues toward the grove."
+            }
+          ],
+          "parries": 2,
+          "quarry_seen": false,
+          "reflected": false,
+          "ride_gate": 3,
+          "tick": 2223,
+          "tracks": 2,
+          "walked": 6.0
+        },
+        "game_time": {
+          "day": 1,
+          "hour": 7.010291666666666,
+          "year": 1792
+        },
+        "historical_class": "authored_source_informed_prototype",
+        "places": [
+          {
+            "disposition": "friendly",
+            "id": "sukerchakia_home"
+          }
+        ],
+        "player": {
+          "character_id": "ranjit_singh",
+          "known_places": [
+            "sukerchakia_home"
+          ],
+          "position": [
+            -8.197063446044922,
+            0.1001562625169754,
+            -19.60515785217285
+          ]
+        },
+        "profile": "childhood.v1",
+        "relationships": [],
+        "riding": {
+          "horse": {
+            "grounded": true,
+            "id": "household_horse_01",
+            "position": [
+              -8.029512405395508,
+              0.10094096511602402,
+              -4.700466156005859
+            ],
+            "rider_id": "",
+            "speed": 0.0,
+            "vertical_speed": 0.0,
+            "yaw": -3.128081798553467
+          },
+          "schema_version": "riding.v1"
+        },
+        "scenario_id": "home_childhood_reconstruction",
+        "schema_version": "world-state.v1"
+      }
+    },
+    {
+      "memories": [
+        {
+          "channel": "observed",
+          "id": "letter",
+          "received_tick": 261,
+          "source_id": "self",
+          "text": "I have a sealed written message. Its words have not been read to me."
+        },
+        {
+          "channel": "testimony",
+          "id": "courier",
+          "received_tick": 263,
+          "source_id": "fictional_courier",
+          "text": "I carried that note; I did not scout the trail. I heard riders beyond the grove later."
+        },
+        {
+          "channel": "read_aloud",
+          "id": "steward",
+          "received_tick": 512,
+          "source_id": "fictional_steward",
+          "text": "The north trail was clear at dawn. The note says nothing about now."
+        },
+        {
+          "channel": "observed",
+          "id": "track_1",
+          "received_tick": 2060,
+          "source_id": "self",
+          "text": "I examined the next set of tracks; the trail continues toward the grove."
+        },
+        {
+          "channel": "observed",
+          "id": "track_2",
+          "received_tick": 2222,
+          "source_id": "self",
+          "text": "I examined the next set of tracks; the trail continues toward the grove."
+        },
+        {
+          "channel": "observed",
+          "id": "track_3",
+          "received_tick": 2348,
+          "source_id": "self",
+          "text": "I examined the next set of tracks; the trail continues toward the grove."
+        }
+      ],
+      "milestone": "physical sight and inspection of track 3",
+      "perspective": {
+        "calibrated_probability": false,
+        "canonical_state_mutated": false,
+        "cause_identity": null,
+        "clock_id": "1792.childhood.tick",
+        "conditional_independence_assumed": true,
+        "hypotheses": [
+          "trail_clear",
+          "riders_nearby"
+        ],
+        "likelihood_class": "authored_gameplay_tuning",
+        "received_evidence": [
+          {
+            "age_ticks": 2086,
+            "memory_id": "courier",
+            "received_tick": 263,
+            "source_id": "fictional_courier"
+          },
+          {
+            "age_ticks": 1837,
+            "memory_id": "steward",
+            "received_tick": 512,
+            "source_id": "fictional_steward"
+          }
+        ],
+        "report_age_behavior": "retained_without_decay",
+        "schema": "1792.perspective-view.v1",
+        "status": "PROJECTED",
+        "tick": 2349,
+        "weights": [
+          0.5625,
+          0.4375
+        ]
+      },
+      "state": {
+        "actors": {
+          "ranjit_singh": {
+            "position": [
+              -0.13060827553272247,
+              0.1001562625169754,
+              -21.666643142700195
+            ]
+          }
+        },
+        "aftermath": {
+          "clue_tick": -1,
+          "decision": "",
+          "decision_tick": -1,
+          "escort": {
+            "active": false,
+            "id": "fictional_household_guard",
+            "instruction": "hold",
+            "position": [
+              -9.0,
+              0.14000000059604645,
+              8.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "yaw": 0.0
+          },
+          "heard": [],
+          "memories": [],
+          "offer_heard": false,
+          "reported_tick": -1,
+          "schema_version": "aftermath.v1"
+        },
+        "childhood": {
+          "ambush": {
+            "deflected": false,
+            "end_tick": -1,
+            "hits": 0,
+            "position": [
+              16.0,
+              0.14,
+              -13.0
+            ],
+            "seen": false,
+            "start_tick": -1,
+            "status": "locked",
+            "stun_until": -1
+          },
+          "counters": 1,
+          "heard": [
+            "courier",
+            "steward"
+          ],
+          "letter_seen": true,
+          "looked": 0.8999999999999999,
+          "memories": [
+            {
+              "channel": "observed",
+              "id": "letter",
+              "received_tick": 261,
+              "source_id": "self",
+              "text": "I have a sealed written message. Its words have not been read to me."
+            },
+            {
+              "channel": "testimony",
+              "id": "courier",
+              "received_tick": 263,
+              "source_id": "fictional_courier",
+              "text": "I carried that note; I did not scout the trail. I heard riders beyond the grove later."
+            },
+            {
+              "channel": "read_aloud",
+              "id": "steward",
+              "received_tick": 512,
+              "source_id": "fictional_steward",
+              "text": "The north trail was clear at dawn. The note says nothing about now."
+            },
+            {
+              "channel": "observed",
+              "id": "track_1",
+              "received_tick": 2060,
+              "source_id": "self",
+              "text": "I examined the next set of tracks; the trail continues toward the grove."
+            },
+            {
+              "channel": "observed",
+              "id": "track_2",
+              "received_tick": 2222,
+              "source_id": "self",
+              "text": "I examined the next set of tracks; the trail continues toward the grove."
+            },
+            {
+              "channel": "observed",
+              "id": "track_3",
+              "received_tick": 2348,
+              "source_id": "self",
+              "text": "I examined the next set of tracks; the trail continues toward the grove."
+            }
+          ],
+          "parries": 2,
+          "quarry_seen": false,
+          "reflected": false,
+          "ride_gate": 3,
+          "tick": 2349,
+          "tracks": 3,
+          "walked": 6.0
+        },
+        "game_time": {
+          "day": 1,
+          "hour": 7.010875,
+          "year": 1792
+        },
+        "historical_class": "authored_source_informed_prototype",
+        "places": [
+          {
+            "disposition": "friendly",
+            "id": "sukerchakia_home"
+          }
+        ],
+        "player": {
+          "character_id": "ranjit_singh",
+          "known_places": [
+            "sukerchakia_home"
+          ],
+          "position": [
+            -0.13060827553272247,
+            0.1001562625169754,
+            -21.666643142700195
+          ]
+        },
+        "profile": "childhood.v1",
+        "relationships": [],
+        "riding": {
+          "horse": {
+            "grounded": true,
+            "id": "household_horse_01",
+            "position": [
+              -8.029512405395508,
+              0.10094096511602402,
+              -4.700466156005859
+            ],
+            "rider_id": "",
+            "speed": 0.0,
+            "vertical_speed": 0.0,
+            "yaw": -3.128081798553467
+          },
+          "schema_version": "riding.v1"
+        },
+        "scenario_id": "home_childhood_reconstruction",
+        "schema_version": "world-state.v1"
+      }
+    },
+    {
+      "memories": [
+        {
+          "channel": "observed",
+          "id": "letter",
+          "received_tick": 261,
+          "source_id": "self",
+          "text": "I have a sealed written message. Its words have not been read to me."
+        },
+        {
+          "channel": "testimony",
+          "id": "courier",
+          "received_tick": 263,
+          "source_id": "fictional_courier",
+          "text": "I carried that note; I did not scout the trail. I heard riders beyond the grove later."
+        },
+        {
+          "channel": "read_aloud",
+          "id": "steward",
+          "received_tick": 512,
+          "source_id": "fictional_steward",
+          "text": "The north trail was clear at dawn. The note says nothing about now."
+        },
+        {
+          "channel": "observed",
+          "id": "track_1",
+          "received_tick": 2060,
+          "source_id": "self",
+          "text": "I examined the next set of tracks; the trail continues toward the grove."
+        },
+        {
+          "channel": "observed",
+          "id": "track_2",
+          "received_tick": 2222,
+          "source_id": "self",
+          "text": "I examined the next set of tracks; the trail continues toward the grove."
+        },
+        {
+          "channel": "observed",
+          "id": "track_3",
+          "received_tick": 2348,
+          "source_id": "self",
+          "text": "I examined the next set of tracks; the trail continues toward the grove."
+        },
+        {
+          "channel": "observed",
+          "id": "quarry",
+          "received_tick": 2752,
+          "source_id": "self",
+          "text": "I reached the quarry quietly. I know this trail by travelling it."
+        }
+      ],
+      "milestone": "quiet quarry observation precedes ambush",
+      "perspective": {
+        "calibrated_probability": false,
+        "canonical_state_mutated": false,
+        "cause_identity": null,
+        "clock_id": "1792.childhood.tick",
+        "conditional_independence_assumed": true,
+        "hypotheses": [
+          "trail_clear",
+          "riders_nearby"
+        ],
+        "likelihood_class": "authored_gameplay_tuning",
+        "received_evidence": [
+          {
+            "age_ticks": 2490,
+            "memory_id": "courier",
+            "received_tick": 263,
+            "source_id": "fictional_courier"
+          },
+          {
+            "age_ticks": 2241,
+            "memory_id": "steward",
+            "received_tick": 512,
+            "source_id": "fictional_steward"
+          }
+        ],
+        "report_age_behavior": "retained_without_decay",
+        "schema": "1792.perspective-view.v1",
+        "status": "PROJECTED",
+        "tick": 2753,
+        "weights": [
+          0.5625,
+          0.4375
+        ]
+      },
+      "state": {
+        "actors": {
+          "ranjit_singh": {
+            "position": [
+              12.47872543334961,
+              0.1001562625169754,
+              -18.643659591674805
+            ]
+          }
+        },
+        "aftermath": {
+          "clue_tick": -1,
+          "decision": "",
+          "decision_tick": -1,
+          "escort": {
+            "active": false,
+            "id": "fictional_household_guard",
+            "instruction": "hold",
+            "position": [
+              -9.0,
+              0.14000000059604645,
+              8.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "yaw": 0.0
+          },
+          "heard": [],
+          "memories": [],
+          "offer_heard": false,
+          "reported_tick": -1,
+          "schema_version": "aftermath.v1"
+        },
+        "childhood": {
+          "ambush": {
+            "deflected": false,
+            "end_tick": -1,
+            "hits": 0,
+            "position": [
+              16.0,
+              0.14,
+              -13.0
+            ],
+            "seen": false,
+            "start_tick": -1,
+            "status": "ready",
+            "stun_until": -1
+          },
+          "counters": 1,
+          "heard": [
+            "courier",
+            "steward"
+          ],
+          "letter_seen": true,
+          "looked": 0.8999999999999999,
+          "memories": [
+            {
+              "channel": "observed",
+              "id": "letter",
+              "received_tick": 261,
+              "source_id": "self",
+              "text": "I have a sealed written message. Its words have not been read to me."
+            },
+            {
+              "channel": "testimony",
+              "id": "courier",
+              "received_tick": 263,
+              "source_id": "fictional_courier",
+              "text": "I carried that note; I did not scout the trail. I heard riders beyond the grove later."
+            },
+            {
+              "channel": "read_aloud",
+              "id": "steward",
+              "received_tick": 512,
+              "source_id": "fictional_steward",
+              "text": "The north trail was clear at dawn. The note says nothing about now."
+            },
+            {
+              "channel": "observed",
+              "id": "track_1",
+              "received_tick": 2060,
+              "source_id": "self",
+              "text": "I examined the next set of tracks; the trail continues toward the grove."
+            },
+            {
+              "channel": "observed",
+              "id": "track_2",
+              "received_tick": 2222,
+              "source_id": "self",
+              "text": "I examined the next set of tracks; the trail continues toward the grove."
+            },
+            {
+              "channel": "observed",
+              "id": "track_3",
+              "received_tick": 2348,
+              "source_id": "self",
+              "text": "I examined the next set of tracks; the trail continues toward the grove."
+            },
+            {
+              "channel": "observed",
+              "id": "quarry",
+              "received_tick": 2752,
+              "source_id": "self",
+              "text": "I reached the quarry quietly. I know this trail by travelling it."
+            }
+          ],
+          "parries": 2,
+          "quarry_seen": true,
+          "reflected": false,
+          "ride_gate": 3,
+          "tick": 2753,
+          "tracks": 3,
+          "walked": 6.0
+        },
+        "game_time": {
+          "day": 1,
+          "hour": 7.012745370370371,
+          "year": 1792
+        },
+        "historical_class": "authored_source_informed_prototype",
+        "places": [
+          {
+            "disposition": "friendly",
+            "id": "sukerchakia_home"
+          }
+        ],
+        "player": {
+          "character_id": "ranjit_singh",
+          "known_places": [
+            "sukerchakia_home"
+          ],
+          "position": [
+            12.47872543334961,
+            0.1001562625169754,
+            -18.643659591674805
+          ]
+        },
+        "profile": "childhood.v1",
+        "relationships": [],
+        "riding": {
+          "horse": {
+            "grounded": true,
+            "id": "household_horse_01",
+            "position": [
+              -8.029512405395508,
+              0.10094096511602402,
+              -4.700466156005859
+            ],
+            "rider_id": "",
+            "speed": 0.0,
+            "vertical_speed": 0.0,
+            "yaw": -3.128081798553467
+          },
+          "schema_version": "riding.v1"
+        },
+        "scenario_id": "home_childhood_reconstruction",
+        "schema_version": "world-state.v1"
+      }
+    },
+    {
+      "memories": [
+        {
+          "channel": "observed",
+          "id": "letter",
+          "received_tick": 261,
+          "source_id": "self",
+          "text": "I have a sealed written message. Its words have not been read to me."
+        },
+        {
+          "channel": "testimony",
+          "id": "courier",
+          "received_tick": 263,
+          "source_id": "fictional_courier",
+          "text": "I carried that note; I did not scout the trail. I heard riders beyond the grove later."
+        },
+        {
+          "channel": "read_aloud",
+          "id": "steward",
+          "received_tick": 512,
+          "source_id": "fictional_steward",
+          "text": "The north trail was clear at dawn. The note says nothing about now."
+        },
+        {
+          "channel": "observed",
+          "id": "track_1",
+          "received_tick": 2060,
+          "source_id": "self",
+          "text": "I examined the next set of tracks; the trail continues toward the grove."
+        },
+        {
+          "channel": "observed",
+          "id": "track_2",
+          "received_tick": 2222,
+          "source_id": "self",
+          "text": "I examined the next set of tracks; the trail continues toward the grove."
+        },
+        {
+          "channel": "observed",
+          "id": "track_3",
+          "received_tick": 2348,
+          "source_id": "self",
+          "text": "I examined the next set of tracks; the trail continues toward the grove."
+        },
+        {
+          "channel": "observed",
+          "id": "quarry",
+          "received_tick": 2752,
+          "source_id": "self",
+          "text": "I reached the quarry quietly. I know this trail by travelling it."
+        },
+        {
+          "channel": "observed",
+          "id": "return",
+          "received_tick": 2981,
+          "source_id": "self",
+          "text": "I returned alive. The attack does not tell me which household, if any, ordered it."
+        }
+      ],
+      "milestone": "actual movement escapes to the courtyard",
+      "perspective": {
+        "calibrated_probability": false,
+        "canonical_state_mutated": false,
+        "cause_identity": null,
+        "clock_id": "1792.childhood.tick",
+        "conditional_independence_assumed": true,
+        "hypotheses": [
+          "trail_clear",
+          "riders_nearby"
+        ],
+        "likelihood_class": "authored_gameplay_tuning",
+        "received_evidence": [
+          {
+            "age_ticks": 2766,
+            "memory_id": "courier",
+            "received_tick": 263,
+            "source_id": "fictional_courier"
+          },
+          {
+            "age_ticks": 2517,
+            "memory_id": "steward",
+            "received_tick": 512,
+            "source_id": "fictional_steward"
+          }
+        ],
+        "report_age_behavior": "retained_without_decay",
+        "schema": "1792.perspective-view.v1",
+        "status": "PROJECTED",
+        "tick": 3029,
+        "weights": [
+          0.5625,
+          0.4375
+        ]
+      },
+      "state": {
+        "actors": {
+          "ranjit_singh": {
+            "position": [
+              0.003673554863780737,
+              0.1001562625169754,
+              4.478543281555176
+            ]
+          }
+        },
+        "aftermath": {
+          "clue_tick": -1,
+          "decision": "",
+          "decision_tick": -1,
+          "escort": {
+            "active": false,
+            "id": "fictional_household_guard",
+            "instruction": "hold",
+            "position": [
+              -9.0,
+              0.14000000059604645,
+              8.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "yaw": 0.0
+          },
+          "heard": [],
+          "memories": [],
+          "offer_heard": false,
+          "reported_tick": -1,
+          "schema_version": "aftermath.v1"
+        },
+        "childhood": {
+          "ambush": {
+            "deflected": false,
+            "end_tick": 2981,
+            "hits": 0,
+            "position": [
+              10.064889907836914,
+              0.10093611478805542,
+              -10.946832656860352
+            ],
+            "seen": false,
+            "start_tick": 2814,
+            "status": "escaped",
+            "stun_until": -1
+          },
+          "counters": 1,
+          "heard": [
+            "courier",
+            "steward"
+          ],
+          "letter_seen": true,
+          "looked": 0.8999999999999999,
+          "memories": [
+            {
+              "channel": "observed",
+              "id": "letter",
+              "received_tick": 261,
+              "source_id": "self",
+              "text": "I have a sealed written message. Its words have not been read to me."
+            },
+            {
+              "channel": "testimony",
+              "id": "courier",
+              "received_tick": 263,
+              "source_id": "fictional_courier",
+              "text": "I carried that note; I did not scout the trail. I heard riders beyond the grove later."
+            },
+            {
+              "channel": "read_aloud",
+              "id": "steward",
+              "received_tick": 512,
+              "source_id": "fictional_steward",
+              "text": "The north trail was clear at dawn. The note says nothing about now."
+            },
+            {
+              "channel": "observed",
+              "id": "track_1",
+              "received_tick": 2060,
+              "source_id": "self",
+              "text": "I examined the next set of tracks; the trail continues toward the grove."
+            },
+            {
+              "channel": "observed",
+              "id": "track_2",
+              "received_tick": 2222,
+              "source_id": "self",
+              "text": "I examined the next set of tracks; the trail continues toward the grove."
+            },
+            {
+              "channel": "observed",
+              "id": "track_3",
+              "received_tick": 2348,
+              "source_id": "self",
+              "text": "I examined the next set of tracks; the trail continues toward the grove."
+            },
+            {
+              "channel": "observed",
+              "id": "quarry",
+              "received_tick": 2752,
+              "source_id": "self",
+              "text": "I reached the quarry quietly. I know this trail by travelling it."
+            },
+            {
+              "channel": "observed",
+              "id": "return",
+              "received_tick": 2981,
+              "source_id": "self",
+              "text": "I returned alive. The attack does not tell me which household, if any, ordered it."
+            }
+          ],
+          "parries": 2,
+          "quarry_seen": true,
+          "reflected": false,
+          "ride_gate": 3,
+          "tick": 3029,
+          "tracks": 3,
+          "walked": 6.0
+        },
+        "game_time": {
+          "day": 1,
+          "hour": 7.014023148148148,
+          "year": 1792
+        },
+        "historical_class": "authored_source_informed_prototype",
+        "places": [
+          {
+            "disposition": "friendly",
+            "id": "sukerchakia_home"
+          }
+        ],
+        "player": {
+          "character_id": "ranjit_singh",
+          "known_places": [
+            "sukerchakia_home"
+          ],
+          "position": [
+            0.003673554863780737,
+            0.1001562625169754,
+            4.478543281555176
+          ]
+        },
+        "profile": "childhood.v1",
+        "relationships": [],
+        "riding": {
+          "horse": {
+            "grounded": true,
+            "id": "household_horse_01",
+            "position": [
+              -8.029512405395508,
+              0.10094096511602402,
+              -4.700466156005859
+            ],
+            "rider_id": "",
+            "speed": 0.0,
+            "vertical_speed": 0.0,
+            "yaw": -3.128081798553467
+          },
+          "schema_version": "riding.v1"
+        },
+        "scenario_id": "home_childhood_reconstruction",
+        "schema_version": "world-state.v1"
+      }
+    },
+    {
+      "memories": [
+        {
+          "channel": "observed",
+          "id": "letter",
+          "received_tick": 261,
+          "source_id": "self",
+          "text": "I have a sealed written message. Its words have not been read to me."
+        },
+        {
+          "channel": "testimony",
+          "id": "courier",
+          "received_tick": 263,
+          "source_id": "fictional_courier",
+          "text": "I carried that note; I did not scout the trail. I heard riders beyond the grove later."
+        },
+        {
+          "channel": "read_aloud",
+          "id": "steward",
+          "received_tick": 512,
+          "source_id": "fictional_steward",
+          "text": "The north trail was clear at dawn. The note says nothing about now."
+        },
+        {
+          "channel": "observed",
+          "id": "track_1",
+          "received_tick": 2060,
+          "source_id": "self",
+          "text": "I examined the next set of tracks; the trail continues toward the grove."
+        },
+        {
+          "channel": "observed",
+          "id": "track_2",
+          "received_tick": 2222,
+          "source_id": "self",
+          "text": "I examined the next set of tracks; the trail continues toward the grove."
+        },
+        {
+          "channel": "observed",
+          "id": "track_3",
+          "received_tick": 2348,
+          "source_id": "self",
+          "text": "I examined the next set of tracks; the trail continues toward the grove."
+        },
+        {
+          "channel": "observed",
+          "id": "quarry",
+          "received_tick": 2752,
+          "source_id": "self",
+          "text": "I reached the quarry quietly. I know this trail by travelling it."
+        }
+      ],
+      "milestone": "save resumes before ambush without losing lessons",
+      "perspective": {
+        "calibrated_probability": false,
+        "canonical_state_mutated": false,
+        "cause_identity": null,
+        "clock_id": "1792.childhood.tick",
+        "conditional_independence_assumed": true,
+        "hypotheses": [
+          "trail_clear",
+          "riders_nearby"
+        ],
+        "likelihood_class": "authored_gameplay_tuning",
+        "received_evidence": [
+          {
+            "age_ticks": 2490,
+            "memory_id": "courier",
+            "received_tick": 263,
+            "source_id": "fictional_courier"
+          },
+          {
+            "age_ticks": 2241,
+            "memory_id": "steward",
+            "received_tick": 512,
+            "source_id": "fictional_steward"
+          }
+        ],
+        "report_age_behavior": "retained_without_decay",
+        "schema": "1792.perspective-view.v1",
+        "status": "PROJECTED",
+        "tick": 2753,
+        "weights": [
+          0.5625,
+          0.4375
+        ]
+      },
+      "state": {
+        "actors": {
+          "ranjit_singh": {
+            "position": [
+              12.47872543334961,
+              0.1001562625169754,
+              -18.643659591674805
+            ]
+          }
+        },
+        "aftermath": {
+          "clue_tick": -1,
+          "decision": "",
+          "decision_tick": -1,
+          "escort": {
+            "active": false,
+            "id": "fictional_household_guard",
+            "instruction": "hold",
+            "position": [
+              -9.0,
+              0.14000000059604645,
+              8.0
+            ],
+            "velocity": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "yaw": 0.0
+          },
+          "heard": [],
+          "memories": [],
+          "offer_heard": false,
+          "reported_tick": -1,
+          "schema_version": "aftermath.v1"
+        },
+        "childhood": {
+          "ambush": {
+            "deflected": false,
+            "end_tick": -1,
+            "hits": 0,
+            "position": [
+              16.0,
+              0.14,
+              -13.0
+            ],
+            "seen": false,
+            "start_tick": -1,
+            "status": "ready",
+            "stun_until": -1
+          },
+          "counters": 1,
+          "heard": [
+            "courier",
+            "steward"
+          ],
+          "letter_seen": true,
+          "looked": 0.8999999999999998,
+          "memories": [
+            {
+              "channel": "observed",
+              "id": "letter",
+              "received_tick": 261,
+              "source_id": "self",
+              "text": "I have a sealed written message. Its words have not been read to me."
+            },
+            {
+              "channel": "testimony",
+              "id": "courier",
+              "received_tick": 263,
+              "source_id": "fictional_courier",
+              "text": "I carried that note; I did not scout the trail. I heard riders beyond the grove later."
+            },
+            {
+              "channel": "read_aloud",
+              "id": "steward",
+              "received_tick": 512,
+              "source_id": "fictional_steward",
+              "text": "The north trail was clear at dawn. The note says nothing about now."
+            },
+            {
+              "channel": "observed",
+              "id": "track_1",
+              "received_tick": 2060,
+              "source_id": "self",
+              "text": "I examined the next set of tracks; the trail continues toward the grove."
+            },
+            {
+              "channel": "observed",
+              "id": "track_2",
+              "received_tick": 2222,
+              "source_id": "self",
+              "text": "I examined the next set of tracks; the trail continues toward the grove."
+            },
+            {
+              "channel": "observed",
+              "id": "track_3",
+              "received_tick": 2348,
+              "source_id": "self",
+              "text": "I examined the next set of tracks; the trail continues toward the grove."
+            },
+            {
+              "channel": "observed",
+              "id": "quarry",
+              "received_tick": 2752,
+              "source_id": "self",
+              "text": "I reached the quarry quietly. I know this trail by travelling it."
+            }
+          ],
+          "parries": 2,
+          "quarry_seen": true,
+          "reflected": false,
+          "ride_gate": 3,
+          "tick": 2753,
+          "tracks": 3,
+          "walked": 6.0
+        },
+        "game_time": {
+          "day": 1.0,
+          "hour": 7.012745370370371,
+          "year": 1792.0
+        },
+        "historical_class": "authored_source_informed_prototype",
+        "places": [
+          {
+            "disposition": "friendly",
+            "id": "sukerchakia_home"
+          }
+        ],
+        "player": {
+          "character_id": "ranjit_singh",
+          "known_places": [
+            "sukerchakia_home"
+          ],
+          "position": [
+            12.47872543334961,
+            0.1001562625169754,
+            -18.643659591674805
+          ]
+        },
+        "profile": "childhood.v1",
+        "relationships": [],
+        "riding": {
+          "horse": {
+            "grounded": true,
+            "id": "household_horse_01",
+            "position": [
+              -8.029512405395508,
+              0.100940965116024,
+              -4.700466156005859
+            ],
+            "rider_id": "",
+            "speed": 0.0,
+            "vertical_speed": 0.0,
+            "yaw": -3.128081798553467
+          },
+          "schema_version": "riding.v1"
+        },
+        "scenario_id": "home_childhood_reconstruction",
+        "schema_version": "world-state.v1"
+      }
+    }
+  ],
+  "schema": "1792.childhood-slice-observations.v1",
+  "source_class": "authored_source_informed_prototype",
+  "source_lock_id": "sha256:927405b918e1b323261f49482832a71134400a1cd3a44fc8f97c8f41e7cb80b0"
+}

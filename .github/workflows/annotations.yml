@@ -1,0 +1,86 @@
+name: First-class annotation records
+on:
+  pull_request:
+    paths:
+      - 'src/ciw/annotations.py'
+      - 'src/ciw/annotation_cli.py'
+      - 'src/ciw/control_contracts.py'
+      - 'src/ciw/net.py'
+      - 'tests/test_annotations.py'
+      - 'docs/ANNOTATIONS.md'
+      - '.github/workflows/annotations.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  annotation:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-latest]
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - run: python -m pip install -e '.[dev]' build
+      - name: Annotation contract and CLI tests
+        run: python -m pytest -q tests/test_annotations.py tests/test_control_plane.py --junitxml=annotation-tests.xml
+      - name: Require complete unskipped qualification
+        shell: bash
+        run: |
+          python - <<'PY'
+          import xml.etree.ElementTree as E
+          suites=list(E.parse('annotation-tests.xml').getroot().iter('testsuite'))
+          assert sum(int(s.attrib['tests']) for s in suites) >= 50
+          assert all(int(s.attrib[k]) == 0 for s in suites for k in ('failures','errors','skipped'))
+          PY
+          git diff --check
+      - run: python -m build --wheel
+      - name: Installed-wheel annotation round trip outside checkout
+        shell: bash
+        run: |
+          python - <<'PY'
+          import json,os,pathlib,subprocess,sys,tempfile
+          wheel=next(pathlib.Path('dist').glob('*.whl')).resolve()
+          subprocess.run([sys.executable,'-m','pip','install','--force-reinstall','--no-deps',str(wheel)],check=True)
+          with tempfile.TemporaryDirectory() as tmp:
+              root=pathlib.Path(tmp)
+              spec={
+                "author":{"kind":"human","id":"engineer-17"},
+                "authored_at":"2026-09-29T14:15:00-04:00",
+                "target":{"kind":"OBSERVATION","id":"sensor-17:82914","version":"sha256:"+"a"*64},
+                "kind":"HYPOTHESIS",
+                "content":{"text":"Possible calibration drift.","structured":{"assertion":"possible_calibration_drift"}},
+                "evidence_refs":["sha256:"+"2"*64],
+                "model_refs":["pressure-loop-model.v3"],
+                "operation_refs":["analysis.residual.v1"],
+                "requested_operations":["measure.calibrate.v1"],
+                "confidence":0.65,
+                "status":"OPEN",
+                "supersedes":None
+              }
+              (root/'spec.json').write_text(json.dumps(spec))
+              env={k:v for k,v in os.environ.items() if k!='PYTHONPATH'}
+              subprocess.run([sys.executable,'-m','ciw.net','annotation','create',
+                              str(root/'spec.json'),'--output',str(root/'annotation.json')],
+                             cwd=root,env=env,check=True)
+              out=subprocess.check_output([sys.executable,'-m','ciw.net','annotation','inspect',
+                                           str(root/'annotation.json')],cwd=root,env=env,text=True)
+              value=json.loads(out)
+              assert value['human_interpretive_state'] is True
+              assert value['canonical_evidence'] is False
+              assert value['execution_authority'] is False
+          PY
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: annotation-contract-${{ matrix.os }}
+          if-no-files-found: error
+          path: |
+            annotation-tests.xml
+            dist/*.whl

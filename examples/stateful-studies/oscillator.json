@@ -1,0 +1,96 @@
+{
+  "schema": "ciw.simulation-study-plan.v1",
+  "model": {
+    "omega_0_rad_s": 2.0,
+    "gamma_s_inv": 0.1,
+    "mass_kg": 1.0
+  },
+  "initial": {
+    "tick": 0,
+    "q_m": 1.0,
+    "v_m_s": 0.0
+  },
+  "prefix": [
+    {
+      "action": "advance",
+      "ticks": 24,
+      "actor_id": "operator:demo"
+    }
+  ],
+  "branches": [
+    {
+      "name": "baseline",
+      "actions": [
+        {
+          "action": "advance",
+          "ticks": 60,
+          "actor_id": "operator:demo"
+        },
+        {
+          "action": "advance",
+          "ticks": 60,
+          "actor_id": "operator:demo"
+        }
+      ]
+    },
+    {
+      "name": "impulse",
+      "actions": [
+        {
+          "action": "impulse",
+          "impulse_n_s": 0.25,
+          "actor_id": "operator:counterfactual"
+        },
+        {
+          "action": "advance",
+          "ticks": 60,
+          "actor_id": "operator:demo"
+        },
+        {
+          "action": "advance",
+          "ticks": 60,
+          "actor_id": "operator:demo"
+        }
+      ]
+    }
+  ],
+  "observers": [
+    {
+      "schema": "ciw.simulation-observer.v1",
+      "observer_id": "observer:position",
+      "quantities": [
+        "q_m"
+      ],
+      "every_ticks": 12,
+      "delay_ticks": 24,
+      "phase": "latest_committed_at_tick"
+    },
+    {
+      "schema": "ciw.simulation-observer.v1",
+      "observer_id": "observer:diagnostic",
+      "quantities": [
+        "q_m",
+        "v_m_s",
+        "energy_j"
+      ],
+      "every_ticks": 12,
+      "delay_ticks": 0,
+      "phase": "latest_committed_at_tick"
+    }
+  ],
+  "compare_observer": "observer:diagnostic",
+  "tolerances": {
+    "q_m": {
+      "atol": 1e-08,
+      "rtol": 1e-08
+    },
+    "v_m_s": {
+      "atol": 1e-08,
+      "rtol": 1e-08
+    },
+    "energy_j": {
+      "atol": 1e-08,
+      "rtol": 1e-08
+    }
+  }
+}

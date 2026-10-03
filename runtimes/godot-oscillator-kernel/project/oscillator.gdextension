@@ -1,0 +1,11 @@
+[configuration]
+entry_symbol = "ciw_oscillator_library_init"
+compatibility_minimum = "4.5"
+reloadable = false
+
+[libraries]
+linux.debug.x86_64 = "res://bin/libciw_oscillator_godot.so"
+linux.release.x86_64 = "res://bin/libciw_oscillator_godot.so"
+
+[dependencies]
+linux.x86_64 = { "res://bin/libciw_oscillator_kernel.so": "" }
