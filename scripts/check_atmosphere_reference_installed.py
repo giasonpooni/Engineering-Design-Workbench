@@ -11,6 +11,7 @@ from hashlib import sha256
 import json
 import os
 from pathlib import Path
+import stat
 import subprocess
 
 
@@ -179,11 +180,19 @@ def qualify(executable: Path, destination: Path) -> dict:
         os.mkfifo(fifo)
         unsafe.append(fifo)
         regular_file_checks.append("fifo")
-    for index, path in enumerate(unsafe):
-        output_name = f"unsafe-{index}"
-        refused = command("compare", "run", "dry-atmosphere", "--reference", path.name,
-                          "--policy", "dry-policy.json", "--output-dir", output_name, expected=1)
-        assert refused["status"] == "REFUSE" and not (destination / output_name).exists()
+    try:
+        for index, path in enumerate(unsafe):
+            output_name = f"unsafe-{index}"
+            refused = command("compare", "run", "dry-atmosphere", "--reference", path.name,
+                              "--policy", "dry-policy.json", "--output-dir", output_name, expected=1)
+            assert refused["status"] == "REFUSE" and not (destination / output_name).exists()
+    finally:
+        # Keep negative-test devices and links out of copied or uploaded artifacts.
+        for path in unsafe:
+            if path.is_symlink() or not path.is_dir():
+                path.unlink(missing_ok=True)
+            else:
+                path.rmdir()
 
     # These references come from the published IAPWS-95 table, not the compiler.
     benchmark = command("compare", "benchmark", "--output-dir", "published-benchmark")
@@ -254,12 +263,15 @@ def qualify(executable: Path, destination: Path) -> dict:
         assert _snapshot(destination / directory_name) == before
         policy_checks[name] = {"agreement": expected, "numerical_verification": "PASS"}
 
+    assert all(stat.S_ISREG(path.lstat().st_mode) or stat.S_ISDIR(path.lstat().st_mode)
+               for path in destination.rglob("*"))
     qualification = {"status": "PASS", "profiles": profiles,
                      "published_reference_points": len(published_rows),
                      "distinct_published_case_occurrences": len(published_occurrences),
                      "published_reference_acceptance": "four points within a declared 0.4% allowance plus 0.05 Pa rounding bound",
                      "policy_sensitivity": policy_checks, "regular_file_preflight": regular_file_checks,
-                     "retained_bundles_unchanged": True, "physical_validation": "not_established"}
+                     "retained_bundles_unchanged": True, "artifact_tree_regular": True,
+                     "physical_validation": "not_established"}
     (destination / "qualification.json").write_text(json.dumps(qualification, indent=2), encoding="utf-8")
     return qualification
 
