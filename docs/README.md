@@ -26,6 +26,7 @@ imports `ciw`, and the command-line entry point is also `ciw`.
 | Capability claims checked against merged source | [Concerns audit, 2026-10-03](CONCERNS_AUDIT_2026-10-03.md) |
 | Source correction, dependent-claim staleness and retained history | [Retained correction loop](CORRECTION_LOOP.md) |
 | User-facing instruments and exact commands | [Instrument catalogue](INSTRUMENTS.md) |
+| Synchronized specimen views, signatures and separate trust/qualification checks | [Legibility Instrument](LEGIBILITY.md) |
 | Oscillator demo, inspection and reopen commands | [Oscillator operator card](OSCILLATOR_OPERATOR.md) |
 | One worked RMS calculation, retained selection and explicit replay | [Retained RMS lesson](LEARNING.md) |
 | Local dependencies, exact expected identities and unperformed checks | [Read-only profile diagnostics](DOCTOR.md) |
