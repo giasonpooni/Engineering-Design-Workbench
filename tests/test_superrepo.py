@@ -81,6 +81,27 @@ def test_old_same_revision_evidence_cannot_substitute_for_a_missing_child_report
     assert old.read_bytes() == previous
 
 
+def test_child_launch_removes_import_and_git_environment_overrides(coordinator, monkeypatch, tmp_path):
+    module, _ = coordinator
+    for name in ("PYTHONPATH", "PYTHONHOME", "PYTEST_PLUGINS", "GIT_DIR",
+                 "GIT_INDEX_FILE", "GIT_ALTERNATE_OBJECT_DIRECTORIES"):
+        monkeypatch.setenv(name, "untrusted-override")
+    observed = {}
+
+    def run(command, **kwargs):
+        observed.update(kwargs["env"])
+        output = Path(command[command.index("--output-dir") + 1])
+        output.mkdir(parents=True)
+        (output / "report.json").write_text(json.dumps(_fresh_report()))
+        return SimpleNamespace(returncode=0)
+
+    monkeypatch.setattr(module, "subprocess", SimpleNamespace(run=run, CalledProcessError=CalledProcessError))
+    assert module.check(_arguments(tmp_path)) == 0
+    assert not {"PYTHONPATH", "PYTHONHOME", "PYTEST_PLUGINS", "GIT_DIR",
+                "GIT_INDEX_FILE", "GIT_ALTERNATE_OBJECT_DIRECTORIES"}.intersection(observed)
+    assert observed["PYTHONNOUSERSITE"] == "1"
+
+
 @pytest.mark.parametrize("payload", [
     [],
     _fresh_report(verification_id="verification:" + "g" * 32),

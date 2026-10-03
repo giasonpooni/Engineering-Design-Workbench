@@ -29,7 +29,7 @@ calculation, a content digest and a verification receipt answer different questi
 This is a responsibility map, not an end-to-end execution graph. A domain
 engine's output needs the receiving subsystem's explicit contract and admission
 rules before it becomes that subsystem's state. ESM now offers a separate
-[native telemetry candidate-evidence adapter](https://github.com/giasonpooni/Evidence-and-State-Management/blob/main/docs/INSTRUMENT_CANDIDATE_EVIDENCE.md): fresh replay and source-policy checks
+[native telemetry candidate-evidence adapter](https://github.com/atomtrapping/Notations-State-Ledger/blob/main/docs/INSTRUMENT_CANDIDATE_EVIDENCE.md): fresh replay and source-policy checks
 permit read-only review or explicitly requested retention as `UNADMITTED`.
 This does not admit canonical state or activate a release. The telemetry command
 itself performs no ESM admission. CIW has no SCR execution adapter or GSV
@@ -113,54 +113,54 @@ diagrams. These groups organize documentation, not a universal execution order.
 
 | Repository | Diagram focus |
 | --- | --- |
-| [Notation Systems Workbench](https://github.com/giasonpooni/Notation-Systems-Workbench#readme) | Operation, persistence and replay |
-| [Provenance Preserving Data Acquisition](https://github.com/giasonpooni/Provenance-Preserving-Data-Acquisition#readme) | Source retention and extraction lineage |
-| [Scientific Computation Runtime](https://github.com/giasonpooni/Scientific-Computation-Runtime#readme) | Checked computation and state boundaries |
-| [Evidence and State Management](https://github.com/giasonpooni/Evidence-and-State-Management#readme) | Admission, review and release |
-| [Geospatial State Visualization](https://github.com/giasonpooni/Geospatial-State-Visualization#readme) | Read-only geographic and temporal views |
+| [Notation Systems Workbench](https://github.com/atomtrapping/Notations-Systems-Terminal#readme) | Operation, persistence and replay |
+| [Provenance Preserving Data Acquisition](https://github.com/atomtrapping/Notations-Data-Intake#readme) | Source retention and extraction lineage |
+| [Scientific Computation Runtime](https://github.com/atomtrapping/Notations-Compute-Runtime#readme) | Checked computation and state boundaries |
+| [Evidence and State Management](https://github.com/atomtrapping/Notations-State-Ledger#readme) | Admission, review and release |
+| [Geospatial State Visualization](https://github.com/atomtrapping/Notations-Real-Time-Globe#readme) | Read-only geographic and temporal views |
 
 ### Measurements, estimation and checks
 
 | Repository | Diagram focus |
 | --- | --- |
-| [Retrofitted Computational Instrumentation](https://github.com/giasonpooni/Retrofitted-Computational-Instrumentation#readme) | Declared calibration and measurement records |
-| [Streaming Telemetry Feature Extraction](https://github.com/giasonpooni/Streaming-Telemetry-Feature-Extraction#readme) | Causal window support and full covariance |
-| [Geometric State Inference Engine](https://github.com/giasonpooni/Geometric-State-Inference-Engine#readme) | Prediction, update and candidate state |
-| [State Estimation Evaluation Testbed](https://github.com/giasonpooni/State-Estimation-Evaluation-Testbed#readme) | Scoped evaluation and replay binding |
-| [Constraint Based State Reconciliation](https://github.com/giasonpooni/Constraint-Based-State-Reconciliation#readme) | Exact constraints, encoding and receipts |
-| [Fluid State Reconstruction Testbed](https://github.com/giasonpooni/Fluid-State-Reconstruction-Testbed#readme) | Reservoir state and covariance lineage |
+| [Retrofitted Computational Instrumentation](https://github.com/atomtrapping/Notations-Metrology-Adapter#readme) | Declared calibration and measurement records |
+| [Streaming Telemetry Feature Extraction](https://github.com/atomtrapping/Notations-Signal-Processing-RunTime#readme) | Causal window support and full covariance |
+| [Geometric State Inference Engine](https://github.com/atomtrapping/Notations-State-Inference-Engine#readme) | Prediction, update and candidate state |
+| [State Estimation Evaluation Testbed](https://github.com/atomtrapping/Notations-Estimator-Bench#readme) | Scoped evaluation and replay binding |
+| [Constraint Based State Reconciliation](https://github.com/atomtrapping/Notations-State-Recompiler#readme) | Exact constraints, encoding and receipts |
+| [Fluid State Reconstruction Testbed](https://github.com/atomtrapping/Notations-FlowState#readme) | Reservoir state and covariance lineage |
 
 ### Standalone numerical foundations
 
 | Repository | Diagram focus |
 | --- | --- |
-| [Time Base Reconciliation Runtime](https://github.com/giasonpooni/Time-Base-Reconciliation-Runtime#readme) | Supplied affine clock and time uncertainty |
-| [Observability Identifiability Testbed](https://github.com/giasonpooni/Observability-Identifiability-Testbed#readme) | Rank, nullspace and local information |
-| [Metrological Calibration Uncertainty Runtime](https://github.com/giasonpooni/Metrological-Calibration-Uncertainty-Runtime#readme) | Affine calibration and correlated uncertainty |
-| [System Identification Dynamics Testbed](https://github.com/giasonpooni/System-Identification-Dynamics-Testbed#readme) | Fully observed model fitting and holdout |
-| [Fault Detection Isolation Runtime](https://github.com/giasonpooni/Fault-Detection-Isolation-Runtime#readme) | NIS, whitening and CUSUM state |
-| [Experiment Design Sensor Placement Testbed](https://github.com/giasonpooni/Experiment-Design-Sensor-Placement-Testbed#readme) | Finite candidate information ranking |
+| [Time Base Reconciliation Runtime](https://github.com/atomtrapping/Notations-ClockSync#readme) | Supplied affine clock and time uncertainty |
+| [Observability Identifiability Testbed](https://github.com/atomtrapping/Notations-Observability-Testbed#readme) | Rank, nullspace and local information |
+| [Metrological Calibration Uncertainty Runtime](https://github.com/atomtrapping/Notations-Calibration-Runtime#readme) | Affine calibration and correlated uncertainty |
+| [System Identification Dynamics Testbed](https://github.com/atomtrapping/Notations-Linear-Dynamics-Testbed#readme) | Fully observed model fitting and holdout |
+| [Fault Detection Isolation Runtime](https://github.com/atomtrapping/Notations-FaultSense-RunTime#readme) | NIS, whitening and CUSUM state |
+| [Experiment Design Sensor Placement Testbed](https://github.com/atomtrapping/Notations-SensorDesign-RunTime#readme) | Finite candidate information ranking |
 
 ### Geometry and sensitivity
 
 | Repository | Diagram focus |
 | --- | --- |
-| [Geometric Telemetry Engine](https://github.com/giasonpooni/Geometric-Telemetry-Engine#readme) | Circle reconciliation and tangent covariance |
-| [Jacobian Sensitivity Propagation Testbed](https://github.com/giasonpooni/Jacobian-Sensitivity-Propagation-Testbed#readme) | Local maps and covariance propagation |
-| [Flat Torus Geodesic Reference](https://github.com/giasonpooni/Flat-Torus-Geodesic-Reference#readme) | Flat reference and representation invariants |
-| [Curved Surface Geodesic Sensitivity Runtime](https://github.com/giasonpooni/Curved-Surface-Geodesic-Sensitivity-Runtime#readme) | Curved path and sensitivity calculation |
-| [Covariance Geometry and Geodesic Testbed](https://github.com/giasonpooni/Covariance-Geometry-and-Geodesic-Testbed#readme) | Bounded affine-invariant SPD geometry; native execution and replay |
-| [Intrinsic Surface Geodesics Testbed](https://github.com/giasonpooni/Intrinsic-Surface-Geodesics-Testbed#readme) | Mesh-edge shortest-path baseline; continuous solver remains unimplemented |
-| [Translation Surface Dynamics Explorer](https://github.com/giasonpooni/Translation-Surface-Dynamics-Explorer#readme) | Exact rational square-tiled flows; explicit partial trajectories |
+| [Geometric Telemetry Engine](https://github.com/atomtrapping/Notations-Telemetry-Engine#readme) | Circle reconciliation and tangent covariance |
+| [Jacobian Sensitivity Propagation Testbed](https://github.com/atomtrapping/Notations-Sensitivity-Testbed#readme) | Local maps and covariance propagation |
+| [Flat Torus Geodesic Reference](https://github.com/atomtrapping/Notations-Periodic-Space#readme) | Flat reference and representation invariants |
+| [Curved Surface Geodesic Sensitivity Runtime](https://github.com/atomtrapping/Notations-Surface-RunTime#readme) | Curved path and sensitivity calculation |
+| [Covariance Geometry and Geodesic Testbed](https://github.com/atomtrapping/Covariance-Geometry-and-Geodesic-Testbed#readme) | Bounded affine-invariant SPD geometry; native execution and replay |
+| [Intrinsic Surface Geodesics Testbed](https://github.com/atomtrapping/Intrinsic-Surface-Geodesics-Testbed#readme) | Mesh-edge shortest-path baseline; continuous solver remains unimplemented |
+| [Translation Surface Dynamics Explorer](https://github.com/atomtrapping/Polygon-Trajectory-Experiments#readme) | Exact rational square-tiled flows; explicit partial trajectories |
 
 ### Domain decisions and computational resources
 
 | Repository | Diagram focus |
 | --- | --- |
-| [Parameterized Lyapunov Stability Runtime](https://github.com/giasonpooni/Parameterized-Lyapunov-Stability-Runtime#readme) | Declared stability computation and verdicts |
-| [Construction State Estimator for BIM](https://github.com/giasonpooni/Construction-State-Estimator-for-BIM#readme) | BIM evidence and disposition boundaries |
-| [Schematics Retrieval Agent](https://github.com/giasonpooni/Schematics-Retrieval-Agent#readme) | Retrieval eligibility and bounded kernels |
-| [Yield Weighted Inference Runtime](https://github.com/giasonpooni/Yield-Weighted-Inference-Runtime#readme) | Budget admission and settlement |
+| [Parameterized Lyapunov Stability Runtime](https://github.com/atomtrapping/Parameterized-Lyapunov-Stability-Runtime#readme) | Declared stability computation and verdicts |
+| [Construction State Estimator for BIM](https://github.com/atomtrapping/Notations-Estimator-for-BIM#readme) | BIM evidence and disposition boundaries |
+| [Schematics Retrieval Agent](https://github.com/atomtrapping/Notations-Retrieval-Agent#readme) | Retrieval eligibility and bounded kernels |
+| [Yield Weighted Inference Runtime](https://github.com/atomtrapping/Notations-Yield-Weighted-Runtime#readme) | Budget admission and settlement |
 
 ## Maintaining the visual documentation
 

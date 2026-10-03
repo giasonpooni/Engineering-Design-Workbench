@@ -51,9 +51,9 @@ tracked bytes by disabling Git line-ending conversion for these checkouts.
 
 ```sh
 python -m pip install -e '.[dev]'
-git -c core.autocrlf=false clone https://github.com/giasonpooni/Retrofitted-Computational-Instrumentation.git ../rci
+git -c core.autocrlf=false clone https://github.com/atomtrapping/Notations-Metrology-Adapter.git ../rci
 git -C ../rci checkout --detach f863bdd69d49224e0cdc871943bbb052e5b0a975
-git -c core.autocrlf=false clone https://github.com/giasonpooni/Fluid-State-Reconstruction-Testbed.git ../fsrt
+git -c core.autocrlf=false clone https://github.com/atomtrapping/Notations-FlowState.git ../fsrt
 git -C ../fsrt checkout --detach 09a756dd9cdd3a9bb6cb14b5cd498f6259937ac2
 ```
 
@@ -217,8 +217,8 @@ hardware acquisition, real-time guarantees, cross-sensor calibration correlation
 or physical qualification.
 
 Domain authority remains in the upstream
-[RCI repository](https://github.com/giasonpooni/Retrofitted-Computational-Instrumentation)
-and [FSRT repository](https://github.com/giasonpooni/Fluid-State-Reconstruction-Testbed).
+[RCI repository](https://github.com/atomtrapping/Notations-Metrology-Adapter)
+and [FSRT repository](https://github.com/atomtrapping/Notations-FlowState).
 
 ## Additive v2 covariance path
 
@@ -252,12 +252,12 @@ components have no registered CIW adapter:
 
 | Repository | Responsibility and boundary |
 | --- | --- |
-| [Provenance-Preserving Data Acquisition](https://github.com/giasonpooni/Provenance-Preserving-Data-Acquisition) | Source acquisition and artifact/observation history retain source identity, extraction lineage and explicit missingness |
-| [Scientific Computation Runtime](https://github.com/giasonpooni/Scientific-Computation-Runtime) | Declared scientific workloads and execution records remain distinct from numerical implementations |
-| [Evidence and State Management](https://github.com/giasonpooni/Evidence-and-State-Management) | Evidence, versioned state, admission and release management retain their own identities and authority |
-| [Geospatial State Visualization](https://github.com/giasonpooni/Geospatial-State-Visualization) | Read-only geographic and temporal inspection; separate from CIW's Godot viewport and evidence authority |
-| [State Estimation Evaluation Testbed](https://github.com/giasonpooni/State-Estimation-Evaluation-Testbed) | Early executable state-reconstruction contract slice; no estimator, evaluation runner, or CIW adapter |
-| [Constraint-Based State Reconciliation](https://github.com/giasonpooni/Constraint-Based-State-Reconciliation) | Constraint-based state reconciliation scope; no executable adapter; corrections and uncertainty do not confer verification |
+| [Provenance-Preserving Data Acquisition](https://github.com/atomtrapping/Notations-Data-Intake) | Source acquisition and artifact/observation history retain source identity, extraction lineage and explicit missingness |
+| [Scientific Computation Runtime](https://github.com/atomtrapping/Notations-Compute-Runtime) | Declared scientific workloads and execution records remain distinct from numerical implementations |
+| [Evidence and State Management](https://github.com/atomtrapping/Notations-State-Ledger) | Evidence, versioned state, admission and release management retain their own identities and authority |
+| [Geospatial State Visualization](https://github.com/atomtrapping/Notations-Real-Time-Globe) | Read-only geographic and temporal inspection; separate from CIW's Godot viewport and evidence authority |
+| [State Estimation Evaluation Testbed](https://github.com/atomtrapping/Notations-Estimator-Bench) | Early executable state-reconstruction contract slice; no estimator, evaluation runner, or CIW adapter |
+| [Constraint-Based State Reconciliation](https://github.com/atomtrapping/Notations-State-Recompiler) | Constraint-based state reconciliation scope; no executable adapter; corrections and uncertainty do not confer verification |
 
 Historical `STE` and `DAF` labels may remain in retained records and package
 names. Repository renames do not change operation IDs, schemas, runtime pins,

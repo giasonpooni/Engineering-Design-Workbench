@@ -3,7 +3,7 @@
   "policy_version": "1.1",
   "recorded_local_date": "2026-10-02",
   "timezone": "America/Toronto",
-  "repository": "giasonpooni/Notations-Systems-Terminal",
+  "repository": "atomtrapping/Notations-Systems-Terminal",
   "inspected_source_commit": "55d67d42beea95d7ce98af935b48bd84df5e9b4b",
   "owner_declaration": {
     "declared_owner": "Notation Systems Inc.",
@@ -12,7 +12,20 @@
     "independent_title_verification": false,
     "assignment_created_by_this_record": false
   },
-  "licensing_contact": "https://github.com/giasonpooni/Notations-Systems-Terminal/issues/new?template=licensing-request.yml&title=Licensing%20request",
+  "licensing_contact": "https://github.com/atomtrapping/Notations-Systems-Terminal/issues/new?template=licensing-request.yml&title=Licensing%20request",
+  "organization_declaration": {
+    "recorded_local_date": "2026-10-03",
+    "parent": "Notation Systems Inc.",
+    "child_companies": [
+      "Notations Gaming",
+      "Notation Manufacturing",
+      "Notations Laboratories"
+    ],
+    "evidence_type": "owner-supplied conversation declaration",
+    "independent_corporate_status_verification": false,
+    "assignment_created_by_this_record": false,
+    "licensing_authority": "Each signed grant identifies its actual legal licensor, rights and authorized signatory. Group membership alone confers no licensing authority."
+  },
   "covered_asset_versions": [],
   "preserved_grants": [
     "NET AGPL-3.0-or-later",

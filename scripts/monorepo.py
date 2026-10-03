@@ -86,7 +86,31 @@ _PYTHON_PINS = {
     "csg": ("geodesic_reference.py", "PINS", "curved-path-transfer"),
     "tsde": ("geometry_research.py", "PINS", "translation-flow"),
 }
-_CACHES = {".venv", "venv", "__pycache__", ".pytest_cache", ".mypy_cache", ".ruff_cache"}
+_PYTEST_CACHE_FILES = {"README.md", ".gitignore", "CACHEDIR.TAG", "v/cache/nodeids",
+                       "v/cache/lastfailed", "v/cache/stepwise"}
+_PACKAGE_METADATA_FILES = {"PKG-INFO", "SOURCES.txt", "dependency_links.txt",
+                           "entry_points.txt", "requires.txt", "top_level.txt",
+                           "not-zip-safe", "zip-safe"}
+
+
+def _generated_file(path):
+    """Allow only named non-source artifacts, never a whole cache directory.
+
+    Source copying excludes bytecode and package metadata. A directory called
+    venv, .venv, __pycache__ or *.egg-info cannot authorize executable shadows.
+    Generated files must also retain ordinary file and ancestor types.
+    """
+    path = Path(path)
+    if path.is_symlink() or not path.is_file() or path.resolve() != path:
+        return False
+    if path.parent.name == "__pycache__" and path.suffix == ".pyc":
+        return True
+    if path.parent.name.endswith(".egg-info") and path.name in _PACKAGE_METADATA_FILES:
+        return True
+    for parent in path.parents:
+        if parent.name == ".pytest_cache":
+            return path.relative_to(parent).as_posix() in _PYTEST_CACHE_FILES
+    return False
 
 
 def git(root, *arguments):
@@ -235,10 +259,67 @@ def verify_imports(root=ROOT):
                 raise ValueError("Imported working file differs from the preserved source")
         git(root, "diff", "--cached", "--quiet", "--no-ext-diff", "--no-textconv", "HEAD", "--", prefix)
         for raw_name in git(root, "ls-files", "--others", "-z", "--", prefix).split(b"\0"):
-            if raw_name and not set(Path(os.fsdecode(raw_name)).relative_to(prefix).parts) & _CACHES:
+            if raw_name and not _generated_file(root / os.fsdecode(raw_name)):
                 raise ValueError("Unexpected untracked file inside an imported module")
         result[module["role"]] = tree
+    # All qualification lanes copy or execute Terminal tooling as well as the
+    # providers. A clean imported subtree cannot authorize dirty root sources.
+    verify_terminal_source(root)
     return result
+
+
+def verify_terminal_source(root=ROOT):
+    """Bind the actual tracked checkout and executable source paths to HEAD.
+
+    This audit reads committed objects, the index and actual file bytes rather
+    than trusting Git status, which can hide changes behind index flags. Gate
+    output may live outside the executable source directories; generated Python
+    caches and package metadata are also permitted within those directories.
+    """
+    root = Path(root).resolve()
+    if Path(os.fsdecode(git(root, "rev-parse", "--show-toplevel")).strip()).resolve() != root:
+        raise ValueError("Terminal source must be a Git repository root")
+    if git(root, "rev-parse", "--show-object-format").strip() != b"sha1":
+        raise ValueError("Terminal source qualification requires SHA-1 Git objects")
+    revision = git(root, "rev-parse", "HEAD").decode().strip()
+    tree = git(root, "rev-parse", revision + "^{tree}").decode().strip()
+    entries = []
+    for entry in git(root, "ls-tree", "-r", "-z", revision).split(b"\0"):
+        if not entry:
+            continue
+        metadata, raw_name = entry.split(b"\t", 1)
+        mode, kind, expected = metadata.decode("ascii").split()
+        if kind != "blob" or mode not in {"100644", "100755"}:
+            raise ValueError("Terminal tracked source must retain regular-file types")
+        entries.append((raw_name, mode, expected))
+    committed_index = sorted((name, mode, expected, "0") for name, mode, expected in entries)
+    observed_index = []
+    for entry in git(root, "ls-files", "--stage", "-z").split(b"\0"):
+        if entry:
+            metadata, raw_name = entry.split(b"\t", 1)
+            mode, expected, stage = metadata.decode("ascii").split()
+            observed_index.append((raw_name, mode, expected, stage))
+    if sorted(observed_index) != committed_index:
+        raise ValueError("Terminal index differs from the reported source revision")
+    for raw_name, mode, expected in entries:
+        path = root / os.fsdecode(raw_name)
+        if path.is_symlink() or not path.is_file() or path.resolve() != path:
+            raise ValueError("Terminal tracked source changed type or traverses a symlink")
+        if os.name == "posix" and bool(path.stat().st_mode & 0o111) != (mode == "100755"):
+            raise ValueError("Terminal tracked executable mode differs from its source revision")
+        data = path.read_bytes()
+        if sha1(b"blob " + str(len(data)).encode("ascii") + b"\0" + data).hexdigest() != expected:
+            raise ValueError("Terminal tracked working bytes differ from the reported source revision")
+    # Do not apply exclude-standard: ignored shadow modules are executable too.
+    for raw_name in git(root, "ls-files", "--others", "-z", "--", "src", "scripts", "tests").split(b"\0"):
+        if not raw_name:
+            continue
+        if _generated_file(root / os.fsdecode(raw_name)):
+            continue
+        raise ValueError("Terminal executable source contains an untracked file: " + os.fsdecode(raw_name))
+    if git(root, "rev-parse", "HEAD").decode().strip() != revision:
+        raise ValueError("Terminal source revision changed during qualification")
+    return {"revision": revision, "source_tree": tree}
 
 
 @contextmanager

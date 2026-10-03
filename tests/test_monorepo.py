@@ -179,3 +179,80 @@ def test_retained_side_history_cannot_authorize_a_different_module():
     with pytest.raises(subprocess.CalledProcessError):
         with monorepo.provider_worktrees(roles=["jspt"], overrides={"jspt": "f863bdd69d49224e0cdc871943bbb052e5b0a975"}):
             pytest.fail("A reviewed side branch grants no authority to an unrelated provider")
+def test_terminal_source_identity_allows_gate_output_and_runtime_caches(checkout):
+    output = checkout / "results/monorepo/report.json"
+    output.parent.mkdir(parents=True)
+    output.write_text('{"status":"running"}\n')
+    cache = checkout / "src/ciw/__pycache__/local.pyc"
+    cache.parent.mkdir(parents=True)
+    cache.write_bytes(b"runtime cache")
+    expected = {
+        "revision": monorepo.git(checkout, "rev-parse", "HEAD").decode().strip(),
+        "source_tree": monorepo.git(checkout, "rev-parse", "HEAD^{tree}").decode().strip(),
+    }
+    assert monorepo.verify_terminal_source(checkout) == expected
+
+
+def test_terminal_source_byte_changes_cannot_hide_behind_index_flags(checkout):
+    relative = "src/ciw/__init__.py"
+    monorepo.git(checkout, "update-index", "--assume-unchanged", relative)
+    path = checkout / relative
+    path.write_bytes(path.read_bytes() + b"\n# changed executable source\n")
+    with pytest.raises(ValueError, match="working bytes differ"):
+        monorepo.verify_terminal_source(checkout)
+
+
+def test_terminal_source_rejects_staged_metadata_with_restored_working_bytes(checkout):
+    path = checkout / "pyproject.toml"
+    original = path.read_bytes()
+    path.write_bytes(original + b"\n# staged build metadata drift\n")
+    monorepo.git(checkout, "add", "pyproject.toml")
+    path.write_bytes(original)
+    with pytest.raises(ValueError, match="index differs"):
+        monorepo.verify_terminal_source(checkout)
+
+
+@pytest.mark.parametrize("relative", [
+    "src/ciw/ignored_shadow.py", "scripts/ignored_shadow.py", "tests/ignored_shadow.py",
+])
+def test_terminal_source_rejects_ignored_executable_shadow_files(checkout, relative):
+    exclude = checkout / ".git/info/exclude"
+    exclude.write_text(exclude.read_text() + "\n" + relative + "\n")
+    (checkout / relative).write_text("raise RuntimeError('untracked executable source')\n")
+    with pytest.raises(ValueError, match="untracked file"):
+        monorepo.verify_terminal_source(checkout)
+
+
+@pytest.mark.parametrize("directory", [
+    "venv", ".venv", ".venv-shadow", "__pycache__", ".pytest_cache",
+    ".mypy_cache", ".ruff_cache", "shadow.egg-info",
+])
+@pytest.mark.parametrize("scope", ["provider", "terminal"])
+def test_directory_names_cannot_exempt_untracked_executable_sources(checkout, directory, scope):
+    base = ("instruments/measurement/calibration/src/mcur" if scope == "provider"
+            else "src/ciw")
+    path = checkout / base / directory / "__init__.py"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    path.write_text("raise RuntimeError('unreviewed package')\n")
+    (checkout / ".git/info/exclude").write_text(base + "/" + directory + "/\n")
+    audit = monorepo.verify_imports if scope == "provider" else monorepo.verify_terminal_source
+    with pytest.raises(ValueError, match="untracked"):
+        audit(checkout)
+
+
+def test_generated_artifact_names_cannot_exempt_symlinked_source(checkout):
+    directory = checkout / "instruments/measurement/calibration/src/mcur/__pycache__"
+    directory.mkdir()
+    (directory / "shadow.pyc").symlink_to(checkout / "src/ciw/__init__.py")
+    with pytest.raises(ValueError, match="untracked"):
+        monorepo.verify_imports(checkout)
+
+
+def test_import_audit_allows_only_named_generated_artifacts(checkout):
+    base = checkout / "instruments/measurement/calibration"
+    for relative in ("src/mcur/__pycache__/core.pyc", ".pytest_cache/v/cache/nodeids",
+                     "src/mcur.egg-info/PKG-INFO"):
+        path = base / relative
+        path.parent.mkdir(parents=True, exist_ok=True)
+        path.write_bytes(b"generated artifact")
+    assert len(monorepo.verify_imports(checkout)) == 21

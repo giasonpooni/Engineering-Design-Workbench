@@ -33,7 +33,7 @@ def main():
             providers.mkdir()
             for role, (repository, revision) in PROVIDERS.items():
                 destination = providers / role
-                call(["git", "clone", "--quiet", "--no-checkout", "https://github.com/giasonpooni/" + repository + ".git", str(destination)])
+                call(["git", "clone", "--quiet", "--no-checkout", "https://github.com/atomtrapping/" + repository + ".git", str(destination)])
                 call(["git", "-C", str(destination), "checkout", "--quiet", "--detach", revision])
         engine = args.engine.resolve() if args.engine else temporary / "rust-build/release/execution-cli"
         if not args.engine:

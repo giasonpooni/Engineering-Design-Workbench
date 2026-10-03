@@ -15,9 +15,15 @@ the legal asset owner on 2 October 2026. This is an owner-supplied declaration,
 not an independently verified assignment, corporate-status check or worldwide
 legal clearance. It does not itself transfer rights.
 
-Cartesian Graphics Ltd. and Giason Pooni Studios are additional issuing names.
-Their names alone do not make them owners, co-licensors or contracting parties.
-Existing creator credits and third-party rights are preserved.
+The owner identified the current group on 3 October 2026 as Notation Systems
+Inc. as parent, with Notations Gaming, Notation Manufacturing and Notations
+Laboratories as child companies. Notation Systems Inc. remains the declared
+rights holder for project-owned original material. Each notice and signed grant
+must identify the actual legal licensor, its rights and its authorized signatory.
+A child-company name or group relationship alone does not confer licensing
+authority or transfer rights. This records the owner's declaration without
+certifying incorporation or title. Existing creator credits and third-party
+rights are preserved.
 
 Reference images, recordings, publications, scans, source prose and other
 external expression retain their own rights. Research, possession, links,
@@ -63,7 +69,7 @@ identify these acts where permission is required. Mandatory exceptions, valid
 prior grants and provider/platform permissions survive. This policy is not a
 deployed machine-readable access control.
 
-Requests: [licensing request](https://github.com/giasonpooni/Notations-Systems-Terminal/issues/new?template=licensing-request.yml&title=Licensing%20request).
+Requests: [licensing request](https://github.com/atomtrapping/Notations-Systems-Terminal/issues/new?template=licensing-request.yml&title=Licensing%20request).
 Request, acknowledgement, payment, credit, access or silence is not permission.
 Do not upload assets or confidential information to a public issue; request
 a private discussion before disclosing sensitive terms.

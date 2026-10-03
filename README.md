@@ -15,14 +15,51 @@ author → run → observe → compare → modify → check
                 └──────── retained investigation ────────┘
 ```
 
-## Notation Systems
+## Organization
 
-[notation.systems](https://notation.systems) is the portfolio umbrella for
-independent computational systems, simulation and interactive-software projects
-by **[Giason Pooni](https://github.com/giasonpooni)**. The website presents the
-work; each repository retains its own implementation, status and licence.
+**Notation Systems Inc.** is the parent company in the owner-declared
+parent/child company hierarchy. It is a scientific computing and systems
+engineering company developing computational instruments, software and
+interactive environments for understanding and building physical and virtual
+systems.
 
-Portfolio areas: **Games & Interactive · Simulation · Tools · Research · About**.
+Its development direction connects measurement, state estimation and sensor
+fusion, scientific modelling, simulation and execution, from materials and
+machines to interactive worlds. Each repository's implemented capabilities and
+qualification limits remain those documented for that component.
+
+The owner identifies the following child companies:
+
+| Child company | Focus |
+| --- | --- |
+| **Notations Gaming** | Games, graphics, world building, interactive environments and gameplay simulation. |
+| **Notation Manufacturing** | Design, machinery integration, process development, fabrication and production systems. |
+| **Notations Laboratories** | Research and experimental validation in scientific computing, measurement, physics and chemistry modelling, materials and simulation. |
+
+NET is shared scientific and engineering infrastructure across these companies.
+Its existing Session, controller and operation registries compose investigations,
+dispatch declared operations and retain execution history. Specialist providers
+retain their implementations, and applications retain their live state.
+
+Evidence, operation, execution and verification identities remain separate.
+Game and simulation state do not acquire industrial evidence or canonical-state
+authority through shared tooling. Cross-company handoffs use explicit contracts
+and the existing admission, execution and release boundaries.
+
+Scientific and industrial applications require calibration, uncertainty,
+repeatability, validation and documented operating envelopes appropriate to the
+application. Simulation alone does not validate a physical model or authorize
+machinery control. Gaming prioritizes interaction, visual quality and play;
+reusable simulations do not make gameplay state scientific evidence.
+
+Notation Systems Inc. remains the declared rights holder for project-owned
+original material. A company name or group relationship alone does not transfer
+rights or confer signing authority. Each signed grant identifies its actual
+legal licensor, rights and authorized signer; see the
+[asset permission policy](docs/licensing/ORIGINAL_ASSETS.md).
+
+[notation.systems](https://notation.systems) presents the organization's work.
+Each repository retains its implementation, status and applicable licence.
 Website publication and repository availability are separate; a project link
 does not imply that a hosted demo or released game exists.
 
@@ -34,6 +71,13 @@ does not imply that a hosted demo or released game exists.
 | Author's work | Architecture, implementation, runtime interfaces, investigation workflows, instrumentation and tests. |
 | Core identity | Python package and CLI **`ciw`**; existing session and record contracts remain unchanged. |
 | Status | Active development with bounded scientific workflows and separately tracked native/interactive prototypes. |
+
+Use the [integration coverage matrix](docs/INTEGRATION_COVERAGE.md) to distinguish
+callable operations, required provider bindings and remaining qualification.
+The [2026-10-03 concerns audit](docs/CONCERNS_AUDIT_2026-10-03.md) checks the broader
+platform narrative against merged source. The [retained correction loop](docs/CORRECTION_LOOP.md)
+demonstrates local dependency review with preserved history and fresh results;
+its synthetic reference establishes workflow behavior, not physical calibration.
 
 ## Architecture
 
@@ -63,9 +107,9 @@ commands, selected snapshots, dependency requirements and qualification limits.
 
 | Case study | Implementation and evidence |
 | --- | --- |
-| Blender-authored Godot / Bevy experiment | [PR #45](https://github.com/giasonpooni/Notations-Engineering-Terminal/pull/45): bounded, headless projectile work; not a released game. |
-| Julia-authored native oscillator | [PR #47](https://github.com/giasonpooni/Notations-Engineering-Terminal/pull/47): checked C export with Python/Rust consumers. |
-| C++ and Godot native consumers | [PR #50](https://github.com/giasonpooni/Notations-Engineering-Terminal/pull/50): native-interface and headless numerical qualification. |
+| Blender-authored Godot / Bevy experiment | [PR #45](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/45): bounded, headless projectile work; not a released game. |
+| Julia-authored native oscillator | [PR #47](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/47): checked C export with Python/Rust consumers. |
+| C++ and Godot native consumers | [PR #50](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/50): native-interface and headless numerical qualification. |
 
 These links identify separate development increments. Consult each PR's current
 branch and status rather than assuming its implementation has been merged into
@@ -90,9 +134,10 @@ promote planned integrations into implemented capabilities.
 
 ## Copyright and attribution
 
-**© 2026 Giason Pooni, for original contributions.** Notation Systems is the
-independent project umbrella, not a claim of ownership over third-party tools
-or inherited code. Contributor and upstream copyright notices remain in force.
+**© 2026 Giason Pooni, for original contributions.** Notation Systems Inc. is
+the parent organization. Existing creator attribution does not claim ownership
+of third-party tools or inherited code. Contributor and upstream copyright
+notices remain in force.
 
 The existing [LICENSE](LICENSE), source notices and third-party terms continue
 to govern the code and included materials. This documentation update does not

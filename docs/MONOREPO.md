@@ -9,8 +9,9 @@ The import registry is [`instruments/manifest.json`](../instruments/manifest.jso
 It records full source commit and tree identities, original repository IDs,
 ownership, licences, package versions, build boundaries and existing execution
 pins. The branch includes the earlier measurement and inference migration
-history. Native Git transfer is required before publication; this documentation
-does not assert that the branch has been pushed or merged. The
+history and the merged Terminal correction-loop and Legibility extensions.
+Calibration and ClockSync are already on the default branch; the remaining
+imports are proposed together with preserved native ancestry. The
 [second-wave record](MONOREPO_WAVE2.md) preserves the earlier seven-module
 qualification and its scope.
 
@@ -21,27 +22,27 @@ original projects; the manifest owns their exact selected source identities.
 
 | Area | Role | Directory | Original repository | Licence |
 | --- | --- | --- | --- | --- |
-| Composition | `sra` | `composition/retrieval-agent` | [Retrieval Agent](https://github.com/giasonpooni/Notations-Retrieval-Agent) | MIT |
-| Execution | `scr` | `execution/compute-runtime` | [Compute Runtime](https://github.com/giasonpooni/Notations-Compute-Runtime) | Apache-2.0 |
-| Measurement | `mcur` | `measurement/calibration` | [Calibration Runtime](https://github.com/giasonpooni/Notations-Calibration-Runtime) | MPL-2.0 |
-| Measurement | `tbrt` | `measurement/clocksync` | [ClockSync](https://github.com/giasonpooni/Notations-ClockSync) | MPL-2.0 |
-| Measurement | `rci` | `measurement/metrology` | [Metrology Adapter](https://github.com/giasonpooni/Notations-Metrology-Adapter) | MIT |
-| Measurement | `stfe` | `measurement/signal-processing` | [Signal Processing Runtime](https://github.com/giasonpooni/Notations-Signal-Processing-RunTime) | MPL-2.0 |
-| Inference | `gsie` | `inference/state-inference` | [State Inference Engine](https://github.com/giasonpooni/Notations-State-Inference-Engine) | MPL-2.0 |
-| Inference | `cbsr` | `inference/state-recompiler` | [State Recompiler](https://github.com/giasonpooni/Notations-State-Recompiler) | AGPL-3.0 |
-| Inference | `fdir` | `inference/faultsense` | [FaultSense](https://github.com/giasonpooni/Notations-FaultSense-RunTime) | MPL-2.0 |
-| Verification | `set` | `verification/estimator-bench` | [Estimator Bench](https://github.com/giasonpooni/Notations-Estimator-Bench) | Apache-2.0 |
-| Mathematics | `oit` | `mathematics/observability` | [Observability Testbed](https://github.com/giasonpooni/Notations-Observability-Testbed) | MPL-2.0 |
-| Mathematics | `edspt` | `mathematics/sensor-design` | [SensorDesign Runtime](https://github.com/giasonpooni/Notations-SensorDesign-RunTime) | MPL-2.0 |
-| Mathematics | `sidt` | `mathematics/linear-dynamics` | [Linear Dynamics Testbed](https://github.com/giasonpooni/Notations-Linear-Dynamics-Testbed) | MPL-2.0 |
-| Mathematics | `jspt` | `mathematics/sensitivity` | [Sensitivity Testbed](https://github.com/giasonpooni/Notations-Sensitivity-Testbed) | MIT |
-| Mathematics | `csg` | `mathematics/surface` | [Surface Runtime](https://github.com/giasonpooni/Notations-Surface-RunTime) | MPL-2.0 |
-| Mathematics | `tsde` | `mathematics/polygon-trajectories` | [Polygon Trajectory Experiments](https://github.com/giasonpooni/Polygon-Trajectory-Experiments) | MIT |
-| Domain | `fsrt` | `domain/flowstate` | [FlowState](https://github.com/giasonpooni/Notations-FlowState) | MIT |
-| Domain | `cse` | `domain/bim-estimator` | [Estimator for BIM](https://github.com/giasonpooni/Notations-Estimator-for-BIM) | MIT |
-| Representation | `framemapper` | `representation/frame-mapper` | [FrameMapper Runtime](https://github.com/giasonpooni/Notations-FrameMapper-RunTime) | GPL-3.0 |
-| Views | `gsv` | `views/real-time-globe` | [Real-Time Globe](https://github.com/giasonpooni/Notations-Real-Time-Globe) | GPL-3.0 |
-| Resources | `ywir` | `resources/yield-weighted` | [Yield-Weighted Runtime](https://github.com/giasonpooni/Notations-Yield-Weighted-Runtime) | MIT |
+| Composition | `sra` | `composition/retrieval-agent` | [Retrieval Agent](https://github.com/atomtrapping/Notations-Retrieval-Agent) | MIT |
+| Execution | `scr` | `execution/compute-runtime` | [Compute Runtime](https://github.com/atomtrapping/Notations-Compute-Runtime) | Apache-2.0 |
+| Measurement | `mcur` | `measurement/calibration` | [Calibration Runtime](https://github.com/atomtrapping/Notations-Calibration-Runtime) | MPL-2.0 |
+| Measurement | `tbrt` | `measurement/clocksync` | [ClockSync](https://github.com/atomtrapping/Notations-ClockSync) | MPL-2.0 |
+| Measurement | `rci` | `measurement/metrology` | [Metrology Adapter](https://github.com/atomtrapping/Notations-Metrology-Adapter) | MIT |
+| Measurement | `stfe` | `measurement/signal-processing` | [Signal Processing Runtime](https://github.com/atomtrapping/Notations-Signal-Processing-RunTime) | MPL-2.0 |
+| Inference | `gsie` | `inference/state-inference` | [State Inference Engine](https://github.com/atomtrapping/Notations-State-Inference-Engine) | MPL-2.0 |
+| Inference | `cbsr` | `inference/state-recompiler` | [State Recompiler](https://github.com/atomtrapping/Notations-State-Recompiler) | AGPL-3.0 |
+| Inference | `fdir` | `inference/faultsense` | [FaultSense](https://github.com/atomtrapping/Notations-FaultSense-RunTime) | MPL-2.0 |
+| Verification | `set` | `verification/estimator-bench` | [Estimator Bench](https://github.com/atomtrapping/Notations-Estimator-Bench) | Apache-2.0 |
+| Mathematics | `oit` | `mathematics/observability` | [Observability Testbed](https://github.com/atomtrapping/Notations-Observability-Testbed) | MPL-2.0 |
+| Mathematics | `edspt` | `mathematics/sensor-design` | [SensorDesign Runtime](https://github.com/atomtrapping/Notations-SensorDesign-RunTime) | MPL-2.0 |
+| Mathematics | `sidt` | `mathematics/linear-dynamics` | [Linear Dynamics Testbed](https://github.com/atomtrapping/Notations-Linear-Dynamics-Testbed) | MPL-2.0 |
+| Mathematics | `jspt` | `mathematics/sensitivity` | [Sensitivity Testbed](https://github.com/atomtrapping/Notations-Sensitivity-Testbed) | MIT |
+| Mathematics | `csg` | `mathematics/surface` | [Surface Runtime](https://github.com/atomtrapping/Notations-Surface-RunTime) | MPL-2.0 |
+| Mathematics | `tsde` | `mathematics/polygon-trajectories` | [Polygon Trajectory Experiments](https://github.com/atomtrapping/Polygon-Trajectory-Experiments) | MIT |
+| Domain | `fsrt` | `domain/flowstate` | [FlowState](https://github.com/atomtrapping/Notations-FlowState) | MIT |
+| Domain | `cse` | `domain/bim-estimator` | [Estimator for BIM](https://github.com/atomtrapping/Notations-Estimator-for-BIM) | MIT |
+| Representation | `framemapper` | `representation/frame-mapper` | [FrameMapper Runtime](https://github.com/atomtrapping/Notations-FrameMapper-RunTime) | GPL-3.0 |
+| Views | `gsv` | `views/real-time-globe` | [Real-Time Globe](https://github.com/atomtrapping/Notations-Real-Time-Globe) | GPL-3.0 |
+| Resources | `ywir` | `resources/yield-weighted` | [Yield-Weighted Runtime](https://github.com/atomtrapping/Notations-Yield-Weighted-Runtime) | MIT |
 
 Eighteen modules have independent Python wheel builds. Compute Runtime retains
 its source and release builders; its original Python metadata does not declare
