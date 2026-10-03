@@ -1,0 +1,298 @@
+{
+  "schema": "notations.native-transfer-sources.v1",
+  "terminal_repository_id": 1377790873,
+  "terminal_repository": "atomtrapping/Notations-Systems-Terminal",
+  "sources": [
+    {
+      "id": "calibration",
+      "repository": "giasonpooni/Notations-Calibration-Runtime",
+      "repository_id": 1378878940,
+      "import_revision": "e41f61cf5909e58a1a2e60612308ccffe0bfe7de",
+      "import_tree": "07d51585dee49b2d9ad2f3a4d9a01e708d1411cf",
+      "additional_history_roots": null,
+      "canonical_repository": "atomtrapping/Notations-Calibration-Runtime",
+      "clone_url": "https://github.com/atomtrapping/Notations-Calibration-Runtime.git",
+      "roots": [
+        "e41f61cf5909e58a1a2e60612308ccffe0bfe7de"
+      ]
+    },
+    {
+      "id": "clocksync",
+      "repository": "giasonpooni/Notations-ClockSync",
+      "repository_id": 1378878553,
+      "import_revision": "13c5fe75c7e829c24bae12fcf8386d4831224d4e",
+      "import_tree": "7d833657e7f838ac1b6ad6d0c3fb783151d1e85e",
+      "additional_history_roots": null,
+      "canonical_repository": "atomtrapping/Notations-ClockSync",
+      "clone_url": "https://github.com/atomtrapping/Notations-ClockSync.git",
+      "roots": [
+        "13c5fe75c7e829c24bae12fcf8386d4831224d4e"
+      ]
+    },
+    {
+      "id": "observability",
+      "repository": "giasonpooni/Notations-Observability-Testbed",
+      "repository_id": 1378878758,
+      "import_revision": "9d22326c9e230f0d8d21b00ce210e10e72e968fd",
+      "import_tree": "e3dc03481e2e380c7d9e4b978c3f9dc7f7359b52",
+      "additional_history_roots": null,
+      "canonical_repository": "atomtrapping/Notations-Observability-Testbed",
+      "clone_url": "https://github.com/atomtrapping/Notations-Observability-Testbed.git",
+      "roots": [
+        "9d22326c9e230f0d8d21b00ce210e10e72e968fd"
+      ]
+    },
+    {
+      "id": "state-inference",
+      "repository": "giasonpooni/Notations-State-Inference-Engine",
+      "repository_id": 1276370996,
+      "import_revision": "4ec062bb72caa76ce1405f2851766589cee9d160",
+      "import_tree": "33921b5f1ed0f5d03ba3fef6aa759becdde1e5ac",
+      "additional_history_roots": null,
+      "canonical_repository": "atomtrapping/Notations-State-Inference-Engine",
+      "clone_url": "https://github.com/atomtrapping/Notations-State-Inference-Engine.git",
+      "roots": [
+        "4ec062bb72caa76ce1405f2851766589cee9d160"
+      ]
+    },
+    {
+      "id": "state-recompiler",
+      "repository": "giasonpooni/Notations-State-Recompiler",
+      "repository_id": 1275681471,
+      "import_revision": "fb01b4a702ba9314b211f933eda800a1e3e9efed",
+      "import_tree": "f7582f6fd1b0c965ef7dc0690628f49d57a67e80",
+      "additional_history_roots": null,
+      "canonical_repository": "atomtrapping/Notations-State-Recompiler",
+      "clone_url": "https://github.com/atomtrapping/Notations-State-Recompiler.git",
+      "roots": [
+        "fb01b4a702ba9314b211f933eda800a1e3e9efed"
+      ]
+    },
+    {
+      "id": "faultsense",
+      "repository": "giasonpooni/Notations-FaultSense-RunTime",
+      "repository_id": 1378879318,
+      "import_revision": "00a3f3537964374efbf72d82e4188db002457cd8",
+      "import_tree": "de83e5df6448866a29e50f0e9d29cab019bba2d5",
+      "additional_history_roots": null,
+      "canonical_repository": "atomtrapping/Notations-FaultSense-RunTime",
+      "clone_url": "https://github.com/atomtrapping/Notations-FaultSense-RunTime.git",
+      "roots": [
+        "00a3f3537964374efbf72d82e4188db002457cd8"
+      ]
+    },
+    {
+      "id": "estimator-bench",
+      "repository": "giasonpooni/Notations-Estimator-Bench",
+      "repository_id": 1275432227,
+      "import_revision": "928ae6a76d4f853aa8306fef8207f81244b7066f",
+      "import_tree": "04d48ef9cf84a73a0cd029187263dca89d7c7e56",
+      "additional_history_roots": null,
+      "canonical_repository": "atomtrapping/Notations-Estimator-Bench",
+      "clone_url": "https://github.com/atomtrapping/Notations-Estimator-Bench.git",
+      "roots": [
+        "928ae6a76d4f853aa8306fef8207f81244b7066f"
+      ]
+    },
+    {
+      "id": "sensor-design",
+      "repository": "giasonpooni/Notations-SensorDesign-RunTime",
+      "repository_id": 1378879765,
+      "import_revision": "01c84b6d2e60b58ad281735f5ff70eb5c6a3c87f",
+      "import_tree": "7aea75468e6bee6d1421b300627c058305cb9c5d",
+      "additional_history_roots": [],
+      "canonical_repository": "atomtrapping/Notations-SensorDesign-RunTime",
+      "clone_url": "https://github.com/atomtrapping/Notations-SensorDesign-RunTime.git",
+      "roots": [
+        "01c84b6d2e60b58ad281735f5ff70eb5c6a3c87f"
+      ]
+    },
+    {
+      "id": "linear-dynamics",
+      "repository": "giasonpooni/Notations-Linear-Dynamics-Testbed",
+      "repository_id": 1378879169,
+      "import_revision": "bda30a8bd750c7034fa8db4760d74e35eacb8c66",
+      "import_tree": "8c18ebad8a998991fce6d460492ba65731b3694e",
+      "additional_history_roots": [],
+      "canonical_repository": "atomtrapping/Notations-Linear-Dynamics-Testbed",
+      "clone_url": "https://github.com/atomtrapping/Notations-Linear-Dynamics-Testbed.git",
+      "roots": [
+        "bda30a8bd750c7034fa8db4760d74e35eacb8c66"
+      ]
+    },
+    {
+      "id": "sensitivity",
+      "repository": "giasonpooni/Notations-Sensitivity-Testbed",
+      "repository_id": 1372780016,
+      "import_revision": "341e3586075d6e901cb5528414ef685a58cf4def",
+      "import_tree": "e1e72a0dbf0492c8cf7a03837a25f9ea83e02da8",
+      "additional_history_roots": [],
+      "canonical_repository": "atomtrapping/Notations-Sensitivity-Testbed",
+      "clone_url": "https://github.com/atomtrapping/Notations-Sensitivity-Testbed.git",
+      "roots": [
+        "341e3586075d6e901cb5528414ef685a58cf4def"
+      ]
+    },
+    {
+      "id": "metrology",
+      "repository": "giasonpooni/Notations-Metrology-Adapter",
+      "repository_id": 1372870718,
+      "import_revision": "a67cfef9f132d2a756186f34dcc718404084126e",
+      "import_tree": "ea6f143188dd81aa8bff36973eb94d6e3693c7a2",
+      "additional_history_roots": [
+        "f863bdd69d49224e0cdc871943bbb052e5b0a975"
+      ],
+      "canonical_repository": "atomtrapping/Notations-Metrology-Adapter",
+      "clone_url": "https://github.com/atomtrapping/Notations-Metrology-Adapter.git",
+      "roots": [
+        "a67cfef9f132d2a756186f34dcc718404084126e",
+        "f863bdd69d49224e0cdc871943bbb052e5b0a975"
+      ]
+    },
+    {
+      "id": "signal-processing",
+      "repository": "giasonpooni/Notations-Signal-Processing-RunTime",
+      "repository_id": 1278227466,
+      "import_revision": "749eb75e7300597da54f3e5ab8cfdc7d05e64878",
+      "import_tree": "eaa9f5f5be58b0cbac95002f6bdd0e826428fb44",
+      "additional_history_roots": [],
+      "canonical_repository": "atomtrapping/Notations-Signal-Processing-RunTime",
+      "clone_url": "https://github.com/atomtrapping/Notations-Signal-Processing-RunTime.git",
+      "roots": [
+        "749eb75e7300597da54f3e5ab8cfdc7d05e64878"
+      ]
+    },
+    {
+      "id": "polygon-trajectories",
+      "repository": "giasonpooni/Polygon-Trajectory-Experiments",
+      "repository_id": 1377611090,
+      "import_revision": "fb30ddf35d860835a2b0a633f735e922d86ea808",
+      "import_tree": "2ce81327e6cd7beefd89c60d68d9bbf9b1cfba51",
+      "additional_history_roots": [],
+      "canonical_repository": "atomtrapping/Polygon-Trajectory-Experiments",
+      "clone_url": "https://github.com/atomtrapping/Polygon-Trajectory-Experiments.git",
+      "roots": [
+        "fb30ddf35d860835a2b0a633f735e922d86ea808"
+      ]
+    },
+    {
+      "id": "surface",
+      "repository": "giasonpooni/Notations-Surface-RunTime",
+      "repository_id": 1372809259,
+      "import_revision": "1f7bbe380651e8df82db1760d880330aee3dc229",
+      "import_tree": "b715b302e698a4ae07a48de0a144f0aa73aa0639",
+      "additional_history_roots": [
+        "e8f0938ab243a1905792ba2c43439cb4f40cd4be"
+      ],
+      "canonical_repository": "atomtrapping/Notations-Surface-RunTime",
+      "clone_url": "https://github.com/atomtrapping/Notations-Surface-RunTime.git",
+      "roots": [
+        "1f7bbe380651e8df82db1760d880330aee3dc229",
+        "e8f0938ab243a1905792ba2c43439cb4f40cd4be"
+      ]
+    },
+    {
+      "id": "retrieval-agent",
+      "repository": "giasonpooni/Notations-Retrieval-Agent",
+      "repository_id": 1373552271,
+      "import_revision": "4dc4da256873b03d82b3355af65638254ad15b53",
+      "import_tree": "906aec5440d412490550b8c16e7260591a1a4a57",
+      "additional_history_roots": [],
+      "canonical_repository": "atomtrapping/Notations-Retrieval-Agent",
+      "clone_url": "https://github.com/atomtrapping/Notations-Retrieval-Agent.git",
+      "roots": [
+        "4dc4da256873b03d82b3355af65638254ad15b53"
+      ]
+    },
+    {
+      "id": "yield-weighted",
+      "repository": "giasonpooni/Notations-Yield-Weighted-Runtime",
+      "repository_id": 1376489536,
+      "import_revision": "8ae062b3578b02516a34fcd55d62d68187b57caa",
+      "import_tree": "db5eebf6edd6909e50f4e106c955d2796966b384",
+      "additional_history_roots": [],
+      "canonical_repository": "atomtrapping/Notations-Yield-Weighted-Runtime",
+      "clone_url": "https://github.com/atomtrapping/Notations-Yield-Weighted-Runtime.git",
+      "roots": [
+        "8ae062b3578b02516a34fcd55d62d68187b57caa"
+      ]
+    },
+    {
+      "id": "bim-estimator",
+      "repository": "giasonpooni/Notations-Estimator-for-BIM",
+      "repository_id": 1352920068,
+      "import_revision": "1411f8dcc2d14a33fab4f58ca85d1f5089894ff4",
+      "import_tree": "641c48a94afb171119fa1fbd02b5415805a1dd75",
+      "additional_history_roots": [],
+      "canonical_repository": "atomtrapping/Notations-Estimator-for-BIM",
+      "clone_url": "https://github.com/atomtrapping/Notations-Estimator-for-BIM.git",
+      "roots": [
+        "1411f8dcc2d14a33fab4f58ca85d1f5089894ff4"
+      ]
+    },
+    {
+      "id": "real-time-globe",
+      "repository": "giasonpooni/Notations-Real-Time-Globe",
+      "repository_id": 1352801283,
+      "import_revision": "6f1b339dfa103bc45b40f34170043bc23a010c57",
+      "import_tree": "896ef8521dfb26a288b10e00ca46d606e77f6723",
+      "additional_history_roots": [
+        "06c47bd851d8ea8b363a6bbe60a96c7448cbe12e"
+      ],
+      "canonical_repository": "atomtrapping/Notations-Real-Time-Globe",
+      "clone_url": "https://github.com/atomtrapping/Notations-Real-Time-Globe.git",
+      "roots": [
+        "6f1b339dfa103bc45b40f34170043bc23a010c57",
+        "06c47bd851d8ea8b363a6bbe60a96c7448cbe12e"
+      ]
+    },
+    {
+      "id": "frame-mapper",
+      "repository": "giasonpooni/Notations-FrameMapper-RunTime",
+      "repository_id": 1347707016,
+      "import_revision": "b788489373cbbeebf69667ddf06c048855e22836",
+      "import_tree": "4facb96d2727d7e250790456e31bb07dc7b55703",
+      "additional_history_roots": [
+        "bdfcb041836e86ab1ce93688b127f8960e8d08cf"
+      ],
+      "canonical_repository": "atomtrapping/Notations-FrameMapper-RunTime",
+      "clone_url": "https://github.com/atomtrapping/Notations-FrameMapper-RunTime.git",
+      "roots": [
+        "b788489373cbbeebf69667ddf06c048855e22836",
+        "bdfcb041836e86ab1ce93688b127f8960e8d08cf"
+      ]
+    },
+    {
+      "id": "compute-runtime",
+      "repository": "giasonpooni/Notations-Compute-Runtime",
+      "repository_id": 1340058242,
+      "import_revision": "da2dc23857dd8665473d3b8d32e6b7452866e749",
+      "import_tree": "00f19f7ee02d9e65735b5071382d8fb21a727e25",
+      "additional_history_roots": [
+        "98ab2f312cb7f9f4dbb18b25f762593eba56653e"
+      ],
+      "canonical_repository": "atomtrapping/Notations-Compute-Runtime",
+      "clone_url": "https://github.com/atomtrapping/Notations-Compute-Runtime.git",
+      "roots": [
+        "da2dc23857dd8665473d3b8d32e6b7452866e749",
+        "98ab2f312cb7f9f4dbb18b25f762593eba56653e"
+      ]
+    },
+    {
+      "id": "flowstate",
+      "repository": "giasonpooni/Notations-FlowState",
+      "repository_id": 1366033244,
+      "import_revision": "3144e3e694419b0c8579938e8d28523174e36abd",
+      "import_tree": "5a76aefab8974d46e4e8eac79371c553461bf491",
+      "additional_history_roots": [
+        "e13e46facc125682776f165ce1b0460b4ff9410a"
+      ],
+      "canonical_repository": "atomtrapping/Notations-FlowState",
+      "clone_url": "https://github.com/atomtrapping/Notations-FlowState.git",
+      "roots": [
+        "3144e3e694419b0c8579938e8d28523174e36abd",
+        "e13e46facc125682776f165ce1b0460b4ff9410a"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,123 @@
+name: Transfer qualified engineering superrepo history
+
+on:
+  push:
+    branches: [transfer/engineering-superrepo-20261003]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: transfer-engineering-superrepo-20261003
+  cancel-in-progress: false
+
+jobs:
+  verify-qualify-transfer:
+    if: github.repository == 'atomtrapping/Notations-Systems-Terminal'
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      contents: write
+    env:
+      EXPECTED_HEAD: 44761c60d3eb0ca38df79305ff7bf82de54cbfaa
+      EXPECTED_TREE: 4043d778ce5538e35083063769afdd3a2307069a
+      EXPECTED_BUNDLE_SHA256: c5c561f8f6f2413576ead217e626c1ba5bf6c3602cdbe101cb42b1bd2fa2c6c6
+      TARGET_BRANCH: feat/engineering-superrepo-20261003
+      BASE_REVISION: 890055df183c52908ea186fb8f5984e9d47d9a29
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Fetch exact public prerequisite histories and verify native bundle
+        shell: bash
+        run: |
+          set -euo pipefail
+          bundle="$RUNNER_TEMP/engineering-superrepo.bundle"
+          cp transfer/engineering-superrepo.bundle "$bundle"
+          printf '%s  %s\n' "$EXPECTED_BUNDLE_SHA256" "$bundle" | sha256sum --check --strict
+          python - <<'PYFETCH'
+          import concurrent.futures
+          import json
+          from pathlib import Path
+          import subprocess
+          import urllib.request
+
+          plan = json.loads(Path('transfer/public-sources.json').read_text())
+          assert plan['terminal_repository_id'] == 1377790873
+          assert plan['terminal_repository'] == 'atomtrapping/Notations-Systems-Terminal'
+
+          def fetch(source):
+              request = urllib.request.Request(
+                  'https://api.github.com/repositories/' + str(source['repository_id']),
+                  headers={'User-Agent': 'Notation-Systems-native-transfer',
+                           'Accept': 'application/vnd.github+json'})
+              with urllib.request.urlopen(request, timeout=30) as response:
+                  repository = json.load(response)
+              assert repository['id'] == source['repository_id']
+              assert repository['visibility'] == 'public'
+              assert repository['full_name'] == source['canonical_repository']
+              assert repository['clone_url'] == source['clone_url']
+              for index, revision in enumerate(source['roots']):
+                  ref = 'refs/transfer-sources/' + str(source['repository_id']) + '/' + str(index)
+                  subprocess.run(['git', 'fetch', '--no-tags', '--no-write-fetch-head',
+                      source['clone_url'], revision + ':' + ref], check=True, timeout=240,
+                      stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                  actual = subprocess.check_output(['git', 'rev-parse', ref], text=True).strip()
+                  assert actual == revision
+              actual_tree = subprocess.check_output(['git', 'rev-parse',
+                  source['import_revision'] + '^{tree}'], text=True).strip()
+              assert actual_tree == source['import_tree']
+              return source['canonical_repository']
+
+          with concurrent.futures.ThreadPoolExecutor(max_workers=5) as pool:
+              for repository in pool.map(fetch, plan['sources']):
+                  print('Verified public source:', repository)
+          PYFETCH
+          git bundle verify "$bundle"
+          test "$(git bundle list-heads "$bundle")" = "$EXPECTED_HEAD refs/heads/$TARGET_BRANCH"
+          git fetch "$bundle" "refs/heads/$TARGET_BRANCH"
+          test "$(git rev-parse FETCH_HEAD)" = "$EXPECTED_HEAD"
+          git checkout --detach "$EXPECTED_HEAD"
+          test "$(git rev-parse HEAD^{tree})" = "$EXPECTED_TREE"
+          git merge-base --is-ancestor "$BASE_REVISION" HEAD
+          python scripts/superrepo.py audit
+      - name: Run source guards and current Terminal integration checks
+        shell: bash
+        run: |
+          set -euo pipefail
+          python -m pip install 'numpy==2.4.3' 'websockets==16.0' 'pytest==9.0.2' 'PyYAML==6.0.3' 'cryptography==46.0.0' 'setuptools>=77' wheel
+          python -m pytest -q tests/test_monorepo.py tests/test_superrepo.py tests/test_correction_journal.py tests/test_correction_session.py tests/test_legibility.py tests/test_legibility_workflow.py tests/test_legibility_impact_import.py --junitxml="$RUNNER_TEMP/migration-integration.xml"
+      - name: Qualify independent measurement wheels and declared composition
+        run: python scripts/check_monorepo.py --output-dir "$RUNNER_TEMP/monorepo-qualification"
+      - name: Transfer exact qualified native history to review branch
+        shell: bash
+        env:
+          TRANSFER_TOKEN: ${{ github.token }}
+        run: |
+          set -euo pipefail
+          test "$(git rev-parse HEAD)" = "$EXPECTED_HEAD"
+          python scripts/superrepo.py audit
+          authorization=$(printf 'x-access-token:%s' "$TRANSFER_TOKEN" | base64 -w0)
+          printf '::add-mask::%s\n' "$authorization"
+          target_ref="refs/heads/$TARGET_BRANCH"
+          remote=https://github.com/atomtrapping/Notations-Systems-Terminal.git
+          existing=$(git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $authorization" ls-remote "$remote" "$target_ref")
+          if [ -n "$existing" ]; then
+            test "$existing" = "$(printf '%s\t%s' "$EXPECTED_HEAD" "$target_ref")"
+          else
+            git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $authorization" push "$remote" "HEAD:$target_ref"
+          fi
+          printf 'Transferred %s with original source ancestors intact.\n' "$EXPECTED_HEAD"
+      - name: Retain qualification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: engineering-superrepo-native-history-qualification
+          path: |
+            ${{ runner.temp }}/migration-integration.xml
+            ${{ runner.temp }}/monorepo-qualification/
+          if-no-files-found: warn
