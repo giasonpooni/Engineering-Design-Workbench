@@ -2,7 +2,7 @@ name: Identified model and budgeted observation replay
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'release/**']
     tags: ['**']
     paths-ignore:
       - 'README.md'

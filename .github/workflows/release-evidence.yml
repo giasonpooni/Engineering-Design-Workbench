@@ -2,12 +2,7 @@ name: NET release evidence
 
 on:
   push:
-    branches: [main]
-    paths:
-      - 'scripts/check_release_evidence.py'
-      - 'tests/test_release_evidence.py'
-      - 'release/**'
-      - '.github/workflows/release-evidence.yml'
+    branches: [main, 'release/**']
   pull_request:
     paths:
       - 'scripts/check_release_evidence.py'
@@ -51,7 +46,7 @@ jobs:
         run: python -c "import runpy; m = runpy.run_path('scripts/check_release_evidence.py'); m['validate_policy'](m['read_json']('release/qualification-policy.json'))"
 
   collect-candidate:
-    if: github.event_name == 'workflow_dispatch' && inputs.candidate_sha != ''
+    if: (github.event_name == 'workflow_dispatch' && inputs.candidate_sha != '') || (github.event_name == 'push' && startsWith(github.ref, 'refs/heads/release/'))
     needs: gate-tests
     runs-on: ubuntu-latest
     timeout-minutes: 10
@@ -65,7 +60,7 @@ jobs:
       - name: Collect exact-candidate metadata without dispatching providers
         env:
           GITHUB_TOKEN: ${{ github.token }}
-          CANDIDATE_SHA: ${{ inputs.candidate_sha }}
+          CANDIDATE_SHA: ${{ inputs.candidate_sha || github.sha }}
         run: python scripts/check_release_evidence.py --sha "$CANDIDATE_SHA" --output results/release-evidence
       - name: Retain passing or blocked evidence
         if: always()

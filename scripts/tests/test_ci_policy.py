@@ -30,6 +30,17 @@ class PolicyTests(unittest.TestCase):
             with self.subTest(qualification=qualification):
                 self.assertEqual(self.check(workflow(qualification), qualification), [])
 
+    def test_selected_release_workflows_require_isolated_candidate_pushes(self):
+        for name in policy.RELEASE:
+            if name not in (*policy.ALWAYS, *policy.QUALIFICATION):
+                continue
+            value = workflow(name in policy.QUALIFICATION)
+            value["on"]["push"]["branches"] = ["main", "release/**"]
+            with self.subTest(name=name):
+                self.assertEqual(policy.check_workflow(name, value, qualification=name in policy.QUALIFICATION), [])
+                value["on"]["push"]["branches"] = ["main"]
+                self.assertTrue(policy.check_workflow(name, value, qualification=name in policy.QUALIFICATION))
+
     def test_core_cannot_skip_documentation_changes(self):
         self.assertTrue(self.check(workflow(), False))
 

@@ -1,5 +1,8 @@
 name: Legibility instrument
 on:
+  push:
+    branches: [main, 'release/**']
+    tags: ['**']
   pull_request:
     paths:
       - 'src/ciw/**'
@@ -39,3 +42,10 @@ jobs:
           python -c "import os, pathlib, subprocess, sys, tempfile; d=pathlib.Path(tempfile.mkdtemp()); env=dict(os.environ); env.pop('PYTHONPATH', None); subprocess.run([sys.executable, '-m', 'ciw', 'legibility', 'demo', '--output-dir', str(d/'specimen')], cwd=d, env=env, check=True); subprocess.run([sys.executable, '-m', 'ciw', 'legibility', 'verify', str(d/'specimen'), '--trust', str(d/'specimen'/'demo-trust.json'), '--expected-version', '1'], cwd=d, env=env, check=True)"
       - name: Check installed public operator workflows
         run: python -I scripts/check_operator_installed.py --output-dir "${{ runner.temp }}/net-operator-installed"
+      - name: Retain installed operator evidence
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a
+        with:
+          name: legibility-operator-${{ matrix.os }}-${{ matrix.python }}
+          path: ${{ runner.temp }}/net-operator-installed/
+          if-no-files-found: error

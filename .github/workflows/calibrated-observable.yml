@@ -2,7 +2,7 @@ name: Calibrated observable process replay
 
 on:
   push:
-    branches: [main]
+    branches: [main, 'release/**']
     tags: ['**']
     paths-ignore:
       - 'README.md'

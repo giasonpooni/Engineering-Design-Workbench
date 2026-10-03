@@ -4,8 +4,8 @@
   "observed_date": "2026-10-03",
   "observed_main_sha": "ffad7dba2b258339b27170e071c0de431f6f2aef",
   "candidate_sha": null,
-  "status": "integration_in_progress",
-  "decision_status": "proposed_in_this_change",
+  "status": "integrated_candidate_awaiting_qualification",
+  "decision_status": "implemented_in_candidate",
   "pr_state_changes_performed": false,
   "scope": "21-import public research baseline; no 23-instrument or physical-validity claim",
   "prerequisite_prs": [
@@ -18,13 +18,13 @@
   "blockers": [
     {
       "id": "integrated_candidate",
-      "state": "open",
-      "closure": "Reconcile prerequisite changes, preserve native ancestry, and select one immutable commit."
+      "state": "implemented_awaiting_qualification",
+      "closure": "Integration records and original parent histories are retained; execution must qualify the exact final candidate."
     },
     {
       "id": "public_ci",
       "state": "open",
-      "closure": "Update policy job names to the integrated workflow definitions and retain exact-candidate successful jobs and required artifacts."
+      "closure": "Finish all 42 required jobs across 11 selected workflows on the exact candidate and retain the declared artifacts; inspect their contents separately."
     },
     {
       "id": "capability_evidence",
@@ -225,6 +225,38 @@
     {
       "pr": 137,
       "head_sha": "a9d7c9b1c0ac97175b260d327bc42a6ef4a5c67b"
+    },
+    {
+      "pr": 144,
+      "head_sha": "034b5f320242fb184fa60c224a9baf7d080f4a51",
+      "reconciled_commit": "3d6db9ec68e051c2a0ae3d401f5ef72812e01900"
+    },
+    {
+      "pr": 124,
+      "head_sha": "6cbb4691a177f31fd18ffff4541b4cc0131f4904",
+      "reconciled_commit": "d7673be40bb48490ca8354f5a485426947af411f"
+    },
+    {
+      "pr": 128,
+      "head_sha": "1dac5a4822e9116fd5bbfa67d83d5b7d35401068",
+      "reconciled_commit": "d7673be40bb48490ca8354f5a485426947af411f"
+    },
+    {
+      "component": "scripted_operator_acceptance",
+      "reconciled_commit": "bb4d47e7a44e3d31479c9ceb438fafb8222dae83"
+    },
+    {
+      "component": "integrated_control_plane_case_counts",
+      "reconciled_commit": "fb91b1b11b3a398be0513ac201e931b3d44a1725"
     }
-  ]
+  ],
+  "software_scope": [
+    "module maintenance and provider history",
+    "trusted operation/preservation/source contracts",
+    "typed scientific composition and genuine OCI qualification",
+    "Legibility review and comparison",
+    "three automated installed correction/replay journeys"
+  ],
+  "candidate_ref": "release/net-research-candidate",
+  "candidate_identity": "Resolve the full immutable SHA from the release branch and pass it to the collector; a source file cannot contain the SHA of its own enclosing commit."
 }

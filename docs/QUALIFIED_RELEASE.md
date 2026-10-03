@@ -9,24 +9,25 @@ The reviewed starting point is
 `ffad7dba2b258339b27170e071c0de431f6f2aef`, containing 21 imported modules.
 A [read-only baseline observation](../release/baseline-observation.json) records
 all eight selected runs as queued/pending; it is not an executed collector report.
-The integrated release candidate is **not selected**. The machine-readable
-[release scope](../release/release-scope.json) records the starting commit,
-proposed PR dispositions, and blockers. The
+The integrated candidate is published on `release/net-research-candidate`.
+Resolve that ref once and use its full immutable SHA for qualification. The
+machine-readable [release scope](../release/release-scope.json) records the
+starting commit, retained integration inputs, PR dispositions, and blockers. The
 [capability ledger](../release/capability-ledger.json) separates documented
 implementation, installation evidence, local availability, and qualification.
 
 ## First milestone and acceptance
 
-1. Reconcile #135 and #137, then the relevant shared-contract fixes in #144.
-   Existing qualification work owns the #135/#137 repairs. Review exact current
-   heads before integration. #137 retains an original SET commit as additional
+1. Qualify the combined #135/#137 infrastructure, #144 shared contracts,
+   #124 typed composition, and #128 Legibility reconciliation. Exact source
+   heads and reconciliation commits are recorded in the scope JSON. #137 retains an original SET commit as additional
    ancestry: use a merge commit, because squash/rebase can discard history
    required for exact provider provisioning.
 2. Select one full commit SHA after integration. Review the
    [CI policy](../release/qualification-policy.json) against its actual workflow
-   definitions. The initial job names are verified against the starting commit;
-   #135/#137 alter matrices, so their integration requires an explicit policy
-   update. Missing renamed jobs must block until reconciled.
+   definitions. The policy declares 42 required jobs across 11 workflows, including the
+   integrated matrices, real OCI execution, installed Legibility checks and
+   three correction/replay journeys. Missing or renamed jobs block acceptance.
 3. Complete the selected public source, independent-wheel, installed-package,
    replay, Linux/Windows, and deployment lanes on that commit. Run the evidence
    collector and inspect retained artifacts. An old branch's green run cannot
@@ -34,8 +35,9 @@ implementation, installation evidence, local availability, and qualification.
 4. Review each selected capability's actual numerical/reference and retained
    replay evidence. Metadata and artifact existence alone cannot close this gate.
 5. Have a new operator complete three documented run → inspect → compare →
-   correct → replay journeys. Start with oscillator/RMS and bounded thermal
-   references, then the installed impact/Legibility path. Record commands,
+   correct → replay journeys. The automated precursor uses encoder residual, synthetic thermal-observer,
+   and typed-project revision journeys through supported correction APIs;
+   installed impact/Legibility checks remain a separate required lane. Record commands,
    candidate wheel digest, environment, outputs, failures and elapsed operator
    effort. Do not relabel a provider-free reopen as fresh replay.
 
@@ -58,9 +60,17 @@ python -m unittest discover -s tests -p test_release_evidence.py -v
 ```
 
 The output directory must be new; the collector refuses to overwrite previous
-observations. The optional **NET release evidence** workflow tests the gate on
-Linux and Windows with Python 3.11/3.12. Its manual `candidate_sha` input collects
-evidence with a read-only token and uploads the report even when blocked.
+observations. The **NET release evidence** workflow tests the gate on Linux and Windows
+with Python 3.11/3.12. A push to the isolated `release/**` candidate branch
+collects metadata for that exact SHA; manual `candidate_sha` is also supported.
+It uses a read-only token and uploads the report even when blocked. If the
+collector finishes before other qualification lanes, its blocked report is
+retained. After those lanes complete, rerun the collector job on the same SHA.
+The separately required [installed-journey workflow](RELEASE_OPERATOR_ACCEPTANCE.md)
+creates a fresh virtual environment outside the checkout and runs the exact
+built wheel under Python isolation. It retains candidate identity, wheel digest,
+reports, workspaces, command logs, and wheel bytes on Linux and Windows.
+These scripted synthetic checks do not substitute for a new human operator.
 
 The collector emits `evidence.json` and `report.json`, with the candidate SHA,
 canonical policy digest, run links, and specific blockers. Exit codes are 0 for
@@ -92,15 +102,17 @@ metadata does not authenticate artifact bytes, prove successful science, or
 establish source-to-binary identity. Preserve and inspect the actual artifacts
 for the separate capability-evidence review.
 
-## Proposed PR dispositions
+## Recorded PR dispositions
 
-This is a reviewable scope decision, not a claim that PRs were merged or closed.
+The selected foundation PR histories are retained in the candidate ancestry.
+PRs remain open until their integration is qualified; other dispositions record
+release scope rather than claiming completion of those increments.
 Exact observed heads and rationales are retained in the scope JSON. Heads may
 advance; refresh them before any action. “Superseded candidate” requires a
 semantic comparison before closure; none of these recorded heads was an
 ancestor of the reviewed main commit.
 
-| PR | Proposed disposition | Reason |
+| PR | Release disposition | Reason |
 | --- | --- | --- |
 | [#148](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/148) | defer | Additional signal-processing and pump profiles need a separate integrated qualification. |
 | [#146](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/146) | defer | New graphics, browser and export surfaces expand the first release. |
@@ -112,8 +124,8 @@ ancestor of the reviewed main commit.
 | [#139](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/139) | exclude transport | Transport PR explicitly says not to merge; native publication and retirement remain separate. Baseline contains 21 imports. |
 | [#137](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/137) | prerequisite | Public provisioning and Windows fixes. Preserve required native ancestry with a merge commit; active repairs are separate. |
 | [#135](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/135) | prerequisite | History-preserving module maintenance, preflight and Windows guards require current integrated evidence. |
-| [#128](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/128) | defer | Qualify the existing installed impact and Legibility path before this expansion. |
-| [#124](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/124) | defer | Broad composition/OCI changes and old-head evidence need separate reconciliation. |
+| [#128](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/128) | prerequisite | Operator review/comparison increment included in the completion pass; verify installed impact import and identity boundaries. |
+| [#124](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/124) | prerequisite | Typed composition foundation included in the completion pass; retain public OCI and installed evidence on the integrated candidate. |
 | [#114](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/114) | defer | Measurement ingress is an additional increment, not delivered by existing atmosphere/impact code. |
 | [#100](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/100) | defer | Restack and reconcile against current realization code before qualification. |
 | [#99](https://github.com/atomtrapping/Notations-Systems-Terminal/pull/99) | superseded candidate | Main has a different implementation; compare semantics and preserve missing requirements before any closure. |
