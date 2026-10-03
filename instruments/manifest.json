@@ -294,7 +294,8 @@
       "ownership": "giasonpooni",
       "build_kind": "python",
       "additional_history_roots": [
-        "e8f0938ab243a1905792ba2c43439cb4f40cd4be"
+        "e8f0938ab243a1905792ba2c43439cb4f40cd4be",
+        "0b00e837c2df3206a3d38b497799f85b72de80f7"
       ],
       "upstream_default_revision": "e8f0938ab243a1905792ba2c43439cb4f40cd4be",
       "selected_import_reason": "last fully green unchanged release snapshot; current upstream documentation migration explicitly unqualified",
@@ -439,7 +440,8 @@
       "ownership": "giasonpooni",
       "build_kind": "python-source",
       "additional_history_roots": [
-        "98ab2f312cb7f9f4dbb18b25f762593eba56653e"
+        "98ab2f312cb7f9f4dbb18b25f762593eba56653e",
+        "91a6d3b37f28623332acd485e9f8a12953acf71e"
       ],
       "upstream_default_revision": "98ab2f312cb7f9f4dbb18b25f762593eba56653e",
       "selected_import_reason": "public provider-host branch preserving all existing NET native source pins; default retained separately",

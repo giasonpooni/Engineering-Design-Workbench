@@ -248,6 +248,14 @@
     {
       "component": "integrated_control_plane_case_counts",
       "reconciled_commit": "fb91b1b11b3a398be0513ac201e931b3d44a1725"
+    },
+    {
+      "component": "native_provider_and_windows_repairs",
+      "reconciled_commit": "11c4d788fbf868ff4572589b2760922343eb5897"
+    },
+    {
+      "component": "local_system_runtime_publication_contract",
+      "reconciled_commit": "e58ae08bf43bc96c408b2795ac7dab47b075218e"
     }
   ],
   "software_scope": [
@@ -258,5 +266,19 @@
     "three automated installed correction/replay journeys"
   ],
   "candidate_ref": "release/net-research-candidate",
-  "candidate_identity": "Resolve the full immutable SHA from the release branch and pass it to the collector; a source file cannot contain the SHA of its own enclosing commit."
+  "candidate_identity": "Resolve the full immutable SHA from the release branch and pass it to the collector; a source file cannot contain the SHA of its own enclosing commit.",
+  "retained_native_side_histories": [
+    {
+      "role": "set",
+      "commit": "2f838f4e196f453efc3a59045b0b3ec4b5680296"
+    },
+    {
+      "role": "csg",
+      "commit": "0b00e837c2df3206a3d38b497799f85b72de80f7"
+    },
+    {
+      "role": "scr",
+      "commit": "91a6d3b37f28623332acd485e9f8a12953acf71e"
+    }
+  ]
 }

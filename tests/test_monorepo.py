@@ -275,14 +275,20 @@ def test_calibrated_window_bindings_preserve_exact_sources_and_cleanup_on_failur
     assert module["runtime_revision"] == "5e7bda36f521a5c1b0082b512f35e29803bffafc"
 
 
-def test_calibrated_window_SET_requires_its_reviewed_side_history():
-    revision = "2f838f4e196f453efc3a59045b0b3ec4b5680296"
-    module = next(m for m in monorepo.load_manifest()["modules"] if m["role"] == "set")
-    assert module["additional_history_roots"] == [revision]
+@pytest.mark.parametrize("role, revision", [
+    ("set", "2f838f4e196f453efc3a59045b0b3ec4b5680296"),
+    ("csg", "0b00e837c2df3206a3d38b497799f85b72de80f7"),
+    ("scr", "91a6d3b37f28623332acd485e9f8a12953acf71e"),
+])
+def test_native_gate_requires_its_reviewed_side_history(role, revision):
+    module = next(m for m in monorepo.load_manifest()["modules"] if m["role"] == role)
+    assert revision in module["additional_history_roots"]
     monorepo.git(ROOT, "merge-base", "--is-ancestor", revision, "HEAD")
     monorepo._retained(ROOT, revision, module)
     # Possession of the object does not authorize it through the import branch.
-    without_side_history = {**module, "additional_history_roots": []}
+    without_side_history = {**module, "additional_history_roots": [
+        history for history in module["additional_history_roots"] if history != revision
+    ]}
     with pytest.raises(subprocess.CalledProcessError):
         monorepo._retained(ROOT, revision, without_side_history)
 
@@ -339,6 +345,8 @@ def test_manifest_cannot_add_unrelated_history_to_authorize_source_execution(che
 @pytest.mark.parametrize("revision", [
     "f863bdd69d49224e0cdc871943bbb052e5b0a975",
     "2f838f4e196f453efc3a59045b0b3ec4b5680296",
+    "0b00e837c2df3206a3d38b497799f85b72de80f7",
+    "91a6d3b37f28623332acd485e9f8a12953acf71e",
 ])
 def test_retained_side_history_cannot_authorize_a_different_module(revision):
     with pytest.raises(subprocess.CalledProcessError):

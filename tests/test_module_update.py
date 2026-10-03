@@ -26,7 +26,9 @@ def draft(tmp_path):
     with tempfile.TemporaryDirectory(dir=tmp_path, prefix="promotion-") as temporary:
         root = Path(temporary) / "repo"
         subprocess.run(["git", "clone", "--quiet", "--shared", "--config", "core.longpaths=true",
-                        "--config", "core.autocrlf=false", str(ROOT), str(root)], check=True)
+                        "--config", "core.autocrlf=false",
+                        "--config", "gc.auto=0", "--config", "maintenance.auto=false",
+                        str(ROOT), str(root)], check=True)
         operator._git(root, "checkout", "--quiet", "-B", "draft-module", BASE)
         operator._git(root, "config", "user.name", "Promotion Fixture")
         operator._git(root, "config", "user.email", "promotion@example.invalid")
