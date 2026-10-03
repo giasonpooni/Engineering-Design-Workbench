@@ -1,4 +1,5 @@
 """Migration must retain real source histories and the existing verifier gates."""
+from contextlib import contextmanager
 import importlib.util
 import json
 from pathlib import Path
@@ -20,12 +21,118 @@ spec.loader.exec_module(monorepo)
 
 
 @pytest.fixture
+def measurement(monkeypatch):
+    monkeypatch.syspath_prepend(str(ROOT / "scripts"))
+    monkeypatch.setitem(sys.modules, "monorepo", monorepo)
+    spec = importlib.util.spec_from_file_location("measurement_routes", ROOT / "scripts/check_monorepo.py")
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    return module
+
+
+@pytest.fixture
+def legacy_set(tmp_path, measurement):
+    path = tmp_path / "legacy-set"
+    subprocess.run(["git", "clone", "--quiet", "--shared", "--no-checkout",
+                    "--config", "core.longpaths=true", "--config", "core.autocrlf=false",
+                    str(ROOT), str(path)], check=True)
+    monorepo.git(path, "checkout", "--quiet", "--detach", measurement.SET_REVISION)
+    return path
+
+
+def _retained_set_route(measurement, monkeypatch, path):
+    state = {"closed": False}
+
+    @contextmanager
+    def retained(**kwargs):
+        state["binding"] = kwargs
+        try:
+            yield {"set": path}
+        finally:
+            state["closed"] = True
+
+    monkeypatch.setattr(measurement, "provider_worktrees", retained)
+    return state
+
+
+def test_measurement_SET_default_uses_retained_legacy_source_without_downloading(
+    measurement, legacy_set, monkeypatch, tmp_path,
+):
+    state = _retained_set_route(measurement, monkeypatch, legacy_set)
+    original_run = measurement._run
+
+    def no_download(arguments, **kwargs):
+        assert "clone" not in [str(argument) for argument in arguments]
+        return original_run(arguments, **kwargs)
+
+    monkeypatch.setattr(measurement, "_run", no_download)
+    with pytest.raises(RuntimeError, match="execution fixture"):
+        with measurement._set_checkout(None, tmp_path, tmp_path / "commands.log") as source:
+            assert source == legacy_set
+            assert measurement._git(source, "rev-parse", "HEAD") == measurement.SET_REVISION
+            assert state["binding"]["overrides"] == {"set": measurement.SET_REVISION}
+            raise RuntimeError("execution fixture")
+    assert state["closed"] is True
+
+
+def test_measurement_SET_explicit_external_root_remains_authoritative(
+    measurement, legacy_set, monkeypatch, tmp_path,
+):
+    monkeypatch.setattr(measurement, "provider_worktrees",
+                        lambda **kwargs: pytest.fail("An explicit root must not select local history"))
+    with measurement._set_checkout(legacy_set, tmp_path, tmp_path / "commands.log") as source:
+        assert source == legacy_set
+        assert measurement._git(source, "rev-parse", "HEAD") == measurement.SET_REVISION
+    assert legacy_set.is_dir()
+
+
+@pytest.mark.parametrize("route", ["retained", "external"])
+@pytest.mark.parametrize("drift", ["working_bytes", "staged_index"])
+def test_measurement_SET_routes_reject_hidden_source_and_index_drift(
+    measurement, legacy_set, monkeypatch, tmp_path, route, drift,
+):
+    state = _retained_set_route(measurement, monkeypatch, legacy_set)
+    relative = "state_estimation_testbed/contracts.py"
+    path = legacy_set / relative
+    original = path.read_bytes()
+    if drift == "working_bytes":
+        monorepo.git(legacy_set, "update-index", "--assume-unchanged", relative)
+        path.write_bytes(original + b"\n# hidden source drift\n")
+        diagnostic = "tracked bytes differ"
+    else:
+        path.write_bytes(original + b"\n# staged source drift\n")
+        monorepo.git(legacy_set, "add", relative)
+        path.write_bytes(original)
+        diagnostic = "index differs"
+    supplied = legacy_set if route == "external" else None
+    with pytest.raises(RuntimeError, match=diagnostic):
+        with measurement._set_checkout(supplied, tmp_path, tmp_path / "commands.log"):
+            pytest.fail("A dirty legacy SET source must not bind")
+    assert state["closed"] is (route == "retained")
+
+
+def test_measurement_SET_explicit_wrong_pin_refuses_without_fallback(
+    measurement, legacy_set, monkeypatch, tmp_path,
+):
+    monorepo.git(legacy_set, "checkout", "--quiet", "--detach",
+                 "5e7bda36f521a5c1b0082b512f35e29803bffafc")
+    monkeypatch.setattr(measurement, "provider_worktrees",
+                        lambda **kwargs: pytest.fail("A wrong external pin must not fall back"))
+    with pytest.raises(ValueError, match="exact revision"):
+        with measurement._set_checkout(legacy_set, tmp_path, tmp_path / "commands.log"):
+            pytest.fail("The current SET pin cannot replace the legacy exchange pin")
+
+
+@pytest.fixture
 def checkout(tmp_path):
     temporary = tempfile.TemporaryDirectory(dir=tmp_path, prefix="checkout-")
     path = Path(temporary.name) / "monorepo"
     # Only immutable source objects are shared; each test owns its refs and index.
     try:
-        subprocess.run(["git", "clone", "--quiet", "--shared", str(ROOT), str(path)], check=True)
+        # Windows pytest paths can exceed MAX_PATH once full upstream fixtures
+        # are appended. Keep both settings local to this disposable clone.
+        subprocess.run(["git", "clone", "--quiet", "--shared", "--config", "core.longpaths=true",
+                        "--config", "core.autocrlf=false", str(ROOT), str(path)], check=True)
         # Gate sources may still be staged during development; copy just helper metadata.
         (path / "instruments/manifest.json").write_bytes((ROOT / "instruments/manifest.json").read_bytes())
         yield path
