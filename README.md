@@ -96,6 +96,10 @@ The [Geospatial Systems Compiler](https://github.com/atomtrapping/Notations-Fram
 [State Estimator for BIM](https://github.com/atomtrapping/Notations-Estimator-for-BIM)
 remain independently scoped projects, not capabilities absorbed into NET.
 
+The [incremental engineering monorepo migration](docs/MONOREPO.md) records the
+first measurement imports, retained history, independent packages and unchanged
+provider authority boundaries.
+
 ## Explore the work
 
 | Case study | Implementation and evidence |

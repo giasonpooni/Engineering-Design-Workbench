@@ -1,0 +1,43 @@
+{
+  "schema": "notations.monorepo-imports.v1",
+  "modules": [
+    {
+      "id": "calibration",
+      "role": "mcur",
+      "path": "instruments/measurement/calibration",
+      "repository": "giasonpooni/Notations-Calibration-Runtime",
+      "repository_id": 1378878940,
+      "visibility": "public",
+      "import_revision": "e41f61cf5909e58a1a2e60612308ccffe0bfe7de",
+      "import_tree": "07d51585dee49b2d9ad2f3a4d9a01e708d1411cf",
+      "runtime_revision": "49405ecd623474ddf601989b0a8195be401544e0",
+      "distribution": "metrological-calibration-and-uncertainty-runtime",
+      "version": "0.1.0",
+      "python_import": "mcur",
+      "source_root": "src",
+      "license": "MPL-2.0",
+      "notice": "NOTICE.md",
+      "ownership": "giasonpooni",
+      "status": "first-wave-import; independent package; source repository retained"
+    },
+    {
+      "id": "clocksync",
+      "role": "tbrt",
+      "path": "instruments/measurement/clocksync",
+      "repository": "giasonpooni/Notations-ClockSync",
+      "repository_id": 1378878553,
+      "visibility": "public",
+      "import_revision": "13c5fe75c7e829c24bae12fcf8386d4831224d4e",
+      "import_tree": "7d833657e7f838ac1b6ad6d0c3fb783151d1e85e",
+      "runtime_revision": "40507060ca7a9126a9d641999b994a757eef3bfd",
+      "distribution": "time-base-reconciliation-runtime",
+      "version": "0.1.0",
+      "python_import": "tbrt",
+      "source_root": "src",
+      "license": "MPL-2.0",
+      "notice": "NOTICE.md",
+      "ownership": "giasonpooni",
+      "status": "first-wave-import; independent package; source repository retained"
+    }
+  ]
+}
