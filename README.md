@@ -10,6 +10,10 @@ NET connects models, declared runs, observations and comparisons in a retained
 investigation. It supports the development loop around a system without
 replacing the application that owns that system's live state.
 
+[Scientific system composition](docs/SYSTEM_COMPOSITION.md) adds typed
+configuration compilation, coupled polymer reference models and separately
+retained numerical verification: `ciw system demo --output-dir results/system-demo`.
+
 ```text
 author → run → observe → compare → modify → check
                 └──────── retained investigation ────────┘

@@ -30,6 +30,9 @@ def validate_role(operation_id: str, role: str) -> None:
                 "impact.crush-contact-verify.v1": "verification",
                 "impact.plate-contact.v1": "backend",
                 "impact.plate-contact-verify.v1": "verification",
+                "system.compile.v1": "backend", "system.simulate.v1": "backend",
+                "system.verify.v1": "verification", "system.compare.v1": "backend",
+                "system.study.v1": "backend",
                 "atmosphere.compile.v1": "backend",
                 "atmosphere.verify.v1": "verification"}.get(operation_id)
     if expected is not None and role != expected:
@@ -43,7 +46,9 @@ def register_payload_validator(operation_id: str, validator: Callable) -> None:
         "statistics.v1", "spectrum.periodogram.v1", "fsrt.tank-reconstruct.v1",
         "fsrt.tank-reconstruct.v2", "jspt.covariance-propagate.v1", "gte.project-circle.v1", "legibility.compile.v1",
         "legibility.fixture-summary.v1", "gsc.local-frame.v1",
-        "oscillator.rhs-native.v1", "ciw.simulated-fsrt.v1"
+        "oscillator.rhs-native.v1", "ciw.simulated-fsrt.v1",
+        "system.compile.v1", "system.simulate.v1",
+        "system.verify.v1", "system.compare.v1", "system.study.v1"
     }:
         raise ValueError("Payload schema already registered")
     _VALIDATORS[operation_id] = validator
@@ -77,6 +82,8 @@ def validate_payload(operation_id: str, data: dict, run: dict, parameters: dict,
         from ..spatial_records import validate_payload as validator
     elif operation_id == "oscillator.rhs-native.v1":
         from ..adapters.oscillator_kernel import validate_payload as validator
+    elif operation_id in {"system.compile.v1", "system.simulate.v1", "system.verify.v1", "system.compare.v1", "system.study.v1"}:
+        from ..system_workflow import validate_payload as validator
     elif operation_id in {"atmosphere.compile.v1", "atmosphere.verify.v1"}:
         from ..atmosphere_workflow import validate_payload as validator
     else:

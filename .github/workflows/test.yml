@@ -29,6 +29,9 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: ${{ matrix.python }}
+      - name: Enable retained long paths for fixture clones
+        if: runner.os == 'Windows'
+        run: git config --global core.longpaths true
       - run: python -m pip install -e ".[dev]"
       - run: python -m pytest -q
 

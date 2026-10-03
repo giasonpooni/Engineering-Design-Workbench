@@ -37,7 +37,7 @@ def check_seal(record: dict) -> None:
 
 
 def execute(registry: OperationRegistry, run: dict, selection: dict, recording_file: str,
-            operation_id: str, parameters: dict) -> tuple[dict, dict | None]:
+            operation_id: str, parameters: dict, *, retained_results=None, retained_sources=None) -> tuple[dict, dict | None]:
     parameters = copy.deepcopy(parameters)
     finite_tree(parameters, "operation parameters")
     execution = {
@@ -51,6 +51,10 @@ def execute(registry: OperationRegistry, run: dict, selection: dict, recording_f
     try:
         operation = registry.get(operation_id)
         validate_role(operation_id, operation.role)
+        if operation_id.startswith("system."):
+            from ..system_workflow import OPERATION_IDS, validate_live_dependencies
+            if operation_id in OPERATION_IDS:
+                validate_live_dependencies(operation_id, parameters, retained_results or {}, retained_sources or {})
         if operation.role == "analysis":
             parameters.setdefault("channel", selection["channel"])
             parameters.setdefault("interval_s", copy.deepcopy(selection["interval_s"]))
@@ -70,6 +74,8 @@ def execute(registry: OperationRegistry, run: dict, selection: dict, recording_f
         if not isinstance(data, dict):
             raise AdapterRefusal("invalid_adapter_output", "Operation data must be an object")
         validate_payload(operation_id, data, run, parameters, selection)
+        if operation_id == "system.study.v1" and data["report"]["runtime"] != runtime:
+            raise ValueError("Temporal study runtime differs from captured execution runtime")
         json.dumps(data, allow_nan=False)
     except AdapterRefusal as exc:
         execution["refusal"] = exc.to_dict()
