@@ -2,7 +2,7 @@
 import importlib.util
 import json
 from pathlib import Path
-from subprocess import CalledProcessError
+from subprocess import CalledProcessError, SubprocessError, TimeoutExpired
 import sys
 from types import SimpleNamespace
 import uuid
@@ -58,7 +58,7 @@ def _child(monkeypatch, coordinator, payload, *, returncode=0, after=None):
         return SimpleNamespace(returncode=returncode)
 
     # Substitute only this coordinator's process object, not global subprocess.
-    monkeypatch.setattr(module, "subprocess", SimpleNamespace(run=run, CalledProcessError=CalledProcessError))
+    monkeypatch.setattr(module, "subprocess", SimpleNamespace(run=run, SubprocessError=SubprocessError))
 
 
 def _report(output):
@@ -72,7 +72,7 @@ def test_old_same_revision_evidence_cannot_substitute_for_a_missing_child_report
     old.write_text(json.dumps(_fresh_report()))
     previous = old.read_bytes()
     monkeypatch.setattr(module, "subprocess", SimpleNamespace(
-        run=lambda *args, **kwargs: SimpleNamespace(returncode=0), CalledProcessError=CalledProcessError))
+        run=lambda *args, **kwargs: SimpleNamespace(returncode=0), SubprocessError=SubprocessError))
     assert module.check(_arguments(tmp_path)) == 1
     result = _report(tmp_path)
     assert result["status"] == "failed"
@@ -95,7 +95,7 @@ def test_child_launch_removes_import_and_git_environment_overrides(coordinator, 
         (output / "report.json").write_text(json.dumps(_fresh_report()))
         return SimpleNamespace(returncode=0)
 
-    monkeypatch.setattr(module, "subprocess", SimpleNamespace(run=run, CalledProcessError=CalledProcessError))
+    monkeypatch.setattr(module, "subprocess", SimpleNamespace(run=run, SubprocessError=SubprocessError))
     assert module.check(_arguments(tmp_path)) == 0
     assert not {"PYTHONPATH", "PYTHONHOME", "PYTEST_PLUGINS", "GIT_DIR",
                 "GIT_INDEX_FILE", "GIT_ALTERNATE_OBJECT_DIRECTORIES"}.intersection(observed)
@@ -146,3 +146,16 @@ def test_failed_child_retains_its_concrete_error(coordinator, monkeypatch, tmp_p
     lane = _report(tmp_path)["groups"]["measurement"]
     assert lane["status"] == "failed"
     assert lane["error"] == error
+
+
+def test_audit_timeout_retains_a_failed_report(coordinator, monkeypatch, tmp_path):
+    module, _ = coordinator
+
+    def timeout(root):
+        raise TimeoutExpired(["git", "ls-tree"], 30)
+
+    monkeypatch.setattr(module, "verify_imports", timeout)
+    assert module.check(_arguments(tmp_path)) == 1
+    result = _report(tmp_path)
+    assert result["status"] == "failed"
+    assert result["error"]["type"] == "TimeoutExpired"

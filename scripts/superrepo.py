@@ -93,7 +93,7 @@ def check(args):
         if git(ROOT, "rev-parse", "HEAD").decode().strip() != report["terminal_revision"]:
             raise ValueError("The repository revision changed during qualification")
         report["status"] = "passed" if all(r["status"] == "passed" for r in report["groups"].values()) else "failed"
-    except (OSError, ValueError, subprocess.CalledProcessError) as error:
+    except (OSError, ValueError, subprocess.SubprocessError) as error:
         report.update(status="failed", error={"type": type(error).__name__, "message": str(error)})
     finally:
         (output / "report.json").write_text(json.dumps(report, indent=2, sort_keys=True) + "\n")
