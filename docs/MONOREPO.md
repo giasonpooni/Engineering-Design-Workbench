@@ -186,8 +186,8 @@ branch:
 
 ```sh
 git bundle verify /path/to/migration.bundle
-git fetch /path/to/migration.bundle refs/heads/feat/engineering-monorepo-wave1-20261002:refs/heads/feat/engineering-monorepo-wave1-20261002
-git push origin feat/engineering-monorepo-wave1-20261002
+git fetch /path/to/migration.bundle refs/heads/feat/engineering-monorepo-wave1-audit-20261002:refs/heads/feat/engineering-monorepo-wave1-audit-20261002
+git push origin feat/engineering-monorepo-wave1-audit-20261002
 ```
 
 Review the resulting branch before a default-branch merge. Use a merge commit
