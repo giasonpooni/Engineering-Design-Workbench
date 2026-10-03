@@ -16,6 +16,7 @@ import os
 from pathlib import Path
 import re
 import subprocess
+import sys
 import tempfile
 import tomllib
 
@@ -132,7 +133,19 @@ def _generated_file(path, boundary, *, environments=False, package_metadata=Fals
         try:
             source = Path(source_from_cache(str(path)))
         except ValueError:
-            return False
+            # Pytest appends its dotted version to the interpreter cache tag;
+            # importlib accepts only the conventional one-tag cache filename.
+            # Recognize that exact rewrite shape without accepting orphan code.
+            tag = sys.implementation.cache_tag
+            rewrite = (re.fullmatch(
+                r"(?P<stem>.+)\." + re.escape(tag) + r"-pytest-"
+                r"[0-9]+\.[0-9]+\.[0-9]+(?:(?:a|b|rc)[0-9]+)?"
+                r"(?:\.post[0-9]+)?(?:\.dev[0-9]+)?"
+                r"(?:\+[A-Za-z0-9]+(?:[._-][A-Za-z0-9]+)*)?\.pyc", path.name)
+                if tag else None)
+            if rewrite is None:
+                return False
+            source = path.parent.parent / (rewrite["stem"] + ".py")
         return source.is_file() and not source.is_symlink()
     if parts[0] in _TOOL_CACHES:
         return path.suffix.lower() not in _SOURCE_SUFFIXES

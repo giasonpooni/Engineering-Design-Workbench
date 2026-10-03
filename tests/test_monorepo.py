@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 import py_compile
 import subprocess
+import sys
 import venv
 
 import pytest
@@ -271,6 +272,29 @@ def test_terminal_source_identity_allows_gate_output_and_runtime_caches(checkout
         "source_tree": monorepo.git(checkout, "rev-parse", "HEAD^{tree}").decode().strip(),
     }
     assert monorepo.verify_terminal_source(checkout) == expected
+
+
+def test_terminal_source_allows_real_pytest_assertion_rewrite_cache(checkout):
+    subprocess.run([sys.executable, "-m", "pytest", "-q",
+                    "tests/test_monorepo.py::test_first_wave_history_remains_an_ancestor"],
+                   cwd=checkout, check=True, capture_output=True, timeout=60)
+    rewritten = list((checkout / "tests/__pycache__").glob(
+        "test_monorepo." + sys.implementation.cache_tag + "-pytest-" + pytest.__version__ + ".pyc"))
+    assert len(rewritten) == 1
+    assert monorepo.verify_terminal_source(checkout)["revision"] == monorepo.git(
+        checkout, "rev-parse", "HEAD").decode().strip()
+
+
+@pytest.mark.parametrize("scope", ["import", "terminal"])
+def test_pytest_rewrite_cache_cannot_authorize_an_orphan_source(checkout, scope):
+    boundary = (checkout / "instruments/measurement/calibration" if scope == "import" else checkout)
+    cache = boundary / "tests/__pycache__" / (
+        "shadow." + sys.implementation.cache_tag + "-pytest-" + pytest.__version__ + ".pyc")
+    cache.parent.mkdir(parents=True, exist_ok=True)
+    cache.write_bytes(b"orphan rewritten bytecode")
+    audit = monorepo.verify_imports if scope == "import" else monorepo.verify_terminal_source
+    with pytest.raises(ValueError, match="untracked"):
+        audit(checkout)
 
 
 def test_terminal_source_byte_changes_cannot_hide_behind_index_flags(checkout):
