@@ -24,7 +24,7 @@
     {
       "id": "public_ci",
       "state": "open",
-      "closure": "Finish all 42 required jobs across 11 selected workflows on the exact candidate and retain the declared artifacts; inspect their contents separately."
+      "closure": "Finish all 46 required jobs across 12 selected workflows on the exact candidate and retain the 35 declared artifacts; inspect their contents separately."
     },
     {
       "id": "capability_evidence",
@@ -260,6 +260,22 @@
     {
       "component": "native_workflow_reconciliation",
       "reconciled_commit": "ebf9a1a6fd9f5792a39d453856eb1a66ead67e12"
+    },
+    {
+      "component": "clocksync_and_retained_provider_workflows",
+      "reconciled_commit": "3060d4a9f77f12b9b3604585219f6ef419eeec8a"
+    },
+    {
+      "component": "published_baseline_and_diagnostic_reports",
+      "reconciled_commit": "26b3c9e09a5f4f7e69a5f15080e8ca466cd7e05b"
+    },
+    {
+      "component": "single_wheel_operator_acceptance_and_harness_regressions",
+      "transfer_tree": "429782640d22a63fe87e24f13caf970d12ac6bba"
+    },
+    {
+      "component": "reviewed_single_wheel_acceptance",
+      "reconciled_commit": "9d157bbbcfe589d9e24c0c9f9fd907eba8271792"
     }
   ],
   "software_scope": [
@@ -267,7 +283,8 @@
     "trusted operation/preservation/source contracts",
     "typed scientific composition and genuine OCI qualification",
     "Legibility review and comparison",
-    "three automated installed correction/replay journeys"
+    "three automated installed correction/replay journeys",
+    "one portable candidate wheel consumed on Linux and Windows with exact installed byte closure"
   ],
   "candidate_ref": "release/net-research-candidate",
   "candidate_identity": "Resolve the full immutable SHA from the release branch and pass it to the collector; a source file cannot contain the SHA of its own enclosing commit.",
@@ -283,6 +300,10 @@
     {
       "role": "scr",
       "commit": "91a6d3b37f28623332acd485e9f8a12953acf71e"
+    },
+    {
+      "role": "tbrt",
+      "commit": "edb4e5b99ec0ce384437e1c0f1c820ef04598e33"
     }
   ]
 }

@@ -176,6 +176,23 @@
       ],
       "allowed_skipped_jobs": [],
       "excluded_jobs": {}
+    },
+    {
+      "path": ".github/workflows/operator-readiness.yml",
+      "jobs": [
+        "candidate-wheel",
+        "installed-journey (ubuntu-24.04)",
+        "installed-journey (windows-latest)",
+        "operator-acceptance"
+      ],
+      "artifacts": [
+        "operator-candidate-wheel",
+        "operator-artifact-tests",
+        "operator-readiness-ubuntu-24.04",
+        "operator-readiness-windows-latest"
+      ],
+      "allowed_skipped_jobs": [],
+      "excluded_jobs": {}
     }
   ],
   "audited_workflow_commits": [
@@ -183,6 +200,10 @@
     "231a058f3bef00fd9b11db348979b889d5c81e90",
     "a9d7c9b1c0ac97175b260d327bc42a6ef4a5c67b",
     "d7673be40bb48490ca8354f5a485426947af411f",
-    "3d6db9ec68e051c2a0ae3d401f5ef72812e01900"
+    "3d6db9ec68e051c2a0ae3d401f5ef72812e01900",
+    "ebf9a1a6fd9f5792a39d453856eb1a66ead67e12",
+    "3060d4a9f77f12b9b3604585219f6ef419eeec8a",
+    "26b3c9e09a5f4f7e69a5f15080e8ca466cd7e05b",
+    "9d157bbbcfe589d9e24c0c9f9fd907eba8271792"
   ]
 }

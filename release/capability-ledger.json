@@ -133,6 +133,24 @@
         "Exact candidate SHA, wheel digest, command logs, reports and workspaces retained",
         "Independent human completion remains separately required"
       ]
+    },
+    {
+      "id": "single_candidate_wheel",
+      "source_references": [
+        "docs/OPERATOR_READINESS.md",
+        "scripts/operator_artifact.py"
+      ],
+      "implemented": "strict_manifest_independent_digest_and_installed_source_resource_inventory",
+      "installable": "requires_same_wheel_on_Linux_and_Windows",
+      "available": "operator_environment_not_checked",
+      "qualified": "not_assessed",
+      "required_evidence": [
+        "One build artifact and separately passed SHA-256 consumed by both platforms",
+        "Installed ciw source/resource closure verified before and after execution",
+        "Bytecode, shadowed/editable imports, path aliases and drift refused",
+        "Both platform journeys and aggregate gate complete on exact candidate",
+        "No source-to-binary attestation or physical authority inferred"
+      ]
     }
   ],
   "baseline_source_commit": "ffad7dba2b258339b27170e071c0de431f6f2aef",

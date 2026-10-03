@@ -25,9 +25,10 @@ implementation, installation evidence, local availability, and qualification.
    required for exact provider provisioning.
 2. Select one full commit SHA after integration. Review the
    [CI policy](../release/qualification-policy.json) against its actual workflow
-   definitions. The policy declares 42 required jobs across 11 workflows, including the
+   definitions. The policy declares 46 required jobs across 12 workflows, including the
    integrated matrices, real OCI execution, installed Legibility checks and
-   three correction/replay journeys. Missing or renamed jobs block acceptance.
+   three correction/replay journeys, and one identical candidate wheel
+   exercised on Linux and Windows. Missing or renamed jobs block acceptance.
 3. Complete the selected public source, independent-wheel, installed-package,
    replay, Linux/Windows, and deployment lanes on that commit. Run the evidence
    collector and inspect retained artifacts. An old branch's green run cannot
@@ -70,7 +71,11 @@ The separately required [installed-journey workflow](RELEASE_OPERATOR_ACCEPTANCE
 creates a fresh virtual environment outside the checkout and runs the exact
 built wheel under Python isolation. It retains candidate identity, wheel digest,
 reports, workspaces, command logs, and wheel bytes on Linux and Windows.
-These scripted synthetic checks do not substitute for a new human operator.
+The separate installed operator-readiness lane builds one portable wheel once,
+passes its digest independently to both platform jobs, and checks installed
+source/resource bytes before and after the journey. Its report does not claim
+source-to-binary attestation. These scripted synthetic checks do not substitute
+for a new human operator.
 
 The collector emits `evidence.json` and `report.json`, with the candidate SHA,
 canonical policy digest, run links, and specific blockers. Exit codes are 0 for

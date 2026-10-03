@@ -98,6 +98,34 @@ class ReleaseOperatorJourneys(unittest.TestCase):
             self.assertTrue((output / "corrected/workspace.json").is_file())
             self.assertTrue((output / "report.json").is_file())
 
+    def test_journal_actions_refuse_incidental_session_execution(self):
+        from ciw.session import Session
+        real_handle = Session.handle
+        for action in ("correction.propose", "correction.review"):
+            with self.subTest(action=action), tempfile.TemporaryDirectory() as directory:
+                attempted, completed = [], []
+                def inject_execution(session, request):
+                    if request["type"] == action:
+                        attempted.append(action)
+                        response = real_handle(session, {
+                            "protocol_version": 1, "request_id": "unexpected-journal-execution",
+                            "type": "operation.execute",
+                            "payload": {"operation_id": "statistics.v1", "parameters": {}},
+                        })
+                        self.assertEqual(response["type"], "response")
+                        completed.append(response)
+                    return real_handle(session, request)
+                output = Path(directory) / "unexpected-execution"
+                with mock.patch.object(Session, "handle", inject_execution):
+                    report = gate.run_journey("project-graph", output, FIXTURES)
+                self.assertEqual(attempted, [action])
+                self.assertEqual(completed, [])
+                self.assertEqual(report["status"], "FAIL")
+                self.assertIn("Read-only inspection executed a Session operation",
+                              report["failure"]["reason"])
+                self.assertTrue((output / "original/workspace.json").is_file())
+                self.assertEqual(json.loads((output / "report.json").read_text()), report)
+
     def test_readonly_guard_blocks_real_execution_entrypoints(self):
         from ciw import machine_workflow, thermal_workflow, project_workflow
         classes = (machine_workflow.MachineManifestWorkflow,
@@ -189,6 +217,60 @@ class InstalledAcceptancePreconditions(unittest.TestCase):
                 with self.assertRaisesRegex(ValueError, "Timeout"):
                     gate.qualify(output, timeout=timeout)
                 self.assertFalse(output.exists())
+
+
+class InstalledWorkerReportValidation(unittest.TestCase):
+    def qualify_with_worker_change(self, directory, changes):
+        package = Path(directory) / "installed" / "ciw"
+        package.mkdir(parents=True)
+        (package / "__init__.py").write_bytes(b"# test distribution\n")
+        output = Path(directory) / "acceptance"
+        def execute(qualification, name, arguments, expected=0):
+            if name == "installed-provenance":
+                return {"isolated": True, "package_root": str(package),
+                        "ciw_origin": str(package / "__init__.py"), "direct_url": None}
+            if name == "core-preflight":
+                return {"status": "preflight_passed", "qualification": "not_performed"}
+            self.assertIn(name, gate.KINDS)
+            # Isolate receipt validation; the real three-journey test remains mandatory.
+            child = {"schema": "ciw.release-operator-journey.v1", "kind": name,
+                     "status": "PASS", "origin": "scripted_synthetic_fixture",
+                     "authority": dict(gate.AUTHORITY),
+                     "checks": [{"check": "fixture-check", "status": "PASS"}],
+                     "comparison": {"before": {"value": 2, "limit": 1},
+                                    "after": {"value": 0, "limit": 1}}}
+            if name == gate.KINDS[0]:
+                child.update(deepcopy(changes))
+            destination = output / name
+            destination.mkdir()
+            (destination / "report.json").write_text(json.dumps(child), encoding="utf-8")
+            return {"status": "PASS", "authority": dict(gate.AUTHORITY),
+                    "report": str(destination / "report.json")}
+        with mock.patch.object(gate.existing.Qualification, "execute", execute):
+            return gate.qualify(output)
+
+    def test_matching_worker_reports_pass_the_parent_receipt_boundary(self):
+        with tempfile.TemporaryDirectory() as directory:
+            report = self.qualify_with_worker_change(directory, {})
+        self.assertEqual(report["status"], "PASS", report.get("failure"))
+        self.assertEqual(set(report["journeys"]), set(gate.KINDS))
+
+    def test_mismatched_or_incomplete_worker_reports_fail_acceptance(self):
+        mutations = (
+            {"kind": "project-graph"}, {"schema": "different-worker.v1"},
+            {"origin": "physical_measurement"},
+            {"authority": {**gate.AUTHORITY, "state_admission": "performed"}},
+            {"checks": []},
+            {"checks": [{"check": "failed-worker-check", "status": "FAIL"}]},
+            {"checks": [{}]},
+        )
+        for changes in mutations:
+            with self.subTest(changes=changes), tempfile.TemporaryDirectory() as directory:
+                report = self.qualify_with_worker_change(directory, changes)
+                self.assertEqual(report["status"], "FAIL")
+                self.assertEqual(report["failure"]["reason"], gate.KINDS[0] + "-worker-report")
+                self.assertNotIn(gate.KINDS[0], report["journeys"])
+                self.assertEqual(report["checks"][-1]["status"], "FAIL")
 
 
 if __name__ == "__main__":

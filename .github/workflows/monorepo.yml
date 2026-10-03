@@ -49,6 +49,12 @@ jobs:
           python scripts/superrepo.py list --json > results/monorepo-audit/modules.json
           python scripts/monorepo.py > results/monorepo-audit/source-audit.json
           python -m pytest -vv --tb=short tests/test_monorepo.py tests/test_superrepo.py tests/test_worktree_lock.py tests/test_superrepo_doctor.py tests/test_module_update.py --junitxml results/monorepo-audit/migration-tests.xml
+      - name: Show retained reports for evidence review
+        if: always()
+        run: >-
+          python scripts/show_qualification_reports.py
+          results/monorepo-audit/modules.json
+          results/monorepo-audit/source-audit.json
       - name: Retain source audit and migration guards
         if: always()
         uses: actions/upload-artifact@v4
@@ -76,6 +82,12 @@ jobs:
         run: python -m pip install 'setuptools>=77' wheel
       - name: Qualify independent packages and the existing two-provider adapter
         run: python scripts/check_monorepo.py --output-dir results/monorepo
+      - name: Show retained reports for evidence review
+        if: always()
+        run: >-
+          python scripts/show_qualification_reports.py
+          results/monorepo/report.json
+          results/monorepo/composition.json
       - name: Retain qualification evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -103,6 +115,12 @@ jobs:
         run: python -m pip install 'setuptools>=77' wheel
       - name: Qualify public inference packages and full original process replay
         run: python scripts/check_monorepo_inference.py --output-dir results/monorepo-inference
+      - name: Show retained reports for evidence review
+        if: always()
+        run: >-
+          python scripts/show_qualification_reports.py
+          results/monorepo-inference/report.json
+          results/monorepo-inference/composition.json
       - name: Retain inference qualification evidence and sessions
         if: always()
         uses: actions/upload-artifact@v4
@@ -130,6 +148,14 @@ jobs:
         run: python -m pip install 'setuptools>=77' wheel
       - name: Qualify independent mathematical packages and exact measurement chains
         run: python scripts/check_monorepo_math.py --output-dir results/monorepo-math
+      - name: Show retained reports for evidence review
+        if: always()
+        run: >-
+          python scripts/show_qualification_reports.py
+          results/monorepo-math/report.json
+          results/monorepo-math/composition.json
+          results/monorepo-math/jspt-endpoint.json
+          results/monorepo-math/stfe-endpoint.json
       - name: Retain mathematical qualification evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -157,6 +183,12 @@ jobs:
         run: python -m pip install 'setuptools>=77' wheel
       - name: Qualify FlowState wheel and unchanged default source suite
         run: python scripts/check_monorepo_flowstate.py --output-dir results/monorepo-flowstate
+      - name: Show retained reports for evidence review
+        if: always()
+        run: >-
+          python scripts/show_qualification_reports.py
+          results/monorepo-flowstate/report.json
+          results/monorepo-flowstate/wheel-numerics.json
       - name: Retain FlowState qualification evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -181,6 +213,12 @@ jobs:
         run: python -m pip install 'setuptools>=77' wheel
       - name: Run additional original public FlowState reproductions
         run: python scripts/check_monorepo_flowstate.py --full-reproduction --output-dir results/monorepo-flowstate-full
+      - name: Show retained reports for evidence review
+        if: always()
+        run: >-
+          python scripts/show_qualification_reports.py
+          results/monorepo-flowstate-full/report.json
+          results/monorepo-flowstate-full/wheel-numerics.json
       - name: Retain full public reproduction evidence and private exclusions
         if: always()
         uses: actions/upload-artifact@v4
@@ -208,6 +246,12 @@ jobs:
         run: python -m pip install 'setuptools>=77' wheel uv
       - name: Qualify Surface science, regenerated artifacts, locked contracts and exact replay
         run: python scripts/check_monorepo_surface.py --output-dir results/monorepo-surface
+      - name: Show retained reports for evidence review
+        if: always()
+        run: >-
+          python scripts/show_qualification_reports.py
+          results/monorepo-surface/report.json
+          results/monorepo-surface/surface-determinism.json
       - name: Retain Surface qualification evidence and regenerated artifacts
         if: always()
         uses: actions/upload-artifact@v4
@@ -239,6 +283,12 @@ jobs:
         run: python -m pip install 'setuptools>=77' wheel
       - name: Qualify package, budget, composition and bounded CPU execution
         run: python scripts/check_monorepo_operations.py --output-dir results/monorepo-operations
+      - name: Show retained reports for evidence review
+        if: always()
+        run: >-
+          python scripts/show_qualification_reports.py
+          results/monorepo-operations/report.json
+          results/monorepo-operations/composition.json
       - name: Retain operations, resource and execution evidence
         if: always()
         uses: actions/upload-artifact@v4
@@ -263,6 +313,11 @@ jobs:
           node-version: '24'
       - name: Qualify original npm locks, hermetic tests, types and builds
         run: python scripts/check_monorepo_web.py --output-dir results/monorepo-web
+      - name: Show retained reports for evidence review
+        if: always()
+        run: >-
+          python scripts/show_qualification_reports.py
+          results/monorepo-web/report.json
       - name: Retain independent web package evidence
         if: always()
         uses: actions/upload-artifact@v4

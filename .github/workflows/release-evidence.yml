@@ -62,6 +62,9 @@ jobs:
           GITHUB_TOKEN: ${{ github.token }}
           CANDIDATE_SHA: ${{ inputs.candidate_sha || github.sha }}
         run: python scripts/check_release_evidence.py --sha "$CANDIDATE_SHA" --output results/release-evidence
+      - name: Show the exact-candidate evidence report
+        if: always()
+        run: python scripts/show_qualification_reports.py results/release-evidence/report.json
       - name: Retain passing or blocked evidence
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a

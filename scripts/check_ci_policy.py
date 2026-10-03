@@ -33,7 +33,7 @@ RELEASE = (
     "test.yml", "workflow-contracts.yml", "monorepo.yml",
     "declared-workloads.yml", "calibrated-observable.yml", "identified-design.yml",
     "calibrated-window.yml", "proved-heat.yml", "system-composition.yml",
-    "legibility.yml", "release-operator.yml",
+    "legibility.yml", "release-operator.yml", "operator-readiness.yml",
 )
 DOCS_ONLY = (
     "README.md",

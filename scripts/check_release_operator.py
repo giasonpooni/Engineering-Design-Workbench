@@ -211,24 +211,26 @@ def run_journey(kind, output, fixture_root):
                 existing._snapshot(output / "original") == original_snapshot)
 
         new_source = add(corrected, new_raw, "Synthetic corrected source for operator acceptance")
-        proposal = call(corrected, "correction.propose",
-                        old_source_id=old_source["source_id"], new_source_id=new_source["source_id"],
-                        kind="synthetic-source-amendment",
-                        reason="Resolve the retained synthetic discrepancy with an explicit replacement source")
-        pending = call(corrected, "dependency.inspect")
-        require("proposal-does-not-invalidate-or-execute",
-                pending["artifact_status"][old_step["result_id"]]["status"] == "current"
-                and len(call(corrected, "bundle.list")["bundles"]) == 1)
-        call(corrected, "correction.review", correction_id=proposal["correction_id"],
-             decision="accept", expected_revision=pending["revision"],
-             reviewer="scripted-release-acceptance",
-             reason="Scripted dependency review only; human and physical acceptance remain unperformed")
-        reviewed = call(corrected, "dependency.inspect")
-        stale = [old_source["source_id"], old_summary["bundle_id"], old_step["execution_id"],
-                 old_step["result_id"], claim["claim_id"]]
-        require("accepted-amendment-invalidates-explicit-descendants",
-                all(reviewed["artifact_status"][identity]["status"] == "stale" for identity in stale))
-        require("review-itself-does-not-execute", len(call(corrected, "bundle.list")["bundles"]) == 1)
+        # Bundle counts alone cannot detect ordinary Session operations.
+        with _readonly_guard():
+            proposal = call(corrected, "correction.propose",
+                            old_source_id=old_source["source_id"], new_source_id=new_source["source_id"],
+                            kind="synthetic-source-amendment",
+                            reason="Resolve the retained synthetic discrepancy with an explicit replacement source")
+            pending = call(corrected, "dependency.inspect")
+            require("proposal-does-not-invalidate-or-execute",
+                    pending["artifact_status"][old_step["result_id"]]["status"] == "current"
+                    and len(call(corrected, "bundle.list")["bundles"]) == 1)
+            call(corrected, "correction.review", correction_id=proposal["correction_id"],
+                 decision="accept", expected_revision=pending["revision"],
+                 reviewer="scripted-release-acceptance",
+                 reason="Scripted dependency review only; human and physical acceptance remain unperformed")
+            reviewed = call(corrected, "dependency.inspect")
+            stale = [old_source["source_id"], old_summary["bundle_id"], old_step["execution_id"],
+                     old_step["result_id"], claim["claim_id"]]
+            require("accepted-amendment-invalidates-explicit-descendants",
+                    all(reviewed["artifact_status"][identity]["status"] == "stale" for identity in stale))
+            require("review-itself-does-not-execute", len(call(corrected, "bundle.list")["bundles"]) == 1)
         new_summary, new_bundle = execute(corrected, new_source)
         new_step = new_bundle["steps"][0]
         after = metric(kind, new_bundle, json.loads(new_raw))
@@ -346,7 +348,17 @@ def qualify(output, *, expected_wheel=None, timeout=180):
                 report["journeys"][kind] = {"status": "FAIL", "reason": str(exc)}
             else:
                 child = existing._read(output / kind / "report.json")
-                q.require(kind + "-worker-report", child["status"] == "PASS")
+                q.require(kind + "-worker-report",
+                          isinstance(child, dict)
+                          and child.get("schema") == "ciw.release-operator-journey.v1"
+                          and child.get("kind") == kind
+                          and child.get("status") == "PASS"
+                          and child.get("origin") == "scripted_synthetic_fixture"
+                          and child.get("authority") == AUTHORITY
+                          and isinstance(child.get("checks"), list)
+                          and bool(child["checks"])
+                          and all(isinstance(check, dict) and check.get("status") == "PASS"
+                                  for check in child["checks"]))
                 report["journeys"][kind] = {"status": child["status"],
                     "report": kind + "/report.json", "sha256": existing._hash(output / kind / "report.json"),
                     "checks": len(child["checks"]), "comparison": child["comparison"]}
