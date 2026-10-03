@@ -1,0 +1,62 @@
+{
+  "schema": "ciw.procedural-surface-request.v1",
+  "definition": {
+    "expressions": [
+      "cos(a)*(R+r*cos(v))*cos(u)+sin(a)*r*sin(v)",
+      "(R+r*cos(v))*sin(u)",
+      "-sin(a)*(R+r*cos(v))*cos(u)+cos(a)*r*sin(v)"
+    ],
+    "parameters": {
+      "R": {
+        "value": 0.65,
+        "minimum": 0.4,
+        "maximum": 0.85
+      },
+      "r": {
+        "value": 0.22,
+        "minimum": 0.08,
+        "maximum": 0.3
+      },
+      "a": {
+        "value": 0.35,
+        "minimum": -1.5,
+        "maximum": 1.5
+      }
+    }
+  },
+  "domain": {
+    "bounds": [
+      [
+        0.0,
+        6.283185307179586
+      ],
+      [
+        0.0,
+        6.283185307179586
+      ]
+    ],
+    "resolution": [
+      24,
+      16
+    ],
+    "periodic": [
+      true,
+      true
+    ],
+    "units": "normalized_length",
+    "frame": "procedural.local_xyz.v1"
+  },
+  "appearance": {
+    "base_color": [
+      0.64,
+      0.38,
+      0.82
+    ],
+    "roughness": 0.35,
+    "metallic": 0.35
+  },
+  "verification": {
+    "field_tolerance": 0.001,
+    "require_closed": true
+  }
+}

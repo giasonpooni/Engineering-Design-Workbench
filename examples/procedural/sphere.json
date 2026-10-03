@@ -1,0 +1,49 @@
+{
+  "schema": "ciw.procedural-request.v1",
+  "definition": {
+    "expression": "x*x+y*y+z*z-r*r",
+    "parameters": {
+      "r": {
+        "value": 0.7,
+        "minimum": 0.2,
+        "maximum": 0.85
+      }
+    }
+  },
+  "domain": {
+    "bounds": [
+      [
+        -1.0,
+        1.0
+      ],
+      [
+        -1.0,
+        1.0
+      ],
+      [
+        -1.0,
+        1.0
+      ]
+    ],
+    "resolution": 16,
+    "units": "normalized_length",
+    "frame": "procedural.local_xyz.v1"
+  },
+  "surface": {
+    "isovalue": 0.0,
+    "convention": "negative_inside"
+  },
+  "appearance": {
+    "base_color": [
+      0.22,
+      0.68,
+      0.76
+    ],
+    "roughness": 0.45,
+    "metallic": 0.2
+  },
+  "verification": {
+    "field_tolerance": 0.05,
+    "require_closed": true
+  }
+}

@@ -1,0 +1,111 @@
+name: Computational graphics workbench
+on:
+  pull_request:
+    paths:
+      - 'src/ciw/procedural_*.py'
+      - 'src/ciw/graphics_notation.py'
+      - 'src/ciw/web/procedural_workbench.*'
+      - 'src/ciw/net.py'
+      - 'src/ciw/session.py'
+      - 'src/ciw/operations/**'
+      - 'tests/test_procedural*.py'
+      - 'scripts/check_procedural_installed.py'
+      - 'validation/procedural_browser.cjs'
+      - 'docs/PROCEDURAL_GRAPHICS_WORKBENCH.md'
+      - 'examples/procedural/**'
+      - 'pyproject.toml'
+      - '.github/workflows/procedural-graphics.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: procedural-graphics-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+jobs:
+  qualification:
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-24.04, windows-latest]
+        python: ['3.11', '3.12']
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: ${{ matrix.python }}
+      - run: python -m pip install -e '.[dev]' build
+      - name: Graphics and shared substrate regression tests
+        shell: bash
+        run: python -m pytest -q tests/test_procedural*.py tests/test_operation_runner.py tests/test_operation_failure_retention.py tests/test_operation_publication.py tests/test_control_plane.py tests/test_preservation_contracts.py tests/test_finite_preservation.py tests/test_semantic_capabilities.py tests/test_geometry_mesh_contract.py --junitxml=graphics-source.xml
+      - name: Require complete qualification
+        shell: bash
+        run: |
+          python - <<'PY'
+          import xml.etree.ElementTree as E
+          suites = list(E.parse('graphics-source.xml').getroot().iter('testsuite'))
+          assert sum(int(s.attrib['tests']) for s in suites) > 0
+          assert all(int(s.attrib[k]) == 0 for s in suites for k in ('failures', 'errors', 'skipped'))
+          PY
+          git diff --check
+          python scripts/check_ci_policy.py
+      - run: python -m build --wheel
+      - name: Installed commands outside source checkout
+        shell: bash
+        run: |
+          python -m venv "$RUNNER_TEMP/graphics-installed"
+          if [[ "$RUNNER_OS" == "Windows" ]]; then
+            GRAPHICS_PYTHON="$RUNNER_TEMP/graphics-installed/Scripts/python.exe"
+            GRAPHICS_NET="$RUNNER_TEMP/graphics-installed/Scripts/net.exe"
+          else
+            GRAPHICS_PYTHON="$RUNNER_TEMP/graphics-installed/bin/python"
+            GRAPHICS_NET="$RUNNER_TEMP/graphics-installed/bin/net"
+          fi
+          "$GRAPHICS_PYTHON" -m pip install dist/*.whl
+          python scripts/check_procedural_installed.py --net "$GRAPHICS_NET" --output-dir "$RUNNER_TEMP/graphics-cli" > graphics-installed.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: graphics-${{ matrix.os }}-python${{ matrix.python }}
+          path: |
+            graphics-source.xml
+            graphics-installed.json
+            dist/*.whl
+          if-no-files-found: error
+  browser:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262
+        with:
+          persist-credentials: false
+          ref: ${{ github.event.pull_request.head.sha || github.sha }}
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065
+        with:
+          python-version: '3.12'
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+      - run: python -m pip install build
+      - run: python -m build --wheel
+      - name: Install wheel and browser qualification dependencies
+        run: |
+          python -m venv "$RUNNER_TEMP/graphics-browser-installed"
+          "$RUNNER_TEMP/graphics-browser-installed/bin/python" -m pip install dist/*.whl
+          npm install --prefix "$RUNNER_TEMP/graphics-browser-tools" --package-lock=false --ignore-scripts playwright@1.62.1
+          node "$RUNNER_TEMP/graphics-browser-tools/node_modules/playwright/cli.js" install --with-deps chromium
+      - name: Complete browser journey against installed wheel
+        run: |
+          NODE_PATH="$RUNNER_TEMP/graphics-browser-tools/node_modules" node validation/procedural_browser.cjs --net "$RUNNER_TEMP/graphics-browser-installed/bin/net" --output-dir graphics-browser > graphics-browser.json
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+        if: always()
+        with:
+          name: graphics-browser
+          path: |
+            graphics-browser.json
+            graphics-browser/**
+          if-no-files-found: error

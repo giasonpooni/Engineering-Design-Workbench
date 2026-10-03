@@ -1,0 +1,53 @@
+{
+  "schema": "ciw.procedural-texture-request.v1",
+  "definition": {
+    "expressions": [
+      "0.15+0.7*(0.5+0.5*sin(f*u+phase)*sin(f*v+phase))",
+      "0.12+0.3*(0.5+0.5*sin(f*u+phase)*sin(f*v+phase))",
+      "0.25+0.6*(0.5+0.5*sin(f*u+phase)*sin(f*v+phase))"
+    ],
+    "parameters": {
+      "f": {
+        "value": 25.132741228718345,
+        "minimum": 2.0,
+        "maximum": 80.0
+      },
+      "phase": {
+        "value": 0.0,
+        "minimum": 0.0,
+        "maximum": 6.283185307179586
+      }
+    }
+  },
+  "domain": {
+    "bounds": [
+      [
+        0.0,
+        1.0
+      ],
+      [
+        0.0,
+        1.0
+      ]
+    ],
+    "resolution": [
+      128,
+      128
+    ],
+    "units": "normalized_coordinates",
+    "frame": "procedural.texture_uv.v1"
+  },
+  "appearance": {
+    "roughness": 0.45,
+    "metallic": 0.15
+  },
+  "encoding": {
+    "channels": "rgba8",
+    "mapping": "clamp_0_1",
+    "sampling": "pixel_centers",
+    "color_interpretation": "unqualified_display_rgb"
+  },
+  "verification": {
+    "byte_exact": true
+  }
+}

@@ -29,6 +29,7 @@ replay creates a new execution.
 | Polymer processing | Cycle metrology, scoped cooling and pressure-arrival estimates, evidence-linked copilot context, and bounded control simulations for injection and extrusion blow molding. [Polymer processing](docs/POLYMER_PROCESSING.md). |
 | Evidence and representation | Typed contracts, identity-bound representations, source correction and dependency status, and signed human/reasoning/vision bundles. [Correction loop](docs/CORRECTION_LOOP.md) · [Legibility instrument](docs/LEGIBILITY.md). |
 | Interactive worlds | Supported BIM, spatial and geometric interfaces; native computation and bounded Blender/Godot/Bevy development workflows. [Technical reference](TECHNICAL_REFERENCE.md). |
+| Computational graphics | Bounded implicit and parametric notation, mesh inspection and OBJ export, procedural RGB textures with PNG export and generated shader preview, retained executions and exact CPU artifact replay. [Graphics workbench](docs/PROCEDURAL_GRAPHICS_WORKBENCH.md). |
 
 Support is specific to each profile. The coverage matrix identifies callable
 operations, provider requirements, recorded checks and remaining qualification.

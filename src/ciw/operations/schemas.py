@@ -15,6 +15,10 @@ _VALIDATORS: dict[str, Callable] = {}
 
 def dependency_result_ids(operation_id: str, parameters: dict) -> list[str]:
     """Fixed trusted dependency contracts; saved parameters never load code."""
+    if operation_id == "procedural.verify.v1":
+        candidate = parameters.get("candidate")
+        identity = candidate.get("result_id") if type(candidate) is dict else None
+        return [identity] if type(identity) is str else []
     if operation_id in {"polymer.copilot-context.v1", "polymer.verify-cycle.v1"}:
         candidate = parameters.get("assessment")
         identity = candidate.get("result_id") if type(candidate) is dict else None
@@ -23,13 +27,17 @@ def dependency_result_ids(operation_id: str, parameters: dict) -> list[str]:
 
 
 def validate_request_dependencies(operation_id: str, parameters: dict, retained: dict) -> None:
+    if operation_id == "procedural.verify.v1":
+        from ..procedural_workflow import validate_live_dependency
+        validate_live_dependency(parameters, retained)
     if operation_id in {"polymer.copilot-context.v1", "polymer.verify-cycle.v1"}:
         from ..polymer_workflow import validate_live_dependency
         validate_live_dependency(parameters, retained)
 
 
 def validate_role(operation_id: str, role: str) -> None:
-    expected = {"statistics.v1": "analysis", "spectrum.periodogram.v1": "analysis",
+    expected = {"procedural.generate.v1": "backend", "procedural.verify.v1": "verification",
+                "statistics.v1": "analysis", "spectrum.periodogram.v1": "analysis",
                 "fsrt.tank-reconstruct.v1": "state_estimator",
                 "fsrt.tank-reconstruct.v2": "state_estimator",
                 "ciw.simulated-fsrt.v1": "state_estimator",
@@ -76,7 +84,9 @@ def validate_payload(operation_id: str, data: dict, run: dict, parameters: dict,
     if not isinstance(data, dict):
         raise ValueError("Operation data must be an object")
     finite_tree(data, "operation data")
-    if operation_id in {"statistics.v1", "spectrum.periodogram.v1"}:
+    if operation_id in {"procedural.generate.v1", "procedural.verify.v1"}:
+        from ..procedural_workflow import validate_payload as validator
+    elif operation_id in {"statistics.v1", "spectrum.periodogram.v1"}:
         from ..adapters.oscillator_records import validate_payload as validator
     elif operation_id == "fsrt.tank-reconstruct.v1":
         from ..adapters.fsrt_records import validate_payload as validator

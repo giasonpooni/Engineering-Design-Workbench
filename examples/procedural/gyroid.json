@@ -1,0 +1,54 @@
+{
+  "schema": "ciw.procedural-request.v1",
+  "definition": {
+    "expression": "abs(sin(k*x)*cos(k*y)+sin(k*y)*cos(k*z)+sin(k*z)*cos(k*x))-tau",
+    "parameters": {
+      "k": {
+        "value": 2.0,
+        "minimum": 1.0,
+        "maximum": 6.0
+      },
+      "tau": {
+        "value": 0.5,
+        "minimum": 0.1,
+        "maximum": 0.6
+      }
+    }
+  },
+  "domain": {
+    "bounds": [
+      [
+        -1.0,
+        1.0
+      ],
+      [
+        -1.0,
+        1.0
+      ],
+      [
+        -1.0,
+        1.0
+      ]
+    ],
+    "resolution": 16,
+    "units": "normalized_length",
+    "frame": "procedural.local_xyz.v1"
+  },
+  "surface": {
+    "isovalue": 0.0,
+    "convention": "negative_inside"
+  },
+  "appearance": {
+    "base_color": [
+      0.22,
+      0.68,
+      0.76
+    ],
+    "roughness": 0.45,
+    "metallic": 0.2
+  },
+  "verification": {
+    "field_tolerance": 0.2,
+    "require_closed": false
+  }
+}

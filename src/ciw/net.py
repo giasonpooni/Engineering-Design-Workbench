@@ -116,6 +116,9 @@ def _node(name: str, operation: str, dependencies: list[str] | None = None) -> d
 
 def main(argv: list[str] | None = None) -> int:
     argv = list(sys.argv[1:] if argv is None else argv)
+    if argv and argv[0] == "graphics":
+        from .procedural_cli import main as graphics_main
+        return graphics_main(argv[1:])
     if argv and argv[0] == "rewrite":
         from .rewrite_cli import main as rewrite_main
         return rewrite_main(argv[1:])
@@ -230,6 +233,7 @@ def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(prog="net", description=__doc__)
     commands = parser.add_subparsers(dest="command", required=True)
     commands.add_parser("polymer", help="Assess retained molding cycles, inspect metrology and run numerical audits")
+    commands.add_parser("graphics", help="Author visual geometry and textures, inspect artifacts and replay retained runs")
     commands.add_parser("rewrite", help="Retain bounded typed hypergraph transformations and replay checks")
     commands.add_parser("compose", help="Compile typed wiring and checked stages into existing NET graphs")
     commands.add_parser("dsp", help="Run and inspect the bounded specialist DSP instrument")

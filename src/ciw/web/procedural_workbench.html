@@ -1,0 +1,81 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>NET · Procedural workbench</title>
+  <link rel="stylesheet" href="/procedural_workbench.css">
+  <script defer src="/procedural_workbench.js"></script>
+</head>
+<body>
+  <header class="masthead">
+    <a class="brand" href="/" aria-label="NET procedural workbench home">NET <span>Procedural workbench</span></a>
+    <div class="masthead-actions"><span class="scope-label">Local graphics instrument</span><button id="contrast-toggle" class="quiet" type="button" aria-pressed="false">High contrast</button></div>
+  </header>
+  <main class="workspace">
+    <section class="authoring panel" aria-labelledby="authoring-title">
+      <div class="panel-heading"><div><p class="eyebrow">01 / Definition</p><h1 id="authoring-title">Notation to artifact</h1></div><span id="representation-chip" class="chip">Implicit field</span></div>
+      <p id="definition-intro" class="intro">Define a scalar field. Extract its declared isosurface on a bounded grid, inspect the checks, and retain a reproducible run.</p>
+      <label for="representation">Representation</label>
+      <select id="representation" disabled><option value="implicit">Implicit geometry</option><option value="surface">Parametric surface</option><option value="texture">Texture and shader</option></select>
+      <label for="example">Starting definition</label>
+      <select id="example" disabled><option>Loading examples…</option></select>
+      <div id="scalar-definition"><label for="expression">Field expression <span class="label-detail">f(x, y, z)</span></label><textarea id="expression" rows="4" spellcheck="false" autocapitalize="off" autocomplete="off" disabled aria-describedby="expression-help"></textarea></div>
+      <div id="vector-definition" hidden><label for="expression-0"><span id="channel-label-0">X(u, v)</span><textarea id="expression-0" rows="2" spellcheck="false" autocapitalize="off" autocomplete="off" disabled></textarea></label><label for="expression-1"><span id="channel-label-1">Y(u, v)</span><textarea id="expression-1" rows="2" spellcheck="false" autocapitalize="off" autocomplete="off" disabled></textarea></label><label for="expression-2"><span id="channel-label-2">Z(u, v)</span><textarea id="expression-2" rows="2" spellcheck="false" autocapitalize="off" autocomplete="off" disabled></textarea></label></div>
+      <p class="help" id="expression-help">Use explicit multiplication (*). Functions: sin, cos, abs, sqrt, min, max. Powers use ** with integer exponents 0–6. An isosurface samples f(x, y, z) = c.</p>
+      <div class="section-title"><h2>Parameters</h2><span class="help">Declared bounds</span></div>
+      <div id="parameters" class="parameters"></div>
+      <details class="parameter-add"><summary>Add a parameter</summary><div class="parameter-fields">
+        <label>Name<input id="parameter-name" type="text" maxlength="32" placeholder="radius" autocomplete="off"></label>
+        <label>Value<input id="parameter-value" type="number" value="1" step="any"></label>
+        <label>Minimum<input id="parameter-min" type="number" value="0.1" step="any"></label>
+        <label>Maximum<input id="parameter-max" type="number" value="2" step="any"></label>
+      </div><button id="parameter-add" type="button" class="secondary">Add parameter</button></details>
+      <div class="section-title"><h2>Extraction</h2><span class="help" id="domain-summary">Normalized length</span></div>
+      <div class="two-columns">
+        <label for="resolution"><span id="resolution-label">Grid resolution</span><input id="resolution" type="number" min="8" max="24" step="1" value="16" disabled></label>
+        <label id="resolution-second" for="resolution-2" hidden><span id="resolution-label-2">V resolution</span><input id="resolution-2" type="number" min="8" max="48" step="1" value="16" disabled></label>
+        <label id="isosurface-control" for="isovalue">Zero-level isosurface<input id="isovalue" type="number" value="0" readonly aria-describedby="isosurface-help"></label>
+      </div>
+      <p id="isosurface-help" class="help">The qualified convention is f(x, y, z) = 0, with negative values inside. To shift a surface, subtract an offset in the expression.</p>
+      <div id="geometry-verification" class="two-columns">
+        <label for="field-tolerance"><span id="verification-tolerance-label">Field residual tolerance</span><input id="field-tolerance" type="number" min="0.001" max="2" step="0.001" value="0.1" disabled></label>
+        <label class="checkbox" for="require-closed"><input id="require-closed" type="checkbox" checked disabled>Require a closed surface</label>
+      </div>
+      <p id="texture-verification" class="help" hidden>CPU raster verification requires byte-exact agreement with declared RGBA8 pixel-center sampling. GPU compilation and CPU byte checks are separate; GPU pixel equality is not established.</p>
+      <div id="periodic-controls" class="two-columns" hidden><label class="checkbox" for="periodic-u"><input id="periodic-u" type="checkbox">Periodic U seam</label><label class="checkbox" for="periodic-v"><input id="periodic-v" type="checkbox">Periodic V seam</label></div>
+      <details class="domain-details"><summary>Domain bounds</summary><div id="bounds" class="bounds"></div><p class="help">Coordinates use normalized length in a local Cartesian frame. They do not establish a manufacturing scale.</p></details>
+      <div class="section-title"><h2>Appearance</h2><span class="chip visual">Visual only</span></div>
+      <div class="appearance-controls">
+        <label id="surface-color-control" for="base-color">Surface color<input id="base-color" type="color" value="#58bfc5" disabled></label>
+        <label for="roughness">Roughness <output id="roughness-value">0.45</output><input id="roughness" type="range" min="0.05" max="1" step="0.01" value="0.45" disabled></label>
+        <label for="metallic">Metallic <output id="metallic-value">0.00</output><input id="metallic" type="range" min="0" max="1" step="0.01" value="0" disabled></label>
+      </div>
+      <p id="appearance-help" class="help">Appearance controls an approximate display shader. It supplies no composition, strength, or physical material model.</p>
+      <div class="run-actions"><button id="preview" class="secondary" type="button" disabled>Preview</button><button id="retain" class="primary" type="button" disabled>Retain run</button></div>
+      <label class="checkbox live-control"><input id="live-preview" type="checkbox" checked>Preview changes automatically</label>
+      <p id="authoring-status" class="help" role="status" aria-live="polite">Connecting to the local instrument…</p>
+    </section>
+    <section class="viewport-panel panel" aria-labelledby="viewport-title">
+      <div class="panel-heading"><div><p class="eyebrow">02 / Surface</p><h2 id="viewport-title">Geometry preview</h2></div><span id="artifact-mode" class="chip">No artifact</span></div>
+      <div class="viewport-wrap">
+        <canvas id="viewport" tabindex="0" aria-label="Interactive mesh viewport. Drag to orbit. Scroll to zoom. Arrow keys orbit, plus and minus zoom, Home resets."></canvas>
+        <img id="texture-raster" alt="Retained CPU texture raster at declared pixel-center samples" hidden>
+        <div id="viewport-empty" class="viewport-empty"><span class="empty-symbol" aria-hidden="true">∿</span><strong>Make the definition visible</strong><p>Choose an example and preview its sampled surface.</p></div>
+        <div id="viewport-error" class="viewport-error" hidden role="alert"></div>
+        <div class="viewport-legend"><span id="mesh-stat">No sampled mesh</span><span id="axis-key" class="axis-key"><i class="x">X</i><i class="y">Y</i><i class="z">Z</i></span></div>
+      </div>
+      <div class="viewport-toolbar"><span id="viewport-instructions">Drag to orbit · Scroll to zoom</span><div><label id="wireframe-control" class="checkbox"><input id="wireframe" type="checkbox">Edges</label><label id="cpu-raster-control" class="checkbox" hidden><input id="cpu-raster" type="checkbox">CPU raster</label><button id="reset-view" class="quiet" type="button">Reset view</button></div></div>
+      <p id="gpu-status" class="scope-note">Packaged visual shader · No physical material inference</p>
+      <p id="scope-note" class="scope-note">Sampled geometry · Normalized length · Continuous fidelity is not established · Self intersections are not checked</p>
+      <div id="error" class="error-message" hidden role="alert"></div>
+      <section class="checks" aria-labelledby="checks-title"><div class="section-title"><h2 id="checks-title">Artifact checks</h2><span id="verification-status" class="chip">Awaiting surface</span></div><div id="metrics" class="metrics"></div><div id="check-list" class="check-list"><p class="help">Checks appear after an extraction. Agreement with a sampled field is not physical validation.</p></div></section>
+      <details class="lineage" id="lineage"><summary>Definition and identity</summary><p id="lineage-intro" class="help">A preview is transient and carries no retained execution identity.</p><dl id="identities"></dl><pre id="display-definition"></pre></details>
+      <details class="lineage" id="shader-source-panel" hidden><summary>Generated GLSL and browser compilation</summary><p id="shader-diagnostics" class="help">Generated source is display code. GPU compilation is separate from retained CPU verification.</p><pre id="shader-source"></pre></details>
+      <div class="export-actions"><button id="export-obj" type="button" class="secondary" disabled>Export OBJ</button><button id="export-png" type="button" class="secondary" disabled hidden>Export PNG</button><button id="export-manifest" type="button" class="secondary" disabled>Export manifest</button><button id="export-json" type="button" class="secondary" disabled>Export JSON</button><span class="help">Retained, freshly verified runs only</span></div>
+    </section>
+    <aside class="history-panel panel" aria-labelledby="history-title"><div class="panel-heading"><div><p class="eyebrow">03 / History</p><h2 id="history-title">Retained runs</h2></div><button id="refresh-history" type="button" class="quiet" aria-label="Refresh retained runs">Refresh</button></div><p class="help">Reopen an artifact or execute its retained definition again. Replay reports numerical agreement separately from stored identity.</p><ol id="history" class="history"><li class="history-empty">No retained runs yet.</li></ol><div class="history-actions"><button id="replay" type="button" class="secondary" disabled>Replay selected run</button><button id="use-definition" type="button" class="quiet" disabled>Use its definition</button></div><p id="history-status" class="help" role="status" aria-live="polite"></p></aside>
+  </main>
+  <footer>NET · Algebraic authoring, retained computation, explicit checks. Visual output does not establish physical or manufacturing validity.</footer>
+</body>
+</html>

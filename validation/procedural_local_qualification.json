@@ -1,0 +1,388 @@
+{
+  "schema": "ciw.procedural-local-qualification.v1",
+  "status": "PASS",
+  "baseline_commit": "0895617dca19bc487cc6a2f91cb4ab6b68dac210",
+  "environment": {
+    "python": "3.12.14",
+    "platform": "Linux-6.18.44-x86_64-with-glibc2.39",
+    "numpy": "2.4.3",
+    "pytest": "9.0.2",
+    "zlib": "1.3.2"
+  },
+  "gates": {
+    "graphics-main-baseline": {
+      "tests": 233,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "junit_sha256": "sha256:dc2a720ab09d0c23e62f33c2978f33ef84869b3ed647a1403663c4b0df1a9800"
+    },
+    "graphics-final": {
+      "tests": 764,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "junit_sha256": "sha256:e1bdb02f552a2cb159e462b9cebef4846a1ee6b24c4a40cfbdc1ded948504280"
+    },
+    "graphics-domain-regression": {
+      "tests": 176,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "junit_sha256": "sha256:ac37edbec822bf293fd0ea7c8ba77c6e915cd7ec6929e2c1d22802121bdaa3e5"
+    }
+  },
+  "installed_cli": {
+    "status": "PASS",
+    "profiles": {
+      "sphere": {
+        "verification": "PASS",
+        "replay": "PASS",
+        "exports": [
+          "obj",
+          "json"
+        ],
+        "metrics": {
+          "vertex_count": 1730,
+          "triangle_count": 3456,
+          "boundary_edge_count": 0,
+          "component_count": 1,
+          "orientation_conflict_count": 0,
+          "nonmanifold_edge_count": 0,
+          "nonmanifold_vertex_count": 0,
+          "duplicate_triangle_count": 0,
+          "degenerate_triangle_count": 0,
+          "minimum_triangle_quality": 0.0476425035508011,
+          "surface_area": 6.074614764638888,
+          "bounding_box": [
+            [
+              -0.6972727272727273,
+              0.6972727272727273
+            ],
+            [
+              -0.6972727272727273,
+              0.6972727272727273
+            ],
+            [
+              -0.6972727272727273,
+              0.6972727272727273
+            ]
+          ],
+          "max_field_residual": 0.011716204986149614
+        },
+        "original_unchanged": true
+      },
+      "wave": {
+        "verification": "PASS",
+        "replay": "PASS",
+        "exports": [
+          "obj",
+          "json"
+        ],
+        "metrics": {
+          "vertex_count": 1265,
+          "triangle_count": 2380,
+          "boundary_edge_count": 148,
+          "component_count": 1,
+          "orientation_conflict_count": 0,
+          "nonmanifold_edge_count": 0,
+          "nonmanifold_vertex_count": 0,
+          "duplicate_triangle_count": 0,
+          "degenerate_triangle_count": 0,
+          "minimum_triangle_quality": 0.0047021137865646545,
+          "surface_area": 4.5350982182250625,
+          "bounding_box": [
+            [
+              -1.0,
+              1.0
+            ],
+            [
+              -1.0,
+              1.0
+            ],
+            [
+              -0.2999896757034747,
+              0.2999896757034747
+            ]
+          ],
+          "max_field_residual": 0.007156070616546509
+        },
+        "original_unchanged": true
+      },
+      "gyroid": {
+        "verification": "PASS",
+        "replay": "PASS",
+        "exports": [
+          "obj",
+          "json"
+        ],
+        "metrics": {
+          "vertex_count": 5178,
+          "triangle_count": 9672,
+          "boundary_edge_count": 684,
+          "component_count": 4,
+          "orientation_conflict_count": 0,
+          "nonmanifold_edge_count": 0,
+          "nonmanifold_vertex_count": 0,
+          "duplicate_triangle_count": 0,
+          "degenerate_triangle_count": 0,
+          "minimum_triangle_quality": 0.0007229263380135028,
+          "surface_area": 15.880612998248745,
+          "bounding_box": [
+            [
+              -1.0,
+              1.0
+            ],
+            [
+              -1.0,
+              1.0
+            ],
+            [
+              -1.0,
+              1.0
+            ]
+          ],
+          "max_field_residual": 0.03271853018569293
+        },
+        "original_unchanged": true
+      },
+      "parametric": {
+        "verification": "PASS",
+        "replay": "PASS",
+        "exports": [
+          "obj",
+          "json"
+        ],
+        "metrics": {
+          "vertex_count": 384,
+          "triangle_count": 768,
+          "boundary_edge_count": 0,
+          "component_count": 1,
+          "orientation_conflict_count": 0,
+          "nonmanifold_edge_count": 0,
+          "nonmanifold_vertex_count": 0,
+          "duplicate_triangle_count": 0,
+          "degenerate_triangle_count": 0,
+          "minimum_triangle_quality": 0.32979717992708096,
+          "surface_area": 5.5693042224549165,
+          "bounding_box": [
+            [
+              -0.8303917405462947,
+              0.8303917405462948
+            ],
+            [
+              -0.87,
+              0.87
+            ],
+            [
+              -0.4426830520415419,
+              0.4426830520415419
+            ]
+          ],
+          "max_field_residual": 0.0
+        },
+        "original_unchanged": true
+      },
+      "texture": {
+        "verification": "PASS",
+        "replay": "PASS",
+        "exports": [
+          "png",
+          "json"
+        ],
+        "metrics": {
+          "width": 128,
+          "height": 128,
+          "pixel_count": 16384,
+          "max_channel_byte_error": 0,
+          "png_bytes": 1175
+        },
+        "original_unchanged": true
+      }
+    },
+    "unsafe_notation_refused": true,
+    "excessive_resources_refused": true,
+    "command_count": 47,
+    "empty_surface_retained_as_refusal": true,
+    "physical_material_validation": "not_established"
+  },
+  "browser": {
+    "schema": "ciw.procedural-browser-qualification.v1",
+    "status": "PASS",
+    "checks": [
+      {
+        "name": "installed_loopback_browser_started",
+        "status": "PASS"
+      },
+      {
+        "name": "implicit_edit_preview_retain_export_replay_reopen",
+        "status": "PASS",
+        "artifact_digest": "sha256:6073a3e07d15e3ca707a4167cd4c11b4d53ad0ec25a138171d457bfc2431edc1"
+      },
+      {
+        "name": "surface_edit_preview_retain_export_replay_reopen",
+        "status": "PASS",
+        "artifact_digest": "sha256:17c083a8e0b3d0428f87e1778dd125dc54b4b643b42fe7d08cae0e69600fe3bb"
+      },
+      {
+        "name": "actual_generated_texture_shader_compiled",
+        "status": "PASS"
+      },
+      {
+        "name": "texture_edit_preview_retain_export_replay_reopen",
+        "status": "PASS",
+        "artifact_digest": "sha256:3dceb564625f24acef7b9494adeaf31882d3b666717fa09ab0525ad6bc11a03e"
+      },
+      {
+        "name": "invalid_notation_and_excess_resolution_refused_without_history_writes",
+        "status": "PASS"
+      },
+      {
+        "name": "prototype_named_parameter_and_constant_bounds_preserved",
+        "status": "PASS"
+      },
+      {
+        "name": "numerical_refusal_retained_without_invented_verification_or_export",
+        "status": "PASS"
+      },
+      {
+        "name": "actual_GPU_gradient_UV_orientation",
+        "status": "PASS",
+        "claim": "orientation_control_only_not_general_pixel_identity"
+      },
+      {
+        "name": "generated_shader_compile_failure_preserves_CPU_fallback",
+        "status": "PASS",
+        "fault": "transient_response_only"
+      },
+      {
+        "name": "no_WebGL_preserves_checked_CPU_texture_and_authoring",
+        "status": "PASS"
+      },
+      {
+        "name": "high_contrast_and_390px_mobile_without_horizontal_overflow",
+        "status": "PASS"
+      },
+      {
+        "name": "page_reload_reopens_all_retained_representations",
+        "status": "PASS"
+      }
+    ],
+    "playwright": "1.62.1",
+    "node": "v24.19.0",
+    "platform": "linux",
+    "gpu_scope": "actual_shader_compilation_and_display_only",
+    "cpu_pixel_verification": "independent_exported_RGBA8_and_PNG_binding",
+    "gpu_cpu_pixel_identity": "not_established",
+    "physical_validation": "not_established",
+    "state_admission": "not_performed",
+    "browser_version": "140.0.7339.186",
+    "gpu_observation": {
+      "renderer": "WebKit WebGL",
+      "vendor": "WebKit",
+      "unmasked_renderer": "ANGLE (Google, Vulkan 1.3.0 (SwiftShader Device (Subzero) (0x0000C0DE)), SwiftShader driver)",
+      "unmasked_vendor": "Google Inc. (Google)",
+      "fragment_high_float": {
+        "range_min": 127,
+        "range_max": 127,
+        "precision": 23
+      }
+    },
+    "gpu_gradient_orientation": {
+      "bottom_left": [
+        64,
+        191,
+        0,
+        255
+      ],
+      "bottom_right": [
+        192,
+        191,
+        0,
+        255
+      ],
+      "top_left": [
+        64,
+        63,
+        0,
+        255
+      ],
+      "top_right": [
+        192,
+        63,
+        0,
+        255
+      ],
+      "gl_error": 0
+    },
+    "browser_errors": []
+  },
+  "wheel": {
+    "filename": "computational_instrumentation_workbench-0.1.0-py3-none-any.whl",
+    "sha256": "sha256:dd1e35f02454bb2e67fadbb24e7670dcdbe8dcb3bdd26d4010aa26a234010ab7",
+    "all_366_installed_package_files_equal": true,
+    "graphics_source_equal": true
+  },
+  "source_file_sha256": {
+    ".github/workflows/procedural-graphics.yml": "sha256:653d4ebcc3d205ac01694531ecb1dcf667d9d5766da5da6f052e83d8c198eafe",
+    "scripts/check_procedural_installed.py": "sha256:5b791b42e1f60291a3f6f56021ae16b51a1a287393a1789b8d6cae2341ac7172",
+    "src/ciw/graphics_notation.py": "sha256:9c838faaafcaddd7959ef10839fb7806ca0360c4e178874bc703748efb1fd592",
+    "src/ciw/net.py": "sha256:8b54617a8ce8ef42f71af5d28d9ae75b1ccac1c577a46cb45ad6473179f73be6",
+    "src/ciw/operations/schemas.py": "sha256:41a8823eba2fffde462a4abb034226c9eba6a70c0dd90ce4b061c9eeb692256c",
+    "src/ciw/procedural_cli.py": "sha256:89d8520e180c1474178fb0c7055c48c1932783a93e61f43f96f4898cfeed17ae",
+    "src/ciw/procedural_compiler.py": "sha256:4d8c152fe2ddb3cba19c572678e36ba87018caae222fa4b805708a95a40a99a9",
+    "src/ciw/procedural_contract.py": "sha256:97e0d55eba32577ae894d612dd372d72e48613867575696447d5b269e90fa113",
+    "src/ciw/procedural_representation_verification.py": "sha256:a963a7dfb0a65b3acfd393b79a43c430b7e7207eb3045fccb48548138b40b1fb",
+    "src/ciw/procedural_server.py": "sha256:da2ec562cce82260bc788373f4700f8461d23b07cc1967a71ce4e7082f35ced8",
+    "src/ciw/procedural_surface.py": "sha256:8b51e2a8a8efe2e04168edd2b3d560c1b5d8e7f4c0a28fbbd62603f1caf8ceb6",
+    "src/ciw/procedural_texture.py": "sha256:120510ec4738bf7e56d11ff4839e87f622267886b6162e27c45b5d7e7626ea6b",
+    "src/ciw/procedural_verification.py": "sha256:e0058872f397dae6b8def8456b6ecaad2535f0b2971265b111a65b59fd8f6023",
+    "src/ciw/procedural_workflow.py": "sha256:d656aa70c35fab1b6b5d3b37eb0727e87fa975be0ace0a9c9253b87fb7fc0ffb",
+    "src/ciw/session.py": "sha256:c9439fb4152a7d8f74d329b6da755893077703ce7e335a23e01fdd1d5d154b71",
+    "src/ciw/web/procedural_workbench.css": "sha256:c1ae5d94c7d36a6f31d3bb21e0d2128699a5fe61f501d9566499aaddf047adcf",
+    "src/ciw/web/procedural_workbench.html": "sha256:89d5112546ba2040739c6784f479e8b812124587b3fa2cf67fd3fbed808095fc",
+    "src/ciw/web/procedural_workbench.js": "sha256:9e6bb5e9a5ff8beca82789472a565f997312a3737c64d55110dee727655742f7",
+    "tests/test_procedural_core.py": "sha256:cd13c535bd547f388ee17b5b30826bc6429c9d72cabc96ca39fa650965598e86",
+    "tests/test_procedural_integration_audit.py": "sha256:fc1a047739903525c7ae5f66c64ea965b214412a96168cf9290b76a852a63af9",
+    "tests/test_procedural_representation_verification.py": "sha256:b881689254c732fb893d4c783f9f82d86fccf70b0a35bc50a2b03387d52c36c5",
+    "tests/test_procedural_representations.py": "sha256:3db5b0f131db08f0781b6792483b17f7433faad6046bfdeca9ecf28efd8af0be",
+    "tests/test_procedural_verification.py": "sha256:d58b3b2d46fc3637f6a572401bb73c1b411a8e7a8425113dd47d4fd76c9acc5a",
+    "tests/test_procedural_workflow.py": "sha256:59b4709079169dd3045f599b64c0129a055e7a4be88ad67b9e65539add80d1f9",
+    "validation/procedural_browser.cjs": "sha256:746dd83bdc375ea0017228880909688a33cce698ea41591ad7f7208890ac78fc"
+  },
+  "source_fingerprint": "sha256:abe063b7b0ec6ee12e41fa88f1f69e623d834d01bdb57f7295374e2c987d5d87",
+  "screenshots_sha256": {
+    "high-contrast-desktop.png": "sha256:66ac429e6ae863932f45df44857a269640ac3f7e013cb9734f7a955136238735",
+    "high-contrast-mobile.png": "sha256:9eded0d457f4f7cf5821cb7d24a14afd985008761fe4705e7b4b7d8b6522e260",
+    "implicit-desktop.png": "sha256:5b21753bfc042ac52b3f4ae3044be23cc5aaf1408db1150a133f8ebc0e4ac681",
+    "shader-failure-cpu-fallback.png": "sha256:76f7f53987bede6d6dd08e9a5947b9fcc41a820075fd7054082172e2fcb84e83",
+    "surface-desktop.png": "sha256:809a1f30cade32ab9bc52ed12ba9de1b0d2e4ce9cf13aa13c6d1b4dc95d4ec59",
+    "texture-desktop.png": "sha256:6cf4d8d0d409f99cbbbca828528a6703f4dfe5a712e26d64cc844c9867b5798f"
+  },
+  "ready_to_expose": [
+    "bounded_implicit_mesh",
+    "bounded_parametric_mesh",
+    "bounded_CPU_RGBA8_texture",
+    "generated_GLSL_local_preview",
+    "retention_inspection_replay",
+    "OBJ_PNG_JSON_exports"
+  ],
+  "qualification_scope": "Observed Linux/Python 3.12/Chromium environment; finite CPU artifacts and browser workflow",
+  "additional_CI_matrix": {
+    "configured": [
+      "ubuntu-24.04",
+      "windows-latest",
+      "python3.11",
+      "python3.12"
+    ],
+    "local_matrix_execution": "not_performed"
+  },
+  "limits": [
+    "continuous_surface_fidelity_not_established",
+    "self_intersections_not_checked",
+    "GPU_pixel_identity_not_established",
+    "physical_material_validation_not_established",
+    "state_admission_not_performed",
+    "editable_polygon_tooling_and_unrestricted_GLSL_not_exposed"
+  ]
+}

@@ -1,0 +1,54 @@
+{
+  "schema": "ciw.procedural-request.v1",
+  "definition": {
+    "expression": "z-a*sin(k*x)*cos(k*y)",
+    "parameters": {
+      "a": {
+        "value": 0.3,
+        "minimum": 0.05,
+        "maximum": 0.6
+      },
+      "k": {
+        "value": 2.5,
+        "minimum": 1.0,
+        "maximum": 6.0
+      }
+    }
+  },
+  "domain": {
+    "bounds": [
+      [
+        -1.0,
+        1.0
+      ],
+      [
+        -1.0,
+        1.0
+      ],
+      [
+        -1.0,
+        1.0
+      ]
+    ],
+    "resolution": 16,
+    "units": "normalized_length",
+    "frame": "procedural.local_xyz.v1"
+  },
+  "surface": {
+    "isovalue": 0.0,
+    "convention": "negative_inside"
+  },
+  "appearance": {
+    "base_color": [
+      0.22,
+      0.68,
+      0.76
+    ],
+    "roughness": 0.45,
+    "metallic": 0.2
+  },
+  "verification": {
+    "field_tolerance": 0.15,
+    "require_closed": false
+  }
+}
