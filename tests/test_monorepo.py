@@ -25,7 +25,10 @@ def checkout(tmp_path):
     path = Path(temporary.name) / "monorepo"
     # Only immutable source objects are shared; each test owns its refs and index.
     try:
-        subprocess.run(["git", "clone", "--quiet", "--shared", str(ROOT), str(path)], check=True)
+        # Windows pytest paths can exceed MAX_PATH once full upstream fixtures
+        # are appended. Keep both settings local to this disposable clone.
+        subprocess.run(["git", "clone", "--quiet", "--shared", "--config", "core.longpaths=true",
+                        "--config", "core.autocrlf=false", str(ROOT), str(path)], check=True)
         # Gate sources may still be staged during development; copy just helper metadata.
         (path / "instruments/manifest.json").write_bytes((ROOT / "instruments/manifest.json").read_bytes())
         yield path
