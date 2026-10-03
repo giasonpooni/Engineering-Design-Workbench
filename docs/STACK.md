@@ -4,7 +4,7 @@ The concise provider and loose-tool map is [SYSTEMS_CATALOG.md](SYSTEMS_CATALOG.
 This page remains the detailed responsibility, boundary and numerical-foundation
 reference.
 
-Notation Systems Inc. is the parent organization for Notations Gaming, Notations Manufacturing and Notations Laboratories in the owner-declared parent/child company hierarchy. The computational instrumentation and evidence stack is shared infrastructure supporting these activity areas. Notations Gaming replaces the Cartesian Graphics studio label.
+Notation Systems Inc. is the parent organization for Notations Gaming, Notations Manufacturing and Notations Laboratories in the owner-declared parent/child company hierarchy. The computational instrumentation and evidence stack is shared infrastructure supporting these activity areas.
 
 Notation Systems Inc. is a scientific computing and systems engineering company developing computational instruments, software and interactive environments for understanding and building physical and virtual systems.
 
