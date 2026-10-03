@@ -8,8 +8,13 @@ from .control_contracts import load, save_new
 
 
 def main(argv=None):
+    argv = list(sys.argv[1:] if argv is None else argv)
+    if argv[:1] == ['pipeline']:
+        from .dsp_pipeline_cli import main as pipeline_main
+        return pipeline_main(argv[1:])
     parser=argparse.ArgumentParser(prog='net dsp',description=__doc__)
     commands=parser.add_subparsers(dest='command',required=True)
+    commands.add_parser('pipeline', help='Condition, diagnose and replay declared multichannel DSP pipelines')
     view=commands.add_parser('inspect'); view.add_argument('workspace',type=Path)
     for name in ('run','demo'):
         cmd=commands.add_parser(name)

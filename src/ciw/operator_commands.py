@@ -16,7 +16,7 @@ COMMANDS = (
     ('rewrite', 'rewrite_cli', 'Retain bounded typed hypergraph transformations and replay checks'),
     ('compose', 'workflow_cli', 'Compile typed wiring and checked stages into existing NET graphs'),
     ('fluid', 'fluid_cli', 'Run and independently check bounded synthetic reservoir and surface-wave models'),
-    ('dsp', 'dsp_workflow', 'Run and inspect the bounded specialist DSP instrument'),
+    ('dsp', 'dsp_workflow', 'Run native FIR or retained signal-conditioning and pump diagnostic pipelines'),
     ('impact', 'impact_cli', 'Run the bounded elastic contact benchmark with independent verification'),
     ('lab', 'preservation_experiments', 'Run bounded shared-preservation experiments'),
     ('foundry', 'foundry_workflow', 'Run explicit foundry workflows and childhood compilation'),
