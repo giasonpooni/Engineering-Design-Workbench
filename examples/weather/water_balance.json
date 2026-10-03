@@ -1,0 +1,26 @@
+{
+  "schema": "ciw.weather-request.v1",
+  "profile": "water_balance",
+  "context": {
+    "source_kind": "synthetic",
+    "source_ref": "NET weather example: water_balance"
+  },
+  "inputs": {
+    "initial_storage_mm": 40.0,
+    "capacity_mm": 100.0,
+    "infiltration_limit_mm_day": 25.0,
+    "drainage_fraction_per_day": 0.1,
+    "precipitation_mm_day": [
+      0.0,
+      50.0,
+      5.0,
+      0.0
+    ],
+    "potential_et_mm_day": [
+      4.0,
+      3.0,
+      4.0,
+      5.0
+    ]
+  }
+}

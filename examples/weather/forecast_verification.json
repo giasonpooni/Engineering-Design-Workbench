@@ -1,0 +1,28 @@
+{
+  "schema": "ciw.weather-request.v1",
+  "profile": "forecast_verification",
+  "context": {
+    "source_kind": "synthetic",
+    "source_ref": "NET weather example: forecast_verification"
+  },
+  "inputs": {
+    "forecast_k": [
+      280,
+      282,
+      281,
+      283
+    ],
+    "observation_k": [
+      281,
+      280,
+      281,
+      285
+    ],
+    "persistence_k": [
+      279,
+      281,
+      280,
+      281
+    ]
+  }
+}

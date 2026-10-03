@@ -1,0 +1,40 @@
+{
+  "schema": "ciw.weather-request.v1",
+  "profile": "storm_sounding",
+  "context": {
+    "source_kind": "synthetic",
+    "source_ref": "NET weather example: storm_sounding"
+  },
+  "inputs": {
+    "height_m": [
+      0,
+      1000,
+      2000,
+      3000
+    ],
+    "environment_virtual_temperature_k": [
+      300,
+      294,
+      288,
+      282
+    ],
+    "parcel_virtual_temperature_k": [
+      299,
+      296,
+      290,
+      281
+    ],
+    "eastward_wind_m_s": [
+      2,
+      6,
+      10,
+      14
+    ],
+    "northward_wind_m_s": [
+      0,
+      3,
+      6,
+      9
+    ]
+  }
+}

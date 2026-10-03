@@ -700,6 +700,8 @@ class Session:
         validate_impact_dependencies(result_map)
         from .atmosphere_workflow import validate_result_dependencies as validate_atmosphere_dependencies
         validate_atmosphere_dependencies(result_map)
+        from .weather_workflow import validate_result_dependencies as validate_weather_dependencies
+        validate_weather_dependencies(result_map)
         from .fluid_workflow import validate_result_dependencies as validate_fluid_dependencies
         validate_fluid_dependencies(result_map)
         from .polymer_workflow import validate_result_dependencies as validate_polymer_dependencies

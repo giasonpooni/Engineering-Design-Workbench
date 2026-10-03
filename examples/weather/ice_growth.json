@@ -1,0 +1,13 @@
+{
+  "schema": "ciw.weather-request.v1",
+  "profile": "ice_growth",
+  "context": {
+    "source_kind": "synthetic",
+    "source_ref": "NET weather example: ice_growth"
+  },
+  "inputs": {
+    "initial_thickness_m": 0.1,
+    "surface_temperature_c": -10.0,
+    "duration_days": 10.0
+  }
+}

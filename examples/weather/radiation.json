@@ -1,0 +1,18 @@
+{
+  "schema": "ciw.weather-request.v1",
+  "profile": "radiation",
+  "context": {
+    "source_kind": "synthetic",
+    "source_ref": "NET weather example: radiation"
+  },
+  "inputs": {
+    "toa_direct_normal_w_m2": 1361.0,
+    "diffuse_shortwave_w_m2": 80.0,
+    "downwelling_longwave_w_m2": 300.0,
+    "surface_temperature_k": 288.15,
+    "albedo": 0.25,
+    "emissivity": 0.97,
+    "optical_depth": 0.2,
+    "solar_cosine": 0.6
+  }
+}

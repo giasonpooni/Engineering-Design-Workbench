@@ -83,6 +83,18 @@ routes. The existing FlowState snapshot estimator and runtime pin remain
 unchanged; experimental validation and general molecular/CFD coupling remain
 unestablished.
 
+## Weather science tools
+
+`net weather catalog` exposes 12 bounded profiles for atmospheric thermodynamics,
+radiation, synoptic diagnostics, radar drop moments, numerical transport,
+evapotranspiration, water balance, snowmelt, polar energy, freshwater ice growth,
+storm soundings and forecast evaluation. Each runs through the existing Session
+with separate evidence, execution and numerical-verification identities, retained
+inspection and explicit replay. The [weather science guide](docs/WEATHER_SCIENCE.md)
+maps them to the ten requested York courses and provides examples and limitations.
+These are scoped numerical tools; operational forecasting and physical validation
+remain unestablished. The existing dry `net atmosphere` contracts are unchanged.
+
 ## Evolving workflow structures
 
 `net rewrite` adds an optional, bounded hypergraph computation model for ensemble

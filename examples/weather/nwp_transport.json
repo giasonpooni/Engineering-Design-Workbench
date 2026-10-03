@@ -1,0 +1,24 @@
+{
+  "schema": "ciw.weather-request.v1",
+  "profile": "nwp_transport",
+  "context": {
+    "source_kind": "synthetic",
+    "source_ref": "NET weather example: nwp_transport"
+  },
+  "inputs": {
+    "initial_scalar": [
+      0.0,
+      0.0,
+      0.25,
+      0.75,
+      1.0,
+      0.75,
+      0.25,
+      0.0
+    ],
+    "velocity_m_s": 10.0,
+    "cell_width_m": 1000.0,
+    "time_step_s": 50.0,
+    "steps": 8
+  }
+}

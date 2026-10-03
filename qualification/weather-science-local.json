@@ -1,0 +1,122 @@
+{
+  "schema": "ciw.weather-local-qualification.v1",
+  "base_commit": "d313351f96aad73fe40229b7d705b18c12e96b64",
+  "scope": "selected_numerical_and_retained_integration_tests_plus_installed_lifecycle",
+  "environment": {
+    "python": "3.12.14",
+    "system": "Linux",
+    "machine": "x86_64"
+  },
+  "tests": {
+    "tests": 705,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "installed": {
+    "status": "PASS",
+    "profiles": {
+      "thermodynamics": {
+        "status": "PASS",
+        "evidence_id": "sha256:3c60c19393ed67fbdd35d256d1696f7c36d87cdbe8e57dffc3351e046e24b3b6",
+        "result_digest": "sha256:95dc10afae0f33c12fbd02a289100cd54c491668d6cde998ab7d8bc668fb0d7c",
+        "checks": 10
+      },
+      "radiation": {
+        "status": "PASS",
+        "evidence_id": "sha256:03406d93c5f125dd10f305ac7b17be0c065f84b938a20d33c432672664b1f070",
+        "result_digest": "sha256:f590bfd068b081520de22c3fc972f17700be80581c0f0e0c58e46e6bbbb4d2f0",
+        "checks": 9
+      },
+      "radar_cloud": {
+        "status": "PASS",
+        "evidence_id": "sha256:ad12830af67dcec640b32b6e7f9102e72641f07958fb0526c184b625cc27370b",
+        "result_digest": "sha256:d30044b7060793179fc0ea5dced126dfeea6aff181d51e8953cf586d5099d1b8",
+        "checks": 7
+      },
+      "synoptic": {
+        "status": "PASS",
+        "evidence_id": "sha256:941daac36282d984aeab69edb06dcab935b0d88fe8894cabb672f3304d8e6f00",
+        "result_digest": "sha256:5bca60a0018fe6e1439e7faecbd90c1e24b9053861d61156909ca881f2ac9aab",
+        "checks": 10
+      },
+      "nwp_transport": {
+        "status": "PASS",
+        "evidence_id": "sha256:723684095d0c6f263bf410e53ab794bd9abc2fc2f1edb28381a1fb5b6d1274c3",
+        "result_digest": "sha256:00005ff0e4e22034cab65fd538e71ffe790cf218d0a8dadc31bd0a7c2ae2f10f",
+        "checks": 11
+      },
+      "evapotranspiration": {
+        "status": "PASS",
+        "evidence_id": "sha256:e7c874a8bdc59d605ddc2155f2bd2b18ab2bafbb425e52d9f2d8260c0574c189",
+        "result_digest": "sha256:55882ebdfd7bea152c19a2417f35787fce943bad7cb6c9821dbefbef5d78b4fd",
+        "checks": 9
+      },
+      "water_balance": {
+        "status": "PASS",
+        "evidence_id": "sha256:84648b52cfd2c4160e348cccff67749436b4e4a2b418048b29b2b14801bfe717",
+        "result_digest": "sha256:29310222da01669bc60ec72f01ae60609f0669f543359f29cfd505466bda1a6c",
+        "checks": 13
+      },
+      "snow_ice": {
+        "status": "PASS",
+        "evidence_id": "sha256:e6ebfdb9001025439d856bf6826f3bf32b4aa5ca3a52057fc856f6425c5185ac",
+        "result_digest": "sha256:ec4e30da27f681f380a28c06231c1ba9834b76c79107007d75e5de6f3857e97a",
+        "checks": 11
+      },
+      "polar_radiation": {
+        "status": "PASS",
+        "evidence_id": "sha256:a9b017ebb4fe703fb2f6349703f7918556284217399d5cea1d37dd3534a22c56",
+        "result_digest": "sha256:c488b484d0f803171405d7c1d93259ebf36f8d53e34b0778526a679b38d0d15f",
+        "checks": 12
+      },
+      "ice_growth": {
+        "status": "PASS",
+        "evidence_id": "sha256:9c99fabbeda6a534acdadf66b3b7104f55ca047ade0faf2a4d93d25b77d5d87a",
+        "result_digest": "sha256:563487ffcba9311c7b6624219c7dd6bf8b1bb2c90395eb70f09465abfd1ef532",
+        "checks": 6
+      },
+      "storm_sounding": {
+        "status": "PASS",
+        "evidence_id": "sha256:75477c761c0415ddf7ce599e6a10f966e2968189970e761cc47ac3b70f8592a3",
+        "result_digest": "sha256:4cdca04f80edb3f9a2c8c2ea9ac497572724a527edd419eb85de84e5a4f54d15",
+        "checks": 10
+      },
+      "forecast_verification": {
+        "status": "PASS",
+        "evidence_id": "sha256:a4ff8a6bc9319cd023484ed5d29c6241fcc46d090e9192f8b32be074f441bcf4",
+        "result_digest": "sha256:5f760c7bce081a1c5d82f4e8cd2485827b29bc4633fc3cf12b2cc42b2523c986",
+        "checks": 7
+      }
+    },
+    "cli_calls": 74,
+    "claim": "installed_numerical_lifecycle_only",
+    "physical_validation": "not_established"
+  },
+  "source_sha256": {
+    "scripts/check_weather_installed.py": "aff8921089ea4618b503314745f41eef2f435082ed7290e353ef795b444ec67d",
+    "src/ciw/operations/schemas.py": "92ff938a6e77c0af6766b5b4222c332ec229a483090d037c35997db557831636",
+    "src/ciw/operator_commands.py": "85ad9bee33520d2b9e0015a3152bc69ccfa32baf1ec6ceb7a92ae5577188cfcb",
+    "src/ciw/session.py": "ab75a4ab855f93e60a6ad39546a4960f24b358cd69dde18f0ab4cf787db034a1",
+    "src/ciw/weather_cli.py": "a9330d7ebd1c4bd5bbe8d7e7dae1f03135d7e5de7cd6ddb0d400876b60fab5a8",
+    "src/ciw/weather_contract.py": "b4ebf170a2f22852cf24c680dcaff9d9961197a9e4a1c8079aa719fc631d807e",
+    "src/ciw/weather_dynamics.py": "9897763df8ef6eb45ead37a560496296b2ecbbe292b11c3787b4b67be113cd45",
+    "src/ciw/weather_hydro.py": "c2b63d9f828e3f2242c7208dc93813c6fb5478cf354c79244d2b751da39641d4",
+    "src/ciw/weather_storm.py": "2dad1b23fd365556d0fdfdfa4857639a15fcea8c99d0810ac0355943f6cd45a9",
+    "src/ciw/weather_thermo.py": "46d7b58771882086298f089e8646f076ec005246342007dcdd0c93b2982868cc",
+    "src/ciw/weather_workflow.py": "dce2fda2fd6221c700d4557de1a2b6914bbd6c35d4bf750063e2ecc8fc615b49",
+    "tests/test_weather_dynamics.py": "949320c59f43146bb6a5b26a5159e45d8bb8d39a618a84fad699d9fdd7c8540b",
+    "tests/test_weather_hydro.py": "151401d67a50c09c6d6f669a00a7e0c325d1d2512ff11384161c2c2b17ec32fe",
+    "tests/test_weather_storm.py": "a3f4262acee7417937b15a938e27e174361a455cdae35ca7f69c7388dac3b9c0",
+    "tests/test_weather_thermo.py": "53e97d05a6123689a6be5d6bda8fb3ede6dc6f3eb7cee0b7db0e7ecfa59b7657",
+    "tests/test_weather_workflow.py": "3ce14d103f1ed5bfa63b93169d1f4851c04e3292bf87b410205247a01b088338"
+  },
+  "hosted_ci": "pending",
+  "physical_validation": "not_established",
+  "operational_forecast": "not_established",
+  "supplemental_operator_regression": {
+    "passed": 55,
+    "skipped": 1,
+    "skip_reason": "CIW_OPERATOR_MONOREPO native integration source is unavailable"
+  }
+}

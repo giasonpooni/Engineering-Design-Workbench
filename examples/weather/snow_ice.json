@@ -1,0 +1,31 @@
+{
+  "schema": "ciw.weather-request.v1",
+  "profile": "snow_ice",
+  "context": {
+    "source_kind": "synthetic",
+    "source_ref": "NET weather example: snow_ice"
+  },
+  "inputs": {
+    "initial_swe_mm": 50.0,
+    "snow_below_c": 0.0,
+    "rain_above_c": 2.0,
+    "precipitation_mm": [
+      10.0,
+      10.0,
+      5.0,
+      0.0
+    ],
+    "air_temperature_c": [
+      -5.0,
+      1.0,
+      4.0,
+      3.0
+    ],
+    "melt_energy_mj_m2": [
+      0.0,
+      0.334,
+      3.34,
+      33.4
+    ]
+  }
+}

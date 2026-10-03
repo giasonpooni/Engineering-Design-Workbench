@@ -1,0 +1,22 @@
+{
+  "schema": "ciw.weather-request.v1",
+  "profile": "synoptic",
+  "context": {
+    "source_kind": "synthetic",
+    "source_ref": "NET weather example: synoptic"
+  },
+  "inputs": {
+    "latitude_deg": 45.0,
+    "density_kg_m3": 1.2,
+    "pressure_gradient_east_pa_m": 0.001,
+    "pressure_gradient_north_pa_m": -0.002,
+    "wind_east_m_s": 15.0,
+    "wind_north_m_s": 5.0,
+    "du_dx_s1": 1e-05,
+    "du_dy_s1": -2e-05,
+    "dv_dx_s1": 3e-05,
+    "dv_dy_s1": -1e-05,
+    "temperature_gradient_east_k_m": 1e-05,
+    "temperature_gradient_north_k_m": -2e-05
+  }
+}
