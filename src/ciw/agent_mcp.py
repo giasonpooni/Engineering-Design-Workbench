@@ -20,7 +20,7 @@ from .session import loads_json
 from .control_plane import builtin_registry, experiment, plan_graph, ParameterSpace, Choice
 
 VERSIONS = ("2025-11-25", "2025-06-18")
-INSTRUMENTS = ("builtin", "polymer", "leakage")
+INSTRUMENTS = ("builtin", "polymer", "leakage", "temperature")
 MAX_MESSAGE = 1024 * 1024
 MAX_REQUESTS = 4096
 INSTRUCTIONS = (
@@ -201,6 +201,11 @@ def from_profile(path: Path, *, instrument: str = "builtin", leakage_backend=Non
     if instrument == "polymer":
         from .polymer_workflow import capability_registry
         registry = capability_registry(bind=bool(value["allow_operations"]))
+    elif instrument == "temperature":
+        from .temperature_workflow import capability_registry
+        if value["candidate_domains"] != {}:
+            raise ValueError("Temperature processing has no agent-editable calibration or acceptance parameters")
+        registry = capability_registry(bind=bool(value["allow_operations"]))
     elif instrument == "leakage":
         from .leakage_workflow import capability_registry
         if value["candidate_domains"] != {}:
@@ -277,6 +282,28 @@ def polymer_config(destination: Path, process: str = "injection_molding") -> Pat
     return destination / "profile.json"
 
 
+def temperature_config(destination: Path, request: dict | None = None) -> Path:
+    """Create synthetic temperature declarations and graph without processing."""
+    from .temperature_contract import example_request
+    from .temperature_workflow import PROCESS, make_source
+    request = example_request() if request is None else request
+    source = make_source(request)
+    graph = experiment("agent-temperature-processing", model_id="declared-affine-temperature.v1", nodes=[
+        {"node_id": "processing", "operation_id": PROCESS, "parameters": {}, "inputs": {}, "depends_on": []},
+    ])
+    destination = destination.expanduser().absolute()
+    destination.mkdir(parents=False, exist_ok=False)
+    save_new(destination / "request.json", request)
+    save_new(destination / "source.json", source)
+    save_new(destination / "experiment.json", graph)
+    profile = {"schema": "ciw.agent-host-profile.v1", "inputs": {
+        "source": "source.json", "baseline": "experiment.json"}, "output_dir": "agent-output",
+        "allow_operations": [PROCESS], "candidate_domains": {}, "comparisons": {}, "check_suites": {},
+        "max_executions": 8, "max_nodes": 1}
+    save_new(destination / "profile.json", profile)
+    return destination / "profile.json"
+
+
 def leakage_config(destination: Path, basis: str = "volume") -> Path:
     """Create synthetic declaration and typed wiring without native execution."""
     from .leakage_contract import example_request
@@ -321,6 +348,9 @@ def main(argv: list[str] | None = None) -> int:
     command = subs.add_parser("leakage-config", help="Create a synthetic two-operation leakage profile and typed graph")
     command.add_argument("--output-dir", type=Path, required=True)
     command.add_argument("--basis", choices=("volume", "mass"), default="volume")
+    command = subs.add_parser("temperature-config", help="Create a temperature-processing profile; synthetic unless --request is supplied")
+    command.add_argument("--output-dir", type=Path, required=True)
+    command.add_argument("--request", type=Path, help="Operator-selected temperature request JSON; data only")
     args = parser.parse_args(argv)
     try:
         if args.command == "demo-config":
@@ -331,6 +361,9 @@ def main(argv: list[str] | None = None) -> int:
             return 0
         if args.command == "leakage-config":
             print(leakage_config(args.output_dir, args.basis))
+            return 0
+        if args.command == "temperature-config":
+            print(temperature_config(args.output_dir, None if args.request is None else parse(_read(args.request))))
             return 0
         leakage_backend = None
         if args.instrument == "leakage":

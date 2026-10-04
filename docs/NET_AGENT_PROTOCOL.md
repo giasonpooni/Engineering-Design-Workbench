@@ -69,6 +69,39 @@ transport or physical acceptance. A completed graph and a numerical audit PASS
 remain separate from the part's conformity decision. See the
 [polymer operating guide](POLYMER_PROCESSING.md) for their scientific scope.
 
+### Temperature measurement-processing profile
+
+The temperature profile processes one declared affine sensor/readout chain with
+full joint raw/calibration covariance. It retains calibrated sensor temperature
+and any declared installed-correction polymer estimate separately. Physical
+qualification and traceability remain `not_established`; SP1 proof generation
+and PINN inference are not performed.
+
+```sh
+python -m ciw.agent_mcp temperature-config --output-dir temperature-agent
+python -m ciw.agent_mcp serve --instrument temperature --profile /absolute/path/temperature-agent/profile.json
+```
+
+The default request is synthetic with an intentionally incomplete uncertainty
+budget, so numerical processing does not yield an acceptance pass. To bind an
+operator-prepared request, add `--request /absolute/path/request.json` to
+`temperature-config`. This input must satisfy the processing contract; the
+[pilot setup template](../examples/temperature/pilot-setup.json) is a separate
+planning record and is not an executable request. Profiles freeze the supplied
+source; editing `request.json` later does not alter that source.
+
+Discover with `net_capabilities`, then call `net_execute` with source `source`,
+graph `baseline`, and a fresh attempt identifier. The sole operation is
+`metrology.temperature.process.v1`. `net_replay` creates fresh execution/result
+identities; retry preserves the earlier response. Read-only workspace restoration
+checks structure and commitments without rerunning processing or proving it.
+Calibration and acceptance rules cannot be varied through candidate parameters.
+
+Commitments cover canonical structured observation declarations, not original
+acquisition file bytes or authenticated origin. The complete qualification
+protocol and the future optional SP1 boundary are described in
+[TEMPERATURE_QUALIFICATION.md](TEMPERATURE_QUALIFICATION.md).
+
 ### Grok Build
 
 The official Grok Build CLI documents local stdio MCP server registration:
