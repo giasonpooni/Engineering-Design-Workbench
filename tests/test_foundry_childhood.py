@@ -1,8 +1,11 @@
 from copy import deepcopy
 import json
 from pathlib import Path
+import re
+import subprocess
 import pytest
-from ciw.foundry_childhood import evaluate_data,policy,bounded_state_equal
+from ciw.control_contracts import bytes_ref
+from ciw.foundry_childhood import ChildhoodBinding,evaluate_data,policy,bounded_state_equal,source
 
 @pytest.fixture
 def captured():
@@ -39,3 +42,46 @@ def test_numeric_json_bound_does_not_erase_identity():
     assert not bounded_state_equal({'tick':1},{'tick':True})
     assert not bounded_state_equal({'id':'a'},{'id':'b'})
     assert not bounded_state_equal({'x':0.1},{'x':0.1+1e-6})
+
+
+@pytest.mark.parametrize('newline', [b'\n', b'\r\n'], ids=['LF', 'CRLF'])
+@pytest.mark.parametrize('mutation', [None, 'project.godot', 'foundry/childhood_slice.gd'],
+                         ids=['unchanged', 'project-mutated', 'script-mutated'])
+def test_native_binding_preserves_project_bytes_and_detects_mutation(tmp_path, monkeypatch, newline, mutation):
+    game_root = tmp_path / 'source'
+    game = game_root / 'game'
+    (game / 'foundry').mkdir(parents=True)
+    original_project = newline.join([
+        '; UTF-8 comment: \u00e9'.encode('utf-8'), b'[application]', b'config/name="1792"', b'',
+    ])
+    (game / 'project.godot').write_bytes(original_project)
+    (game / 'foundry/childhood_slice.gd').write_bytes(b'extends SceneTree\n')
+    executable = tmp_path / 'godot'
+    executable.write_bytes(b'fake engine for adapter test')
+    binding = ChildhoodBinding(executable, game_root, bytes_ref(executable.read_bytes()))
+    calls = []
+
+    def fake_engine(command, **kwargs):
+        calls.append(command)
+        isolated_game = Path(command[command.index('--path') + 1])
+        isolated_project = (isolated_game / 'project.godot').read_bytes()
+        assert re.sub(rb'config/name="1792-foundry-[0-9a-f]{32}"',
+                      b'config/name="1792"', isolated_project) == original_project
+        assert b'config/name="1792"' not in isolated_project
+        if '--script' in command:
+            request = json.loads(Path(command[-2]).read_bytes())
+            Path(command[-1]).write_bytes(json.dumps(request).encode('utf-8'))
+            if mutation:
+                target = isolated_game / mutation
+                target.write_bytes(target.read_bytes() + b'; engine changed source\n')
+        return subprocess.CompletedProcess(command, 0, 'native test log\n', '')
+
+    monkeypatch.setattr('ciw.foundry_childhood.subprocess.run', fake_engine)
+    if mutation:
+        with pytest.raises(ValueError, match='^ENGINE_MUTATED_SOURCE$'):
+            binding.invoke(source(binding.lock), {'nonce': 'test-native-byte-preservation'})
+    else:
+        capture = binding.invoke(source(binding.lock), {'nonce': 'test-native-byte-preservation'})
+        assert capture['observations'] == capture['request']
+    assert len(calls) == 2
+    assert (game / 'project.godot').read_bytes() == original_project

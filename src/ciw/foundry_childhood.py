@@ -189,8 +189,10 @@ class ChildhoodBinding:
             for name,raw in self.sources.items():
                 path=root/name;path.parent.mkdir(parents=True,exist_ok=True);path.write_bytes(raw)
             project=root/'game/project.godot'
-            isolated=project.read_text().replace('config/name="1792"','config/name="1792-foundry-'+uuid.uuid4().hex+'"')
-            project.write_text(isolated)
+            # Keep the exact isolated bytes for the post-run source integrity check.
+            isolated=project.read_bytes().replace(b'config/name="1792"',
+                ('config/name="1792-foundry-'+uuid.uuid4().hex+'"').encode('utf-8'))
+            project.write_bytes(isolated)
             save_new(root/'request.json',request)
             logs=''
             commands=[['--headless','--path',str(root/'game'),'--editor','--import'],
@@ -206,7 +208,7 @@ class ChildhoodBinding:
             raw=(root/'observations.json').read_bytes()
             if len(raw)>512*1024: raise ValueError('CAPTURE_BUDGET')
             for name,original in self.sources.items():
-                expected=isolated.encode() if name=='game/project.godot' else original
+                expected=isolated if name=='game/project.godot' else original
                 if (root/name).read_bytes()!=expected: raise ValueError('ENGINE_MUTATED_SOURCE')
             data=json.loads(raw)
         self.runtime_identity()
