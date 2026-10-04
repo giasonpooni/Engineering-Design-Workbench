@@ -1,0 +1,194 @@
+name: NET one-time obsolete CI recovery
+
+on:
+  push:
+    branches: [codex/ci-queue-recovery-20261004]
+    paths: ['.github/workflows/net-ci-queue-recovery.yml']
+
+permissions: {}
+
+concurrency:
+  group: net-obsolete-ci-recovery-20261004
+  cancel-in-progress: false
+
+jobs:
+  cleanup:
+    if: github.repository == 'atomtrapping/Notations-Systems-Terminal' && github.ref == 'refs/heads/codex/ci-queue-recovery-20261004' && github.run_attempt == 1
+    runs-on: ubuntu-slim
+    timeout-minutes: 10
+    permissions:
+      actions: write
+      contents: read
+    steps:
+      - name: Cancel only the fixed obsolete run identities
+        uses: actions/github-script@ed597411d8f924073f98dfc5c65a23a2325f34cd # v8, Node 24
+        with:
+          retries: 0
+          script: |
+            const crypto = require('node:crypto');
+            
+            const REPO = 'atomtrapping/Notations-Systems-Terminal';
+            const PROTECTED = 'c9b4aa9fbd12583d6e1dc995f1044c7adc46e7ff';
+            const MANIFEST_HASH = 'eec299cacb22ddbde550c4156c4c305d164e7f7ac7e9790381a722aa0ac37182';
+            const ANCESTORS = new Set(['382fc8b16eea6d39420e66e41980d13718838d87', '26b3c9e09a5f4f7e69a5f15080e8ca466cd7e05b', '896b70d7d74f8fe759fcc4d7ac4db839362219a1']);
+            const BRANCHES = new Set(['codex/qualified-release-baseline', 'release/net-research-candidate', 'release/net-research-candidate-ci']);
+            const ACTIVE = new Set(['queued', 'in_progress', 'waiting', 'pending', 'requested']);
+            const FORCE = new Set([37161546318, 37161540950]);
+            const CLEANUP_REF = 'refs/heads/codex/ci-queue-recovery-20261004';
+            
+            function expectedRuns(raw) {
+              if (crypto.createHash('sha256').update(raw).digest('hex') !== MANIFEST_HASH) throw new Error('manifest_hash');
+              const manifest = JSON.parse(raw.toString('utf8'));
+              if (manifest.repository !== REPO || manifest.protected_candidate !== PROTECTED || manifest.expected_run_attempt !== 1) throw new Error('manifest_scope');
+              const result = new Map();
+              for (const group of manifest.groups) {
+                if (!ANCESTORS.has(group.head_sha) || !BRANCHES.has(group.branch) || !['push', 'pull_request'].includes(group.event)) throw new Error('manifest_identity');
+                for (const [id, filename] of group.runs) {
+                  if (!Number.isSafeInteger(id) || id <= 0 || result.has(id) || !/^[a-z0-9-]+\.yml$/.test(filename)) throw new Error('manifest_run');
+                  result.set(id, {id, head_sha: group.head_sha, head_branch: group.branch, event: group.event, path: '.github/workflows/' + filename, run_attempt: 1});
+                }
+              }
+              if (result.size !== 82 || new Set([...result.values()].map(run => run.head_sha)).size !== 3 || [...FORCE].some(id => !result.has(id))) throw new Error('manifest_count');
+              return result;
+            }
+            
+            function assertIdentity(run, expected, ownRunId) {
+              if (!run || run.head_sha === PROTECTED || run.id === ownRunId) throw new Error('protected_run');
+              if (run.repository?.full_name !== REPO || run.head_repository?.full_name !== REPO) throw new Error('repository_identity');
+              for (const field of ['id', 'head_sha', 'head_branch', 'event', 'path', 'run_attempt']) {
+                if (run[field] !== expected[field]) throw new Error('run_identity_' + field);
+              }
+              if (run.status !== 'completed' && !ACTIVE.has(run.status)) throw new Error('unknown_status');
+            }
+            
+            function assertStuckAggregate(run, jobs) {
+              if (!FORCE.has(run.id) || run.workflow_id !== 374051593 || run.name !== 'Installed operator readiness' || run.path !== '.github/workflows/operator-readiness.yml') throw new Error('force_scope');
+              if (jobs.total_count !== jobs.jobs?.length || jobs.jobs.length !== 3) throw new Error('force_job_count');
+              for (const job of jobs.jobs) {
+                if (job.run_id !== run.id || job.run_attempt !== 1 || job.head_sha !== run.head_sha || job.head_branch !== run.head_branch) throw new Error('force_job_identity');
+              }
+              const wheel = jobs.jobs.filter(job => job.name === 'candidate-wheel');
+              const aggregate = jobs.jobs.filter(job => job.name === 'operator-acceptance');
+              const journey = jobs.jobs.filter(job => job.name === 'installed-journey');
+              if (wheel.length !== 1 || aggregate.length !== 1 || journey.length !== 1 || wheel[0].status !== 'completed' || wheel[0].conclusion !== 'cancelled' || journey[0].status !== 'completed' || journey[0].conclusion !== 'cancelled' || aggregate[0].status !== 'queued' || aggregate[0].runner_id !== 0) throw new Error('force_not_stuck');
+            }
+            
+            function summary(run) {
+              return Object.fromEntries(['id', 'head_sha', 'head_branch', 'event', 'path', 'run_attempt', 'status', 'conclusion'].map(key => [key, run[key]]));
+            }
+            
+            async function recover({github, context, core, rawManifest, retain, sleep = ms => new Promise(resolve => setTimeout(resolve, ms))}) {
+              const expected = expectedRuns(rawManifest);
+              if (context.repo.owner + '/' + context.repo.repo !== REPO || context.ref !== CLEANUP_REF || context.eventName !== 'push' || context.runAttempt !== 1 || expected.has(context.runId)) throw new Error('execution_scope');
+              const report = {schema: 'net.hosted-ci-recovery.v1', repository: REPO, protected_candidate: PROTECTED, manifest_sha256: MANIFEST_HASH, cleanup_run_id: context.runId, cleanup_sha: context.sha, started_at: new Date().toISOString(), state: 'RUNNING', release_qualification: 'not_established', runs: {}};
+              const deadline = Date.now() + 480000;
+              const base = '/repos/' + REPO + '/actions/runs/';
+              const save = () => retain(report);
+              const request = async (method, id, suffix = '') => {
+                if (!expected.has(id) || id === context.runId || Date.now() >= deadline) throw new Error('request_scope_or_deadline');
+                if (method === 'POST' && suffix !== '/cancel' && !(suffix === '/force-cancel' && FORCE.has(id))) throw new Error('post_scope');
+                return github.request(method + ' ' + base + id + suffix, {headers: {'X-GitHub-Api-Version': '2026-03-10'}, request: {timeout: 30000}});
+              };
+              const get = async id => {
+                const run = (await request('GET', id)).data;
+                assertIdentity(run, expected.get(id), context.runId);
+                return run;
+              };
+              const readback = async (id, record, attempts = 3) => {
+                for (let n = 0; n < attempts; n++) {
+                  if (n) await sleep(2000);
+                  const after = await get(id);
+                  record.readbacks.push(summary(after));
+                  if (after.status === 'completed') {
+                    record.state = after.conclusion === 'cancelled' ? 'cancelled_confirmed' : 'completed_other_conclusion';
+                    save();
+                    return;
+                  }
+                  save();
+                }
+              };
+              save();
+              try {
+                // Revalidate both specifically observed always() blockers before any mutation.
+                for (const id of FORCE) {
+                  const run = await get(id);
+                  if (run.status !== 'completed') assertStuckAggregate(run, (await request('GET', id, '/jobs?per_page=100')).data);
+                }
+                const ordered = [...FORCE, ...expected.keys()].filter((id, index, all) => all.indexOf(id) === index);
+                for (const id of ordered) {
+                  const record = report.runs[id] = {expected: expected.get(id), state: 'reading', readbacks: []};
+                  save();
+                  if (FORCE.has(id)) {
+                    const before = await get(id);
+                    if (before.status !== 'completed') assertStuckAggregate(before, (await request('GET', id, '/jobs?per_page=100')).data);
+                  }
+                  // The exact run identity is read immediately before the sole permitted POST.
+                  const before = await get(id);
+                  record.before = summary(before);
+                  if (before.status === 'completed') {
+                    record.state = 'already_completed';
+                    save();
+                    continue;
+                  }
+                  record.method = FORCE.has(id) ? 'force-cancel' : 'cancel';
+                  record.state = 'request_pending';
+                  save();
+                  try {
+                    const response = await request('POST', id, '/' + record.method);
+                    record.response_status = response.status;
+                    record.state = 'completion_unconfirmed';
+                    save();
+                  } catch (error) {
+                    record.state = 'request_outcome_unknown';
+                    record.response_status = Number.isInteger(error.status) ? error.status : null;
+                    save();
+                    await readback(id, record, 1);
+                    throw new Error('post_failed_no_retry');
+                  }
+                  await readback(id, record);
+                  core.info(JSON.stringify({id, method: record.method, state: record.state}));
+                }
+                // One final observation pass; never repeat or escalate an uncertain POST.
+                const pending = Object.entries(report.runs).filter(([, record]) => record.state === 'completion_unconfirmed');
+                if (pending.length) await sleep(10000);
+                for (const [id, record] of pending) await readback(Number(id), record, 1);
+                report.state = Object.values(report.runs).every(record => ['already_completed', 'cancelled_confirmed', 'completed_other_conclusion'].includes(record.state)) ? 'COMPLETED' : 'UNCONFIRMED';
+              } catch (error) {
+                report.state = 'STOPPED';
+                // Never emit raw request errors, response bodies, headers or token diagnostics.
+                report.reason = /^[a-z_]+$/.test(error.message) ? error.message : 'api_or_runtime_failure';
+                report.error_status = Number.isInteger(error.status) ? error.status : null;
+              } finally {
+                report.finished_at = new Date().toISOString();
+                report.counts = {};
+                for (const record of Object.values(report.runs)) report.counts[record.state] = (report.counts[record.state] || 0) + 1;
+                report.not_attempted = [...expected.keys()].filter(id => !report.runs[id]);
+                save();
+                core.info(JSON.stringify({state: report.state, counts: report.counts, not_attempted: report.not_attempted.length}));
+                if (report.state !== 'COMPLETED') core.setFailed('Cleanup requires inspection of the retained report; no automatic retry.');
+              }
+              return report;
+            }
+            
+            const fs = require('node:fs');
+            const path = require('node:path');
+            const receiptPath = path.join(process.env.RUNNER_TEMP, 'net-ci-recovery', 'report.json');
+            fs.mkdirSync(path.dirname(receiptPath), {recursive: true});
+            await recover({
+              github,
+              context: {...context, runAttempt: Number(process.env.GITHUB_RUN_ATTEMPT)},
+              core,
+              rawManifest: Buffer.from("ewogICJyZXBvc2l0b3J5IjogImF0b210cmFwcGluZy9Ob3RhdGlvbnMtU3lzdGVtcy1UZXJtaW5hbCIsCiAgInByb3RlY3RlZF9jYW5kaWRhdGUiOiAiYzliNGFhOWZiZDEyNTgzZDZlMWRjOTk1ZjEwNDRjN2FkYzQ2ZTdmZiIsCiAgImV4cGVjdGVkX3N0YXR1cyI6ICJxdWV1ZWQiLAogICJleHBlY3RlZF9ydW5fYXR0ZW1wdCI6IDEsCiAgIm9ic2VydmVkX2F0X3V0YyI6ICIyMDI2LTEwLTA0VDAwOjA34oCTMDA6MTBaIiwKICAiZ3JvdXBzIjogWwogICAgewogICAgICAiYnJhbmNoIjogImNvZGV4L3F1YWxpZmllZC1yZWxlYXNlLWJhc2VsaW5lIiwKICAgICAgImhlYWRfc2hhIjogIjM4MmZjOGIxNmVlYTZkMzk0MjBlNjZlNDE5ODBkMTM3MTg4MzhkODciLAogICAgICAiZXZlbnQiOiAicHVsbF9yZXF1ZXN0IiwKICAgICAgInJ1bnMiOiBbCiAgICAgICAgWwogICAgICAgICAgMzcxNjE1NDA4ODMsCiAgICAgICAgICAic3ludGhldGljLWZzcnQtdmlldy55bWwiCiAgICAgICAgXSwKICAgICAgICBbCiAgICAgICAgICAzNzE2MTU0MDg2MCwKICAgICAgICAgICJuZXQtc2NpZW50aWZpYy55bWwiCiAgICAgICAgXSwKICAgICAgICBbCiAgICAgICAgICAzNzE2MTU0MDg1NiwKICAgICAgICAgICJnb2RvdC1tb3Rpb24ueW1sIgogICAgICAgIF0sCiAgICAgICAgWwogICAgICAgICAgMzcxNjE1NDA5MDAsCiAgICAgICAgICAiZ2FtZS1kZXZlbG9wbWVudC55bWwiCiAgICAgICAgXSwKICAgICAgICBbCiAgICAgICAgICAzNzE2MTU0MDg1NywKICAgICAgICAgICJpbnRlZ3JhdGVkLXdvcmtsb2Fkcy55bWwiCiAgICAgICAgXSwKICAgICAgICBbCiAgICAgICAgICAzNzE2MTU0MDg5MCwKICAgICAgICAgICJiaW0taW50ZXJvcC1ydW50aW1lLnltbCIKICAgICAgICBdLAogICAgICAgIFsKICAgICAgICAgIDM3MTYxNTQwOTE2LAogICAgICAgICAgInBlcnNpc3RlbnQtc2ltdWxhdGlvbi55bWwiCiAgICAgICAgXSwKICAgICAgICBbCiAgICAgICAgICAzNzE2MTU0MDk0OSwKICAgICAgICAgICJuZXQtbWF0aC12aXN1YWxzLnltbCIKICAgICAgICBdLAogICAgICAgIFsKICAgICAgICAgIDM3MTYxNTQwOTU3LAogICAgICAgICAgImNzci1taWNyb3Rvb2xzLnltbCIKICAgICAgICBdLAogICAgICAgIFsKICAgICAgICAgIDM3MTYxNTQxMTUyLAogICAgICAgICAgInBvbHlnbG90LWNvbnRyYWN0cy55bWwiCiAgICAgICAgXSwKICAgICAgICBbCiAgICAgICAgICAzNzE2MTU0MTE3MCwKICAgICAgICAgICJmc3J0LXZpZXcueW1sIgogICAgICAgIF0sCiAgICAgICAgWwogICAgICAgICAgMzcxNjE1NDA5NTAsCiAgICAgICAgICAib3BlcmF0b3ItcmVhZGluZXNzLnltbCIKICAgICAgICBdLAogICAgICAgIFsKICAgICAgICAgIDM3MTYxNTQwNTIzLAogICAgICAgICAgInNwYXRpYWwtcHJvdmlkZXIueW1sIgogICAgICAgIF0sCiAgICAgICAgWwogICAgICAgICAgMzcxNjE1NDA1NjksCiAgICAgICAgICAibmV0LWNvbXB1dGF0aW9uYWwtb2JqZWN0cy55bWwiCiAgICAgICAgXSwKICAgICAgICBbCiAgICAgICAgICAzNzE2MTU0MDYxMSwKICAgICAgICAgICJzaW11bGF0ZWQtZnNydC55bWwiCiAgICAgICAgXSwKICAgICAgICBbCiAgICAgICAgICAzNzE2MTU0MDY4NSwKICAgICAgICAgICJzaW11bGF0aW9uLXRpbWVsaW5lLnltbCIKICAgICAgICBdLAogICAgICAgIFsKICAgICAgICAgIDM3MTYxNTQwNzI2LAogICAgICAgICAgIm5ldC1hZ2VudC1tY3AueW1sIgogICAgICAgIF0sCiAgICAgICAgWwogICAgICAgICAgMzcxNjE1NDA3MzcsCiAgICAgICAgICAic2ltdWxhdGlvbi1zdHVkeS55bWwiCiAgICAgICAgXSwKICAgICAgICBbCiAgICAgICAgICAzNzE2MTU0MDc4OSwKICAgICAgICAgICJnb2RvdC1zdGF0ZWZ1bC55bWwiCiAgICAgICAgXSwKICAgICAgICBbCiAgICAgICAgICAzNzE2MTU0MDc5NywKICAgICAgICAgICJzdGF0ZWZ1bC1zaW11bGF0aW9uLnltbCIKICAgICAgICBdLAogICAgICAgIFsKICAgICAgICAgIDM3MTYxNTQwNzkxLAogICAgICAgICAgImdvZG90LW9ic2VydmF0aW9uLWNhcHR1cmUueW1sIgogICAgICAgIF0sCiAgICAgICAgWwogICAgICAgICAgMzcxNjE1NDA4NDcsCiAgICAgICAgICAiY3NlLXByZXNlcnZhdGlvbi10b29scy55bWwiCiAgICAgICAgXSwKICAgICAgICBbCiAgICAgICAgICAzNzE2MTU0MDgxOSwKICAgICAgICAgICJwb2x5bWVyLXByb2Nlc3NpbmcueW1sIgogICAgICAgIF0sCiAgICAgICAgWwogICAgICAgICAgMzcxNjE1NDA4MzAsCiAgICAgICAgICAibmV0LWNvbnRyb2wtcGxhbmUueW1sIgogICAgICAgIF0KICAgICAgXQogICAgfSwKICAgIHsKICAgICAgImJyYW5jaCI6ICJyZWxlYXNlL25ldC1yZXNlYXJjaC1jYW5kaWRhdGUiLAogICAgICAiaGVhZF9zaGEiOiAiMzgyZmM4YjE2ZWVhNmQzOTQyMGU2NmU0MTk4MGQxMzcxODgzOGQ4NyIsCiAgICAgICJldmVudCI6ICJwdXNoIiwKICAgICAgInJ1bnMiOiBbCiAgICAgICAgWwogICAgICAgICAgMzcxNjE1NDYzMTgsCiAgICAgICAgICAib3BlcmF0b3ItcmVhZGluZXNzLnltbCIKICAgICAgICBdCiAgICAgIF0KICAgIH0sCiAgICB7CiAgICAgICJicmFuY2giOiAicmVsZWFzZS9uZXQtcmVzZWFyY2gtY2FuZGlkYXRlLWNpIiwKICAgICAgImhlYWRfc2hhIjogIjM4MmZjOGIxNmVlYTZkMzk0MjBlNjZlNDE5ODBkMTM3MTg4MzhkODciLAogICAgICAiZXZlbnQiOiAicHVzaCIsCiAgICAgICJydW5zIjogWwogICAgICAgIFsKICAgICAgICAgIDM3MTYxNjM4NDU4LAogICAgICAgICAgIndvcmtmbG93LWNvbnRyYWN0cy55bWwiCiAgICAgICAgXSwKICAgICAgICBbCiAgICAgICAgICAzNzE2MTYzODQ2NCwKICAgICAgICAgICJsZWdpYmlsaXR5LnltbCIKICAgICAgICBdLAogICAgICAgIFsKICAgICAgICAgIDM3MTYxNjM4NDY5LAogICAgICAgICAgInJlbGVhc2UtZXZpZGVuY2UueW1sIgogICAgICAgIF0sCiAgICAgICAgWwogICAgICAgICAgMzcxNjE2Mzg0ODgsCiAgICAgICAgICAib3BlcmF0b3ItcmVhZGluZXNzLnltbCIKICAgICAgICBdLAogICAgICAgIFsKICAgICAgICAgIDM3MTYxNjM4NDg3LAogICAgICAgICAgImNhbGlicmF0ZWQtb2JzZXJ2YWJsZS55bWwiCiAgICAgICAgXSwKICAgICAgICBbCiAgICAgICAgICAzNzE2MTYzODU0OSwKICAgICAgICAgICJ0ZXN0LnltbCIKICAgICAgICBdLAogICAgICAgIFsKICAgICAgICAgIDM3MTYxNjM4NTQ4LAogICAgICAgICAgInN5c3RlbS1jb21wb3NpdGlvbi55bWwiCiAgICAgICAgXSwKICAgICAgICBbCiAgICAgICAgICAzNzE2MTYzODUyMSwKICAgICAgICAgICJwcm92ZWQtaGVhdC55bWwiCiAgICAgICAgXSwKICAgICAgICBbCiAgICAgICAgICAzNzE2MTYzODU1NSwKICAgICAgICAgICJpZGVudGlmaWVkLWRlc2lnbi55bWwiCiAgICAgICAgXSwKICAgICAgICBbCiAgICAgICAgICAzNzE2MTYzODU4MywKICAgICAgICAgICJtb25vcmVwby55bWwiCiAgICAgICAgXSwKICAgICAgICBbCiAgICAgICAgICAzNzE2MTYzODU0MiwKICAgICAgICAgICJyZWxlYXNlLW9wZXJhdG9yLnltbCIKICAgICAgICBdLAogICAgICAgIFsKICAgICAgICAgIDM3MTYxNjM4NTQ2LAogICAgICAgICAgImNhbGlicmF0ZWQtd2luZG93LnltbCIKICAgICAgICBdLAogICAgICAgIFsKICAgICAgICAgIDM3MTYxNjM4NDk4LAogICAgICAgICAgImRlY2xhcmVkLXdvcmtsb2Fkcy55bWwiCiAgICAgICAgXQogICAgICBdCiAgICB9LAogICAgewogICAgICAiYnJhbmNoIjogImNvZGV4L3F1YWxpZmllZC1yZWxlYXNlLWJhc2VsaW5lIiwKICAgICAgImhlYWRfc2hhIjogIjI2YjNjOWUwOWE1ZjRmN2U2OWE1ZjE1MDgwZThjYTQ2NmNkN2UwNWIiLAogICAgICAiZXZlbnQiOiAicHVsbF9yZXF1ZXN0IiwKICAgICAgInJ1bnMiOiBbCiAgICAgICAgWwogICAgICAgICAgMzcxNjA2NzM2NjAsCiAgICAgICAgICAicG9seWdsb3QtY29udHJhY3RzLnltbCIKICAgICAgICBdLAogICAgICAgIFsKICAgICAgICAgIDM3MTYwNjczNjgzLAogICAgICAgICAgInNpbXVsYXRpb24tdGltZWxpbmUueW1sIgogICAgICAgIF0sCiAgICAgICAgWwogICAgICAgICAgMzcxNjA2NzM2OTksCiAgICAgICAgICAiY3NlLXByZXNlcnZhdGlvbi10b29scy55bWwiCiAgICAgICAgXSwKICAgICAgICBbCiAgICAgICAgICAzNzE2MDY3MzY5MywKICAgICAgICAgICJzaW11bGF0ZWQtZnNydC55bWwiCiAgICAgICAgXSwKICAgICAgICBbCiAgICAgICAgICAzNzE2MDY3MzcyMCwKICAgICAgICAgICJjc3ItbWljcm90b29scy55bWwiCiAgICAgICAgXSwKICAgICAgICBbCiAgICAgICAgICAzNzE2MDY3MzcwNSwKICAgICAgICAgICJmc3J0LXZpZXcueW1sIgogICAgICAgIF0sCiAgICAgICAgWwogICAgICAgICAgMzcxNjA2NzM3NjAsCiAgICAgICAgICAibGVnaWJpbGl0eS55bWwiCiAgICAgICAgXSwKICAgICAgICBbCiAgICAgICAgICAzNzE2MDY3Mzc4NywKICAgICAgICAgICJwb2x5bWVyLXByb2Nlc3NpbmcueW1sIgogICAgICAgIF0sCiAgICAgICAgWwogICAgICAgICAgMzcxNjA2NzMzNzAsCiAgICAgICAgICAiaW50ZWdyYXRlZC13b3JrbG9hZHMueW1sIgogICAgICAgIF0sCiAgICAgICAgWwogICAgICAgICAgMzcxNjA2NzMzODcsCiAgICAgICAgICAibmV0LWNvbXB1dGF0aW9uYWwtb2JqZWN0cy55bWwiCiAgICAgICAgXSwKICAgICAgICBbCiAgICAgICAgICAzNzE2MDY3MzM5OCwKICAgICAgICAgICJzdGF0ZWZ1bC1zaW11bGF0aW9uLnltbCIKICAgICAgICBdLAogICAgICAgIFsKICAgICAgICAgIDM3MTYwNjczNDU2LAogICAgICAgICAgInNwYXRpYWwtcHJvdmlkZXIueW1sIgogICAgICAgIF0sCiAgICAgICAgWwogICAgICAgICAgMzcxNjA2NzM1MjgsCiAgICAgICAgICAiZ2FtZS1kZXZlbG9wbWVudC55bWwiCiAgICAgICAgXSwKICAgICAgICBbCiAgICAgICAgICAzNzE2MDY3MzUxNywKICAgICAgICAgICJzeW50aGV0aWMtZnNydC12aWV3LnltbCIKICAgICAgICBdLAogICAgICAgIFsKICAgICAgICAgIDM3MTYwNjczNTQxLAogICAgICAgICAgIm5ldC1tYXRoLXZpc3VhbHMueW1sIgogICAgICAgIF0sCiAgICAgICAgWwogICAgICAgICAgMzcxNjA2NzM1NzIsCiAgICAgICAgICAibmV0LXNjaWVudGlmaWMueW1sIgogICAgICAgIF0sCiAgICAgICAgWwogICAgICAgICAgMzcxNjA2NzM2NDUsCiAgICAgICAgICAiZ29kb3Qtc3RhdGVmdWwueW1sIgogICAgICAgIF0sCiAgICAgICAgWwogICAgICAgICAgMzcxNjA2NzM2MDAsCiAgICAgICAgICAic2ltdWxhdGlvbi1zdHVkeS55bWwiCiAgICAgICAgXSwKICAgICAgICBbCiAgICAgICAgICAzNzE2MDY3MzU1MSwKICAgICAgICAgICJiaW0taW50ZXJvcC1ydW50aW1lLnltbCIKICAgICAgICBdLAogICAgICAgIFsKICAgICAgICAgIDM3MTYwNjczNjU3LAogICAgICAgICAgImdvZG90LW9ic2VydmF0aW9uLWNhcHR1cmUueW1sIgogICAgICAgIF0sCiAgICAgICAgWwogICAgICAgICAgMzcxNjA2NzM2NDMsCiAgICAgICAgICAicGVyc2lzdGVudC1zaW11bGF0aW9uLnltbCIKICAgICAgICBdLAogICAgICAgIFsKICAgICAgICAgIDM3MTYwNjczNjc0LAogICAgICAgICAgIm5ldC1hZ2VudC1tY3AueW1sIgogICAgICAgIF0sCiAgICAgICAgWwogICAgICAgICAgMzcxNjA2NzM2MjUsCiAgICAgICAgICAibmV0LWNvbnRyb2wtcGxhbmUueW1sIgogICAgICAgIF0sCiAgICAgICAgWwogICAgICAgICAgMzcxNjA2NzM2NDcsCiAgICAgICAgICAiZ29kb3QtbW90aW9uLnltbCIKICAgICAgICBdCiAgICAgIF0KICAgIH0sCiAgICB7CiAgICAgICJicmFuY2giOiAiY29kZXgvcXVhbGlmaWVkLXJlbGVhc2UtYmFzZWxpbmUiLAogICAgICAiaGVhZF9zaGEiOiAiMjZiM2M5ZTA5YTVmNGY3ZTY5YTVmMTUwODBlOGNhNDY2Y2Q3ZTA1YiIsCiAgICAgICJldmVudCI6ICJwdXNoIiwKICAgICAgInJ1bnMiOiBbCiAgICAgICAgWwogICAgICAgICAgMzcxNjA2NzEyMjYsCiAgICAgICAgICAicmVsZWFzZS1ldmlkZW5jZS55bWwiCiAgICAgICAgXSwKICAgICAgICBbCiAgICAgICAgICAzNzE2MDY3MTE5NywKICAgICAgICAgICJjYWxpYnJhdGVkLXdpbmRvdy55bWwiCiAgICAgICAgXSwKICAgICAgICBbCiAgICAgICAgICAzNzE2MDY3MTE5MSwKICAgICAgICAgICJjYWxpYnJhdGVkLW9ic2VydmFibGUueW1sIgogICAgICAgIF0sCiAgICAgICAgWwogICAgICAgICAgMzcxNjA2NzExOTQsCiAgICAgICAgICAiZGVjbGFyZWQtd29ya2xvYWRzLnltbCIKICAgICAgICBdLAogICAgICAgIFsKICAgICAgICAgIDM3MTYwNjcxMjAxLAogICAgICAgICAgInByb3ZlZC1oZWF0LnltbCIKICAgICAgICBdLAogICAgICAgIFsKICAgICAgICAgIDM3MTYwNjcxMTkyLAogICAgICAgICAgInRlc3QueW1sIgogICAgICAgIF0sCiAgICAgICAgWwogICAgICAgICAgMzcxNjA2NzEyMDQsCiAgICAgICAgICAiaWRlbnRpZmllZC1kZXNpZ24ueW1sIgogICAgICAgIF0sCiAgICAgICAgWwogICAgICAgICAgMzcxNjA2NzExOTUsCiAgICAgICAgICAid29ya2Zsb3ctY29udHJhY3RzLnltbCIKICAgICAgICBdLAogICAgICAgIFsKICAgICAgICAgIDM3MTYwNjcxMjc4LAogICAgICAgICAgIm1vbm9yZXBvLnltbCIKICAgICAgICBdCiAgICAgIF0KICAgIH0sCiAgICB7CiAgICAgICJicmFuY2giOiAiY29kZXgvcXVhbGlmaWVkLXJlbGVhc2UtYmFzZWxpbmUiLAogICAgICAiaGVhZF9zaGEiOiAiODk2YjcwZDdkNzRmOGZlNzU5ZmNjNGQ3YWM0ZGI4MzkzNjIyMTlhMSIsCiAgICAgICJldmVudCI6ICJwdWxsX3JlcXVlc3QiLAogICAgICAicnVucyI6IFsKICAgICAgICBbCiAgICAgICAgICAzNzE1NjQ0NjY5OCwKICAgICAgICAgICJzdGF0ZWZ1bC1zaW11bGF0aW9uLnltbCIKICAgICAgICBdLAogICAgICAgIFsKICAgICAgICAgIDM3MTU2NDQ2NzYzLAogICAgICAgICAgImludGVncmF0ZWQtd29ya2xvYWRzLnltbCIKICAgICAgICBdLAogICAgICAgIFsKICAgICAgICAgIDM3MTU2NDQ2NzY2LAogICAgICAgICAgInBvbHlnbG90LWNvbnRyYWN0cy55bWwiCiAgICAgICAgXSwKICAgICAgICBbCiAgICAgICAgICAzNzE1NjQ0Njc5NCwKICAgICAgICAgICJuZXQtY29tcHV0YXRpb25hbC1vYmplY3RzLnltbCIKICAgICAgICBdLAogICAgICAgIFsKICAgICAgICAgIDM3MTU2NDQ2NzE3LAogICAgICAgICAgIm5ldC1jb250cm9sLXBsYW5lLnltbCIKICAgICAgICBdLAogICAgICAgIFsKICAgICAgICAgIDM3MTU2NDQ2ODE0LAogICAgICAgICAgInBlcnNpc3RlbnQtc2ltdWxhdGlvbi55bWwiCiAgICAgICAgXSwKICAgICAgICBbCiAgICAgICAgICAzNzE1NjQ0NjcwMywKICAgICAgICAgICJnb2RvdC1vYnNlcnZhdGlvbi1jYXB0dXJlLnltbCIKICAgICAgICBdLAogICAgICAgIFsKICAgICAgICAgIDM3MTU2NDQ2NzIyLAogICAgICAgICAgIm5ldC1zY2llbnRpZmljLnltbCIKICAgICAgICBdLAogICAgICAgIFsKICAgICAgICAgIDM3MTU2NDQ2Njk5LAogICAgICAgICAgInNpbXVsYXRlZC1mc3J0LnltbCIKICAgICAgICBdLAogICAgICAgIFsKICAgICAgICAgIDM3MTU2NDQ2ODExLAogICAgICAgICAgIm5ldC1tYXRoLXZpc3VhbHMueW1sIgogICAgICAgIF0sCiAgICAgICAgWwogICAgICAgICAgMzcxNTY0NDY4MjksCiAgICAgICAgICAiZnNydC12aWV3LnltbCIKICAgICAgICBdCiAgICAgIF0KICAgIH0KICBdCn0=", 'base64'),
+              retain(report) {
+                fs.writeFileSync(receiptPath + '.tmp', JSON.stringify(report, null, 2) + '\n', {mode: 0o600});
+                fs.renameSync(receiptPath + '.tmp', receiptPath);
+              }
+            });
+      - name: Retain the request and readback receipts
+        if: always()
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: net-ci-recovery-${{ github.run_id }}-${{ github.run_attempt }}
+          path: ${{ runner.temp }}/net-ci-recovery/report.json
+          if-no-files-found: error
+          retention-days: 14
