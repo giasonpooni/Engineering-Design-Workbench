@@ -67,6 +67,7 @@ def validate_role(operation_id: str, role: str) -> None:
                 "polymer.copilot-context.v1": "backend",
                 "polymer.control-simulate.v1": "backend",
                 "polymer.verify-cycle.v1": "verification",
+                "metrology.temperature.process.v1": "backend",
                 "leakage.assess-balance.v1": "backend",
                 "leakage.verify-balance.v1": "verification"}.get(operation_id)
     if expected is not None and role != expected:
@@ -126,6 +127,8 @@ def validate_payload(operation_id: str, data: dict, run: dict, parameters: dict,
         from ..polymer_workflow import validate_payload as validator
     elif operation_id in {"leakage.assess-balance.v1", "leakage.verify-balance.v1"}:
         from ..leakage_workflow import validate_payload as validator
+    elif operation_id == "metrology.temperature.process.v1":
+        from ..temperature_workflow import validate_payload as validator
     else:
         validator = _VALIDATORS.get(operation_id)
         if validator is None:

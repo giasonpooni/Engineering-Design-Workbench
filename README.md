@@ -46,6 +46,14 @@ through the existing pinned FlowState kernels, with full covariance, replay and
 independent numerical audits. The [leakage guide](docs/leakage.md) includes provider
 setup and runnable examples; an unaccounted deficit does not establish its cause.
 
+`python -m ciw.agent_mcp temperature-config --output-dir temperature-agent`
+prepares a synthetic temperature measurement-processing profile for the existing
+MCP interface. It preserves raw observations, joint calibration covariance and
+separate sensor/polymer estimates; incomplete budgets produce indeterminate
+acceptance. The [temperature pilot protocol](docs/TEMPERATURE_QUALIFICATION.md)
+records the physical experiments still required. See the
+[MCP launch instructions](docs/NET_AGENT_PROTOCOL.md#temperature-measurement-processing-profile).
+
 ## One repository, modular instruments
 
 The [engineering monorepo](docs/MONOREPO.md) co-locates 21 imported public modules

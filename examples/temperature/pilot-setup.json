@@ -1,0 +1,111 @@
+{
+  "schema": "ciw.temperature-pilot-plan.v1",
+  "status": "draft_requires_physical_setup_and_agreed_acceptance_criteria",
+  "purpose": "Planning record for one installed polymer heating-cycle temperature chain; not an executable processing request.",
+  "evidence_origin": "no_experimental_data_supplied",
+  "physical_qualification": "not_established",
+  "protocol": {
+    "version": null,
+    "owner": null,
+    "technical_reviewer": null,
+    "freeze_date": null,
+    "amendment_record": null
+  },
+  "measurand": {
+    "quantity": "polymer_temperature_during_heating_cycle",
+    "reported_unit": "K",
+    "target_location_and_coordinate_frame": null,
+    "spatial_averaging_convention": null,
+    "time_origin_and_averaging_convention": null,
+    "instrumented_or_undisturbed_polymer_target": null,
+    "polymer_grade_and_lot": null,
+    "specimen_geometry_and_conditioning": null,
+    "material_state_and_excluded_transitions": null,
+    "sensor_observation_label": "raw_observation",
+    "calibrated_output_label": "calibrated_sensing_element_temperature",
+    "installed_output_label": "local_polymer_temperature_estimate",
+    "optional_model_output_target": null
+  },
+  "measurement_chain": {
+    "sensor_type_model_serial": null,
+    "readout_model_serial_firmware": null,
+    "raw_quantity_and_unit": null,
+    "installation_method_and_drawing": null,
+    "position_tolerance": null,
+    "thermal_contact_and_insertion_assessment": null,
+    "calibration_record": null,
+    "reference_instrument_and_calibration_chain": null,
+    "reference_response_time_and_placement": null,
+    "acquisition_clock_and_alignment": null,
+    "original_acquisition_record_retention": null,
+    "authentication_contract_if_required": null
+  },
+  "operating_envelope": {
+    "temperature_range_K": null,
+    "heating_and_cooling_rate_range_K_per_s": null,
+    "cycle_profiles_and_duration_s": null,
+    "ambient_conditions": null,
+    "sampling_interval_s": null,
+    "allowed_timing_uncertainty_s": null,
+    "allowed_installations_devices_and_operators": null,
+    "missing_and_saturation_policy": null,
+    "unsupported_conditions_policy": "flag_or_refuse_until_separately_qualified"
+  },
+  "acceptance_criteria": {
+    "customer_decision_and_specification": null,
+    "required_uncertainty_K": null,
+    "coverage_convention_probability_and_factor": null,
+    "bias_and_error_limits_K": null,
+    "reproducibility_limit_K": null,
+    "reference_comparison_rule": null,
+    "operational_accept_reject_indeterminate_rule": null,
+    "pinn_gpinn_improvement_or_noninferiority_margin": null,
+    "evidence_completeness_review": "pending",
+    "physical_qualification_review": "pending"
+  },
+  "experiment_design": {
+    "independent_unit": "specimen_and_complete_heating_cycle",
+    "static_comparison_points_and_sequences": null,
+    "dynamic_profiles_and_conditions": null,
+    "replication_across_days_installations_operators_devices": null,
+    "randomization_and_blocking": null,
+    "preliminary_variance_estimates": null,
+    "confirmatory_sample_size_and_precision_power_rationale": null,
+    "development_tuning_and_confirmatory_split_manifest": null,
+    "split_constraint": "keep_specimens_and_cycles_grouped_and_final_reference_data_untouched",
+    "additional_held_out_day_lot_installation_groups": null,
+    "within_envelope_validation_conditions": null,
+    "separate_ood_stress_conditions": null,
+    "independent_instrument_or_laboratory_comparison": null
+  },
+  "uncertainty_evidence": {
+    "measurement_model_and_source_ledger": null,
+    "joint_raw_gain_offset_covariance_record": null,
+    "reference_and_fit_double_counting_review": null,
+    "resolution_noise_drift_hysteresis": null,
+    "installed_lag_gradients_contact_insertion_timing": null,
+    "correction_cross_covariance_assessment": null,
+    "model_discrepancy_and_condition_dependence": null,
+    "numerical_error_and_coverage_checks": null,
+    "excluded_effects_and_claim_limitations": null
+  },
+  "maintenance": {
+    "check_standards_and_schedule": null,
+    "control_limits_and_recalibration_triggers": null,
+    "version_and_installation_change_policy": null,
+    "as_found_as_left_records": null,
+    "affected_result_withdrawal_and_reprocessing_policy": null,
+    "responsible_owner": null
+  },
+  "optional_sp1": {
+    "status": "not_implemented",
+    "temperature_guest_identity": null,
+    "numerical_contract": null,
+    "verifier_public_output_binding": null,
+    "genuine_build_prove_verify_evidence": null,
+    "numerical_equivalence_and_negative_tests": null,
+    "workload_performance_and_cost": null,
+    "claim": "specified_processing_of_committed_inputs_only",
+    "physical_qualification_inferred": false
+  }
+}
